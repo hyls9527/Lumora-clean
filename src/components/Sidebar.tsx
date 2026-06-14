@@ -3,7 +3,6 @@ import { useAppStore } from "@/stores/app-store"
 import { cn } from "@/lib/utils"
 import {
   Image,
-  Star,
   BarChart3,
   Settings,
   Trash2,
@@ -107,7 +106,7 @@ export function Sidebar() {
             <StatRow
               label={t("sidebar.favorites")}
               value={stats.favorites}
-              icon={<Star className="w-3 h-3 text-accent" />}
+              icon={<span className="text-accent text-[10px]">★</span>}
             />
             <div className="border-t border-dotted" style={{ borderColor: "rgba(139,115,75,0.06)" }} />
             <StatRow label={t("sidebar.rated")} value={stats.rated} />
