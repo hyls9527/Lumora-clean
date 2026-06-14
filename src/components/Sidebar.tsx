@@ -48,7 +48,7 @@ export function Sidebar() {
       <div className="px-3 mb-1">
         <button
           className="w-full flex items-center gap-2 px-3 py-[7px] rounded-[8px] text-[13px] text-text-muted bg-bg hover:bg-surface-hover transition-colors"
-          onClick={() => {}}
+          onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
         >
           <Search className="w-3.5 h-3.5 opacity-40" />
           <span className="flex-1 text-left">{t("sidebar.search")}</span>

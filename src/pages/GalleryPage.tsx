@@ -1,3 +1,4 @@
+import { useEffect, useCallback } from "react"
 import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
 import { cn } from "@/lib/utils"
@@ -13,24 +14,87 @@ import {
 export function GalleryPage() {
   const { t } = useTranslation()
   const {
-    images,
-    searchQuery,
     sortBy,
     setSortBy,
     selectedIds,
     clearSelection,
     selectAll,
+    focusedIndex,
+    setFocusedIndex,
+    getFilteredImages,
+    toggleSelect,
+    deleteFocusedImage,
+    openFocusedImage,
   } = useAppStore()
 
-  const filteredImages = images.filter((img) => {
-    if (!searchQuery) return true
-    const q = searchQuery.toLowerCase()
-    return (
-      img.tags.some((tag) => tag.includes(q)) ||
-      img.path.toLowerCase().includes(q) ||
-      img.analysis?.generation?.prompt?.toLowerCase().includes(q)
-    )
-  })
+  const filteredImages = getFilteredImages()
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // Don't handle if command palette or input is focused
+    const target = e.target as HTMLElement
+    if (target.tagName === "INPUT" || target.closest("[data-slot='dialog-content']")) return
+
+    const len = filteredImages.length
+    if (len === 0) return
+
+    const cols = 4
+
+    switch (e.key) {
+      case "ArrowRight":
+        e.preventDefault()
+        setFocusedIndex(Math.min(focusedIndex + 1, len - 1))
+        break
+      case "ArrowLeft":
+        e.preventDefault()
+        setFocusedIndex(Math.max(focusedIndex - 1, 0))
+        break
+      case "ArrowDown":
+        e.preventDefault()
+        setFocusedIndex(Math.min(focusedIndex + cols, len - 1))
+        break
+      case "ArrowUp":
+        e.preventDefault()
+        setFocusedIndex(Math.max(focusedIndex - cols, 0))
+        break
+      case "Enter":
+        if (focusedIndex >= 0) {
+          e.preventDefault()
+          openFocusedImage()
+        }
+        break
+      case " ":
+        if (focusedIndex >= 0) {
+          e.preventDefault()
+          const img = filteredImages[focusedIndex]
+          if (img) toggleSelect(img.id)
+        }
+        break
+      case "Delete":
+      case "Backspace":
+        if (focusedIndex >= 0 && target.tagName !== "INPUT") {
+          e.preventDefault()
+          deleteFocusedImage()
+        }
+        break
+      case "Escape":
+        e.preventDefault()
+        clearSelection()
+        setFocusedIndex(-1)
+        break
+    }
+  }, [filteredImages, focusedIndex, setFocusedIndex, toggleSelect, deleteFocusedImage, openFocusedImage, clearSelection])
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [handleKeyDown])
+
+  // Clamp focused index when images change
+  useEffect(() => {
+    if (focusedIndex >= filteredImages.length && filteredImages.length > 0) {
+      setFocusedIndex(filteredImages.length - 1)
+    }
+  }, [filteredImages.length, focusedIndex, setFocusedIndex])
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -105,8 +169,8 @@ export function GalleryPage() {
           </div>
         ) : (
           <div className="grid grid-cols-4 gap-3">
-            {filteredImages.map((image) => (
-              <ImageCard key={image.id} image={image} />
+            {filteredImages.map((image, index) => (
+              <ImageCard key={image.id} image={image} focused={index === focusedIndex} />
             ))}
           </div>
         )}

@@ -6,9 +6,10 @@ import { useState } from "react"
 
 interface ImageCardProps {
   image: Image
+  focused?: boolean
 }
 
-export function ImageCard({ image }: ImageCardProps) {
+export function ImageCard({ image, focused }: ImageCardProps) {
   const { selectedIds, toggleSelect, toggleFavorite, setRating, setDetailImage } =
     useAppStore()
   const [isHovered, setIsHovered] = useState(false)
@@ -21,7 +22,8 @@ export function ImageCard({ image }: ImageCardProps) {
         "shadow-card hover:shadow-card-hover",
         "transition-all duration-100 ease-out",
         "hover:-translate-y-[1px]",
-        isSelected && "ring-2 ring-accent ring-offset-2 ring-offset-bg"
+        isSelected && "ring-2 ring-accent ring-offset-2 ring-offset-bg",
+        focused && !isSelected && "ring-2 ring-text-muted ring-offset-2 ring-offset-bg"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

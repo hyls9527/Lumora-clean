@@ -20,6 +20,11 @@ interface AppState {
   setSortBy: (s: "date" | "rating" | "size") => void
   detailImage: Image | null
   setDetailImage: (img: Image | null) => void
+  focusedIndex: number
+  setFocusedIndex: (i: number) => void
+  deleteFocusedImage: () => void
+  openFocusedImage: () => void
+  getFilteredImages: () => Image[]
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -39,4 +44,33 @@ export const useAppStore = create<AppState>((set, get) => ({
   setSortBy: (s) => set({ sortBy: s }),
   detailImage: null,
   setDetailImage: (img) => set({ detailImage: img }),
+  focusedIndex: -1,
+  setFocusedIndex: (i) => set({ focusedIndex: i }),
+  getFilteredImages: () => {
+    const s = get()
+    if (!s.searchQuery) return s.images
+    const q = s.searchQuery.toLowerCase()
+    return s.images.filter((img) =>
+      img.tags.some((tag) => tag.includes(q)) ||
+      img.path.toLowerCase().includes(q) ||
+      img.analysis?.generation?.prompt?.toLowerCase().includes(q)
+    )
+  },
+  deleteFocusedImage: () => {
+    const s = get()
+    const filtered = s.getFilteredImages()
+    const img = filtered[s.focusedIndex]
+    if (!img) return
+    s.deleteImage(img.id)
+    const newLen = filtered.length - 1
+    if (s.focusedIndex >= newLen && newLen > 0) {
+      set({ focusedIndex: newLen - 1 })
+    }
+  },
+  openFocusedImage: () => {
+    const s = get()
+    const filtered = s.getFilteredImages()
+    const img = filtered[s.focusedIndex]
+    if (img) set({ detailImage: img })
+  },
 }))

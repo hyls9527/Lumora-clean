@@ -3,6 +3,7 @@ import { useAppStore } from "@/stores/app-store"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Sidebar } from "@/components/Sidebar"
 import { DetailPanel } from "@/components/DetailPanel"
+import { CommandPalette } from "@/components/CommandPalette"
 import { GalleryPage } from "@/pages/GalleryPage"
 import { CurationPage } from "@/pages/CurationPage"
 import { DashboardPage } from "@/pages/DashboardPage"
@@ -34,6 +35,7 @@ function AppContent() {
       <Sidebar />
       {renderPage()}
       {detailImage && <DetailPanel />}
+      <CommandPalette />
     </div>
   )
 }

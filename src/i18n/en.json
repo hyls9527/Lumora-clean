@@ -108,6 +108,28 @@
       "frontend": "Frontend"
     }
   },
+  "commandPalette": {
+    "placeholder": "Type a command...",
+    "noResults": "No results found",
+    "sections": {
+      "navigation": "Navigation",
+      "actions": "Actions",
+      "sort": "Sort"
+    },
+    "commands": {
+      "selectAll": "Select All",
+      "clearSelection": "Clear Selection",
+      "deleteSelected": "Delete Selected",
+      "sortByDate": "Sort by Date",
+      "sortByRating": "Sort by Rating",
+      "sortBySize": "Sort by Size"
+    },
+    "hints": {
+      "navigate": "navigate",
+      "execute": "execute",
+      "close": "close"
+    }
+  },
   "trash": {
     "title": "Trash",
     "subtitle": "Deleted images",

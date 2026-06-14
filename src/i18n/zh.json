@@ -108,6 +108,28 @@
       "frontend": "前端"
     }
   },
+  "commandPalette": {
+    "placeholder": "输入命令...",
+    "noResults": "未找到结果",
+    "sections": {
+      "navigation": "导航",
+      "actions": "操作",
+      "sort": "排序"
+    },
+    "commands": {
+      "selectAll": "全选",
+      "clearSelection": "清除选择",
+      "deleteSelected": "删除所选",
+      "sortByDate": "按日期排序",
+      "sortByRating": "按评分排序",
+      "sortBySize": "按大小排序"
+    },
+    "hints": {
+      "navigate": "导航",
+      "execute": "执行",
+      "close": "关闭"
+    }
+  },
   "trash": {
     "title": "回收站",
     "subtitle": "已删除的图片",
