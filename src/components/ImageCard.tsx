@@ -5,24 +5,27 @@ import { useState } from "react"
 
 function PlumFlower({ filled }: { filled: boolean }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
       {[0, 72, 144, 216, 288].map(angle => (
         <ellipse
           key={angle}
-          cx="7" cy="3"
-          rx="2.5" ry="3.5"
-          transform={`rotate(${angle} 7 7)`}
+          cx="9" cy="3.5"
+          rx="3" ry="4.5"
+          transform={`rotate(${angle} 9 9)`}
           fill={filled ? 'var(--color-accent)' : 'none'}
-          stroke={filled ? 'none' : 'rgba(139,115,75,0.15)'}
-          strokeWidth="0.8"
+          stroke={filled ? 'none' : 'rgba(139,115,75,0.2)'}
+          strokeWidth="1"
         />
       ))}
       <circle
-        cx="7" cy="7" r="1.5"
-        fill={filled ? 'var(--color-accent)' : 'rgba(139,115,75,0.10)'}
+        cx="9" cy="9" r="2"
+        fill={filled ? 'var(--color-accent)' : 'rgba(139,115,75,0.12)'}
       />
+      {filled && (
+        <circle cx="9" cy="9" r="2" fill="var(--color-accent)" opacity="0.8" />
+      )}
     </svg>
-  )
+  );
 }
 
 interface ImageCardProps {

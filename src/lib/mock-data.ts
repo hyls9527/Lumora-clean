@@ -45,7 +45,7 @@ const TAG_SETS = [
   ["food", "sushi", "minimalist", "photography"],
 ]
 
-const ASPECT_RATIOS: AspectRatio[] = ['1/1', '4/3', '3/4', '16/9', '3/2']
+const ASPECT_RATIOS: AspectRatio[] = ['1/1', '4/3', '3/4', '16/9', '3/2', '2/3', '9/16', '1/1', '4/3']
 
 function rand(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1)) + min }
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)] }

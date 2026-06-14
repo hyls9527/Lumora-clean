@@ -53,12 +53,12 @@ export function CurationPage() {
         {currentImage ? (
           <div className="max-w-[640px] w-full text-center">
             {/* Counter */}
-            <p className="font-sans text-[11px] tracking-[0.16em] text-text-muted tabular-nums mb-6">
+            <p className="font-sans text-[11px] tracking-[0.16em] text-text-muted tabular-nums mb-8">
               {currentIndex + 1} / {images.length}
             </p>
 
             {/* Image wrapper */}
-            <div className="relative mb-6">
+            <div className="relative mb-8">
               <div className="rounded-[2px] overflow-hidden shadow-card border border-border">
                 <img
                   src={currentImage.thumbnail}

@@ -166,7 +166,7 @@ export function CommandPalette() {
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]">
       {/* Dark overlay backdrop */}
       <div
-        className="absolute inset-0 bg-black/20"
+        className="absolute inset-0 bg-black/35"
         onClick={closePalette}
       />
       {/* Panel */}
