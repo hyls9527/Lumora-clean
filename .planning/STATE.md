@@ -2,8 +2,8 @@
 gsd_state_version: 1
 project: Lumora
 milestone: v0.1-mvp
-phase: 001-ui-polish
-status: completed
+phase: 002-ancient-manuscript
+status: in_progress
 last_updated: '2026-06-14'
 ---
 
@@ -11,18 +11,19 @@ last_updated: '2026-06-14'
 
 ## Current Position
 - **Milestone:** v0.1 MVP Frontend
-- **Phase:** 001-ui-polish ✅ COMPLETE
-- **Progress:** 2/2 plans complete
+- **Phase:** 002-ancient-manuscript (古卷·灯火 UI 重写)
+- **Progress:** 0/4 plans complete
+
+## Design Direction
+- **Name:** 古卷·灯火 (Ancient Manuscript · Lamplight)
+- **Feeling:** 高级、克制、安静、宏大、神圣、怀旧、诗意、传说感
+- **Colors:** ivory #f2ede4 + ink #2a2118 + patina gold #8b6914
+- **Typography:** Noto Serif SC (titles) + DM Sans (body)
+- **Layout:** masonry waterfall, generous margins (40px)
 
 ## Completed Work
-- Wave 1: Design system alignment (4-layer shadows, 100ms transitions, DESIGN.md sync)
-- Wave 2: Command palette (⌘K) + gallery keyboard navigation
+- Phase 001: UI Polish (shadows, transitions, command palette, keyboard nav)
+- Design language v2 defined and validated with HTML demo
 
-## Verification
-- `npx tsc --noEmit`: 0 errors
-- `vite build`: clean (328 KB JS, 69 KB CSS)
-- Git: 3 commits on master
-
-## Next Phase
-- Phase 002: Feature Completion (search integration, drag-drop import, empty states, responsive)
-- Phase 003: Build & Verify (final audit, screenshots)
+## Next
+- Execute 4 plans: Foundation → Sidebar → Gallery → Remaining Pages
