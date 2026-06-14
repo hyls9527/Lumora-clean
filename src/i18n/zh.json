@@ -23,7 +23,9 @@
     "empty": {
       "title": "暂无图片",
       "subtitle": "导入图片开始使用"
-    }
+    },
+    "divider": "策展",
+    "loading": "研墨中…"
   },
   "detail": {
     "title": "详情",

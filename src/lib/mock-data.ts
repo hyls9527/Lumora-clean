@@ -1,3 +1,5 @@
+export type AspectRatio = '1/1' | '4/3' | '3/4' | '16/9' | '3/2'
+
 export interface Image {
   id: string
   path: string
@@ -10,6 +12,7 @@ export interface Image {
   favorite: boolean
   tags: string[]
   createdAt: string
+  aspectRatio: AspectRatio
   analysis?: {
     subject?: { characters?: string[]; features?: string[] }
     style?: { art_movement?: string[]; render_type?: string[]; quality_tags?: string[] }
@@ -42,6 +45,8 @@ const TAG_SETS = [
   ["food", "sushi", "minimalist", "photography"],
 ]
 
+const ASPECT_RATIOS: AspectRatio[] = ['1/1', '4/3', '3/4', '16/9', '3/2']
+
 function rand(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1)) + min }
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)] }
 
@@ -63,6 +68,7 @@ export function generateMockImages(count: number): Image[] {
       favorite: Math.random() > 0.8,
       tags: TAG_SETS[idx],
       createdAt: new Date(Date.now() - rand(0, 90 * 86400000)).toISOString(),
+      aspectRatio: ASPECT_RATIOS[i % ASPECT_RATIOS.length],
       analysis: {
         subject: { characters: TAG_SETS[idx].slice(0, 2), features: TAG_SETS[idx].slice(2) },
         style: { art_movement: [pick(["anime", "realistic", "impressionist", "cyberpunk"])], render_type: [pick(["digital", "oil", "photograph"])], quality_tags: ["masterpiece", "best quality"] },

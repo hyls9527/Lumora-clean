@@ -23,7 +23,9 @@
     "empty": {
       "title": "No images yet",
       "subtitle": "Import images to get started"
-    }
+    },
+    "divider": "Curation",
+    "loading": "Preparing..."
   },
   "detail": {
     "title": "Details",
