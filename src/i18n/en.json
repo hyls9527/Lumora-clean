@@ -1,0 +1,122 @@
+{
+  "sidebar": {
+    "gallery": "Gallery",
+    "curation": "Curation",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "trash": "Trash",
+    "search": "Search...",
+    "total": "Total",
+    "favorites": "Favorites",
+    "rated": "Rated"
+  },
+  "gallery": {
+    "sort": {
+      "date": "Date",
+      "rating": "Rating",
+      "size": "Size"
+    },
+    "selected": "selected",
+    "selectAll": "Select all",
+    "empty": {
+      "title": "No images yet",
+      "subtitle": "Import images to get started"
+    }
+  },
+  "detail": {
+    "title": "Details",
+    "fileInfo": "File Info",
+    "path": "Path",
+    "dimensions": "Dimensions",
+    "size": "Size",
+    "format": "Format",
+    "created": "Created",
+    "tags": "Tags",
+    "analysis": "Analysis",
+    "score": "Score",
+    "favorite": "Favorite",
+    "favorited": "Favorited",
+    "copyPath": "Copy path",
+    "addTag": "Add tag",
+    "delete": "Delete"
+  },
+  "curation": {
+    "title": "Curation",
+    "keep": "Keep",
+    "maybe": "Maybe",
+    "reject": "Reject",
+    "empty": {
+      "title": "Nothing to curate",
+      "subtitle": "Import images to start curating"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Library overview",
+    "totalImages": "Total Images",
+    "favorites": "Favorites",
+    "avgRating": "Avg Rating",
+    "totalSize": "Total Size",
+    "ratingDistribution": "Rating Distribution",
+    "formats": "Formats",
+    "topTags": "Top Tags"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Configure Lumora",
+    "tabs": {
+      "general": "General",
+      "appearance": "Appearance",
+      "shortcuts": "Shortcuts",
+      "about": "About"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Select your preferred language"
+    },
+    "storage": {
+      "title": "Storage",
+      "description": "Database and file storage",
+      "database": "Database",
+      "size": "Size",
+      "location": "Location"
+    },
+    "theme": {
+      "title": "Theme",
+      "description": "Choose your preferred theme",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "grid": {
+      "title": "Grid Columns",
+      "description": "Number of columns in gallery view"
+    },
+    "shortcuts": {
+      "title": "Keyboard Shortcuts",
+      "description": "Common keyboard shortcuts",
+      "search": "Search",
+      "selectAll": "Select all",
+      "delete": "Delete",
+      "favorite": "Toggle favorite",
+      "close": "Close panel"
+    },
+    "about": {
+      "title": "About Lumora",
+      "description": "Version and build information",
+      "version": "Version",
+      "engine": "Engine",
+      "frontend": "Frontend"
+    }
+  },
+  "trash": {
+    "title": "Trash",
+    "subtitle": "Deleted images",
+    "emptyAll": "Empty trash",
+    "deletedOn": "Deleted on",
+    "restore": "Restore",
+    "empty": {
+      "title": "Trash is empty",
+      "subtitle": "Deleted images will appear here"
+    }
+  }
+}

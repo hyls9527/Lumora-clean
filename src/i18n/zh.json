@@ -1,0 +1,122 @@
+{
+  "sidebar": {
+    "gallery": "图库",
+    "curation": "策展",
+    "dashboard": "仪表盘",
+    "settings": "设置",
+    "trash": "回收站",
+    "search": "搜索...",
+    "total": "总计",
+    "favorites": "收藏",
+    "rated": "已评分"
+  },
+  "gallery": {
+    "sort": {
+      "date": "日期",
+      "rating": "评分",
+      "size": "大小"
+    },
+    "selected": "已选择",
+    "selectAll": "全选",
+    "empty": {
+      "title": "暂无图片",
+      "subtitle": "导入图片开始使用"
+    }
+  },
+  "detail": {
+    "title": "详情",
+    "fileInfo": "文件信息",
+    "path": "路径",
+    "dimensions": "尺寸",
+    "size": "大小",
+    "format": "格式",
+    "created": "创建时间",
+    "tags": "标签",
+    "analysis": "分析",
+    "score": "评分",
+    "favorite": "收藏",
+    "favorited": "已收藏",
+    "copyPath": "复制路径",
+    "addTag": "添加标签",
+    "delete": "删除"
+  },
+  "curation": {
+    "title": "策展",
+    "keep": "保留",
+    "maybe": "待定",
+    "reject": "拒绝",
+    "empty": {
+      "title": "暂无可策展内容",
+      "subtitle": "导入图片开始策展"
+    }
+  },
+  "dashboard": {
+    "title": "仪表盘",
+    "subtitle": "图库概览",
+    "totalImages": "总图片数",
+    "favorites": "收藏数",
+    "avgRating": "平均评分",
+    "totalSize": "总大小",
+    "ratingDistribution": "评分分布",
+    "formats": "格式统计",
+    "topTags": "热门标签"
+  },
+  "settings": {
+    "title": "设置",
+    "subtitle": "配置 Lumora",
+    "tabs": {
+      "general": "通用",
+      "appearance": "外观",
+      "shortcuts": "快捷键",
+      "about": "关于"
+    },
+    "language": {
+      "title": "语言",
+      "description": "选择您的首选语言"
+    },
+    "storage": {
+      "title": "存储",
+      "description": "数据库和文件存储",
+      "database": "数据库",
+      "size": "大小",
+      "location": "位置"
+    },
+    "theme": {
+      "title": "主题",
+      "description": "选择您喜欢的主题",
+      "light": "浅色",
+      "dark": "深色"
+    },
+    "grid": {
+      "title": "网格列数",
+      "description": "图库视图的列数"
+    },
+    "shortcuts": {
+      "title": "键盘快捷键",
+      "description": "常用键盘快捷键",
+      "search": "搜索",
+      "selectAll": "全选",
+      "delete": "删除",
+      "favorite": "切换收藏",
+      "close": "关闭面板"
+    },
+    "about": {
+      "title": "关于 Lumora",
+      "description": "版本和构建信息",
+      "version": "版本",
+      "engine": "引擎",
+      "frontend": "前端"
+    }
+  },
+  "trash": {
+    "title": "回收站",
+    "subtitle": "已删除的图片",
+    "emptyAll": "清空回收站",
+    "deletedOn": "删除于",
+    "restore": "恢复",
+    "empty": {
+      "title": "回收站为空",
+      "subtitle": "删除的图片将显示在这里"
+    }
+  }
+}
