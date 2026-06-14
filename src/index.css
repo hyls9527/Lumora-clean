@@ -46,6 +46,11 @@
   --radius-lg: 6px;
   --radius-xl: 8px;
   --radius-button: 4px;
+
+  /* === FONT === */
+  --font-serif: 'Noto Serif SC', 'Georgia', serif;
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 body {
