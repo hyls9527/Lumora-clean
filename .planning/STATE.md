@@ -3,7 +3,7 @@ gsd_state_version: 1
 project: Lumora
 milestone: v0.1-mvp
 phase: 002-ancient-manuscript
-status: in_progress
+status: completed
 last_updated: '2026-06-14'
 ---
 
@@ -11,19 +11,26 @@ last_updated: '2026-06-14'
 
 ## Current Position
 - **Milestone:** v0.1 MVP Frontend
-- **Phase:** 002-ancient-manuscript (古卷·灯火 UI 重写)
-- **Progress:** 0/4 plans complete
+- **Phase:** 002-ancient-manuscript ✅ COMPLETE
+- **Progress:** 4/4 plans complete
+
+## Completed Work
+- Wave 1: Foundation (accent #7a5c12, radius 2px/4px, 200ms transitions, paper texture)
+- Wave 2: Sidebar (200px book spine, serif nav, gold line, dotted stats)
+- Wave 3: Gallery + ImageCard (masonry columns-4, plum flower rating, stamp favorite)
+- Wave 4: Remaining pages (directory dashboard, immersive curation, serif everything)
 
 ## Design Direction
 - **Name:** 古卷·灯火 (Ancient Manuscript · Lamplight)
-- **Feeling:** 高级、克制、安静、宏大、神圣、怀旧、诗意、传说感
-- **Colors:** ivory #f2ede4 + ink #2a2118 + patina gold #8b6914
+- **Colors:** ivory #f2ede4 + ink #2a2118 + patina gold #7a5c12
 - **Typography:** Noto Serif SC (titles) + DM Sans (body)
-- **Layout:** masonry waterfall, generous margins (40px)
+- **Rating:** PlumFlower SVG (梅花印)
+- **Layout:** Masonry waterfall, 40px margins
 
-## Completed Work
-- Phase 001: UI Polish (shadows, transitions, command palette, keyboard nav)
-- Design language v2 defined and validated with HTML demo
+## Known Issues
+- Command palette: search font should be serif, backdrop should be dark
+- Masonry: some images may load with same aspect ratio (Lorem Picsum)
+- Vision model reports stars instead of plum flowers (may be rendering issue)
 
 ## Next
-- Execute 4 plans: Foundation → Sidebar → Gallery → Remaining Pages
+- Phase 003: Build & Verify (final audit, screenshots, fix remaining issues)
