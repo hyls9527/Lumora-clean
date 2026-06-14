@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "@fontsource-variable/dm-sans";
 @import "@fontsource/jetbrains-mono";
+@import "@fontsource/noto-serif-sc";
 
 @theme {
   /* === COLOR: 象牙纸页 + 研磨墨 + 古铜包浆 === */

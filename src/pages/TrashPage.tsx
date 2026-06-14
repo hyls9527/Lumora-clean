@@ -9,7 +9,7 @@ export function TrashPage() {
   const trashItems: { id: string; name: string; deletedAt: string }[] = []
 
   return (
-    <div className="flex-1 h-screen overflow-y-auto">
+    <div className="flex-1 h-full overflow-y-auto">
       <div className="max-w-4xl mx-auto px-8 py-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

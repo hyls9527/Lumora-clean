@@ -38,7 +38,7 @@ export function DashboardPage() {
   const topTags = getTopTags(images)
 
   return (
-    <div className="flex-1 h-screen overflow-y-auto">
+    <div className="flex-1 h-full overflow-y-auto">
       <div className="max-w-[960px] mx-auto px-8 py-8">
         {/* Hero stat — 56px with negative tracking */}
         <div className="mb-8">

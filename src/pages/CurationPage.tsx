@@ -29,7 +29,7 @@ export function CurationPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-screen overflow-hidden">
+    <div className="flex-1 flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="h-14 px-6 flex items-center justify-between border-b border-border-subtle bg-surface/80 backdrop-blur-sm shrink-0">
         <div className="flex items-center gap-3">

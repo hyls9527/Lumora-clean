@@ -15,7 +15,7 @@ export function SettingsPage() {
   const { t, locale, setLocale } = useTranslation()
 
   return (
-    <div className="flex-1 h-screen overflow-y-auto">
+    <div className="flex-1 h-full overflow-y-auto">
       <div className="max-w-[640px] mx-auto px-8 py-8">
         {/* Header */}
         <div className="mb-6">

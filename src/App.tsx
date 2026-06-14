@@ -33,7 +33,9 @@ function AppContent() {
   return (
     <div className="flex h-screen bg-bg">
       <Sidebar />
-      {renderPage()}
+      <main className="flex-1 overflow-auto bg-bg px-10">
+        {renderPage()}
+      </main>
       {detailImage && <DetailPanel />}
       <CommandPalette />
     </div>

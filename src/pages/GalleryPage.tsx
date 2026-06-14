@@ -97,7 +97,7 @@ export function GalleryPage() {
   }, [filteredImages.length, focusedIndex, setFocusedIndex])
 
   return (
-    <div className="flex-1 flex flex-col h-screen overflow-hidden">
+    <div className="flex-1 flex flex-col h-full overflow-hidden">
       {/* Toolbar — elevated with border-bottom + bg-surface */}
       <div className="h-11 px-5 flex items-center justify-between bg-surface border-b border-border shrink-0">
         <div className="flex items-center gap-1">
