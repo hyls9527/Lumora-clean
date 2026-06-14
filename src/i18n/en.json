@@ -1,6 +1,6 @@
 {
   "sidebar": {
-    "subtitle": "RHYTHM OF LIGHT · IMAGE ARCHIVE",
+    "subtitle": "Rhythm of Light",
     "gallery": "Gallery",
     "curation": "Curation",
     "dashboard": "Dashboard",
@@ -12,6 +12,7 @@
     "rated": "Rated"
   },
   "gallery": {
+    "heading": "Gallery",
     "sort": {
       "date": "Date",
       "rating": "Rating",
@@ -42,6 +43,7 @@
     "delete": "Delete"
   },
   "curation": {
+    "heading": "Curation",
     "title": "Curation",
     "keep": "Keep",
     "maybe": "Maybe",
@@ -130,6 +132,19 @@
       "execute": "execute",
       "close": "close"
     }
+  },
+  "empty": {
+    "no_images": "No images yet"
+  },
+  "loading": {
+    "grinding": "Preparing..."
+  },
+  "error": {
+    "blocked": "Something went wrong"
+  },
+  "toolbar": {
+    "selectAll": "Select All",
+    "listView": "List"
   },
   "trash": {
     "title": "Trash",

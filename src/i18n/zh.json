@@ -12,6 +12,7 @@
     "rated": "已评分"
   },
   "gallery": {
+    "heading": "图库",
     "sort": {
       "date": "日期",
       "rating": "评分",
@@ -42,6 +43,7 @@
     "delete": "删除"
   },
   "curation": {
+    "heading": "策展",
     "title": "策展",
     "keep": "保留",
     "maybe": "待定",
@@ -130,6 +132,19 @@
       "execute": "执行",
       "close": "关闭"
     }
+  },
+  "empty": {
+    "no_images": "此处尚无藏品"
+  },
+  "loading": {
+    "grinding": "研墨中…"
+  },
+  "error": {
+    "blocked": "此路不通"
+  },
+  "toolbar": {
+    "selectAll": "全选",
+    "listView": "列表"
   },
   "trash": {
     "title": "回收站",
