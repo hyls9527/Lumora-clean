@@ -28,7 +28,7 @@ export function DetailPanel() {
         <span className="text-[13px] font-semibold tracking-[-0.01em]">{t("detail.title")}</span>
         <button
           onClick={() => setDetailImage(null)}
-          className="w-7 h-7 rounded-[6px] flex items-center justify-center hover:bg-surface-hover transition-colors"
+          className="w-7 h-7 rounded-[4px] flex items-center justify-center hover:bg-surface-hover transition-all duration-200 ease-out"
         >
           <X className="w-4 h-4 text-text-muted" />
         </button>
@@ -37,13 +37,13 @@ export function DetailPanel() {
       <ScrollArea className="flex-1">
         {/* Image preview */}
         <div className="p-4">
-          <div className="relative rounded-[10px] overflow-hidden group shadow-sm">
+          <div className="relative rounded-[2px] overflow-hidden group shadow-sm">
             <img
               src={image.thumbnail}
               alt=""
               className="w-full object-cover"
             />
-            <button className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/30 text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+            <button className="absolute top-2 right-2 w-7 h-7 rounded-[4px] bg-black/30 text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 ease-out">
               <Maximize2 className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -60,7 +60,7 @@ export function DetailPanel() {
               >
                 <Star
                   className={cn(
-                    "w-4 h-4 transition-colors duration-100",
+                    "w-4 h-4 transition-all duration-200 ease-out",
                     star <= image.rating
                       ? "text-accent fill-accent"
                       : "text-text-faint hover:text-text-muted"
@@ -73,7 +73,7 @@ export function DetailPanel() {
           <button
             onClick={() => toggleFavorite(image.id)}
             className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors duration-100",
+              "flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-[11px] font-medium transition-all duration-200 ease-out",
               image.favorite
                 ? "bg-accent-subtle text-accent-hover"
                 : "text-text-muted hover:bg-surface-hover"
@@ -86,7 +86,7 @@ export function DetailPanel() {
           </button>
         </div>
 
-        <div className="mx-4 h-px bg-border-subtle" />
+        <div className="h-px bg-border-subtle mx-4" />
 
         {/* File info */}
         <div className="p-4 space-y-2.5">
@@ -111,7 +111,7 @@ export function DetailPanel() {
           </div>
         </div>
 
-        <div className="mx-4 h-px bg-border-subtle" />
+        <div className="h-px bg-border-subtle mx-4" />
 
         {/* Tags */}
         <div className="p-4 space-y-2.5">
@@ -121,7 +121,7 @@ export function DetailPanel() {
               <Badge
                 key={tag}
                 variant="secondary"
-                className="rounded-[6px] text-[11px] px-2 py-0.5 font-medium"
+                className="rounded-[4px] text-[11px] px-2 py-0.5 font-medium"
               >
                 {tag}
               </Badge>
@@ -132,12 +132,12 @@ export function DetailPanel() {
         {/* Analysis */}
         {image.analysis && (
           <>
-            <div className="mx-4 h-px bg-border-subtle" />
+            <div className="h-px bg-border-subtle mx-4" />
             <div className="p-4 space-y-2.5">
               <SectionLabel>{t("detail.analysis")}</SectionLabel>
               {image.analysis.generation?.prompt && (
                 <div className="space-y-1">
-                  <span className="text-[10px] text-text-faint font-medium uppercase tracking-[0.06em]">Prompt</span>
+                  <span className="text-[9px] uppercase tracking-[0.1em] text-text-faint font-sans">Prompt</span>
                   <p className="text-[12px] text-text-secondary leading-[1.6]">
                     {image.analysis.generation.prompt}
                   </p>
@@ -164,7 +164,7 @@ export function DetailPanel() {
         {/* Score */}
         {image.score && (
           <>
-            <div className="mx-4 h-px bg-border-subtle" />
+            <div className="h-px bg-border-subtle mx-4" />
             <div className="p-4 space-y-2.5">
               <SectionLabel>{t("detail.score")}</SectionLabel>
               <div className="space-y-2">
@@ -178,7 +178,7 @@ export function DetailPanel() {
 
         {/* Actions */}
         <div className="p-4 pt-2 space-y-px">
-          <div className="mx-0 h-px bg-border-subtle mb-2" />
+          <div className="h-px bg-border-subtle mx-0 mb-2" />
           <ActionButton icon={Copy} label={t("detail.copyPath")} />
           <ActionButton icon={Tag} label={t("detail.addTag")} />
           <ActionButton
@@ -194,7 +194,7 @@ export function DetailPanel() {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-[10px] font-medium uppercase tracking-[0.06em] text-text-faint">
+    <h3 className="text-[9px] uppercase tracking-[0.1em] text-text-faint font-sans">
       {children}
     </h3>
   )
@@ -230,9 +230,9 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
       <span className="text-[10px] text-text-faint capitalize w-16 shrink-0 font-medium">
         {label}
       </span>
-      <div className="flex-1 h-1.5 rounded-full bg-bg overflow-hidden">
+      <div className="flex-1 h-1.5 rounded-[2px] bg-bg overflow-hidden">
         <div
-          className="h-full rounded-full bg-accent transition-all duration-500 ease-out"
+          className="h-full rounded-[2px] bg-accent transition-all duration-200 ease-out"
           style={{ width: `${value}%` }}
         />
       </div>
@@ -255,7 +255,7 @@ function ActionButton({
   return (
     <button
       className={cn(
-        "w-full flex items-center gap-2.5 px-3 py-2 rounded-[8px] text-[12px] transition-colors duration-100",
+        "w-full flex items-center gap-2.5 px-3 py-2 rounded-[4px] text-[12px] transition-all duration-200 ease-out",
         variant === "danger"
           ? "text-danger hover:bg-danger/5"
           : "text-text-secondary hover:bg-surface-hover"

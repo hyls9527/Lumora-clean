@@ -30,55 +30,65 @@ export function CurationPage() {
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
-      {/* Header */}
-      <div className="h-14 px-6 flex items-center justify-between border-b border-border-subtle bg-surface/80 backdrop-blur-sm shrink-0">
-        <div className="flex items-center gap-3">
-          <Sparkles className="w-[18px] h-[18px] text-accent" />
-          <span className="text-[14px] font-semibold">{t("curation.title")}</span>
-          <span className="text-[12px] text-text-muted font-mono tabular-nums">
-            {currentIndex + 1} / {images.length}
-          </span>
-        </div>
-
+      {/* Counter at top right */}
+      <div className="h-14 px-6 flex items-center justify-between border-b border-border-subtle bg-surface/80 shrink-0">
+        <h3 className="font-serif text-[11px] uppercase tracking-[0.18em] text-text-muted">
+          {t("curation.title")}
+        </h3>
         <div className="flex items-center gap-4">
-          <span className="text-[12px] text-success font-medium">{stats.keep} keep</span>
-          <span className="text-[12px] text-accent-hover font-medium">{stats.maybe} maybe</span>
-          <span className="text-[12px] text-danger font-medium">{stats.reject} reject</span>
+          <span className="font-sans text-[11px] text-success tabular-nums">
+            {stats.keep} {t("curation.keep")}
+          </span>
+          <span className="font-sans text-[11px] text-accent-hover tabular-nums">
+            {stats.maybe} {t("curation.maybe")}
+          </span>
+          <span className="font-sans text-[11px] text-danger tabular-nums">
+            {stats.reject} {t("curation.reject")}
+          </span>
         </div>
       </div>
 
       {/* Main area */}
       <div className="flex-1 flex items-center justify-center p-10">
         {currentImage ? (
-          <div className="max-w-xl w-full">
-            {/* Image */}
-            <div className="rounded-[12px] overflow-hidden shadow-card-hover mb-8">
-              <img
-                src={currentImage.thumbnail}
-                alt=""
-                className="w-full object-cover max-h-[55vh]"
-              />
+          <div className="max-w-[640px] w-full text-center">
+            {/* Counter */}
+            <p className="font-sans text-[11px] tracking-[0.16em] text-text-muted tabular-nums mb-6">
+              {currentIndex + 1} / {images.length}
+            </p>
+
+            {/* Image wrapper */}
+            <div className="relative mb-6">
+              <div className="rounded-[2px] overflow-hidden shadow-card border border-border">
+                <img
+                  src={currentImage.thumbnail}
+                  alt=""
+                  className="w-full aspect-[16/10] object-cover"
+                />
+                {/* Bottom gradient overlay */}
+                <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-bg/30 to-transparent rounded-b-[2px] pointer-events-none" />
+              </div>
             </div>
 
             {/* Decision buttons */}
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-5">
               <button
                 onClick={() => handleDecision("reject")}
-                className="flex items-center gap-2.5 px-7 py-3 rounded-full bg-danger/8 text-danger text-[13px] font-semibold hover:bg-danger/15 transition-all duration-200"
+                className="flex items-center gap-2.5 px-6 py-2 rounded-[4px] border border-border bg-surface text-text-secondary font-serif text-[12px] font-normal hover:border-danger/30 hover:text-danger transition-all duration-200 ease-out"
               >
                 <X className="w-4 h-4" />
                 {t("curation.reject")}
               </button>
               <button
                 onClick={() => handleDecision("maybe")}
-                className="flex items-center gap-2.5 px-7 py-3 rounded-full bg-accent-subtle text-accent-hover text-[13px] font-semibold hover:bg-accent/15 transition-all duration-200"
+                className="flex items-center gap-2.5 px-6 py-2 rounded-[4px] border border-border bg-surface text-text-secondary font-serif text-[12px] font-normal hover:border-accent hover:text-accent hover:bg-accent-subtle transition-all duration-200 ease-out"
               >
                 <HelpCircle className="w-4 h-4" />
                 {t("curation.maybe")}
               </button>
               <button
                 onClick={() => handleDecision("keep")}
-                className="flex items-center gap-2.5 px-7 py-3 rounded-full bg-success/8 text-success text-[13px] font-semibold hover:bg-success/15 transition-all duration-200"
+                className="flex items-center gap-2.5 px-6 py-2 rounded-[4px] border border-border bg-surface text-text-secondary font-serif text-[12px] font-normal hover:border-accent hover:text-accent hover:bg-accent-subtle transition-all duration-200 ease-out"
               >
                 <ThumbsUp className="w-4 h-4" />
                 {t("curation.keep")}
@@ -87,10 +97,10 @@ export function CurationPage() {
           </div>
         ) : (
           <div className="text-center">
-            <div className="w-20 h-20 rounded-2xl bg-bg border border-border-subtle flex items-center justify-center mx-auto mb-5">
+            <div className="w-20 h-20 rounded-[2px] bg-bg border border-border-subtle flex items-center justify-center mx-auto mb-5">
               <Sparkles className="w-10 h-10 text-text-faint" />
             </div>
-            <h3 className="text-[15px] font-medium text-text-secondary mb-1.5">
+            <h3 className="font-serif text-[16px] text-text-muted mb-1.5">
               {t("curation.empty.title")}
             </h3>
             <p className="text-[13px] text-text-muted">

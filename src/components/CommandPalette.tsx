@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
-import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import {
   Image,
@@ -65,7 +64,6 @@ export function CommandPalette() {
     })
   }, [commands, query, t])
 
-  // Group by section
   const grouped = useMemo(() => {
     const map = new Map<string, Command[]>()
     for (const cmd of filtered) {
@@ -90,7 +88,6 @@ export function CommandPalette() {
     setFocusedIndex(0)
   }, [])
 
-  // Global ⌘K / Ctrl+K shortcut
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -111,26 +108,22 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", handler)
   }, [])
 
-  // Listen for external open trigger (e.g. sidebar search button)
   useEffect(() => {
     const handler = () => openPalette()
     window.addEventListener("open-command-palette", handler)
     return () => window.removeEventListener("open-command-palette", handler)
   }, [openPalette])
 
-  // Auto-focus input on open
   useEffect(() => {
     if (open) {
       requestAnimationFrame(() => inputRef.current?.focus())
     }
   }, [open])
 
-  // Reset focused index when query changes
   useEffect(() => {
     setFocusedIndex(0)
   }, [query])
 
-  // Scroll focused item into view
   useEffect(() => {
     if (!listRef.current) return
     const items = listRef.current.querySelectorAll("[data-command-item]")
@@ -171,37 +164,37 @@ export function CommandPalette() {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]">
-      {/* Backdrop */}
+      {/* Dark overlay backdrop */}
       <div
-        className="absolute inset-0 bg-black/10 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-black/20"
         onClick={closePalette}
       />
       {/* Panel */}
       <div
-        className="relative w-full max-w-[520px] bg-surface rounded-[12px] shadow-card-hover border border-border overflow-hidden"
+        className="relative w-full max-w-[520px] bg-surface rounded-[6px] shadow-elevated border border-border overflow-hidden"
         onKeyDown={handleKeyDown}
       >
         {/* Search input */}
         <div className="p-3 border-b border-border-subtle">
-          <Input
+          <input
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("commandPalette.placeholder")}
-            className="h-9 text-[13px] border-0 bg-bg focus-visible:ring-0 focus-visible:border-0 rounded-[8px]"
+            className="w-full h-9 text-[14px] font-serif text-text placeholder:text-text-muted bg-transparent border-0 outline-none ring-0 focus:outline-none focus:ring-0 focus:shadow-none"
           />
         </div>
         {/* Command list */}
         <div ref={listRef} className="max-h-[320px] overflow-y-auto py-1">
           {flatCommands.length === 0 ? (
-            <div className="px-4 py-6 text-center text-[13px] text-text-muted">
+            <div className="px-4 py-6 text-center text-[13px] text-text-muted font-serif">
               {t("commandPalette.noResults")}
             </div>
           ) : (
             Array.from(grouped.entries()).map(([sectionKey, cmds]) => (
               <div key={sectionKey}>
-                <div className="px-3 pt-2 pb-1">
-                  <span className="text-[11px] font-medium uppercase tracking-[0.04em] text-text-faint">
+                <div className="px-3 pt-3 pb-1">
+                  <span className="text-[9px] uppercase tracking-[0.12em] text-text-faint font-sans">
                     {t(sectionKey)}
                   </span>
                 </div>
@@ -214,10 +207,10 @@ export function CommandPalette() {
                       key={cmd.id}
                       data-command-item
                       className={cn(
-                        "w-full flex items-center gap-2.5 px-3 py-[7px] text-[13px] transition-colors text-left",
+                        "w-full flex items-center gap-2.5 px-3 py-2 rounded-[4px] text-[13px] font-serif transition-all duration-200 ease-out text-left",
                         isFocused
-                          ? "bg-surface-hover text-text"
-                          : "text-text-secondary hover:bg-surface-hover"
+                          ? "bg-accent-subtle text-text"
+                          : "text-text-secondary hover:bg-accent-subtle"
                       )}
                       onMouseEnter={() => setFocusedIndex(idx)}
                       onClick={() => executeCommand(cmd)}
@@ -225,9 +218,9 @@ export function CommandPalette() {
                       <Icon className="w-4 h-4 shrink-0 opacity-50" />
                       <span className="flex-1">{t(cmd.labelKey)}</span>
                       {cmd.hint && (
-                        <kbd className="text-[10px] font-mono text-text-faint">
+                        <span className="text-[9px] font-serif text-text-faint opacity-60">
                           {cmd.hint}
-                        </kbd>
+                        </span>
                       )}
                     </button>
                   )
@@ -237,24 +230,15 @@ export function CommandPalette() {
           )}
         </div>
         {/* Footer hint */}
-        <div className="flex items-center gap-3 px-3 py-2 border-t border-border-subtle text-[11px] text-text-faint">
-          <span>
-            <kbd className="font-mono px-1 py-0.5 rounded-[3px] bg-bg-alt border border-border-subtle">
-              ↑↓
-            </kbd>{" "}
-            {t("commandPalette.hints.navigate")}
+        <div className="flex items-center gap-4 px-3 py-2 border-t border-border-subtle text-[10px] text-text-faint">
+          <span className="font-serif opacity-60">
+            {"↑↓"} {t("commandPalette.hints.navigate")}
           </span>
-          <span>
-            <kbd className="font-mono px-1 py-0.5 rounded-[3px] bg-bg-alt border border-border-subtle">
-              ↵
-            </kbd>{" "}
-            {t("commandPalette.hints.execute")}
+          <span className="font-serif opacity-60">
+            {"⏎"} {t("commandPalette.hints.execute")}
           </span>
-          <span>
-            <kbd className="font-mono px-1 py-0.5 rounded-[3px] bg-bg-alt border border-border-subtle">
-              esc
-            </kbd>{" "}
-            {t("commandPalette.hints.close")}
+          <span className="font-serif opacity-60">
+            Esc {t("commandPalette.hints.close")}
           </span>
         </div>
       </div>

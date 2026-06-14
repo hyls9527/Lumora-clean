@@ -14,7 +14,7 @@ export function TrashPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[28px] font-light tracking-tight">
+            <h1 className="font-serif text-[17px] font-light tracking-[0.02em]">
               {t("trash.title")}
             </h1>
             <p className="text-[13px] text-text-muted mt-1.5">
@@ -22,7 +22,7 @@ export function TrashPage() {
             </p>
           </div>
           {trashItems.length > 0 && (
-            <button className="flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-medium text-danger hover:bg-danger/5 transition-all duration-200">
+            <button className="flex items-center gap-2 px-4 py-2 rounded-[4px] text-[13px] font-medium text-danger hover:bg-danger/5 transition-all duration-200 ease-out">
               <X className="w-4 h-4" />
               {t("trash.emptyAll")}
             </button>
@@ -33,11 +33,11 @@ export function TrashPage() {
         {trashItems.length === 0 ? (
           <div className="flex items-center justify-center py-24">
             <div className="text-center">
-              <div className="w-20 h-20 rounded-2xl bg-bg border border-border-subtle flex items-center justify-center mx-auto mb-5">
+              <div className="w-20 h-20 rounded-[2px] bg-bg border border-border-subtle flex items-center justify-center mx-auto mb-5">
                 <Trash2 className="w-10 h-10 text-text-faint" />
               </div>
-              <h3 className="text-[15px] font-medium text-text-secondary mb-1.5">
-                {t("trash.empty.title")}
+              <h3 className="font-serif text-[16px] text-text-muted mb-1.5">
+                {t("empty.no_images")}
               </h3>
               <p className="text-[13px] text-text-muted">
                 {t("trash.empty.subtitle")}
@@ -47,9 +47,9 @@ export function TrashPage() {
         ) : (
           <div className="space-y-3">
             {trashItems.map((item) => (
-              <Card key={item.id} className="p-5 rounded-[12px] flex items-center justify-between shadow-sm border-border-subtle">
+              <Card key={item.id} className="p-5 rounded-[2px] flex items-center justify-between shadow-sm border-border-subtle">
                 <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-bg border border-border-subtle flex items-center justify-center">
+                  <div className="w-11 h-11 rounded-[4px] bg-bg border border-border-subtle flex items-center justify-center">
                     <Trash2 className="w-5 h-5 text-text-muted" />
                   </div>
                   <div>
@@ -60,7 +60,7 @@ export function TrashPage() {
                     </span>
                   </div>
                 </div>
-                <button className="flex items-center gap-2 px-3.5 py-2 rounded-full text-[12px] font-medium text-text-secondary hover:bg-surface-hover transition-all duration-200">
+                <button className="flex items-center gap-2 px-3.5 py-2 rounded-[4px] text-[12px] font-medium text-text-secondary hover:bg-surface-hover transition-all duration-200 ease-out">
                   <RotateCcw className="w-3.5 h-3.5" />
                   {t("trash.restore")}
                 </button>
