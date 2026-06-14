@@ -274,11 +274,3 @@ function ActionButton({
     </button>
   )
 }
-/usr/bin/bash: line 5: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-snap-74e3c8a5ccb7.sh: No such file or directory
-/usr/bin/bash: line 6: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-cwd-74e3c8a5ccb7.txt: No such file or directory
-/usr/bin/bash: line 5: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-snap-74e3c8a5ccb7.sh: No such file or directory
-/usr/bin/bash: line 6: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-cwd-74e3c8a5ccb7.txt: No such file or directory
-/usr/bin/bash: line 5: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-snap-74e3c8a5ccb7.sh: No such file or directory
-/usr/bin/bash: line 6: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-cwd-74e3c8a5ccb7.txt: No such file or directory
-/usr/bin/bash: line 5: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-snap-74e3c8a5ccb7.sh: No such file or directory
-/usr/bin/bash: line 6: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-cwd-74e3c8a5ccb7.txt: No such file or directory
