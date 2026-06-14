@@ -16,8 +16,8 @@
   --color-text-secondary: #6b5d48;
   --color-text-muted: #a09480;
   --color-text-faint: #c4b89e;
-  --color-accent: #8b6914;
-  --color-accent-hover: #a07818;
+  --color-accent: #7a5c12;
+  --color-accent-hover: #8b6914;
   --color-accent-subtle: rgba(139, 105, 20, 0.06);
   --color-accent-muted: #c4a04a;
   --color-danger: #8b3030;
@@ -40,18 +40,12 @@
     rgba(78,50,23,0.12) 0px 8px 32px,
     rgba(78,50,23,0.06) 0px 2px 8px;
 
-  /* === RADIUS: 更古典 === */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-button: 9999px;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  /* === RADIUS: 古卷材质逻辑 === */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-button: 4px;
 }
 
 body {
@@ -62,7 +56,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-size: 14px;
   line-height: 1.6;
+  margin: 0;
+  padding: 0;
 }
+
+* { box-sizing: border-box; }
 
 code, .font-mono {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
@@ -72,23 +70,23 @@ code, .font-mono {
   font-family: 'Noto Serif SC', 'Georgia', serif;
 }
 
-/* Scrollbar — whisper thin */
+/* Scrollbar — 完全透明轨道 + 极淡 thumb */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(139,115,75,0.12); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(139,115,75,0.2); }
+::-webkit-scrollbar-thumb { background: rgba(139,115,75,0.08); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(139,115,75,0.15); }
 
-/* Selection — gold on paper */
-::selection { background: var(--color-accent); color: var(--color-surface); }
+/* Selection — 朱砂淡底 */
+::selection { background: rgba(122,92,18,0.15); color: var(--color-text); }
 
-/* Focus — gold ring */
+/* Focus — 1px 淡墨线，不是 2px 金色 */
 button:focus-visible, input:focus-visible, a:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 1px solid rgba(107,93,72,0.3);
   outline-offset: 2px;
   border-radius: 2px;
 }
 
-/* Transitions — 200ms, not 100ms */
+/* Transitions — 200ms，沉稳 */
 button, input, a, select, [role="button"] {
   transition: all 200ms ease-out;
 }
