@@ -3,8 +3,6 @@ import { useTranslation } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import {
   X,
-  Star,
-  Heart,
   Copy,
   Trash2,
   Tag,
@@ -12,6 +10,25 @@ import {
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+
+function PlumFlower({ filled }: { filled: boolean }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      {[0, 72, 144, 216, 288].map(angle => (
+        <ellipse
+          key={angle}
+          cx="9" cy="3.5"
+          rx="3" ry="4.5"
+          transform={`rotate(${angle} 9 9)`}
+          fill={filled ? 'var(--color-accent)' : 'none'}
+          stroke={filled ? 'none' : 'rgba(139,115,75,0.2)'}
+          strokeWidth="1"
+        />
+      ))}
+      <circle cx="9" cy="9" r="2" fill={filled ? 'var(--color-accent)' : 'rgba(139,115,75,0.12)'} />
+    </svg>
+  );
+}
 
 export function DetailPanel() {
   const { t } = useTranslation()
@@ -58,14 +75,7 @@ export function DetailPanel() {
                 onClick={() => setRating(image.id, image.rating === star ? 0 : star)}
                 className="w-7 h-7 flex items-center justify-center"
               >
-                <Star
-                  className={cn(
-                    "w-4 h-4 transition-all duration-200 ease-out",
-                    star <= image.rating
-                      ? "text-accent fill-accent"
-                      : "text-text-faint hover:text-text-muted"
-                  )}
-                />
+                <PlumFlower filled={star <= image.rating} />
               </button>
             ))}
           </div>
@@ -79,9 +89,7 @@ export function DetailPanel() {
                 : "text-text-muted hover:bg-surface-hover"
             )}
           >
-            <Heart
-              className={cn("w-3 h-3", image.favorite && "fill-current")}
-            />
+            <span className={cn("text-[11px]", image.favorite ? "text-accent" : "text-text-faint")}>◆</span>
             {image.favorite ? t("detail.favorited") : t("detail.favorite")}
           </button>
         </div>
@@ -266,3 +274,11 @@ function ActionButton({
     </button>
   )
 }
+/usr/bin/bash: line 5: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-snap-74e3c8a5ccb7.sh: No such file or directory
+/usr/bin/bash: line 6: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-cwd-74e3c8a5ccb7.txt: No such file or directory
+/usr/bin/bash: line 5: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-snap-74e3c8a5ccb7.sh: No such file or directory
+/usr/bin/bash: line 6: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-cwd-74e3c8a5ccb7.txt: No such file or directory
+/usr/bin/bash: line 5: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-snap-74e3c8a5ccb7.sh: No such file or directory
+/usr/bin/bash: line 6: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-cwd-74e3c8a5ccb7.txt: No such file or directory
+/usr/bin/bash: line 5: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-snap-74e3c8a5ccb7.sh: No such file or directory
+/usr/bin/bash: line 6: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-cwd-74e3c8a5ccb7.txt: No such file or directory

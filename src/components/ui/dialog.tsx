@@ -29,7 +29,7 @@ function DialogOverlay({
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        "fixed inset-0 isolate z-50 bg-black/10 duration-200 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className
       )}
       {...props}
@@ -156,3 +156,5 @@ export {
   DialogTitle,
   DialogTrigger,
 }
+/usr/bin/bash: line 5: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-snap-74e3c8a5ccb7.sh: No such file or directory
+/usr/bin/bash: line 6: C:/Users/Administrator/AppData/Local/hermes/cache/terminal/hermes-cwd-74e3c8a5ccb7.txt: No such file or directory
