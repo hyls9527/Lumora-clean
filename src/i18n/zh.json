@@ -159,7 +159,8 @@
   },
   "toolbar": {
     "selectAll": "全选",
-    "listView": "列表"
+    "listView": "列表",
+    "export": "导出"
   },
   "trash": {
     "title": "回收站",
@@ -180,5 +181,30 @@
     "close": "完成",
     "filter": "标签",
     "clearFilters": "清除"
+  },
+  "export": {
+    "title": "导出图片",
+    "selectedCount": "张图片已选择",
+    "format": {
+      "label": "格式",
+      "original": "原始"
+    },
+    "quality": {
+      "label": "质量"
+    },
+    "destination": {
+      "label": "导出路径",
+      "browse": "浏览"
+    },
+    "progress": "导出中...",
+    "cancel": "取消",
+    "exporting": "导出中...",
+    "button": "导出"
+  },
+  "dropzone": {
+    "title": "拖放图片到此处导入",
+    "subtitle": "支持 PNG、JPG、WebP 格式",
+    "importing": "导入中...",
+    "imported": "已导入"
   }
 }

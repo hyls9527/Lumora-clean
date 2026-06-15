@@ -159,7 +159,8 @@
   },
   "toolbar": {
     "selectAll": "Select All",
-    "listView": "List"
+    "listView": "List",
+    "export": "Export"
   },
   "trash": {
     "title": "Trash",
@@ -180,5 +181,30 @@
     "close": "Done",
     "filter": "Tags",
     "clearFilters": "Clear"
+  },
+  "export": {
+    "title": "Export Images",
+    "selectedCount": "image(s) selected",
+    "format": {
+      "label": "Format",
+      "original": "Original"
+    },
+    "quality": {
+      "label": "Quality"
+    },
+    "destination": {
+      "label": "Destination",
+      "browse": "Browse"
+    },
+    "progress": "Exporting...",
+    "cancel": "Cancel",
+    "exporting": "Exporting...",
+    "button": "Export"
+  },
+  "dropzone": {
+    "title": "Drop images here to import",
+    "subtitle": "PNG, JPG, WebP supported",
+    "importing": "Importing...",
+    "imported": "imported"
   }
 }

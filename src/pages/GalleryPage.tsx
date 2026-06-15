@@ -5,6 +5,9 @@ import { cn } from "@/lib/utils"
 import { ImageCard } from "@/components/ImageCard"
 import { VirtualizedGrid } from "@/components/VirtualizedGrid"
 import { TagFilterBar } from "@/components/TagManager"
+import { ExportDialog } from "@/components/ExportDialog"
+import { DropZone } from "@/components/DropZone"
+import { Download } from "lucide-react"
 
 const VIRTUALIZE_THRESHOLD = 100
 const COLS = 4
@@ -36,6 +39,7 @@ export function GalleryPage() {
 
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
+  const [exportOpen, setExportOpen] = useState(false)
 
   useEffect(() => {
     if (!useVirtualized || !containerRef.current) return
@@ -129,6 +133,12 @@ export function GalleryPage() {
     }
   }, [filteredImages.length, focusedIndex, setFocusedIndex])
 
+  useEffect(() => {
+    const handler = () => setExportOpen(true)
+    window.addEventListener("export-selected", handler)
+    return () => window.removeEventListener("export-selected", handler)
+  }, [])
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
       {/* Section heading */}
@@ -159,9 +169,18 @@ export function GalleryPage() {
 
         <div className="flex items-center gap-3">
           {selectedIds.size > 0 && (
-            <span className="font-serif text-[11px] text-accent-hover">
-              {selectedIds.size} {t("gallery.selected")}
-            </span>
+            <>
+              <span className="font-serif text-[11px] text-accent-hover">
+                {selectedIds.size} {t("gallery.selected")}
+              </span>
+              <button
+                onClick={() => setExportOpen(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] font-serif text-[11px] text-text-secondary hover:bg-accent-subtle hover:text-accent transition-all duration-200 ease-out"
+              >
+                <Download className="w-3 h-3" />
+                {t("toolbar.export")}
+              </button>
+            </>
           )}
 
           <button
@@ -226,6 +245,9 @@ export function GalleryPage() {
         </span>
         <div className="flex-1 h-px" style={{ backgroundImage: "repeating-linear-gradient(to right, var(--color-border) 0, var(--color-border) 4px, transparent 4px, transparent 8px)" }} />
       </div>
+
+      <ExportDialog open={exportOpen} onOpenChange={setExportOpen} />
+      <DropZone />
     </div>
   )
 }
