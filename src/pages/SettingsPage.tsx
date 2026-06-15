@@ -1,6 +1,8 @@
+import { useEffect } from "react"
 import { useTranslation } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import { PageErrorBoundary } from "@/components/PageErrorBoundary"
+import { useSettingsStore } from "@/stores/settings-store"
 import {
   Globe,
   Palette,
@@ -14,6 +16,19 @@ import { Card } from "@/components/ui/card"
 
 export function SettingsPage() {
   const { t, locale, setLocale } = useTranslation()
+  const {
+    language,
+    theme,
+    gridColumns,
+    loadSettings,
+    setLanguage,
+    setTheme,
+    setGridColumns,
+  } = useSettingsStore()
+
+  useEffect(() => {
+    loadSettings()
+  }, [loadSettings])
 
   return (
     <PageErrorBoundary>
@@ -67,10 +82,10 @@ export function SettingsPage() {
                 {(["en", "zh"] as const).map((lang) => (
                   <button
                     key={lang}
-                    onClick={() => setLocale(lang)}
+                    onClick={() => { setLanguage(lang); setLocale(lang) }}
                     className={cn(
                       "px-4 py-1.5 rounded-[4px] text-[12px] font-medium transition-all duration-200 ease-out",
-                      locale === lang
+                      language === lang
                         ? "bg-text text-surface"
                         : "bg-bg text-text-secondary hover:bg-surface-hover border border-border-subtle"
                     )}
@@ -101,12 +116,20 @@ export function SettingsPage() {
               description={t("settings.theme.description")}
             >
               <div className="flex gap-2">
-                <button className="px-4 py-1.5 rounded-[4px] text-[12px] font-medium bg-text text-surface transition-all duration-200 ease-out">
-                  {t("settings.theme.light")}
-                </button>
-                <button className="px-4 py-1.5 rounded-[4px] text-[12px] font-medium bg-bg text-text-secondary hover:bg-surface-hover transition-all duration-200 ease-out border border-border-subtle">
-                  {t("settings.theme.dark")}
-                </button>
+                {(["light", "dark"] as const).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTheme(t)}
+                    className={cn(
+                      "px-4 py-1.5 rounded-[4px] text-[12px] font-medium transition-all duration-200 ease-out",
+                      theme === t
+                        ? "bg-text text-surface"
+                        : "bg-bg text-text-secondary hover:bg-surface-hover border border-border-subtle"
+                    )}
+                  >
+                    {t === "light" ? "Light" : "Dark"}
+                  </button>
+                ))}
               </div>
             </SettingsSection>
 
@@ -119,9 +142,10 @@ export function SettingsPage() {
                 {[3, 4, 5].map((cols) => (
                   <button
                     key={cols}
+                    onClick={() => setGridColumns(cols)}
                     className={cn(
                       "w-10 h-10 rounded-[4px] text-[12px] font-semibold transition-all duration-200 ease-out",
-                      cols === 4
+                      gridColumns === cols
                         ? "bg-text text-surface"
                         : "bg-bg text-text-secondary hover:bg-surface-hover border border-border-subtle"
                     )}

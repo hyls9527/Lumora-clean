@@ -52,6 +52,18 @@ fn delete_image(state: State<AppState>, image_id: i64) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn get_setting(state: State<AppState>, key: String) -> Result<Option<String>, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.get_setting(&key).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn set_setting(state: State<AppState>, key: String, value: String) -> Result<(), String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.set_setting(&key, &value).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 fn search_images(state: State<AppState>, query: String) -> Result<Vec<db::ImageRecord>, String> {
     let db = state.db.lock().map_err(|e| e.to_string())?;
     db.search_images(&query).map_err(|e| e.to_string())
@@ -105,6 +117,8 @@ pub fn run() {
             update_image_rating,
             toggle_image_favorite,
             delete_image,
+            get_setting,
+            set_setting,
             search_images,
             open_folder_dialog
         ])

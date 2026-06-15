@@ -125,6 +125,23 @@ impl Database {
         Ok(images)
     }
 
+    pub fn get_setting(&self, key: &str) -> Result<Option<String>> {
+        let mut stmt = self.conn.prepare("SELECT value FROM app_config WHERE key = ?1")?;
+        let mut rows = stmt.query_map([key], |row| row.get(0))?;
+        match rows.next() {
+            Some(Ok(value)) => Ok(Some(value)),
+            _ => Ok(None),
+        }
+    }
+
+    pub fn set_setting(&self, key: &str, value: &str) -> Result<()> {
+        self.conn.execute(
+            "INSERT OR REPLACE INTO app_config (key, value) VALUES (?1, ?2)",
+            [key, value],
+        )?;
+        Ok(())
+    }
+
     pub fn get_images(&self, limit: i64, offset: i64) -> Result<Vec<ImageRecord>> {
         let mut stmt = self.conn.prepare(
             "SELECT id, file_path, file_hash, file_size_kb, width, height, format,
