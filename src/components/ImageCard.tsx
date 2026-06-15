@@ -47,7 +47,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
         "transition-all duration-200 ease-out",
         isSelected && "bg-accent/10 border border-accent/20",
         !isSelected && "border border-transparent",
-        focused && !isSelected && "ring-1 ring-text-muted/30"
+        focused && !isSelected && "ring-2 ring-accent/60"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

@@ -13,6 +13,11 @@ import {
   ArrowDownAZ,
   ArrowUpAZ,
   HardDrive,
+  FolderPlus,
+  Download,
+  Search,
+  Tag,
+  Star,
 } from "lucide-react"
 
 interface Command {
@@ -39,7 +44,17 @@ export function CommandPalette() {
     setSortBy,
     deleteImage,
     selectedIds,
+    images,
+    setRating,
   } = useAppStore()
+
+  const rateSelected = useCallback(() => {
+    const ids = Array.from(selectedIds)
+    if (ids.length === 0) return
+    const first = images.find((i) => i.id === ids[0])
+    const next = first ? (first.rating % 5) + 1 : 1
+    ids.forEach((id) => setRating(id, next))
+  }, [selectedIds, images, setRating])
 
   const commands = useMemo<Command[]>(() => [
     { id: "nav-gallery", labelKey: "sidebar.gallery", icon: Image, section: "commandPalette.sections.navigation", action: () => setView("gallery") },
@@ -47,13 +62,18 @@ export function CommandPalette() {
     { id: "nav-dashboard", labelKey: "sidebar.dashboard", icon: BarChart3, section: "commandPalette.sections.navigation", action: () => setView("dashboard") },
     { id: "nav-settings", labelKey: "sidebar.settings", icon: Settings, section: "commandPalette.sections.navigation", action: () => setView("settings") },
     { id: "nav-trash", labelKey: "sidebar.trash", icon: Trash2, section: "commandPalette.sections.navigation", action: () => setView("trash") },
-    { id: "action-select-all", labelKey: "commandPalette.commands.selectAll", icon: CheckSquare, section: "commandPalette.sections.actions", action: () => selectAll() },
-    { id: "action-clear-selection", labelKey: "commandPalette.commands.clearSelection", icon: X, section: "commandPalette.sections.actions", action: () => clearSelection() },
+    { id: "action-new-import", labelKey: "commandPalette.commands.newImport", hint: "⌘N", icon: FolderPlus, section: "commandPalette.sections.import", action: () => window.dispatchEvent(new Event("open-import")) },
+    { id: "action-export", labelKey: "commandPalette.commands.exportSelected", hint: "⌘E", icon: Download, section: "commandPalette.sections.import", action: () => window.dispatchEvent(new Event("export-selected")) },
+    { id: "action-focus-search", labelKey: "commandPalette.commands.focusSearch", hint: "⌘F", icon: Search, section: "commandPalette.sections.actions", action: () => { closePalette(); requestAnimationFrame(() => openPalette()) } },
+    { id: "action-select-all", labelKey: "commandPalette.commands.selectAll", hint: "⌘A", icon: CheckSquare, section: "commandPalette.sections.actions", action: () => selectAll() },
+    { id: "action-clear-selection", labelKey: "commandPalette.commands.clearSelection", hint: "⌘D", icon: X, section: "commandPalette.sections.actions", action: () => clearSelection() },
+    { id: "action-add-tag", labelKey: "commandPalette.commands.addTagToSelected", hint: "⌘T", icon: Tag, section: "commandPalette.sections.actions", action: () => window.dispatchEvent(new Event("add-tag-selected")) },
+    { id: "action-rate-selected", labelKey: "commandPalette.commands.rateSelected", hint: "⌘R", icon: Star, section: "commandPalette.sections.actions", action: () => rateSelected() },
     { id: "action-delete-selected", labelKey: "commandPalette.commands.deleteSelected", icon: Trash2, section: "commandPalette.sections.actions", action: () => { selectedIds.forEach((id) => deleteImage(id)) } },
     { id: "sort-date", labelKey: "commandPalette.commands.sortByDate", icon: ArrowDownAZ, section: "commandPalette.sections.sort", action: () => setSortBy("date") },
     { id: "sort-rating", labelKey: "commandPalette.commands.sortByRating", icon: ArrowUpAZ, section: "commandPalette.sections.sort", action: () => setSortBy("rating") },
     { id: "sort-size", labelKey: "commandPalette.commands.sortBySize", icon: HardDrive, section: "commandPalette.sections.sort", action: () => setSortBy("size") },
-  ], [setView, selectAll, clearSelection, setSortBy, deleteImage, selectedIds])
+  ], [setView, selectAll, clearSelection, setSortBy, deleteImage, selectedIds, closePalette, rateSelected])
 
   const filtered = useMemo(() => {
     if (!query.trim()) return commands
@@ -90,7 +110,9 @@ export function CommandPalette() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      const mod = e.metaKey || e.ctrlKey
+
+      if (mod && e.key === "k") {
         e.preventDefault()
         setOpen((prev) => {
           if (prev) {
@@ -102,11 +124,37 @@ export function CommandPalette() {
           setFocusedIndex(0)
           return true
         })
+        return
+      }
+
+      if (open) return
+
+      if (mod && e.key === "n") {
+        e.preventDefault()
+        window.dispatchEvent(new Event("open-import"))
+      } else if (mod && e.key === "e") {
+        e.preventDefault()
+        window.dispatchEvent(new Event("export-selected"))
+      } else if (mod && e.key === "f") {
+        e.preventDefault()
+        openPalette()
+      } else if (mod && e.key === "a") {
+        e.preventDefault()
+        selectAll()
+      } else if (mod && e.key === "d") {
+        e.preventDefault()
+        clearSelection()
+      } else if (mod && e.key === "t") {
+        e.preventDefault()
+        window.dispatchEvent(new Event("add-tag-selected"))
+      } else if (mod && e.key === "r") {
+        e.preventDefault()
+        rateSelected()
       }
     }
     window.addEventListener("keydown", handler)
     return () => window.removeEventListener("keydown", handler)
-  }, [])
+  }, [open, selectAll, clearSelection, rateSelected, openPalette])
 
   useEffect(() => {
     const handler = () => openPalette()

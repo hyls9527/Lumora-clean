@@ -103,7 +103,14 @@
       "selectAll": "全选",
       "delete": "删除",
       "favorite": "切换收藏",
-      "close": "关闭面板"
+      "close": "关闭面板",
+      "commandPalette": "命令面板",
+      "newImport": "新建导入",
+      "exportSelected": "导出所选",
+      "focusSearch": "聚焦搜索",
+      "clearSelection": "清除选择",
+      "addTag": "为所选添加标签",
+      "rateSelected": "为所选评分"
     },
     "about": {
       "title": "关于 Lumora",
@@ -119,7 +126,8 @@
     "sections": {
       "navigation": "导航",
       "actions": "操作",
-      "sort": "排序"
+      "sort": "排序",
+      "import": "导入与导出"
     },
     "commands": {
       "selectAll": "全选",
@@ -127,7 +135,12 @@
       "deleteSelected": "删除所选",
       "sortByDate": "按日期排序",
       "sortByRating": "按评分排序",
-      "sortBySize": "按大小排序"
+      "sortBySize": "按大小排序",
+      "newImport": "新建导入",
+      "exportSelected": "导出所选",
+      "focusSearch": "聚焦搜索",
+      "addTagToSelected": "为所选添加标签",
+      "rateSelected": "为所选评分"
     },
     "hints": {
       "navigate": "导航",

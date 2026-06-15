@@ -103,7 +103,14 @@
       "selectAll": "Select all",
       "delete": "Delete",
       "favorite": "Toggle favorite",
-      "close": "Close panel"
+      "close": "Close panel",
+      "commandPalette": "Command palette",
+      "newImport": "New import",
+      "exportSelected": "Export selected",
+      "focusSearch": "Focus search",
+      "clearSelection": "Clear selection",
+      "addTag": "Add tag to selected",
+      "rateSelected": "Rate selected"
     },
     "about": {
       "title": "About Lumora",
@@ -119,7 +126,8 @@
     "sections": {
       "navigation": "Navigation",
       "actions": "Actions",
-      "sort": "Sort"
+      "sort": "Sort",
+      "import": "Import & Export"
     },
     "commands": {
       "selectAll": "Select All",
@@ -127,7 +135,12 @@
       "deleteSelected": "Delete Selected",
       "sortByDate": "Sort by Date",
       "sortByRating": "Sort by Rating",
-      "sortBySize": "Sort by Size"
+      "sortBySize": "Sort by Size",
+      "newImport": "New Import",
+      "exportSelected": "Export Selected",
+      "focusSearch": "Focus Search",
+      "addTagToSelected": "Add Tag to Selected",
+      "rateSelected": "Rate Selected"
     },
     "hints": {
       "navigate": "navigate",
