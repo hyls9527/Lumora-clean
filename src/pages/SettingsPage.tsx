@@ -1,5 +1,6 @@
 import { useTranslation } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
+import { PageErrorBoundary } from "@/components/PageErrorBoundary"
 import {
   Globe,
   Palette,
@@ -15,6 +16,7 @@ export function SettingsPage() {
   const { t, locale, setLocale } = useTranslation()
 
   return (
+    <PageErrorBoundary>
     <div className="flex-1 h-full overflow-y-auto">
       <div className="max-w-[640px] mx-auto px-8 py-8">
         {/* Header */}
@@ -163,6 +165,7 @@ export function SettingsPage() {
         </Tabs>
       </div>
     </div>
+    </PageErrorBoundary>
   )
 }
 

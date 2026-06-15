@@ -1,6 +1,7 @@
 import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
 import { cn } from "@/lib/utils"
+import { PageErrorBoundary } from "@/components/PageErrorBoundary"
 import { Sparkles, ThumbsUp, HelpCircle, X } from "lucide-react"
 import { useState } from "react"
 
@@ -29,6 +30,7 @@ export function CurationPage() {
   }
 
   return (
+    <PageErrorBoundary>
     <div className="flex-1 flex flex-col h-full overflow-hidden">
       {/* Counter at top right */}
       <div className="h-14 px-6 flex items-center justify-between border-b border-border-subtle bg-surface/80 shrink-0">
@@ -101,14 +103,15 @@ export function CurationPage() {
               <Sparkles className="w-10 h-10 text-text-faint" />
             </div>
             <h3 className="font-serif text-[16px] text-text-muted mb-1.5">
-              {t("curation.empty.title")}
+              策展需要先有藏品
             </h3>
-            <p className="text-[13px] text-text-muted">
-              {t("curation.empty.subtitle")}
+            <p className="font-serif text-[13px] text-text-faint">
+              此处尚无藏品, 研墨中…
             </p>
           </div>
         )}
       </div>
     </div>
+    </PageErrorBoundary>
   )
 }

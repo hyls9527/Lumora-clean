@@ -1,6 +1,7 @@
 import { useAppStore } from "@/stores/app-store"
 import { useTranslation } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
+import { PageErrorBoundary } from "@/components/PageErrorBoundary"
 
 export function DashboardPage() {
   const { t } = useTranslation()
@@ -39,6 +40,7 @@ export function DashboardPage() {
   ]
 
   return (
+    <PageErrorBoundary>
     <div className="flex-1 h-full overflow-y-auto">
       <div className="max-w-[960px] mx-auto px-8 py-8">
         {/* Page title */}
@@ -46,6 +48,19 @@ export function DashboardPage() {
           {t("dashboard.subtitle")}
         </p>
 
+        {images.length === 0 ? (
+          <div className="flex items-center justify-center py-24">
+            <div className="text-center">
+              <h3 className="font-serif text-[16px] text-text-muted mb-1.5">
+                仪表盘需要先有藏品
+              </h3>
+              <p className="font-serif text-[13px] text-text-faint">
+                此处尚无藏品, 研墨中…
+              </p>
+            </div>
+          </div>
+        ) : (
+        <>
         {/* Hero stat */}
         <div className="pt-6 pb-8">
           <span className="font-serif text-[32px] font-light tracking-[-0.02em] text-text leading-none tabular-nums">
@@ -163,8 +178,11 @@ export function DashboardPage() {
             ))}
           </div>
         </div>
+        </>
+        )}
       </div>
     </div>
+    </PageErrorBoundary>
   )
 }
 

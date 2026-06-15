@@ -1,5 +1,6 @@
 import { useTranslation } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
+import { PageErrorBoundary } from "@/components/PageErrorBoundary"
 import { Trash2, RotateCcw, X } from "lucide-react"
 import { Card } from "@/components/ui/card"
 
@@ -9,6 +10,7 @@ export function TrashPage() {
   const trashItems: { id: string; name: string; deletedAt: string }[] = []
 
   return (
+    <PageErrorBoundary>
     <div className="flex-1 h-full overflow-y-auto">
       <div className="max-w-4xl mx-auto px-8 py-10">
         {/* Header */}
@@ -37,10 +39,10 @@ export function TrashPage() {
                 <Trash2 className="w-10 h-10 text-text-faint" />
               </div>
               <h3 className="font-serif text-[16px] text-text-muted mb-1.5">
-                {t("empty.no_images")}
+                回收站空空如也
               </h3>
-              <p className="text-[13px] text-text-muted">
-                {t("trash.empty.subtitle")}
+              <p className="font-serif text-[13px] text-text-faint">
+                此处尚无藏品, 研墨中…
               </p>
             </div>
           </div>
@@ -70,5 +72,6 @@ export function TrashPage() {
         )}
       </div>
     </div>
+    </PageErrorBoundary>
   )
 }

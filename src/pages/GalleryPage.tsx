@@ -7,6 +7,7 @@ import { VirtualizedGrid } from "@/components/VirtualizedGrid"
 import { TagFilterBar } from "@/components/TagManager"
 import { ExportDialog } from "@/components/ExportDialog"
 import { DropZone } from "@/components/DropZone"
+import { PageErrorBoundary } from "@/components/PageErrorBoundary"
 import { Download } from "lucide-react"
 
 const VIRTUALIZE_THRESHOLD = 100
@@ -139,7 +140,10 @@ export function GalleryPage() {
     return () => window.removeEventListener("export-selected", handler)
   }, [])
 
+  const { isLoading } = useAppStore()
+
   return (
+    <PageErrorBoundary>
     <div className="flex-1 flex flex-col h-full overflow-hidden">
       {/* Section heading */}
       <div className="px-10 pt-6 pb-0">
@@ -205,14 +209,20 @@ export function GalleryPage() {
 
       {/* Image masonry */}
       <div ref={containerRef} className="flex-1 overflow-y-auto p-10">
-        {filteredImages.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="font-serif text-[15px] text-text-muted animate-pulse">
+              研墨中…
+            </p>
+          </div>
+        ) : filteredImages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <h3 className="font-serif text-[16px] text-text-muted mb-1">
-                {t("gallery.empty.title")}
+                此处尚无藏品
               </h3>
               <p className="font-serif text-[13px] text-text-faint">
-                {t("gallery.empty.subtitle")}
+                研墨中…
               </p>
             </div>
           </div>
@@ -249,5 +259,6 @@ export function GalleryPage() {
       <ExportDialog open={exportOpen} onOpenChange={setExportOpen} />
       <DropZone />
     </div>
+    </PageErrorBoundary>
   )
 }
