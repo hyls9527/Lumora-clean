@@ -1,8 +1,18 @@
-import { useEffect, useCallback } from "react"
+import { useEffect, useCallback, useRef, useState } from "react"
 import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
 import { cn } from "@/lib/utils"
 import { ImageCard } from "@/components/ImageCard"
+import { VirtualizedGrid } from "@/components/VirtualizedGrid"
+
+const VIRTUALIZE_THRESHOLD = 100
+const COLS = 4
+const GAP = 16
+
+function parseAspectRatio(ar: string): number {
+  const [w, h] = ar.split("/").map(Number)
+  return w / h
+}
 
 export function GalleryPage() {
   const { t } = useTranslation()
@@ -21,6 +31,37 @@ export function GalleryPage() {
   } = useAppStore()
 
   const filteredImages = getFilteredImages()
+  const useVirtualized = filteredImages.length >= VIRTUALIZE_THRESHOLD
+
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
+
+  useEffect(() => {
+    if (!useVirtualized || !containerRef.current) return
+    const el = containerRef.current
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (entry) {
+        setContainerSize({
+          width: Math.floor(entry.contentRect.width),
+          height: Math.floor(entry.contentRect.height),
+        })
+      }
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [useVirtualized])
+
+  const virtualizedColumnWidth = useVirtualized && containerSize.width > 0
+    ? Math.floor((containerSize.width - GAP * (COLS - 1)) / COLS)
+    : 0
+
+  const virtualizedRowHeight = useVirtualized
+    ? (() => {
+        const avgRatio = filteredImages.reduce((sum, img) => sum + parseAspectRatio(img.aspectRatio), 0) / filteredImages.length
+        return Math.floor(virtualizedColumnWidth / avgRatio) + GAP
+      })()
+    : 0
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     const target = e.target as HTMLElement
@@ -138,7 +179,7 @@ export function GalleryPage() {
       </div>
 
       {/* Image masonry */}
-      <div className="flex-1 overflow-y-auto p-10">
+      <div ref={containerRef} className="flex-1 overflow-y-auto p-10">
         {filteredImages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
@@ -150,6 +191,16 @@ export function GalleryPage() {
               </p>
             </div>
           </div>
+        ) : useVirtualized && containerSize.width > 0 ? (
+          <VirtualizedGrid
+            images={filteredImages}
+            columns={COLS}
+            columnWidth={virtualizedColumnWidth}
+            rowHeight={virtualizedRowHeight}
+            height={containerSize.height}
+            width={containerSize.width}
+            focusedIndex={focusedIndex}
+          />
         ) : (
           <div className="columns-4 gap-x-4 gap-y-4">
             {filteredImages.map((image, index) => (
