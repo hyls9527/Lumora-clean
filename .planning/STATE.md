@@ -20,12 +20,12 @@ last_updated: '2026-06-15'
   - Wave 1: Real image import via Tauri dialog
   - Wave 2: Settings persistence (SQLite)
   - Wave 3: FTS5 full-text search
-- Bug fixes: react-window v2, CommandPalette, import paths, SVG placeholders, Error Boundary
+- Bug fixes: react-window v2, CommandPalette hook order, import paths, SVG placeholders, Error Boundary, lazy-load Tauri API
 
 ## Architecture
 ```
 Frontend (React 19 + TypeScript)
-    ↓ invoke()
+    ↓ dynamic import()
 Tauri IPC (9 commands)
     ↓
 Backend (Rust + Tauri 2)
@@ -50,16 +50,19 @@ SQLite Database + FTS5 + Filesystem
 - FTS5 full-text search with debounced input
 - Search result highlighting in CommandPalette
 - Page-level Error Boundaries with poetic fallbacks
-- Loading states ("研墨中…")
-- Empty states ("此处尚无藏品")
+- Loading states (研墨中…)
+- Empty states (此处尚无藏品)
 
 ## Design System
 - **Name:** 古卷·灯火 (Ancient Manuscript · Lamplight)
 - **Colors:** ivory #f2ede4 + ink #2a2118 + patina gold #7a5c12
 - **Typography:** Noto Serif SC (titles) + DM Sans (body)
 
+## Known Limitations
+- Browser tool cannot render ES modules (use actual browser)
+- DevSidecar may intercept external URLs (use local assets)
+
 ## Next
-- Final verification + screenshots
 - CLIP/ONNX integration (v0.2)
 - Ollama LLM integration (v0.2)
 - Duplicate detection (v0.2)
