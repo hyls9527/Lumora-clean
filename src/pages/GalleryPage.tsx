@@ -4,6 +4,7 @@ import { useAppStore } from "@/stores/app-store"
 import { cn } from "@/lib/utils"
 import { ImageCard } from "@/components/ImageCard"
 import { VirtualizedGrid } from "@/components/VirtualizedGrid"
+import { TagFilterBar } from "@/components/TagManager"
 
 const VIRTUALIZE_THRESHOLD = 100
 const COLS = 4
@@ -176,6 +177,11 @@ export function GalleryPage() {
             {t("toolbar.listView")}
           </button>
         </div>
+      </div>
+
+      {/* Tag filter bar */}
+      <div className="px-10 py-2 border-b border-border-subtle shrink-0">
+        <TagFilterBar />
       </div>
 
       {/* Image masonry */}

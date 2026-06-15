@@ -171,5 +171,14 @@
       "title": "回收站为空",
       "subtitle": "删除的图片将显示在这里"
     }
+  },
+  "tags": {
+    "title": "标签",
+    "placeholder": "新标签名称...",
+    "color": "颜色",
+    "empty": "暂无标签",
+    "close": "完成",
+    "filter": "标签",
+    "clearFilters": "清除"
   }
 }

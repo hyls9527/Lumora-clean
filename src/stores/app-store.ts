@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { type Image, generateMockImages } from "../lib/mock-data"
+import { type Image, type Tag, generateMockImages, MOCK_TAGS } from "../lib/mock-data"
 
 type View = "gallery" | "curation" | "dashboard" | "trash" | "settings"
 
@@ -25,6 +25,12 @@ interface AppState {
   deleteFocusedImage: () => void
   openFocusedImage: () => void
   getFilteredImages: () => Image[]
+  tags: Tag[]
+  addTag: (tag: Tag) => void
+  removeTag: (name: string) => void
+  activeTagFilters: Set<string>
+  toggleTagFilter: (name: string) => void
+  clearTagFilters: () => void
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -48,13 +54,21 @@ export const useAppStore = create<AppState>((set, get) => ({
   setFocusedIndex: (i) => set({ focusedIndex: i }),
   getFilteredImages: () => {
     const s = get()
-    if (!s.searchQuery) return s.images
-    const q = s.searchQuery.toLowerCase()
-    return s.images.filter((img) =>
-      img.tags.some((tag) => tag.includes(q)) ||
-      img.path.toLowerCase().includes(q) ||
-      img.analysis?.generation?.prompt?.toLowerCase().includes(q)
-    )
+    let results = s.images
+    if (s.activeTagFilters.size > 0) {
+      results = results.filter((img) =>
+        img.tags.some((tag) => s.activeTagFilters.has(tag))
+      )
+    }
+    if (s.searchQuery) {
+      const q = s.searchQuery.toLowerCase()
+      results = results.filter((img) =>
+        img.tags.some((tag) => tag.includes(q)) ||
+        img.path.toLowerCase().includes(q) ||
+        img.analysis?.generation?.prompt?.toLowerCase().includes(q)
+      )
+    }
+    return results
   },
   deleteFocusedImage: () => {
     const s = get()
@@ -73,4 +87,17 @@ export const useAppStore = create<AppState>((set, get) => ({
     const img = filtered[s.focusedIndex]
     if (img) set({ detailImage: img })
   },
+  tags: [...MOCK_TAGS],
+  addTag: (tag) => set((s) => ({ tags: [...s.tags, tag] })),
+  removeTag: (name) => set((s) => ({
+    tags: s.tags.filter((t) => t.name !== name),
+    activeTagFilters: (() => { const n = new Set(s.activeTagFilters); n.delete(name); return n })(),
+  })),
+  activeTagFilters: new Set(),
+  toggleTagFilter: (name) => set((s) => {
+    const n = new Set(s.activeTagFilters)
+    n.has(name) ? n.delete(name) : n.add(name)
+    return { activeTagFilters: n }
+  }),
+  clearTagFilters: () => set({ activeTagFilters: new Set() }),
 }))

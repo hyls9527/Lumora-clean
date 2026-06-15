@@ -1,5 +1,33 @@
 export type AspectRatio = '1/1' | '4/3' | '3/4' | '16/9' | '3/2'
 
+export interface Tag {
+  name: string
+  color: string
+}
+
+export const MOCK_TAGS: Tag[] = [
+  { name: "portrait", color: "amber" },
+  { name: "landscape", color: "emerald" },
+  { name: "anime", color: "rose" },
+  { name: "cyberpunk", color: "sky" },
+  { name: "painting", color: "stone" },
+  { name: "abstract", color: "violet" },
+  { name: "fantasy", color: "amber" },
+  { name: "food", color: "stone" },
+  { name: "nature", color: "emerald" },
+  { name: "city", color: "sky" },
+  { name: "still-life", color: "stone" },
+  { name: "b&w", color: "stone" },
+  { name: "minimalist", color: "amber" },
+  { name: "concept-art", color: "violet" },
+  { name: "impressionist", color: "rose" },
+  { name: "neon", color: "sky" },
+  { name: "cherry-blossom", color: "rose" },
+  { name: "mountains", color: "emerald" },
+  { name: "sunset", color: "amber" },
+  { name: "studio", color: "stone" },
+]
+
 export interface Image {
   id: string
   path: string

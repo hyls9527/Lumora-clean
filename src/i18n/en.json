@@ -171,5 +171,14 @@
       "title": "Trash is empty",
       "subtitle": "Deleted images will appear here"
     }
+  },
+  "tags": {
+    "title": "Tags",
+    "placeholder": "New tag name...",
+    "color": "Color",
+    "empty": "No tags yet",
+    "close": "Done",
+    "filter": "Tags",
+    "clearFilters": "Clear"
   }
 }
