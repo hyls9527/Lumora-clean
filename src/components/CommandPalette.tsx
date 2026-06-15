@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
 import { cn } from "@/lib/utils"
+import { searchImages, type ImageRecord } from "@/lib/api/images"
+import { isTauri } from "@/lib/tauri"
 import {
   Image,
   Sparkles,
@@ -27,6 +29,7 @@ interface Command {
   icon: React.ElementType
   section: string
   action: () => void
+  _searchRecord?: ImageRecord
 }
 
 export function CommandPalette() {
@@ -34,8 +37,11 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
   const [focusedIndex, setFocusedIndex] = useState(0)
+  const [searchResults, setSearchResults] = useState<ImageRecord[]>([])
+  const [isSearching, setIsSearching] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const {
     setView,
@@ -46,6 +52,7 @@ export function CommandPalette() {
     selectedIds,
     images,
     setRating,
+    setDetailImage,
   } = useAppStore()
 
   const openPalette = useCallback(() => {
@@ -96,17 +103,48 @@ export function CommandPalette() {
     })
   }, [commands, query, t])
 
+  const highlightMatch = useCallback((text: string) => {
+    if (!query.trim()) return text
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    const regex = new RegExp(`(${escaped})`, "gi")
+    const parts = text.split(regex)
+    return parts.map((part, i) =>
+      regex.test(part) ? <mark key={i} className="bg-accent/30 text-text rounded-sm px-0.5">{part}</mark> : part
+    )
+  }, [query])
+
   const grouped = useMemo(() => {
     const map = new Map<string, Command[]>()
-    for (const cmd of filtered) {
+    for (const cmd of allItems) {
       const list = map.get(cmd.section) || []
       list.push(cmd)
       map.set(cmd.section, list)
     }
     return map
-  }, [filtered])
+  }, [allItems])
 
-  const flatCommands = filtered
+  const hasSearchResults = query.trim() && searchResults.length > 0
+
+  const searchResultCommands: Command[] = useMemo(() =>
+    searchResults.map((r) => ({
+      id: `search-${r.id}`,
+      labelKey: "",
+      hint: r.file_path.split(/[\\/]/).pop(),
+      icon: Image,
+      section: "commandPalette.sections.searchResults",
+      action: () => {
+        const img = images.find((i) => i.id === String(r.id))
+        if (img) setDetailImage(img)
+      },
+      _searchRecord: r,
+    })),
+    [searchResults, images, setDetailImage])
+
+  const allItems = useMemo(() =>
+    hasSearchResults ? [...searchResultCommands, ...filtered] : filtered,
+    [hasSearchResults, searchResultCommands, filtered])
+
+  const flatCommands = allItems
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -170,6 +208,25 @@ export function CommandPalette() {
 
   useEffect(() => {
     setFocusedIndex(0)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (!query.trim() || !isTauri()) {
+      setSearchResults([])
+      return
+    }
+    setIsSearching(true)
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const results = await searchImages(query.trim())
+        setSearchResults(results)
+      } catch {
+        setSearchResults([])
+      } finally {
+        setIsSearching(false)
+      }
+    }, 300)
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
   }, [query])
 
   useEffect(() => {
@@ -236,7 +293,7 @@ export function CommandPalette() {
         <div ref={listRef} className="max-h-[320px] overflow-y-auto py-1">
           {flatCommands.length === 0 ? (
             <div className="px-4 py-6 text-center text-[13px] text-text-muted font-serif">
-              {t("commandPalette.noResults")}
+              {isSearching ? t("gallery.loading") : t("commandPalette.noResults")}
             </div>
           ) : (
             Array.from(grouped.entries()).map(([sectionKey, cmds]) => (
@@ -250,6 +307,7 @@ export function CommandPalette() {
                   const idx = flatIndex++
                   const Icon = cmd.icon
                   const isFocused = idx === focusedIndex
+                  const isSearch = cmd.section === "commandPalette.sections.searchResults"
                   return (
                     <button
                       key={cmd.id}
@@ -264,9 +322,11 @@ export function CommandPalette() {
                       onClick={() => executeCommand(cmd)}
                     >
                       <Icon className="w-4 h-4 shrink-0 opacity-50" />
-                      <span className="flex-1">{t(cmd.labelKey)}</span>
+                      <span className="flex-1 truncate">
+                        {isSearch ? highlightMatch(cmd._searchRecord?.file_path ?? "") : t(cmd.labelKey)}
+                      </span>
                       {cmd.hint && (
-                        <span className="text-[9px] font-serif text-text-faint opacity-60">
+                        <span className="text-[9px] font-serif text-text-faint opacity-60 shrink-0">
                           {cmd.hint}
                         </span>
                       )}

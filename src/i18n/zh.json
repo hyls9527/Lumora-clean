@@ -127,7 +127,8 @@
       "navigation": "导航",
       "actions": "操作",
       "sort": "排序",
-      "import": "导入与导出"
+      "import": "导入与导出",
+      "searchResults": "搜索结果"
     },
     "commands": {
       "selectAll": "全选",

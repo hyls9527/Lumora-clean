@@ -94,6 +94,59 @@ impl Database {
     }
 
     pub fn search_images(&self, query: &str) -> Result<Vec<ImageRecord>> {
+        let fts_query = Self::build_fts_query(query);
+        let fts_result = self.conn.prepare(
+            "SELECT i.id, i.file_path, i.file_hash, i.file_size_kb, i.width, i.height, i.format,
+                    i.created_at, i.rating, i.favorite, i.metadata_json
+             FROM images i
+             JOIN images_fts fts ON i.id = fts.rowid
+             WHERE images_fts MATCH ?1 AND i.deleted = 0
+             ORDER BY rank
+             LIMIT 100",
+        ).and_then(|mut stmt| {
+            let images = stmt
+                .query_map([&fts_query as &dyn rusqlite::types::ToSql], |row| {
+                    Ok(ImageRecord {
+                        id: row.get(0)?,
+                        file_path: row.get(1)?,
+                        file_hash: row.get(2)?,
+                        file_size_kb: row.get(3)?,
+                        width: row.get(4)?,
+                        height: row.get(5)?,
+                        format: row.get(6)?,
+                        created_at: row.get(7)?,
+                        rating: row.get(8)?,
+                        favorite: row.get::<_, i32>(9)? != 0,
+                        metadata_json: row.get(10)?,
+                    })
+                })?
+                .collect::<Result<Vec<_>>>()?;
+            Ok(images)
+        });
+
+        match fts_result {
+            Ok(images) if !images.is_empty() => Ok(images),
+            _ => self.search_images_like(query),
+        }
+    }
+
+    fn build_fts_query(query: &str) -> String {
+        let terms: Vec<String> = query
+            .split_whitespace()
+            .filter(|t| !t.is_empty())
+            .map(|t| {
+                let escaped = t.replace('"', "\"\"");
+                format!("\"{}\"*", escaped)
+            })
+            .collect();
+        if terms.is_empty() {
+            format!("\"{}\"", query.replace('"', "\"\""))
+        } else {
+            terms.join(" ")
+        }
+    }
+
+    fn search_images_like(&self, query: &str) -> Result<Vec<ImageRecord>> {
         let mut stmt = self.conn.prepare(
             "SELECT id, file_path, file_hash, file_size_kb, width, height, format,
                     created_at, rating, favorite, metadata_json

@@ -49,6 +49,24 @@ CREATE VIRTUAL TABLE IF NOT EXISTS images_fts USING fts5(
     content_rowid='id'
 );
 
+-- FTS5 sync triggers
+CREATE TRIGGER IF NOT EXISTS images_ai AFTER INSERT ON images BEGIN
+    INSERT INTO images_fts(rowid, file_path, metadata_json, llm_json)
+    VALUES (new.id, new.file_path, new.metadata_json, new.llm_json);
+END;
+
+CREATE TRIGGER IF NOT EXISTS images_ad AFTER DELETE ON images BEGIN
+    INSERT INTO images_fts(images_fts, rowid, file_path, metadata_json, llm_json)
+    VALUES ('delete', old.id, old.file_path, old.metadata_json, old.llm_json);
+END;
+
+CREATE TRIGGER IF NOT EXISTS images_au AFTER UPDATE ON images BEGIN
+    INSERT INTO images_fts(images_fts, rowid, file_path, metadata_json, llm_json)
+    VALUES ('delete', old.id, old.file_path, old.metadata_json, old.llm_json);
+    INSERT INTO images_fts(rowid, file_path, metadata_json, llm_json)
+    VALUES (new.id, new.file_path, new.metadata_json, new.llm_json);
+END;
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_images_file_hash ON images(file_hash);
 CREATE INDEX IF NOT EXISTS idx_images_rating ON images(rating) WHERE deleted = 0;

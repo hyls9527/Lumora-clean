@@ -127,7 +127,8 @@
       "navigation": "Navigation",
       "actions": "Actions",
       "sort": "Sort",
-      "import": "Import & Export"
+      "import": "Import & Export",
+      "searchResults": "Search Results"
     },
     "commands": {
       "selectAll": "Select All",
