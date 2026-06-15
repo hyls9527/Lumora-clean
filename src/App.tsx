@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { Sidebar } from "@/components/Sidebar"
 import { DetailPanel } from "@/components/DetailPanel"
 import { CommandPalette } from "@/components/CommandPalette"
+import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { GalleryPage } from "@/pages/GalleryPage"
 import { CurationPage } from "@/pages/CurationPage"
 import { DashboardPage } from "@/pages/DashboardPage"
@@ -44,10 +45,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <I18nProvider>
-      <TooltipProvider>
-        <AppContent />
-      </TooltipProvider>
-    </I18nProvider>
+    <ErrorBoundary>
+      <I18nProvider>
+        <TooltipProvider>
+          <AppContent />
+        </TooltipProvider>
+      </I18nProvider>
+    </ErrorBoundary>
   )
 }

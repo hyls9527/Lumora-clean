@@ -1,4 +1,3 @@
-import { type GridProps } from 'react-window'
 import { Grid } from 'react-window'
 import { ImageCard } from './ImageCard'
 import { type Image } from '@/lib/mock-data'

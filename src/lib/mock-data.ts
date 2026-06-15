@@ -78,6 +78,18 @@ const ASPECT_RATIOS: AspectRatio[] = ['1/1', '4/3', '3/4', '16/9', '3/2', '2/3',
 function rand(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1)) + min }
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)] }
 
+const PLACEHOLDER_COLORS = [
+  '#e8d5b7', '#c9b896', '#b8a07a', '#d4c4a8', '#a89070',
+  '#dcc8a0', '#bfab85', '#e0cfb0', '#c4ae8e', '#d2bc98',
+]
+
+function placeholderSvg(seed: number, w: number, h: number): string {
+  const bg = PLACEHOLDER_COLORS[seed % PLACEHOLDER_COLORS.length]
+  const fg = '#8a7a60'
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="${w}" height="${h}" fill="${bg}"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="serif" font-size="14" fill="${fg}">${w}×${h}</text></svg>`
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`
+}
+
 export function generateMockImages(count: number): Image[] {
   const images: Image[] = []
   for (let i = 0; i < count; i++) {
@@ -87,7 +99,7 @@ export function generateMockImages(count: number): Image[] {
     images.push({
       id: `img-${i}`,
       path: `D:/Gallery/${String(i).padStart(4, "0")}.png`,
-      thumbnail: `https://picsum.photos/seed/${i}/${w}/${h}`,
+      thumbnail: placeholderSvg(i, w, h),
       width: w,
       height: h,
       sizeKb: rand(200, 8000),
