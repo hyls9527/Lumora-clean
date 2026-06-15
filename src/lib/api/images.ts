@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
-
 export interface ImageRecord {
   id: number;
   file_path: string;
@@ -20,37 +18,40 @@ export interface ImportResult {
   errors: string[];
 }
 
-export async function getImageCount(): Promise<number> {
-  return invoke("get_image_count");
+// Lazy invoke — avoids top-level @tauri-apps/api import that crashes in browser
+async function tauriInvoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
+  const { invoke } = await import("@tauri-apps/api/core");
+  return invoke<T>(cmd, args);
 }
 
-export async function getImages(
-  limit: number,
-  offset: number,
-): Promise<ImageRecord[]> {
-  return invoke("get_images", { limit, offset });
+export async function getImageCount(): Promise<number> {
+  return tauriInvoke("get_image_count");
+}
+
+export async function getImages(limit: number, offset: number): Promise<ImageRecord[]> {
+  return tauriInvoke("get_images", { limit, offset });
 }
 
 export async function importFolder(folderPath: string): Promise<ImportResult> {
-  return invoke("import_folder", { folderPath });
+  return tauriInvoke("import_folder", { folderPath });
 }
 
 export async function updateImageRating(imageId: number, rating: number): Promise<void> {
-  return invoke("update_image_rating", { imageId, rating });
+  return tauriInvoke("update_image_rating", { imageId, rating });
 }
 
 export async function toggleImageFavorite(imageId: number): Promise<void> {
-  return invoke("toggle_image_favorite", { imageId });
+  return tauriInvoke("toggle_image_favorite", { imageId });
 }
 
 export async function deleteImage(imageId: number): Promise<void> {
-  return invoke("delete_image", { imageId });
+  return tauriInvoke("delete_image", { imageId });
 }
 
 export async function searchImages(query: string): Promise<ImageRecord[]> {
-  return invoke("search_images", { query });
+  return tauriInvoke("search_images", { query });
 }
 
 export async function openFolderDialog(): Promise<ImportResult> {
-  return invoke("open_folder_dialog");
+  return tauriInvoke("open_folder_dialog");
 }
