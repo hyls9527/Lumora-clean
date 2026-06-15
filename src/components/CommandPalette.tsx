@@ -48,6 +48,18 @@ export function CommandPalette() {
     setRating,
   } = useAppStore()
 
+  const openPalette = useCallback(() => {
+    setOpen(true)
+    setQuery("")
+    setFocusedIndex(0)
+  }, [])
+
+  const closePalette = useCallback(() => {
+    setOpen(false)
+    setQuery("")
+    setFocusedIndex(0)
+  }, [])
+
   const rateSelected = useCallback(() => {
     const ids = Array.from(selectedIds)
     if (ids.length === 0) return
@@ -95,18 +107,6 @@ export function CommandPalette() {
   }, [filtered])
 
   const flatCommands = filtered
-
-  const openPalette = useCallback(() => {
-    setOpen(true)
-    setQuery("")
-    setFocusedIndex(0)
-  }, [])
-
-  const closePalette = useCallback(() => {
-    setOpen(false)
-    setQuery("")
-    setFocusedIndex(0)
-  }, [])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
