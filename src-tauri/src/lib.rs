@@ -1,7 +1,8 @@
 mod db;
+mod import;
 
 use db::Database;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use tauri::State;
 
@@ -25,6 +26,12 @@ fn get_images(
     db.get_images(limit, offset).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn import_folder(state: State<AppState>, folder_path: String) -> Result<import::ImportResult, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    import::import_folder(Path::new(&folder_path), &db)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let db_path = dirs::data_dir()
@@ -40,7 +47,7 @@ pub fn run() {
         .manage(AppState {
             db: Mutex::new(db),
         })
-        .invoke_handler(tauri::generate_handler![get_image_count, get_images])
+        .invoke_handler(tauri::generate_handler![get_image_count, get_images, import_folder])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

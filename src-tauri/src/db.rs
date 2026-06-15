@@ -27,6 +27,42 @@ impl Database {
         )
     }
 
+    pub fn image_exists(&self, file_path: &str) -> Result<bool> {
+        let count: i64 = self.conn.query_row(
+            "SELECT COUNT(*) FROM images WHERE file_path = ?1 AND deleted = 0",
+            [file_path],
+            |row| row.get(0),
+        )?;
+        Ok(count > 0)
+    }
+
+    pub fn hash_exists(&self, hash: &str) -> Result<bool> {
+        let count: i64 = self.conn.query_row(
+            "SELECT COUNT(*) FROM images WHERE file_hash = ?1 AND deleted = 0",
+            [hash],
+            |row| row.get(0),
+        )?;
+        Ok(count > 0)
+    }
+
+    pub fn insert_image(
+        &self,
+        file_path: &str,
+        file_hash: &str,
+        file_size_kb: i64,
+        width: i32,
+        height: i32,
+        format: &str,
+        _thumbnail_path: &str,
+    ) -> Result<i64> {
+        self.conn.execute(
+            "INSERT INTO images (file_path, file_hash, file_size_kb, width, height, format)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            rusqlite::params![file_path, file_hash, file_size_kb, width, height, format],
+        )?;
+        Ok(self.conn.last_insert_rowid())
+    }
+
     pub fn get_images(&self, limit: i64, offset: i64) -> Result<Vec<ImageRecord>> {
         let mut stmt = self.conn.prepare(
             "SELECT id, file_path, file_hash, file_size_kb, width, height, format,
