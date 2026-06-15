@@ -1,4 +1,5 @@
-import { I18nProvider, useTranslation } from "@/lib/i18n"
+import { useEffect } from "react"
+import { I18nProvider } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Sidebar } from "@/components/Sidebar"
@@ -12,7 +13,11 @@ import { SettingsPage } from "@/pages/SettingsPage"
 import { TrashPage } from "@/pages/TrashPage"
 
 function AppContent() {
-  const { view, detailImage } = useAppStore()
+  const { view, detailImage, isLoading, error, loadImages } = useAppStore()
+
+  useEffect(() => {
+    loadImages()
+  }, [loadImages])
 
   const renderPage = () => {
     switch (view) {
@@ -35,7 +40,13 @@ function AppContent() {
     <div className="flex h-screen bg-bg">
       <Sidebar />
       <main className="flex-1 overflow-auto bg-bg px-10">
-        {renderPage()}
+        {isLoading ? (
+          <div className="flex h-full items-center justify-center text-muted-foreground">Loading...</div>
+        ) : error ? (
+          <div className="flex h-full items-center justify-center text-destructive">{error}</div>
+        ) : (
+          renderPage()
+        )}
       </main>
       {detailImage && <DetailPanel />}
       <CommandPalette />

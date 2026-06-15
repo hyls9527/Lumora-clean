@@ -34,3 +34,19 @@ export async function getImages(
 export async function importFolder(folderPath: string): Promise<ImportResult> {
   return invoke("import_folder", { folderPath });
 }
+
+export async function updateImageRating(imageId: number, rating: number): Promise<void> {
+  return invoke("update_image_rating", { imageId, rating });
+}
+
+export async function toggleImageFavorite(imageId: number): Promise<void> {
+  return invoke("toggle_image_favorite", { imageId });
+}
+
+export async function deleteImage(imageId: number): Promise<void> {
+  return invoke("delete_image", { imageId });
+}
+
+export async function searchImages(query: string): Promise<ImageRecord[]> {
+  return invoke("search_images", { query });
+}
