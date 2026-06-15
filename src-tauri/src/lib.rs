@@ -32,6 +32,30 @@ fn import_folder(state: State<AppState>, folder_path: String) -> Result<import::
     import::import_folder(Path::new(&folder_path), &db)
 }
 
+#[tauri::command]
+fn update_image_rating(state: State<AppState>, image_id: i64, rating: i32) -> Result<(), String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.update_rating(image_id, rating).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn toggle_image_favorite(state: State<AppState>, image_id: i64) -> Result<bool, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.toggle_favorite(image_id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn delete_image(state: State<AppState>, image_id: i64) -> Result<(), String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.soft_delete(image_id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn search_images(state: State<AppState>, query: String) -> Result<Vec<db::ImageRecord>, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.search_images(&query).map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let db_path = dirs::data_dir()
@@ -47,7 +71,15 @@ pub fn run() {
         .manage(AppState {
             db: Mutex::new(db),
         })
-        .invoke_handler(tauri::generate_handler![get_image_count, get_images, import_folder])
+        .invoke_handler(tauri::generate_handler![
+            get_image_count,
+            get_images,
+            import_folder,
+            update_image_rating,
+            toggle_image_favorite,
+            delete_image,
+            search_images
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
