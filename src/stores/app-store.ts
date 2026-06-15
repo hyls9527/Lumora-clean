@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { type Image, type Tag, generateMockImages, MOCK_TAGS } from "../lib/mock-data"
-import { type ImageRecord, getImages, updateImageRating, toggleImageFavorite, deleteImage as deleteImageApi, importFolder as importFolderApi } from "../lib/api/images"
+import { type ImageRecord, getImages, updateImageRating, toggleImageFavorite, deleteImage as deleteImageApi, importFolder as importFolderApi, openFolderDialog as openFolderDialogApi } from "../lib/api/images"
 import { isTauri } from "../lib/tauri"
 
 type View = "gallery" | "curation" | "dashboard" | "trash" | "settings"
@@ -54,6 +54,7 @@ interface AppState {
   error: string | null
   loadImages: () => Promise<void>
   importFolder: (folderPath: string) => Promise<{ imported: number; skipped: number; errors: string[] } | null>
+  openFolderDialog: () => Promise<{ imported: number; skipped: number; errors: string[] } | null>
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -171,6 +172,21 @@ export const useAppStore = create<AppState>((set, get) => ({
       console.error("importFolder failed:", err)
       set({ error: String(err) })
       return null
+    }
+  },
+  openFolderDialog: async () => {
+    if (!isTauri()) return null
+    set({ isLoading: true, error: null })
+    try {
+      const result = await openFolderDialogApi()
+      await get().loadImages()
+      return result
+    } catch (err) {
+      console.error("openFolderDialog failed:", err)
+      set({ error: String(err) })
+      return null
+    } finally {
+      set({ isLoading: false })
     }
   },
 }))

@@ -4,10 +4,11 @@ mod import;
 use db::Database;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
-use tauri::State;
+use tauri::{AppHandle, Manager, State};
 
 struct AppState {
     db: Mutex<Database>,
+    app_handle: AppHandle,
 }
 
 #[tauri::command]
@@ -56,6 +57,26 @@ fn search_images(state: State<AppState>, query: String) -> Result<Vec<db::ImageR
     db.search_images(&query).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+async fn open_folder_dialog(state: State<'_, AppState>) -> Result<import::ImportResult, String> {
+    use tauri_plugin_dialog::DialogExt;
+
+    let folder = state
+        .app_handle
+        .dialog()
+        .file()
+        .blocking_pick_folder()
+        .ok_or("No folder selected")?;
+
+    let folder_path = folder
+        .as_path()
+        .ok_or("Invalid folder path")?
+        .to_path_buf();
+
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    import::import_folder(&folder_path, &db)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let db_path = dirs::data_dir()
@@ -68,8 +89,14 @@ pub fn run() {
     let db = Database::new(&db_path).expect("Failed to initialize database");
 
     tauri::Builder::default()
-        .manage(AppState {
-            db: Mutex::new(db),
+        .plugin(tauri_plugin_dialog::init())
+        .setup(|app| {
+            let app_handle = app.handle().clone();
+            app.manage(AppState {
+                db: Mutex::new(db),
+                app_handle,
+            });
+            Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             get_image_count,
@@ -78,7 +105,8 @@ pub fn run() {
             update_image_rating,
             toggle_image_favorite,
             delete_image,
-            search_images
+            search_images,
+            open_folder_dialog
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

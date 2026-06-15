@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
+import { isTauri } from "@/lib/tauri"
 import { cn } from "@/lib/utils"
 import type { Image, AspectRatio } from "@/lib/mock-data"
 
@@ -39,6 +40,7 @@ function fileToMockImage(file: File): Image {
 export function DropZone() {
   const { t } = useTranslation()
   const images = useAppStore((s) => s.images)
+  const openFolderDialog = useAppStore((s) => s.openFolderDialog)
   const [dragOver, setDragOver] = useState(false)
   const [importing, setImporting] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -123,11 +125,22 @@ export function DropZone() {
       dragCountRef.current = 0
       setDragOver(false)
 
+      if (isTauri()) {
+        openFolderDialog()
+        return
+      }
+
       const files = Array.from(e.dataTransfer.files)
       simulateImport(files)
     },
-    [simulateImport],
+    [simulateImport, openFolderDialog],
   )
+
+  const handleClick = useCallback(() => {
+    if (isTauri()) {
+      openFolderDialog()
+    }
+  }, [openFolderDialog])
 
   return (
     <div
@@ -150,7 +163,10 @@ export function DropZone() {
 
       {/* Drop target area */}
       {dragOver && (
-        <div className="absolute inset-8 rounded-[6px] border-2 border-dashed border-accent/30 flex items-center justify-center">
+        <div
+          className="absolute inset-8 rounded-[6px] border-2 border-dashed border-accent/30 flex items-center justify-center cursor-pointer"
+          onClick={handleClick}
+        >
           <div className="text-center">
             <div className="text-[32px] mb-3 opacity-40">
               <svg

@@ -50,3 +50,7 @@ export async function deleteImage(imageId: number): Promise<void> {
 export async function searchImages(query: string): Promise<ImageRecord[]> {
   return invoke("search_images", { query });
 }
+
+export async function openFolderDialog(): Promise<ImportResult> {
+  return invoke("open_folder_dialog");
+}
