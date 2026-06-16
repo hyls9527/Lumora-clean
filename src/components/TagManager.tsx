@@ -172,11 +172,12 @@ export function TagFilterBar() {
   if (tags.length === 0) return null
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <div className="flex items-center gap-3 flex-wrap">
       <span className="text-[10px] uppercase tracking-[0.1em] text-text-faint font-sans shrink-0">
         {t("tags.filter")}
       </span>
-      {tags.map((tag) => {
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {tags.map((tag) => {
         const color = TAG_COLORS.find((c) => c.name === tag.color) ?? TAG_COLORS[0]
         const isActive = activeTagFilters.has(tag.name)
         const count = tagCounts.get(tag.name) ?? 0
@@ -202,6 +203,7 @@ export function TagFilterBar() {
           </button>
         )
       })}
+      </div>
       {activeTagFilters.size > 0 && (
         <button
           onClick={clearTagFilters}

@@ -43,7 +43,12 @@ function AppContent() {
         {isLoading ? (
           <div className="flex h-full items-center justify-center">
             <div className="text-center">
-              <p className="font-serif text-[15px] text-text-muted animate-pulse">研墨中…</p>
+              <div className="w-12 h-12 mx-auto mb-4 relative">
+                <div className="absolute inset-0 border-2 border-accent/20 rounded-full animate-ping" />
+                <div className="absolute inset-2 border-2 border-accent/40 rounded-full animate-pulse" />
+                <div className="absolute inset-4 border-2 border-accent rounded-full" />
+              </div>
+              <p className="font-serif text-[15px] text-text-muted">研墨中…</p>
             </div>
           </div>
         ) : error ? (

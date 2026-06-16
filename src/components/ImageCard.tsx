@@ -43,7 +43,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
     <div
       className={cn(
         "group relative rounded-[2px] overflow-hidden cursor-pointer",
-        "shadow-card hover:shadow-card-hover",
+        "shadow-sm hover:shadow-card-hover",
         "transition-all duration-200 ease-out",
         "hover:scale-[1.02]",
         isSelected && "bg-accent/10 border border-accent/20",
@@ -94,9 +94,9 @@ export function ImageCard({ image, focused }: ImageCardProps) {
         {/* Favorite stamp */}
         <div
           className={cn(
-            "absolute top-2.5 right-2.5 w-5 h-5 rounded-[4px] bg-accent/80 flex items-center justify-center transition-all duration-200 ease-out cursor-pointer",
+            "absolute top-2.5 right-2.5 w-5 h-5 rounded-[4px] flex items-center justify-center transition-all duration-200 ease-out cursor-pointer",
             "hover:scale-110 hover:shadow-md active:scale-90",
-            image.favorite || isHovered ? "opacity-100" : "opacity-0"
+            image.favorite ? "bg-accent opacity-100" : "bg-accent/60 opacity-0 group-hover:opacity-100"
           )}
           onClick={(e) => {
             e.stopPropagation()
@@ -104,8 +104,8 @@ export function ImageCard({ image, focused }: ImageCardProps) {
           }}
         >
           <span className={cn(
-            "text-[11px] leading-none text-surface transition-transform duration-200",
-            !image.favorite && "opacity-40"
+            "text-[11px] leading-none text-surface transition-all duration-200",
+            image.favorite && "scale-110"
           )}>
             ◆
           </span>

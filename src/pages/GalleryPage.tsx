@@ -204,6 +204,23 @@ export function GalleryPage() {
       <div className="px-10 py-2 border-b border-border-subtle shrink-0">
         <TagFilterBar />
       </div>
+      
+      {/* Onboarding hint (first visit) */}
+      {images.length > 0 && !localStorage.getItem('lumora-onboarded') && (
+        <div className="px-10 py-3 bg-accent/5 border-b border-accent/10">
+          <p className="font-serif text-[12px] text-text-muted text-center">
+            按 <kbd className="px-1.5 py-0.5 rounded bg-bg border border-border-subtle text-[10px]">⌘K</kbd> 打开命令面板 · 
+            点击图片查看详情 · 
+            悬停显示评分和收藏
+          </p>
+          <button 
+            className="block mx-auto mt-2 text-[10px] text-accent hover:underline"
+            onClick={() => localStorage.setItem('lumora-onboarded', 'true')}
+          >
+            知道了
+          </button>
+        </div>
+      )}
 
       {/* Image masonry */}
       <div ref={containerRef} className="flex-1 overflow-y-auto p-10">
