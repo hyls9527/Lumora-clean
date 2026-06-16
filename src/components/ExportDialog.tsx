@@ -219,7 +219,6 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
               "bg-accent text-white hover:bg-accent-hover disabled:opacity-50"
             )}
           >
-            <Download className="w-3.5 h-3.5" />
             <span>{exporting ? t("export.exporting") : t("export.button")}</span>
           </button>
         </div>

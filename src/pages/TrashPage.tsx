@@ -1,7 +1,6 @@
 import { useTranslation } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import { PageErrorBoundary } from "@/components/PageErrorBoundary"
-import { Trash2, RotateCcw, X } from "lucide-react"
 import { Card } from "@/components/ui/card"
 
 export function TrashPage() {
@@ -25,7 +24,6 @@ export function TrashPage() {
           </div>
           {trashItems.length > 0 && (
             <button className="flex items-center gap-2 px-4 py-2 rounded-[4px] text-[13px] font-medium text-danger hover:bg-danger/5 transition-all duration-200 ease-out">
-              <X className="w-4 h-4" />
               {t("trash.emptyAll")}
             </button>
           )}
@@ -36,7 +34,7 @@ export function TrashPage() {
           <div className="flex items-center justify-center py-24">
             <div className="text-center">
               <div className="w-20 h-20 rounded-[2px] bg-bg border border-border-subtle flex items-center justify-center mx-auto mb-5">
-                <Trash2 className="w-10 h-10 text-text-faint" />
+                <span className="font-serif text-[24px] text-text-faint">◆</span>
               </div>
               <h3 className="font-serif text-[16px] text-text-muted mb-1.5">
                 回收站空空如也
@@ -52,7 +50,7 @@ export function TrashPage() {
               <Card key={item.id} className="p-5 rounded-[2px] flex items-center justify-between shadow-sm border-border-subtle">
                 <div className="flex items-center gap-4">
                   <div className="w-11 h-11 rounded-[4px] bg-bg border border-border-subtle flex items-center justify-center">
-                    <Trash2 className="w-5 h-5 text-text-muted" />
+                    <span className="font-serif text-[14px] text-text-muted">◆</span>
                   </div>
                   <div>
                     <span className="text-[13px] font-medium">{item.name}</span>
@@ -63,7 +61,6 @@ export function TrashPage() {
                   </div>
                 </div>
                 <button className="flex items-center gap-2 px-3.5 py-2 rounded-[4px] text-[12px] font-medium text-text-secondary hover:bg-surface-hover transition-all duration-200 ease-out">
-                  <RotateCcw className="w-3.5 h-3.5" />
                   {t("trash.restore")}
                 </button>
               </Card>

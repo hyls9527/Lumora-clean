@@ -3,14 +3,6 @@ import { useTranslation } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import { PageErrorBoundary } from "@/components/PageErrorBoundary"
 import { useSettingsStore } from "@/stores/settings-store"
-import {
-  Globe,
-  Palette,
-  Keyboard,
-  HardDrive,
-  Cpu,
-  Info,
-} from "lucide-react"
 import { Card } from "@/components/ui/card"
 
 const TABS = ["general", "appearance", "shortcuts", "about"] as const
@@ -69,7 +61,7 @@ export function SettingsPage() {
         {activeTab === "general" && (
           <div className="space-y-4">
             <SettingsSection
-              icon={Globe}
+
               title={t("settings.language.title")}
               description={t("settings.language.description")}
             >
@@ -92,7 +84,7 @@ export function SettingsPage() {
             </SettingsSection>
 
             <SettingsSection
-              icon={HardDrive}
+
               title={t("settings.storage.title")}
               description={t("settings.storage.description")}
             >
@@ -108,7 +100,7 @@ export function SettingsPage() {
         {activeTab === "appearance" && (
           <div className="space-y-4">
             <SettingsSection
-              icon={Palette}
+
               title={t("settings.theme.title")}
               description={t("settings.theme.description")}
             >
@@ -131,7 +123,7 @@ export function SettingsPage() {
             </SettingsSection>
 
             <SettingsSection
-              icon={Cpu}
+
               title={t("settings.grid.title")}
               description={t("settings.grid.description")}
             >
@@ -158,7 +150,7 @@ export function SettingsPage() {
         {activeTab === "shortcuts" && (
           <div className="space-y-4">
             <SettingsSection
-              icon={Keyboard}
+
               title={t("settings.shortcuts.title")}
               description={t("settings.shortcuts.description")}
             >
@@ -176,7 +168,7 @@ export function SettingsPage() {
         {activeTab === "about" && (
           <div className="space-y-4">
             <SettingsSection
-              icon={Info}
+
               title={t("settings.about.title")}
               description={t("settings.about.description")}
             >
@@ -195,29 +187,22 @@ export function SettingsPage() {
 }
 
 function SettingsSection({
-  icon: Icon,
   title,
   description,
   children,
 }: {
-  icon: React.ElementType
   title: string
   description: string
   children: React.ReactNode
 }) {
   return (
     <Card className="p-5 rounded-[2px] shadow-card border-0">
-      <div className="flex items-start gap-4">
-        <div className="w-9 h-9 rounded-[4px] bg-bg border border-border-subtle flex items-center justify-center shrink-0">
-          <Icon className="w-4 h-4 text-text-muted" />
+      <div className="flex-1 space-y-3">
+        <div>
+          <h3 className="text-[13px] font-semibold tracking-[-0.01em]">{title}</h3>
+          <p className="text-[12px] text-text-muted mt-0.5">{description}</p>
         </div>
-        <div className="flex-1 space-y-3">
-          <div>
-            <h3 className="text-[13px] font-semibold tracking-[-0.01em]">{title}</h3>
-            <p className="text-[12px] text-text-muted mt-0.5">{description}</p>
-          </div>
-          {children}
-        </div>
+        {children}
       </div>
     </Card>
   )

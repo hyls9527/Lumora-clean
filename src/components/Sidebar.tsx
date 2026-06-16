@@ -44,7 +44,7 @@ export function Sidebar() {
       {/* Search */}
       <div className="mx-4 my-5">
         <button
-          className="group w-full flex items-center gap-2 px-3 py-2 rounded-md bg-bg border border-border-subtle hover:bg-surface-hover transition-colors"
+          className="group w-full flex items-center gap-2 px-3 py-2 rounded-md bg-bg border border-border-subtle hover:bg-surface-hover focus:border-accent focus:ring-1 focus:ring-accent/20 transition-all duration-200 ease-out"
           onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
         >
           <span className="text-text-faint text-[11px] opacity-40">⌘</span>

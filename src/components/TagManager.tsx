@@ -80,7 +80,6 @@ export function TagManager({ open, onOpenChange }: TagManagerProps) {
             size="icon-sm"
             className="shrink-0 rounded-[4px]"
           >
-            <Plus className="w-4 h-4" />
           </Button>
         </div>
 
@@ -108,7 +107,7 @@ export function TagManager({ open, onOpenChange }: TagManagerProps) {
         <div className="space-y-1 max-h-[300px] overflow-y-auto">
           {tags.length === 0 ? (
             <div className="text-center py-6">
-              <Hash className="w-6 h-6 mx-auto text-text-faint mb-2" />
+              <span className="font-serif text-[20px] text-text-faint mb-2 block">◆</span>
               <p className="text-[12px] text-text-faint">{t("tags.empty")}</p>
             </div>
           ) : (

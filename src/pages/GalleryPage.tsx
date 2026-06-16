@@ -8,7 +8,6 @@ import { TagFilterBar } from "@/components/TagManager"
 import { ExportDialog } from "@/components/ExportDialog"
 import { DropZone } from "@/components/DropZone"
 import { PageErrorBoundary } from "@/components/PageErrorBoundary"
-import { Download } from "lucide-react"
 
 const VIRTUALIZE_THRESHOLD = 100
 const COLS = 4
@@ -181,7 +180,6 @@ export function GalleryPage() {
                 onClick={() => setExportOpen(true)}
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] font-serif text-[11px] text-text-secondary hover:bg-accent-subtle hover:text-accent transition-all duration-200 ease-out"
               >
-                <Download className="w-3 h-3" />
                 {t("toolbar.export")}
               </button>
             </>
@@ -218,12 +216,21 @@ export function GalleryPage() {
         ) : filteredImages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
+              <div className="w-16 h-16 rounded-[2px] bg-bg border border-border-subtle flex items-center justify-center mx-auto mb-4">
+                <span className="font-serif text-[20px] text-text-faint">◆</span>
+              </div>
               <h3 className="font-serif text-[16px] text-text-muted mb-1">
                 此处尚无藏品
               </h3>
-              <p className="font-serif text-[13px] text-text-faint">
+              <p className="font-serif text-[13px] text-text-faint mb-4">
                 研墨中…
               </p>
+              <button
+                onClick={() => window.dispatchEvent(new Event("open-import"))}
+                className="px-4 py-2 rounded-[4px] font-serif text-[12px] bg-accent text-white hover:bg-accent-hover transition-all duration-200 ease-out"
+              >
+                导入图片
+              </button>
             </div>
           </div>
         ) : useVirtualized && containerSize.width > 0 ? (

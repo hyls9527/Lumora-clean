@@ -45,6 +45,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
         "group relative rounded-[2px] overflow-hidden cursor-pointer",
         "shadow-card hover:shadow-card-hover",
         "transition-all duration-200 ease-out",
+        "hover:scale-[1.02]",
         isSelected && "bg-accent/10 border border-accent/20",
         !isSelected && "border border-transparent",
         focused && !isSelected && "ring-2 ring-accent/60"
@@ -121,7 +122,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
-                className="w-[14px] h-[14px] flex items-center justify-center"
+                className="w-[14px] h-[14px] flex items-center justify-center hover:scale-125 transition-transform duration-150 ease-out"
                 onClick={(e) => {
                   e.stopPropagation()
                   setRating(image.id, image.rating === star ? 0 : star)

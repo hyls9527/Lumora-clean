@@ -2,7 +2,6 @@ import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
 import { cn } from "@/lib/utils"
 import { PageErrorBoundary } from "@/components/PageErrorBoundary"
-import { Sparkles, ThumbsUp, HelpCircle, X } from "lucide-react"
 import { useState } from "react"
 
 type Decision = "keep" | "maybe" | "reject"
@@ -78,21 +77,18 @@ export function CurationPage() {
                 onClick={() => handleDecision("reject")}
                 className="flex items-center gap-2.5 px-6 py-2 rounded-[4px] border border-border bg-surface text-text-secondary font-serif text-[12px] font-normal hover:border-danger/30 hover:text-danger transition-all duration-200 ease-out"
               >
-                <X className="w-4 h-4" />
                 {t("curation.reject")}
               </button>
               <button
                 onClick={() => handleDecision("maybe")}
                 className="flex items-center gap-2.5 px-6 py-2 rounded-[4px] border border-border bg-surface text-text-secondary font-serif text-[12px] font-normal hover:border-accent hover:text-accent hover:bg-accent-subtle transition-all duration-200 ease-out"
               >
-                <HelpCircle className="w-4 h-4" />
                 {t("curation.maybe")}
               </button>
               <button
                 onClick={() => handleDecision("keep")}
                 className="flex items-center gap-2.5 px-6 py-2 rounded-[4px] border border-border bg-surface text-text-secondary font-serif text-[12px] font-normal hover:border-accent hover:text-accent hover:bg-accent-subtle transition-all duration-200 ease-out"
               >
-                <ThumbsUp className="w-4 h-4" />
                 {t("curation.keep")}
               </button>
             </div>
@@ -100,7 +96,7 @@ export function CurationPage() {
         ) : (
           <div className="text-center">
             <div className="w-20 h-20 rounded-[2px] bg-bg border border-border-subtle flex items-center justify-center mx-auto mb-5">
-              <Sparkles className="w-10 h-10 text-text-faint" />
+              <span className="font-serif text-[24px] text-text-faint">◆</span>
             </div>
             <h3 className="font-serif text-[16px] text-text-muted mb-1.5">
               策展需要先有藏品
