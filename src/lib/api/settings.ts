@@ -1,8 +1,11 @@
 import { isTauri } from "@/lib/tauri";
 
 async function tauriInvoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
-  const { invoke } = await import("@tauri-apps/api/core");
-  return invoke<T>(cmd, args);
+  const tauri = (window as any).__TAURI__;
+  if (!tauri?.core?.invoke) {
+    throw new Error("Tauri runtime not available");
+  }
+  return tauri.core.invoke(cmd, args);
 }
 
 export async function getSetting(key: string): Promise<string | null> {
