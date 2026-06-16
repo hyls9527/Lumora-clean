@@ -38,8 +38,15 @@ function AppContent() {
 
   return (
     <div className="flex h-screen bg-bg">
+      {/* Skip navigation link */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded"
+      >
+        跳到主内容
+      </a>
       <Sidebar />
-      <main role="main" aria-label="主内容区" className="flex-1 overflow-auto bg-bg px-10">
+      <main id="main-content" role="main" aria-label="主内容区" className="flex-1 overflow-auto bg-bg px-10">
         {isLoading ? (
           <div className="flex h-full items-center justify-center">
             <div className="text-center">

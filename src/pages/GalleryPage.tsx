@@ -32,6 +32,7 @@ export function GalleryPage() {
     toggleSelect,
     deleteFocusedImage,
     openFocusedImage,
+    images,
   } = useAppStore()
 
   const filteredImages = getFilteredImages()
@@ -40,6 +41,10 @@ export function GalleryPage() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
   const [exportOpen, setExportOpen] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(() => 
+    !localStorage.getItem('lumora-onboarded')
+  )
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
   useEffect(() => {
     if (!useVirtualized || !containerRef.current) return
@@ -157,7 +162,14 @@ export function GalleryPage() {
           {(["date", "rating", "size"] as const).map((s) => (
             <button
               key={s}
-              onClick={() => setSortBy(s)}
+              onClick={() => {
+                if (sortBy === s) {
+                  setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
+                } else {
+                  setSortBy(s)
+                  setSortDirection('desc')
+                }
+              }}
               className={cn(
                 "px-2 pb-2.5 mb-[-1px] font-serif text-[11px] border-b-2 transition-colors",
                 sortBy === s
@@ -165,7 +177,7 @@ export function GalleryPage() {
                   : "border-transparent text-text-muted hover:text-text-secondary"
               )}
             >
-              {t(`gallery.sort.${s}`)}{sortBy === s && <span className="ml-1 text-accent">↓</span>}
+              {t(`gallery.sort.${s}`)}{sortBy === s && <span className="ml-1 text-accent">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
             </button>
           ))}
         </div>
@@ -206,16 +218,19 @@ export function GalleryPage() {
       </div>
       
       {/* Onboarding hint (first visit) */}
-      {images.length > 0 && !localStorage.getItem('lumora-onboarded') && (
-        <div className="px-10 py-3 bg-accent/5 border-b border-accent/10">
+      {images.length > 0 && showOnboarding && (
+        <div className="px-10 py-3 bg-accent/5 border-b border-accent/10 transition-all duration-300 ease-out">
           <p className="font-serif text-[12px] text-text-muted text-center">
             按 <kbd className="px-1.5 py-0.5 rounded bg-bg border border-border-subtle text-[10px]">⌘K</kbd> 打开命令面板 · 
             点击图片查看详情 · 
             悬停显示评分和收藏
           </p>
           <button 
-            className="block mx-auto mt-2 text-[10px] text-accent hover:underline"
-            onClick={() => localStorage.setItem('lumora-onboarded', 'true')}
+            className="block mx-auto mt-2 text-[10px] text-accent hover:underline transition-colors duration-200"
+            onClick={() => {
+              localStorage.setItem('lumora-onboarded', 'true')
+              setShowOnboarding(false)
+            }}
           >
             知道了
           </button>

@@ -143,7 +143,7 @@ export function Sidebar() {
         className={cn(
           "absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-surface border border-border-subtle flex items-center justify-center text-text-muted hover:bg-surface-hover transition-all duration-200 ease-out",
           "opacity-0 hover:opacity-100",
-          isMobile && "opacity-100"
+          isMobile && "opacity-100 shadow-md"
         )}
         onClick={() => setCollapsed(!collapsed)}
         aria-label={collapsed ? "展开侧边栏" : "收起侧边栏"}

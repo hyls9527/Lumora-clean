@@ -10,6 +10,7 @@ export function PageErrorBoundary({ children }: { children: React.ReactNode }) {
               此页尚有未竟之事
             </p>
             <button
+              aria-label="重新加载"
               onClick={() => window.location.reload()}
               className="font-serif text-[13px] text-accent hover:underline"
             >

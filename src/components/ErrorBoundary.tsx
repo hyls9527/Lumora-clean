@@ -25,6 +25,7 @@ export class ErrorBoundary extends Component<Props, State> {
               此处尚有未竟之事
             </p>
             <button
+              aria-label="重试"
               onClick={() => this.setState({ hasError: false })}
               className="font-serif text-[13px] text-accent hover:underline"
             >

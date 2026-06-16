@@ -73,6 +73,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
 
         {/* Selection checkbox */}
         <button
+          aria-label={isSelected ? "取消选择" : "选择图片"}
           className={cn(
             "absolute top-2.5 left-2.5 w-[22px] h-[22px] rounded-[4px] border-[1.5px] flex items-center justify-center transition-all duration-200",
             isSelected
@@ -93,6 +94,9 @@ export function ImageCard({ image, focused }: ImageCardProps) {
 
         {/* Favorite stamp */}
         <div
+          aria-label={image.favorite ? "取消收藏" : "收藏"}
+          role="button"
+          tabIndex={0}
           className={cn(
             "absolute top-2.5 right-2.5 w-5 h-5 rounded-[4px] flex items-center justify-center transition-all duration-200 ease-out cursor-pointer",
             "hover:scale-110 hover:shadow-md active:scale-90",
@@ -101,6 +105,12 @@ export function ImageCard({ image, focused }: ImageCardProps) {
           onClick={(e) => {
             e.stopPropagation()
             toggleFavorite(image.id)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.stopPropagation()
+              toggleFavorite(image.id)
+            }
           }}
         >
           <span className={cn(
@@ -123,6 +133,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
+                aria-label={`评分 ${star}`}
                 className="w-[14px] h-[14px] flex items-center justify-center hover:scale-125 transition-transform duration-150 ease-out"
                 onClick={(e) => {
                   e.stopPropagation()
