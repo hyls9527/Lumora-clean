@@ -22,15 +22,15 @@ function AppContent() {
   const renderPage = () => {
     switch (view) {
       case "gallery":
-        return <GalleryPage />
+        return <div key="gallery" className="animate-in fade-in duration-200"><GalleryPage /></div>
       case "curation":
-        return <CurationPage />
+        return <div key="curation" className="animate-in fade-in duration-200"><CurationPage /></div>
       case "dashboard":
-        return <DashboardPage />
+        return <div key="dashboard" className="animate-in fade-in duration-200"><DashboardPage /></div>
       case "settings":
-        return <SettingsPage />
+        return <div key="settings" className="animate-in fade-in duration-200"><SettingsPage /></div>
       case "trash":
-        return <TrashPage />
+        return <div key="trash" className="animate-in fade-in duration-200"><TrashPage /></div>
       default:
         return <GalleryPage />
     }
@@ -39,11 +39,25 @@ function AppContent() {
   return (
     <div className="flex h-screen bg-bg">
       <Sidebar />
-      <main className="flex-1 overflow-auto bg-bg px-10">
+      <main role="main" aria-label="主内容区" className="flex-1 overflow-auto bg-bg px-10">
         {isLoading ? (
-          <div className="flex h-full items-center justify-center text-muted-foreground">Loading...</div>
+          <div className="flex h-full items-center justify-center">
+            <div className="text-center">
+              <p className="font-serif text-[15px] text-text-muted animate-pulse">研墨中…</p>
+            </div>
+          </div>
         ) : error ? (
-          <div className="flex h-full items-center justify-center text-destructive">{error}</div>
+          <div className="flex h-full items-center justify-center">
+            <div className="text-center">
+              <p className="font-serif text-[14px] text-danger mb-3">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 rounded-[4px] font-serif text-[12px] bg-accent text-white hover:bg-accent-hover transition-all duration-200 ease-out"
+              >
+                重试
+              </button>
+            </div>
+          </div>
         ) : (
           renderPage()
         )}

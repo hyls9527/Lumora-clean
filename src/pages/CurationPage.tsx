@@ -63,7 +63,7 @@ export function CurationPage() {
               <div className="rounded-[2px] overflow-hidden shadow-card border border-border">
                 <img
                   src={currentImage.thumbnail}
-                  alt=""
+                  alt={`Curation image ${currentIndex + 1} of ${images.length}`}
                   className="w-full aspect-[16/10] object-cover"
                 />
                 {/* Bottom gradient overlay */}

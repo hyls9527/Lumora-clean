@@ -165,7 +165,7 @@ export function GalleryPage() {
                   : "border-transparent text-text-muted hover:text-text-secondary"
               )}
             >
-              {t(`gallery.sort.${s}`)}
+              {t(`gallery.sort.${s}`)}{sortBy === s && <span className="ml-1 text-accent">↓</span>}
             </button>
           ))}
         </div>

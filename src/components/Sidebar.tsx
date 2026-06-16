@@ -56,7 +56,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3">
+      <nav aria-label="主导航" className="flex-1 px-3">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon
           const isActive = view === item.id

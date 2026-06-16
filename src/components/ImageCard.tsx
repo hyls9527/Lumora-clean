@@ -58,7 +58,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
       <div style={{ aspectRatio: image.aspectRatio || '1/1' }} className="relative bg-bg-alt overflow-hidden">
         <img
           src={image.thumbnail}
-          alt=""
+          alt={`${image.format} image - ${image.tags.join(", ")}`}
           className="w-full h-full object-cover"
           loading="lazy"
         />
@@ -94,7 +94,8 @@ export function ImageCard({ image, focused }: ImageCardProps) {
         {/* Favorite stamp */}
         <div
           className={cn(
-            "absolute top-2.5 right-2.5 w-5 h-5 rounded-[4px] bg-accent/80 flex items-center justify-center transition-opacity duration-200",
+            "absolute top-2.5 right-2.5 w-5 h-5 rounded-[4px] bg-accent/80 flex items-center justify-center transition-all duration-200 ease-out cursor-pointer",
+            "hover:scale-110 hover:shadow-md active:scale-90",
             image.favorite || isHovered ? "opacity-100" : "opacity-0"
           )}
           onClick={(e) => {
@@ -103,7 +104,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
           }}
         >
           <span className={cn(
-            "text-[11px] leading-none text-surface",
+            "text-[11px] leading-none text-surface transition-transform duration-200",
             !image.favorite && "opacity-40"
           )}>
             ◆

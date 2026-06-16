@@ -186,9 +186,10 @@ export function TagFilterBar() {
             onClick={() => toggleTagFilter(tag.name)}
             className={cn(
               "inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] font-serif text-[11px] transition-all duration-200 ease-out",
+              "hover:shadow-sm hover:scale-105 active:scale-95",
               isActive
-                ? "bg-text text-surface"
-                : cn(color.bg, color.text, "hover:opacity-80")
+                ? "bg-text text-surface shadow-md"
+                : cn(color.bg, color.text, "hover:brightness-95")
             )}
           >
             {tag.name}
