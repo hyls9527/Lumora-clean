@@ -1,7 +1,6 @@
 import { create } from "zustand"
 import { type Image, type Tag, generateMockImages, MOCK_TAGS } from "../lib/mock-data"
 import { type ImageRecord, getImages, updateImageRating, toggleImageFavorite, deleteImage as deleteImageApi, importFolder as importFolderApi, openFolderDialog as openFolderDialogApi } from "../lib/api/images"
-import { isTauri } from "../lib/tauri"
 
 type View = "gallery" | "curation" | "dashboard" | "trash" | "settings"
 
@@ -58,7 +57,7 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
-  images: isTauri() ? [] : generateMockImages(200),
+  images: generateMockImages(200),
   isLoading: false,
   error: null,
   view: "gallery",

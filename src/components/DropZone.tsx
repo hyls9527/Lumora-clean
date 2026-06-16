@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
-import { isTauri } from "@/lib/tauri"
 import { cn } from "@/lib/utils"
 import type { Image, AspectRatio } from "@/lib/mock-data"
 
@@ -125,7 +124,7 @@ export function DropZone() {
       dragCountRef.current = 0
       setDragOver(false)
 
-      if (isTauri()) {
+      if (false) { // Tauri removed
         openFolderDialog()
         return
       }
@@ -137,7 +136,7 @@ export function DropZone() {
   )
 
   const handleClick = useCallback(() => {
-    if (isTauri()) {
+    if (false) { // Tauri removed
       openFolderDialog()
     }
   }, [openFolderDialog])

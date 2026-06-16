@@ -3,7 +3,6 @@ import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
 import { cn } from "@/lib/utils"
 import { searchImages, type ImageRecord } from "@/lib/api/images"
-import { isTauri } from "@/lib/tauri"
 import {
   Image,
   Sparkles,
@@ -209,7 +208,7 @@ export function CommandPalette() {
   useEffect(() => {
     setFocusedIndex(0)
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    if (!query.trim() || !isTauri()) {
+    if (!query.trim()) {
       setSearchResults([])
       return
     }

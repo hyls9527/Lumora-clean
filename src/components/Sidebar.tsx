@@ -1,21 +1,13 @@
 import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
 import { cn } from "@/lib/utils"
-import {
-  Image,
-  BarChart3,
-  Settings,
-  Trash2,
-  Search,
-  Sparkles,
-} from "lucide-react"
 
 const NAV_ITEMS = [
-  { id: "gallery" as const, icon: Image, labelKey: "sidebar.gallery" },
-  { id: "curation" as const, icon: Sparkles, labelKey: "sidebar.curation" },
-  { id: "dashboard" as const, icon: BarChart3, labelKey: "sidebar.dashboard" },
-  { id: "settings" as const, icon: Settings, labelKey: "sidebar.settings" },
-  { id: "trash" as const, icon: Trash2, labelKey: "sidebar.trash" },
+  { id: "gallery" as const, labelKey: "sidebar.gallery" },
+  { id: "curation" as const, labelKey: "sidebar.curation" },
+  { id: "dashboard" as const, labelKey: "sidebar.dashboard" },
+  { id: "settings" as const, labelKey: "sidebar.settings" },
+  { id: "trash" as const, labelKey: "sidebar.trash" },
 ]
 
 export function Sidebar() {
@@ -55,7 +47,7 @@ export function Sidebar() {
           className="group w-full flex items-center gap-2 px-3 py-2 rounded-md bg-bg border border-border-subtle hover:bg-surface-hover transition-colors"
           onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
         >
-          <Search className="w-3.5 h-3.5 opacity-40" />
+          <span className="text-text-faint text-[11px] opacity-40">⌘</span>
           <span className="font-serif text-[12px] text-text-muted font-light flex-1 text-left">{t("sidebar.search")}</span>
           <kbd className="font-serif text-[9px] text-text-faint opacity-0 group-hover:opacity-50 transition-opacity">
             ⌘K
@@ -90,7 +82,6 @@ export function Sidebar() {
                   isActive ? "bg-accent" : "bg-text-faint"
                 )}
               />
-              <Icon className={cn("w-4 h-4", isActive ? "opacity-90" : "opacity-60")} />
               <span>{t(item.labelKey)}</span>
             </button>
           )
@@ -106,7 +97,7 @@ export function Sidebar() {
             <StatRow
               label={t("sidebar.favorites")}
               value={stats.favorites}
-              icon={<span className="text-accent text-[10px]">★</span>}
+              icon={<span className="text-accent text-[10px]">◆</span>}
             />
             <div className="border-t border-dotted" style={{ borderColor: "rgba(139,115,75,0.06)" }} />
             <StatRow label={t("sidebar.rated")} value={stats.rated} />
