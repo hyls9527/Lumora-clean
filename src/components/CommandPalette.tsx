@@ -113,23 +113,13 @@ export function CommandPalette() {
     )
   }, [query])
 
-  const grouped = useMemo(() => {
-    const map = new Map<string, Command[]>()
-    for (const cmd of allItems) {
-      const list = map.get(cmd.section) || []
-      list.push(cmd)
-      map.set(cmd.section, list)
-    }
-    return map
-  }, [allItems])
-
   const hasSearchResults = query.trim() && searchResults.length > 0
 
   const searchResultCommands: Command[] = useMemo(() =>
     searchResults.map((r) => ({
       id: `search-${r.id}`,
       labelKey: "",
-      hint: r.file_path.split(/[\\/]/).pop(),
+      hint: r.file_path.split(/[\\\\/]/).pop(),
       icon: Image,
       section: "commandPalette.sections.searchResults",
       action: () => {
@@ -143,6 +133,16 @@ export function CommandPalette() {
   const allItems = useMemo(() =>
     hasSearchResults ? [...searchResultCommands, ...filtered] : filtered,
     [hasSearchResults, searchResultCommands, filtered])
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, Command[]>()
+    for (const cmd of allItems) {
+      const list = map.get(cmd.section) || []
+      list.push(cmd)
+      map.set(cmd.section, list)
+    }
+    return map
+  }, [allItems])
 
   const flatCommands = allItems
 

@@ -9,7 +9,7 @@ import {
   Maximize2,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+
 
 function PlumFlower({ filled }: { filled: boolean }) {
   return (
@@ -51,7 +51,7 @@ export function DetailPanel() {
         </button>
       </div>
 
-      <ScrollArea className="flex-1">
+      <div className="flex-1 overflow-y-auto">
         {/* Image preview */}
         <div className="p-4">
           <div className="relative rounded-[2px] overflow-hidden group shadow-sm">
@@ -195,7 +195,7 @@ export function DetailPanel() {
             variant="danger"
           />
         </div>
-      </ScrollArea>
+      </div>
     </div>
   )
 }

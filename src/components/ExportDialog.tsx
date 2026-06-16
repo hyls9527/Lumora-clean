@@ -88,7 +88,7 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
           "rounded-[6px] bg-surface shadow-elevated border border-border max-w-[420px] p-6",
           "font-serif text-text"
         )}
-        showCloseButton={false}
+
       >
         <DialogHeader>
           <DialogTitle className="font-serif text-[16px] font-semibold text-text tracking-[-0.01em]">

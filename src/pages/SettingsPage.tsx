@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useTranslation } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import { PageErrorBoundary } from "@/components/PageErrorBoundary"
@@ -11,8 +11,10 @@ import {
   Cpu,
   Info,
 } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card } from "@/components/ui/card"
+
+const TABS = ["general", "appearance", "shortcuts", "about"] as const
+type Tab = typeof TABS[number]
 
 export function SettingsPage() {
   const { t, locale, setLocale } = useTranslation()
@@ -25,6 +27,7 @@ export function SettingsPage() {
     setTheme,
     setGridColumns,
   } = useSettingsStore()
+  const [activeTab, setActiveTab] = useState<Tab>("general")
 
   useEffect(() => {
     loadSettings()
@@ -44,35 +47,27 @@ export function SettingsPage() {
           </p>
         </div>
 
-        <Tabs defaultValue="general" className="space-y-5">
-          <TabsList className="bg-transparent p-0 border-b border-border-subtle rounded-none">
-            <TabsTrigger
-              value="general"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[12px] px-4 py-2 font-serif"
+        {/* Tab bar */}
+        <div className="flex border-b border-border-subtle mb-5">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                "px-4 py-2 text-[12px] font-serif border-b-2 transition-all duration-200 ease-out",
+                activeTab === tab
+                  ? "border-accent text-text"
+                  : "border-transparent text-text-muted hover:text-text-secondary"
+              )}
             >
-              {t("settings.tabs.general")}
-            </TabsTrigger>
-            <TabsTrigger
-              value="appearance"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[12px] px-4 py-2 font-serif"
-            >
-              {t("settings.tabs.appearance")}
-            </TabsTrigger>
-            <TabsTrigger
-              value="shortcuts"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[12px] px-4 py-2 font-serif"
-            >
-              {t("settings.tabs.shortcuts")}
-            </TabsTrigger>
-            <TabsTrigger
-              value="about"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent text-[12px] px-4 py-2 font-serif"
-            >
-              {t("settings.tabs.about")}
-            </TabsTrigger>
-          </TabsList>
+              {t(`settings.tabs.${tab}`)}
+            </button>
+          ))}
+        </div>
 
-          <TabsContent value="general" className="space-y-4">
+        {/* Tab content */}
+        {activeTab === "general" && (
+          <div className="space-y-4">
             <SettingsSection
               icon={Globe}
               title={t("settings.language.title")}
@@ -107,27 +102,29 @@ export function SettingsPage() {
                 <InfoRow label={t("settings.storage.location")} value="D:\\Lumora\\data" />
               </div>
             </SettingsSection>
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="appearance" className="space-y-4">
+        {activeTab === "appearance" && (
+          <div className="space-y-4">
             <SettingsSection
               icon={Palette}
               title={t("settings.theme.title")}
               description={t("settings.theme.description")}
             >
               <div className="flex gap-2">
-                {(["light", "dark"] as const).map((t) => (
+                {(["light", "dark"] as const).map((th) => (
                   <button
-                    key={t}
-                    onClick={() => setTheme(t)}
+                    key={th}
+                    onClick={() => setTheme(th)}
                     className={cn(
                       "px-4 py-1.5 rounded-[4px] text-[12px] font-medium transition-all duration-200 ease-out",
-                      theme === t
+                      theme === th
                         ? "bg-text text-surface"
                         : "bg-bg text-text-secondary hover:bg-surface-hover border border-border-subtle"
                     )}
                   >
-                    {t === "light" ? "Light" : "Dark"}
+                    {th === "light" ? "Light" : "Dark"}
                   </button>
                 ))}
               </div>
@@ -155,9 +152,11 @@ export function SettingsPage() {
                 ))}
               </div>
             </SettingsSection>
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="shortcuts" className="space-y-4">
+        {activeTab === "shortcuts" && (
+          <div className="space-y-4">
             <SettingsSection
               icon={Keyboard}
               title={t("settings.shortcuts.title")}
@@ -171,9 +170,11 @@ export function SettingsPage() {
                 <ShortcutRow action={t("settings.shortcuts.close")} keys="Esc" />
               </div>
             </SettingsSection>
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="about" className="space-y-4">
+        {activeTab === "about" && (
+          <div className="space-y-4">
             <SettingsSection
               icon={Info}
               title={t("settings.about.title")}
@@ -185,8 +186,8 @@ export function SettingsPage() {
                 <InfoRow label={t("settings.about.frontend")} value="React 19" />
               </div>
             </SettingsSection>
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
       </div>
     </div>
     </PageErrorBoundary>
