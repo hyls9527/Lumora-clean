@@ -17,7 +17,7 @@ export async function getImageCount(): Promise<number> {
   return 200
 }
 
-export async function getImages(limit = 50, offset = 0): Promise<ImageRecord[]> {
+export async function getImages(_limit = 50, _offset = 0): Promise<ImageRecord[]> {
   return []
 }
 

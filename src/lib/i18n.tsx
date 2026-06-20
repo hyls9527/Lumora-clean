@@ -31,7 +31,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const t = useCallback(
     (key: string): string => {
       const keys = key.split(".")
-      let result: any = translations[locale]
+      let result: Record<string, unknown> = translations[locale]
       for (const k of keys) {
         if (result == null) return key
         result = result[k]
@@ -48,6 +48,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTranslation() {
   const ctx = useContext(I18nContext)
   if (!ctx) throw new Error("useTranslation must be used within I18nProvider")

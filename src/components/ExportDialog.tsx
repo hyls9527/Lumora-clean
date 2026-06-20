@@ -8,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Download } from "lucide-react"
 
 type ExportFormat = "original" | "png" | "jpg" | "webp"
 
@@ -26,11 +25,8 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
   const [progress, setProgress] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const selectedImages = images.filter((img) => selectedIds.has(img.id))
-  const showQuality = format !== "original" && format !== "png"
-
-  useEffect(() => {
-    if (!open) {
+  const handleOpenChange = useCallback((newOpen: boolean) => {
+    if (!newOpen) {
       setFormat("original")
       setQuality(85)
       setExporting(false)
@@ -40,7 +36,11 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
         intervalRef.current = null
       }
     }
-  }, [open])
+    onOpenChange(newOpen)
+  }, [onOpenChange])
+
+  const selectedImages = images.filter((img) => selectedIds.has(img.id))
+  const showQuality = format !== "original" && format !== "png"
 
   const handleExport = useCallback(() => {
     if (exporting || selectedImages.length === 0) return
@@ -82,7 +82,7 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
   ]
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         className={cn(
           "rounded-[6px] bg-surface shadow-elevated border border-border max-w-[420px] p-6",

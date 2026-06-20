@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Plus, X, Hash } from "lucide-react"
+import { X } from "lucide-react"
 
 const TAG_COLORS = [
   { name: "amber", bg: "bg-amber-100/60", text: "text-amber-800", dot: "bg-amber-600" },

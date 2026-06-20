@@ -72,7 +72,7 @@ export function CommandPalette() {
     { id: "sort-date", labelKey: "commandPalette.commands.sortByDate", section: "commandPalette.sections.sort", action: () => setSortBy("date") },
     { id: "sort-rating", labelKey: "commandPalette.commands.sortByRating", section: "commandPalette.sections.sort", action: () => setSortBy("rating") },
     { id: "sort-size", labelKey: "commandPalette.commands.sortBySize", section: "commandPalette.sections.sort", action: () => setSortBy("size") },
-  ], [setView, selectAll, clearSelection, setSortBy, deleteImage, selectedIds, closePalette, rateSelected])
+  ], [setView, selectAll, clearSelection, setSortBy, deleteImage, selectedIds, closePalette, rateSelected, openPalette])
 
   const filtered = useMemo(() => {
     if (!query.trim()) return commands
@@ -186,13 +186,10 @@ export function CommandPalette() {
   }, [open])
 
   useEffect(() => {
-    setFocusedIndex(0)
     if (debounceRef.current) clearTimeout(debounceRef.current)
     if (!query.trim()) {
-      setSearchResults([])
       return
     }
-    setIsSearching(true)
     debounceRef.current = setTimeout(() => {
       const q = query.trim().toLowerCase()
       const results = images.filter(img =>
@@ -205,7 +202,7 @@ export function CommandPalette() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [query])
+  }, [query, images])
 
   useEffect(() => {
     if (!listRef.current) return
@@ -262,7 +259,7 @@ export function CommandPalette() {
           <input
             ref={inputRef}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => { setQuery(e.target.value); setFocusedIndex(0); const t = e.target.value.trim(); if (!t) { setSearchResults([]); setIsSearching(false) } else { setIsSearching(true) } }}
             placeholder={t("commandPalette.placeholder")}
             className="w-full h-9 text-[14px] font-serif text-text placeholder:text-text-muted bg-transparent border-0 outline-none ring-0 focus:outline-none focus:ring-0 focus:shadow-none"
           />

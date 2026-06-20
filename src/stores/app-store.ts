@@ -45,7 +45,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   view: "gallery",
   setView: (v) => set({ view: v }),
   selectedIds: new Set(),
-  toggleSelect: (id) => set((s) => { const n = new Set(s.selectedIds); n.has(id) ? n.delete(id) : n.add(id); return { selectedIds: n } }),
+  toggleSelect: (id) => set((s) => { const n = new Set(s.selectedIds); if (n.has(id)) { n.delete(id) } else { n.add(id) } return { selectedIds: n } }),
   selectAll: () => set((s) => ({ selectedIds: new Set(s.images.map((i) => i.id)) })),
   clearSelection: () => set({ selectedIds: new Set() }),
   toggleFavorite: (id) => {
@@ -112,7 +112,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   activeTagFilters: new Set(),
   toggleTagFilter: (name) => set((s) => {
     const n = new Set(s.activeTagFilters)
-    n.has(name) ? n.delete(name) : n.add(name)
+    if (n.has(name)) { n.delete(name) } else { n.add(name) }
     return { activeTagFilters: n }
   }),
   clearTagFilters: () => set({ activeTagFilters: new Set() }),

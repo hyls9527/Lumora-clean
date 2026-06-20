@@ -2,7 +2,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-interface ScrollAreaProps extends React.HTMLAttributes<HTMLDivElement> {}
+type ScrollAreaProps = React.HTMLAttributes<HTMLDivElement>
 
 const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
   ({ className, children, ...props }, ref) => (
@@ -22,7 +22,7 @@ interface ScrollBarProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const ScrollBar = React.forwardRef<HTMLDivElement, ScrollBarProps>(
-  ({ className, orientation = "vertical", ...props }, ref) => (
+  ({ className, ...props }, ref) => (
     <div
       ref={ref}
       className={cn("hidden", className)}

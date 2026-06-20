@@ -1,6 +1,5 @@
 import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
-import { cn } from "@/lib/utils"
 import { PageErrorBoundary } from "@/components/PageErrorBoundary"
 import { useState } from "react"
 
