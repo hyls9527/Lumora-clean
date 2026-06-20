@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
 import { cn } from "@/lib/utils"
-import { searchImages, type ImageRecord } from "@/lib/api/images"
+import type { Image as MockImage } from "@/lib/mock-data"
 import {
   Image,
   Sparkles,
@@ -28,7 +28,7 @@ interface Command {
   icon: React.ElementType
   section: string
   action: () => void
-  _searchRecord?: ImageRecord
+  _searchRecord?: MockImage
 }
 
 export function CommandPalette() {
@@ -36,7 +36,7 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
   const [focusedIndex, setFocusedIndex] = useState(0)
-  const [searchResults, setSearchResults] = useState<ImageRecord[]>([])
+  const [searchResults, setSearchResults] = useState<MockImage[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -118,7 +118,7 @@ export function CommandPalette() {
     searchResults.map((r) => ({
       id: `search-${r.id}`,
       labelKey: "",
-      hint: r.file_path.split(/[\\\\/]/).pop(),
+      hint: r.path.split(/[\\\\/]/).pop(),
       icon: Image,
       section: "commandPalette.sections.searchResults",
       action: () => {
@@ -213,16 +213,15 @@ export function CommandPalette() {
       return
     }
     setIsSearching(true)
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const results = await searchImages(query.trim())
-        setSearchResults(results)
-      } catch {
-        setSearchResults([])
-      } finally {
-        setIsSearching(false)
-      }
-    }, 300)
+    debounceRef.current = setTimeout(() => {
+      const q = query.trim().toLowerCase()
+      const results = images.filter(img =>
+        img.path.toLowerCase().includes(q) ||
+        img.tags.some(tag => tag.toLowerCase().includes(q))
+      ).slice(0, 20)
+      setSearchResults(results)
+      setIsSearching(false)
+    }, 150)
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
@@ -322,7 +321,7 @@ export function CommandPalette() {
                     >
                       <Icon className="w-4 h-4 shrink-0 opacity-50" />
                       <span className="flex-1 truncate">
-                        {isSearch ? highlightMatch(cmd._searchRecord?.file_path ?? "") : t(cmd.labelKey)}
+                        {isSearch ? highlightMatch(cmd._searchRecord?.path ?? "") : t(cmd.labelKey)}
                       </span>
                       {cmd.hint && (
                         <span className="text-[9px] font-serif text-text-faint opacity-60 shrink-0">
