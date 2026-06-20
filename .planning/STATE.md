@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v0.1-mvp
 milestone_name: MVP Frontend
 status: in_progress
-last_updated: "2026-06-20T20:42:05.791Z"
+last_updated: "2026-06-20T20:42:15.627Z"
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 22
-  completed_plans: 5
-  percent: 23
+  completed_plans: 6
+  percent: 27
 ---
 
 # Lumora Project State
@@ -17,9 +17,9 @@ progress:
 ## Current Position
 
 - **Milestone:** v0.1 MVP
-- **Phase:** 002 Feature Completion
-- **Plan:** 002-02 complete — DropZone rewrite + toast notification system
-- **Next Step:** Continue remaining Phase 002 plans or proceed to Phase 003.
+- **Phase:** 002 Feature Completion — ALL PLANS COMPLETE
+- **Plan:** 002-01 complete — CommandPalette search completion
+- **Next Step:** Phase 002 complete. Proceed to Phase 003 (Build & Verify).
 
 ## Architecture
 
@@ -83,6 +83,22 @@ Pure Vite + React 19 + TypeScript + Tailwind CSS v4 frontend. No backend — Tau
 - Files: 6 (2 created: toast-store.ts, toast.tsx; 4 modified: DropZone.tsx, App.tsx, en.json, zh.json)
 - No deviations — plan executed exactly as written
 
+## Plan 002-01 Complete
+
+- SUMMARY: .planning/phases/002-feature-completion/002-01-SUMMARY.md
+- Commits: fdbb681, 58646fb, c50fc44
+- Tasks: 3/3 complete
+- Files: 3 modified (CommandPalette.tsx, en.json, zh.json)
+- No deviations — plan executed exactly as written
+
+## Key Decisions (002-01)
+
+- Search scope: local store filtering by image path + tags (not dead searchImages API)
+- Debounce: 150ms (per user decision — faster than DESIGN.md's 200ms transition)
+- Icon removal: text labels per CLAUDE.md 'no lucide-react' anti-pattern
+- Empty state: poetic tone matching existing patterns (未找到匹配项, 研墨中…)
+- MockImage type alias replaced with direct Image import after lucide-react Image removed
+
 ## Key Decisions (002-03)
 
 - Three logical shortcut groups: Global (⌘ shortcuts + Esc), Gallery Navigation (arrow keys + Enter), Selection & Actions (Space, ⌫, F, ⌘+letter actions)
@@ -99,5 +115,5 @@ Pure Vite + React 19 + TypeScript + Tailwind CSS v4 frontend. No backend — Tau
 
 ## Next
 
-- Phase 002: Feature Completion (remaining plans if any)
+- Phase 002: Feature Completion — ALL PLANS COMPLETE (3/3)
 - Phase 003: Build & Verify
