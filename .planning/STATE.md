@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v0.1-mvp
 milestone_name: MVP Frontend
 status: in_progress
-last_updated: "2026-06-21T08:00:00.000Z"
+last_updated: "2026-06-20T20:29:47.140Z"
 progress:
   total_phases: 6
   completed_phases: 1
@@ -18,8 +18,8 @@ progress:
 
 - **Milestone:** v0.1 MVP
 - **Phase:** 001 UI Polish
-- **Plan:** 001-01 complete — Anti-pattern cleanup + UI primitives audit
-- **Next Step:** Execute 001-02 (migration debt cleanup + business/page audit)
+- **Plan:** 001-02 complete — Migration cleanup + business/page audit
+- **Next Step:** Phase 001 complete. Ready for Phase 002 (Feature Completion).
 
 ## Architecture
 
@@ -42,6 +42,13 @@ Pure Vite + React 19 + TypeScript + Tailwind CSS v4 frontend. No backend — Tau
 - Remove hover scale, extract PlumFlower as shared component
 - Full visual consistency audit (26 components)
 - Clear all Tauri migration dead code
+- Removed all 6 isTauri() calls from app-store.ts — function was never defined, would throw ReferenceError
+- Made async no-op functions explicit with comments instead of isTauri() guards
+- Removed unused react-router-dom from dependencies — app uses state-based view switching
+- TrashPage simplified to empty state only — unreachable render path removed
+- SettingsPage engine value changed from Tauri 2 to Vite (Web)
+- All 10 business components audited and fixed for DESIGN.md token alignment
+- All 5 page components audited — GalleryPage required 9 fixes, other 4 pages were clean
 
 ## Plan 001-01 Complete
 
@@ -51,8 +58,16 @@ Pure Vite + React 19 + TypeScript + Tailwind CSS v4 frontend. No backend — Tau
 - Files: 13 modified/created
 - No deviations — plan executed exactly as written
 
+## Plan 001-02 Complete
+
+- SUMMARY: .planning/phases/001-ui-polish/001-02-SUMMARY.md
+- Commits: ed50beb, d7e53f9, fad9a1b
+- Tasks: 3/3 complete
+- Files: 14 modified (7 migration cleanup, 6 business component audit, 1 page audit)
+- Deviations: 6 (4 auto-fixed, 2 beyond-plan discoveries)
+- Pre-existing issues: 8 tsc -b errors logged to deferred-items.md
+
 ## Next
 
-- Execute 001-02 — Migration debt cleanup + 10 business + 5 pages audit
 - Phase 002: Feature Completion
 - Phase 003: Build & Verify
