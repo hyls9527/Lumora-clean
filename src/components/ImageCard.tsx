@@ -2,31 +2,7 @@ import { type Image } from "@/lib/mock-data"
 import { useAppStore } from "@/stores/app-store"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
-
-function PlumFlower({ filled }: { filled: boolean }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      {[0, 72, 144, 216, 288].map(angle => (
-        <ellipse
-          key={angle}
-          cx="9" cy="3.5"
-          rx="3" ry="4.5"
-          transform={`rotate(${angle} 9 9)`}
-          fill={filled ? 'var(--color-accent)' : 'none'}
-          stroke={filled ? 'none' : 'rgba(139,115,75,0.2)'}
-          strokeWidth="1"
-        />
-      ))}
-      <circle
-        cx="9" cy="9" r="2"
-        fill={filled ? 'var(--color-accent)' : 'rgba(139,115,75,0.12)'}
-      />
-      {filled && (
-        <circle cx="9" cy="9" r="2" fill="var(--color-accent)" opacity="0.8" />
-      )}
-    </svg>
-  );
-}
+import { PlumFlower } from "@/components/ui/plum-flower"
 
 interface ImageCardProps {
   image: Image
@@ -43,9 +19,8 @@ export function ImageCard({ image, focused }: ImageCardProps) {
     <div
       className={cn(
         "group relative rounded-[2px] overflow-hidden cursor-pointer",
-        "shadow-sm hover:shadow-card-hover",
+        "shadow-card hover:shadow-card-hover",
         "transition-all duration-200 ease-out",
-        "hover:scale-[1.02]",
         isSelected && "bg-accent/10 border border-accent/20",
         !isSelected && "border border-transparent",
         focused && !isSelected && "ring-2 ring-accent/60"
@@ -99,7 +74,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
           tabIndex={0}
           className={cn(
             "absolute top-2.5 right-2.5 w-5 h-5 rounded-[4px] flex items-center justify-center transition-all duration-200 ease-out cursor-pointer",
-            "hover:scale-110 hover:shadow-md active:scale-90",
+            "hover:bg-accent-hover",
             image.favorite ? "bg-accent opacity-100" : "bg-accent/60 opacity-0 group-hover:opacity-100"
           )}
           onClick={(e) => {
@@ -113,10 +88,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
             }
           }}
         >
-          <span className={cn(
-            "text-[11px] leading-none text-surface transition-all duration-200",
-            image.favorite && "scale-110"
-          )}>
+          <span className="text-[11px] leading-none text-surface transition-all duration-200">
             ◆
           </span>
         </div>
@@ -134,13 +106,13 @@ export function ImageCard({ image, focused }: ImageCardProps) {
               <button
                 key={star}
                 aria-label={`评分 ${star}`}
-                className="w-[14px] h-[14px] flex items-center justify-center hover:scale-125 transition-transform duration-150 ease-out"
+                className="w-[14px] h-[14px] flex items-center justify-center hover:bg-surface-hover rounded-[2px] transition-all duration-200 ease-out"
                 onClick={(e) => {
                   e.stopPropagation()
                   setRating(image.id, image.rating === star ? 0 : star)
                 }}
               >
-                <PlumFlower filled={star <= image.rating} />
+                <PlumFlower filled={star <= image.rating} size={14} />
               </button>
             ))}
           </div>
