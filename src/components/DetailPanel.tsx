@@ -1,34 +1,8 @@
 import { useAppStore } from "@/stores/app-store"
 import { useTranslation } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
-import {
-  X,
-  Copy,
-  Trash2,
-  Tag,
-  Maximize2,
-} from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-
-
-function PlumFlower({ filled }: { filled: boolean }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      {[0, 72, 144, 216, 288].map(angle => (
-        <ellipse
-          key={angle}
-          cx="9" cy="3.5"
-          rx="3" ry="4.5"
-          transform={`rotate(${angle} 9 9)`}
-          fill={filled ? 'var(--color-accent)' : 'none'}
-          stroke={filled ? 'none' : 'rgba(139,115,75,0.2)'}
-          strokeWidth="1"
-        />
-      ))}
-      <circle cx="9" cy="9" r="2" fill={filled ? 'var(--color-accent)' : 'rgba(139,115,75,0.12)'} />
-    </svg>
-  );
-}
+import { PlumFlower } from "@/components/ui/plum-flower"
 
 export function DetailPanel() {
   const { t } = useTranslation()
@@ -47,7 +21,7 @@ export function DetailPanel() {
           onClick={() => setDetailImage(null)}
           className="w-7 h-7 rounded-[4px] flex items-center justify-center hover:bg-surface-hover transition-all duration-200 ease-out"
         >
-          <X className="w-4 h-4 text-text-muted" />
+          <span className="text-[12px] text-text-muted">关闭</span>
         </button>
       </div>
 
@@ -61,7 +35,7 @@ export function DetailPanel() {
               className="w-full object-cover"
             />
             <button aria-label="关闭详情" className="absolute top-2 right-2 w-7 h-7 rounded-[4px] bg-black/30 text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 ease-out">
-              <Maximize2 className="w-3.5 h-3.5" />
+              <span className="text-[11px]">全屏</span>
             </button>
           </div>
         </div>
@@ -75,7 +49,7 @@ export function DetailPanel() {
                 onClick={() => setRating(image.id, image.rating === star ? 0 : star)}
                 className="w-7 h-7 flex items-center justify-center"
               >
-                <PlumFlower filled={star <= image.rating} />
+                <PlumFlower filled={star <= image.rating} size={18} />
               </button>
             ))}
           </div>
@@ -187,11 +161,11 @@ export function DetailPanel() {
         {/* Actions */}
         <div className="p-4 pt-2 space-y-px">
           <div className="h-px bg-border-subtle mx-0 mb-2" />
-          <ActionButton icon={Copy} label={t("detail.copyPath")} />
-          <ActionButton icon={Tag} label={t("detail.addTag")} />
+          <ActionButton label="复制路径" description={t("detail.copyPath")} />
+          <ActionButton label="标签" description={t("detail.addTag")} />
           <ActionButton
-            icon={Trash2}
-            label={t("detail.delete")}
+            label="删除"
+            description={t("detail.delete")}
             variant="danger"
           />
         </div>
@@ -252,12 +226,12 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
 }
 
 function ActionButton({
-  icon: Icon,
   label,
+  description,
   variant,
 }: {
-  icon: React.ElementType
   label: string
+  description: string
   variant?: "danger"
 }) {
   return (
@@ -269,8 +243,8 @@ function ActionButton({
           : "text-text-secondary hover:bg-surface-hover"
       )}
     >
-      <Icon className="w-3.5 h-3.5" />
-      <span>{label}</span>
+      <span className="text-[12px] w-[18px] text-center shrink-0">{label}</span>
+      <span>{description}</span>
     </button>
   )
 }
