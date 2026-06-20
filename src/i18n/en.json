@@ -99,18 +99,29 @@
     "shortcuts": {
       "title": "Keyboard Shortcuts",
       "description": "Common keyboard shortcuts",
-      "search": "Search",
-      "selectAll": "Select all",
-      "delete": "Delete",
+      "sections": {
+        "global": "Global",
+        "navigation": "Gallery Navigation",
+        "actions": "Selection & Actions"
+      },
+      "search": "Open command palette",
+      "close": "Close panel / deselect",
+      "selectAll": "Select all images",
+      "clearSelection": "Clear selection",
+      "delete": "Delete focused image",
       "favorite": "Toggle favorite",
-      "close": "Close panel",
       "commandPalette": "Command palette",
       "newImport": "New import",
       "exportSelected": "Export selected",
-      "focusSearch": "Focus search",
-      "clearSelection": "Clear selection",
+      "focusSearch": "Focus search in palette",
       "addTag": "Add tag to selected",
-      "rateSelected": "Rate selected"
+      "rateSelected": "Rate selected images",
+      "navigateUp": "Move up",
+      "navigateDown": "Move down",
+      "navigateLeft": "Move left",
+      "navigateRight": "Move right",
+      "openDetail": "Open image detail",
+      "multiSelect": "Toggle selection"
     },
     "about": {
       "title": "About Lumora",

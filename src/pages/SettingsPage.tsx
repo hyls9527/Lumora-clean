@@ -149,17 +149,47 @@ export function SettingsPage() {
 
         {activeTab === "shortcuts" && (
           <div className="space-y-4">
+            {/* Section 1: Global Shortcuts */}
             <SettingsSection
-
-              title={t("settings.shortcuts.title")}
-              description={t("settings.shortcuts.description")}
+              title={t("settings.shortcuts.sections.global")}
+              description=""
             >
-              <div className="space-y-2">
-                <ShortcutRow action={t("settings.shortcuts.search")} keys="⌘ K" />
-                <ShortcutRow action={t("settings.shortcuts.selectAll")} keys="⌘ A" />
+              <div className="space-y-1.5">
+                <ShortcutRow action={t("settings.shortcuts.search")} keys={navigator.platform.includes("Mac") ? "⌘ K" : "Ctrl K"} />
+                <ShortcutRow action={t("settings.shortcuts.newImport")} keys={navigator.platform.includes("Mac") ? "⌘ N" : "Ctrl N"} />
+                <ShortcutRow action={t("settings.shortcuts.exportSelected")} keys={navigator.platform.includes("Mac") ? "⌘ E" : "Ctrl E"} />
+                <ShortcutRow action={t("settings.shortcuts.focusSearch")} keys={navigator.platform.includes("Mac") ? "⌘ F" : "Ctrl F"} />
+                <ShortcutRow action={t("settings.shortcuts.close")} keys="Esc" />
+              </div>
+            </SettingsSection>
+
+            {/* Section 2: Gallery Navigation */}
+            <SettingsSection
+              title={t("settings.shortcuts.sections.navigation")}
+              description=""
+            >
+              <div className="space-y-1.5">
+                <ShortcutRow action={t("settings.shortcuts.navigateUp")} keys="↑" />
+                <ShortcutRow action={t("settings.shortcuts.navigateDown")} keys="↓" />
+                <ShortcutRow action={t("settings.shortcuts.navigateLeft")} keys="←" />
+                <ShortcutRow action={t("settings.shortcuts.navigateRight")} keys="→" />
+                <ShortcutRow action={t("settings.shortcuts.openDetail")} keys="Enter" />
+              </div>
+            </SettingsSection>
+
+            {/* Section 3: Selection & Actions */}
+            <SettingsSection
+              title={t("settings.shortcuts.sections.actions")}
+              description=""
+            >
+              <div className="space-y-1.5">
+                <ShortcutRow action={t("settings.shortcuts.selectAll")} keys={navigator.platform.includes("Mac") ? "⌘ A" : "Ctrl A"} />
+                <ShortcutRow action={t("settings.shortcuts.clearSelection")} keys={navigator.platform.includes("Mac") ? "⌘ D" : "Ctrl D"} />
+                <ShortcutRow action={t("settings.shortcuts.multiSelect")} keys="Space" />
                 <ShortcutRow action={t("settings.shortcuts.delete")} keys="⌫" />
                 <ShortcutRow action={t("settings.shortcuts.favorite")} keys="F" />
-                <ShortcutRow action={t("settings.shortcuts.close")} keys="Esc" />
+                <ShortcutRow action={t("settings.shortcuts.addTag")} keys={navigator.platform.includes("Mac") ? "⌘ T" : "Ctrl T"} />
+                <ShortcutRow action={t("settings.shortcuts.rateSelected")} keys={navigator.platform.includes("Mac") ? "⌘ R" : "Ctrl R"} />
               </div>
             </SettingsSection>
           </div>

@@ -99,18 +99,29 @@
     "shortcuts": {
       "title": "键盘快捷键",
       "description": "常用键盘快捷键",
-      "search": "搜索",
-      "selectAll": "全选",
-      "delete": "删除",
+      "sections": {
+        "global": "全局",
+        "navigation": "图库导航",
+        "actions": "选择与操作"
+      },
+      "search": "打开命令面板",
+      "close": "关闭面板 / 取消选择",
+      "selectAll": "全选图片",
+      "clearSelection": "清除选择",
+      "delete": "删除聚焦图片",
       "favorite": "切换收藏",
-      "close": "关闭面板",
       "commandPalette": "命令面板",
       "newImport": "新建导入",
       "exportSelected": "导出所选",
-      "focusSearch": "聚焦搜索",
-      "clearSelection": "清除选择",
+      "focusSearch": "在面板中聚焦搜索",
       "addTag": "为所选添加标签",
-      "rateSelected": "为所选评分"
+      "rateSelected": "为所选评分",
+      "navigateUp": "向上移动",
+      "navigateDown": "向下移动",
+      "navigateLeft": "向左移动",
+      "navigateRight": "向右移动",
+      "openDetail": "打开图片详情",
+      "multiSelect": "切换选择"
     },
     "about": {
       "title": "关于 Lumora",
