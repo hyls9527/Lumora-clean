@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useCallback, useRef } from "react"
 import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
+import { useToastStore } from "@/stores/toast-store"
 import { cn } from "@/lib/utils"
 import type { Image, AspectRatio } from "@/lib/mock-data"
 
-const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"]
+const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml"]
 
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
@@ -39,19 +40,7 @@ function fileToMockImage(file: File): Image {
 export function DropZone() {
   const { t } = useTranslation()
   const [dragOver, setDragOver] = useState(false)
-  const [importing, setImporting] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [importedCount, setImportedCount] = useState(0)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const dragCountRef = useRef(0)
-
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
-  }, [])
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -76,44 +65,36 @@ export function DropZone() {
     e.stopPropagation()
   }, [])
 
-  const simulateImport = useCallback(
-    (files: File[]) => {
-      if (importing) return
-      const validFiles = files.filter((f) => ACCEPTED_TYPES.includes(f.type))
-      if (validFiles.length === 0) return
+  const handleFiles = useCallback((files: File[]) => {
+    const validFiles = files.filter((f) => ACCEPTED_TYPES.includes(f.type))
+    if (validFiles.length === 0) return
 
-      setImporting(true)
-      setProgress(0)
-      setImportedCount(0)
+    // Warn at 500+ files
+    if (validFiles.length >= 500) {
+      useToastStore.getState().addToast(
+        t("dropzone.warningManyFiles"),
+        "warning"
+      )
+    }
 
-      const newImages = validFiles.map(fileToMockImage)
-      const totalSteps = newImages.length
-      let step = 0
+    // Create Image objects from valid files
+    const newImages = validFiles.map(fileToMockImage)
 
-      intervalRef.current = setInterval(() => {
-        step++
-        setProgress(Math.round((step / totalSteps) * 100))
-        setImportedCount(step)
+    // Add to store — prepend so newest appear first
+    useAppStore.setState((s) => ({
+      images: [...newImages, ...s.images],
+    }))
 
-        if (step >= totalSteps) {
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current)
-            intervalRef.current = null
-          }
-          // Add to store
-          useAppStore.setState((s) => ({
-            images: [...newImages, ...s.images],
-          }))
-          setTimeout(() => {
-            setImporting(false)
-            setProgress(0)
-            setImportedCount(0)
-          }, 600)
-        }
-      }, 200)
-    },
-    [importing],
-  )
+    // Show success toast
+    const count = newImages.length.toString()
+    useToastStore.getState().addToast(
+      t("dropzone.importedToast").replace("{count}", count),
+      "success"
+    )
+
+    // Auto-navigate to gallery
+    useAppStore.getState().setView("gallery")
+  }, [t])
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -123,9 +104,9 @@ export function DropZone() {
       setDragOver(false)
 
       const files = Array.from(e.dataTransfer.files)
-      simulateImport(files)
+      handleFiles(files)
     },
-    [simulateImport],
+    [handleFiles],
   )
 
   return (
@@ -135,7 +116,7 @@ export function DropZone() {
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      style={{ pointerEvents: dragOver || importing ? "auto" : "none" }}
+      style={{ pointerEvents: dragOver ? "auto" : "none" }}
     >
       {/* Overlay */}
       <div
@@ -174,31 +155,6 @@ export function DropZone() {
             <p className="font-serif text-[11px] text-text-faint mt-1">
               {t("dropzone.subtitle")}
             </p>
-          </div>
-        </div>
-      )}
-
-      {/* Import progress overlay */}
-      {importing && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
-          <div className="bg-surface rounded-[6px] shadow-elevated border border-border p-6 min-w-[280px]">
-            <p className="font-serif text-[13px] text-text mb-3 text-center">
-              {t("dropzone.importing")}
-            </p>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] text-text-muted font-serif">
-                {importedCount} {t("dropzone.imported")}
-              </span>
-              <span className="text-[11px] font-mono text-text-muted tabular-nums">
-                {progress}%
-              </span>
-            </div>
-            <div className="w-full h-1.5 rounded-[2px] bg-bg overflow-hidden">
-              <div
-                className="h-full rounded-[2px] bg-accent transition-all duration-200 ease-out"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
           </div>
         </div>
       )}

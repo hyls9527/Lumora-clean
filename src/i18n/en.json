@@ -215,8 +215,9 @@
   },
   "dropzone": {
     "title": "Drop images here to import",
-    "subtitle": "PNG, JPG, WebP supported",
-    "importing": "Importing...",
-    "imported": "imported"
+    "subtitle": "PNG, JPG, WebP, SVG supported",
+    "importedToast": "Imported {count} images",
+    "warningManyFiles": "Importing many files may affect browser performance",
+    "noValidFiles": "No valid image files found"
   }
 }

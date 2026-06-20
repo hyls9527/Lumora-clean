@@ -215,8 +215,9 @@
   },
   "dropzone": {
     "title": "拖放图片到此处导入",
-    "subtitle": "支持 PNG、JPG、WebP 格式",
-    "importing": "导入中...",
-    "imported": "已导入"
+    "subtitle": "支持 PNG、JPG、WebP、SVG 格式",
+    "importedToast": "已导入 {count} 张图片",
+    "warningManyFiles": "一次导入过多文件可能影响浏览器性能",
+    "noValidFiles": "未找到有效的图片文件"
   }
 }
