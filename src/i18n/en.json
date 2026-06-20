@@ -158,6 +158,11 @@
       "navigate": "navigate",
       "execute": "execute",
       "close": "close"
+    },
+    "emptySearch": {
+      "title": "No matching items found",
+      "subtitle": "Try different keywords, or browse the gallery",
+      "action": "Browse Gallery"
     }
   },
   "empty": {

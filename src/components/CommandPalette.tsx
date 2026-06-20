@@ -270,9 +270,33 @@ export function CommandPalette() {
         {/* Command list */}
         <div ref={listRef} className="max-h-[320px] overflow-y-auto py-1">
           {flatCommands.length === 0 ? (
-            <div className="px-4 py-6 text-center text-[13px] text-text-muted font-serif">
-              {isSearching ? t("gallery.loading") : t("commandPalette.noResults")}
-            </div>
+            isSearching ? (
+              <div className="px-4 py-6 text-center text-[13px] text-text-muted font-serif">
+                {t("gallery.loading")}
+              </div>
+            ) : query.trim() ? (
+              <div className="px-6 py-8 text-center space-y-3">
+                <div className="w-12 h-12 rounded-[2px] bg-bg border border-border-subtle flex items-center justify-center mx-auto mb-1">
+                  <span className="font-serif text-[18px] text-text-faint">?</span>
+                </div>
+                <h3 className="font-serif text-[14px] text-text">
+                  {t("commandPalette.emptySearch.title")}
+                </h3>
+                <p className="font-serif text-[12px] text-text-muted leading-relaxed">
+                  {t("commandPalette.emptySearch.subtitle")}
+                </p>
+                <button
+                  onClick={() => { closePalette(); setView("gallery") }}
+                  className="mt-2 px-4 py-1.5 rounded-[4px] font-serif text-[12px] bg-accent/8 text-accent hover:bg-accent/12 transition-all duration-200 ease-out"
+                >
+                  {t("commandPalette.emptySearch.action")}
+                </button>
+              </div>
+            ) : (
+              <div className="px-4 py-6 text-center text-[13px] text-text-muted font-serif">
+                {t("commandPalette.noResults")}
+              </div>
+            )
           ) : (
             Array.from(grouped.entries()).map(([sectionKey, cmds]) => (
               <div key={sectionKey}>

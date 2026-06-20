@@ -158,6 +158,11 @@
       "navigate": "导航",
       "execute": "执行",
       "close": "关闭"
+    },
+    "emptySearch": {
+      "title": "未找到匹配项",
+      "subtitle": "尝试其他关键词，或浏览图库",
+      "action": "浏览图库"
     }
   },
   "empty": {
