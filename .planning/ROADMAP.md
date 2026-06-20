@@ -15,7 +15,7 @@
 **Phase 002 Plans:**
 - [ ] 002-01-PLAN.md — CommandPalette: local search filtering, 150ms debounce, text-only commands, themed empty state
 - [ ] 002-02-PLAN.md — Toast notification system + DropZone rewrite (no fake progress, SVG support, toast + auto-navigate)
-- [ ] 002-03-PLAN.md — Keyboard shortcuts: SettingsPage reference completion + F key favorite handler
+- [x] 002-03-PLAN.md — Keyboard shortcuts: SettingsPage reference completion + F key favorite handler
 
 ## v0.2 AI Enhancement (future)
 - CLIP embeddings

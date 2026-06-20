@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v0.1-mvp
 milestone_name: MVP Frontend
 status: in_progress
-last_updated: "2026-06-20T20:29:47.140Z"
+last_updated: "2026-06-20T20:42:00.000Z"
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 1
-  total_plans: 19
-  completed_plans: 3
-  percent: 16
+  total_plans: 22
+  completed_plans: 4
+  percent: 18
 ---
 
 # Lumora Project State
@@ -17,9 +17,9 @@ progress:
 ## Current Position
 
 - **Milestone:** v0.1 MVP
-- **Phase:** 001 UI Polish
-- **Plan:** 001-02 complete — Migration cleanup + business/page audit
-- **Next Step:** Phase 001 complete. Ready for Phase 002 (Feature Completion).
+- **Phase:** 002 Feature Completion
+- **Plan:** 002-03 complete — Keyboard shortcuts reference table + F key favorite handler
+- **Next Step:** Continue Phase 002 plans (002-01, 002-02) or proceed to Phase 003.
 
 ## Architecture
 
@@ -67,7 +67,21 @@ Pure Vite + React 19 + TypeScript + Tailwind CSS v4 frontend. No backend — Tau
 - Deviations: 6 (4 auto-fixed, 2 beyond-plan discoveries)
 - Pre-existing issues: 8 tsc -b errors logged to deferred-items.md
 
+## Plan 002-03 Complete
+
+- SUMMARY: .planning/phases/002-feature-completion/002-03-SUMMARY.md
+- Commits: cddec21, 086a76b
+- Tasks: 2/2 complete
+- Files: 4 modified (SettingsPage.tsx, GalleryPage.tsx, en.json, zh.json)
+- No deviations — plan executed exactly as written
+
+## Key Decisions (002-03)
+
+- Three logical shortcut groups: Global (⌘ shortcuts + Esc), Gallery Navigation (arrow keys + Enter), Selection & Actions (Space, ⌫, F, ⌘+letter actions)
+- Platform-aware key labels via navigator.platform.includes("Mac") for ⌘ vs Ctrl display
+- F key shortcut wired to toggleFavorite on focused image in GalleryPage
+
 ## Next
 
-- Phase 002: Feature Completion
+- Phase 002: Feature Completion (remaining plans: 002-01, 002-02)
 - Phase 003: Build & Verify
