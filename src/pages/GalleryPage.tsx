@@ -171,7 +171,7 @@ export function GalleryPage() {
                 }
               }}
               className={cn(
-                "px-2 pb-2.5 mb-[-1px] font-serif text-[11px] border-b-2 transition-colors",
+                "px-2 pb-2.5 mb-[-1px] font-serif text-[11px] border-b-2 transition-all duration-200 ease-out",
                 sortBy === s
                   ? "border-accent text-text font-semibold"
                   : "border-transparent text-text-muted hover:text-text-secondary"
@@ -199,13 +199,13 @@ export function GalleryPage() {
 
           <button
             onClick={selectAll}
-            className="font-serif text-[11px] text-text-faint hover:text-text-muted transition-colors"
+            className="font-serif text-[11px] text-text-faint hover:text-text-muted transition-all duration-200 ease-out"
           >
             {t("toolbar.selectAll")}
           </button>
 
           <button
-            className="font-serif text-[11px] text-text-faint hover:text-text-muted transition-colors"
+            className="font-serif text-[11px] text-text-faint hover:text-text-muted transition-all duration-200 ease-out"
           >
             {t("toolbar.listView")}
           </button>
@@ -219,14 +219,14 @@ export function GalleryPage() {
       
       {/* Onboarding hint (first visit) */}
       {images.length > 0 && showOnboarding && (
-        <div className="px-10 py-3 bg-accent/5 border-b border-accent/10 transition-all duration-300 ease-out">
+        <div className="px-10 py-3 bg-accent/5 border-b border-accent/10 transition-all duration-200 ease-out">
           <p className="font-serif text-[12px] text-text-muted text-center">
             按 <kbd className="px-1.5 py-0.5 rounded bg-bg border border-border-subtle text-[10px]">⌘K</kbd> 打开命令面板 · 
             点击图片查看详情 · 
             悬停显示评分和收藏
           </p>
           <button 
-            className="block mx-auto mt-2 text-[10px] text-accent hover:underline transition-colors duration-200"
+            className="block mx-auto mt-2 text-[10px] text-accent hover:underline transition-all duration-200 ease-out"
             onClick={() => {
               localStorage.setItem('lumora-onboarded', 'true')
               setShowOnboarding(false)
@@ -242,7 +242,7 @@ export function GalleryPage() {
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <p className="font-serif text-[15px] text-text-muted animate-pulse">
-              研墨中…
+              {t("loading.grinding")}
             </p>
           </div>
         ) : filteredImages.length === 0 ? (
@@ -252,14 +252,14 @@ export function GalleryPage() {
                 <span className="font-serif text-[20px] text-text-faint">◆</span>
               </div>
               <h3 className="font-serif text-[16px] text-text-muted mb-1">
-                此处尚无藏品
+                {t("gallery.empty.title")}
               </h3>
               <p className="font-serif text-[13px] text-text-faint mb-4">
-                研墨中…
+                {t("gallery.empty.subtitle")}
               </p>
               <button
                 onClick={() => window.dispatchEvent(new Event("open-import"))}
-                className="px-4 py-2 rounded-[4px] font-serif text-[12px] bg-accent text-white hover:bg-accent-hover transition-all duration-200 ease-out"
+                className="px-4 py-2 rounded-[4px] font-serif text-[12px] bg-accent text-surface hover:bg-accent-hover transition-all duration-200 ease-out"
               >
                 导入图片
               </button>
