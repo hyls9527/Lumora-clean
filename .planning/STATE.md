@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v0.1-mvp
 milestone_name: MVP Frontend
 status: in_progress
-last_updated: "2026-06-20T20:42:00.000Z"
+last_updated: "2026-06-20T20:42:05.791Z"
 progress:
   total_phases: 7
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 22
-  completed_plans: 4
-  percent: 18
+  completed_plans: 5
+  percent: 23
 ---
 
 # Lumora Project State
@@ -18,8 +18,8 @@ progress:
 
 - **Milestone:** v0.1 MVP
 - **Phase:** 002 Feature Completion
-- **Plan:** 002-03 complete — Keyboard shortcuts reference table + F key favorite handler
-- **Next Step:** Continue Phase 002 plans (002-01, 002-02) or proceed to Phase 003.
+- **Plan:** 002-02 complete — DropZone rewrite + toast notification system
+- **Next Step:** Continue remaining Phase 002 plans or proceed to Phase 003.
 
 ## Architecture
 
@@ -75,13 +75,29 @@ Pure Vite + React 19 + TypeScript + Tailwind CSS v4 frontend. No backend — Tau
 - Files: 4 modified (SettingsPage.tsx, GalleryPage.tsx, en.json, zh.json)
 - No deviations — plan executed exactly as written
 
+## Plan 002-02 Complete
+
+- SUMMARY: .planning/phases/002-feature-completion/002-02-SUMMARY.md
+- Commits: 3e0a9de, ab5b031, 94cf759
+- Tasks: 3/3 complete
+- Files: 6 (2 created: toast-store.ts, toast.tsx; 4 modified: DropZone.tsx, App.tsx, en.json, zh.json)
+- No deviations — plan executed exactly as written
+
 ## Key Decisions (002-03)
 
 - Three logical shortcut groups: Global (⌘ shortcuts + Esc), Gallery Navigation (arrow keys + Enter), Selection & Actions (Space, ⌫, F, ⌘+letter actions)
 - Platform-aware key labels via navigator.platform.includes("Mac") for ⌘ vs Ctrl display
 - F key shortcut wired to toggleFavorite on focused image in GalleryPage
 
+## Key Decisions (002-02)
+
+- Toast auto-dismiss: 3 seconds via setTimeout, close button provided for manual dismissal
+- 500+ file threshold uses >= 500 — warning toast fires but import proceeds (no hard limit)
+- getState() for cross-boundary store access from non-React callbacks (DropZone event handlers)
+- SVG MIME type (image/svg+xml) added to ACCEPTED_TYPES alongside png/jpg/webp/gif
+- Instant import: files mapped to Image objects and prepended to store array, no artificial delays
+
 ## Next
 
-- Phase 002: Feature Completion (remaining plans: 002-01, 002-02)
+- Phase 002: Feature Completion (remaining plans if any)
 - Phase 003: Build & Verify
