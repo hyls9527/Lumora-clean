@@ -2,33 +2,14 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { useTranslation } from "@/lib/i18n"
 import { useAppStore } from "@/stores/app-store"
 import { cn } from "@/lib/utils"
-import type { Image as MockImage } from "@/lib/mock-data"
-import {
-  Image,
-  Sparkles,
-  BarChart3,
-  Settings,
-  Trash2,
-  CheckSquare,
-  X,
-  ArrowDownAZ,
-  ArrowUpAZ,
-  HardDrive,
-  FolderPlus,
-  Download,
-  Search,
-  Tag,
-  Star,
-} from "lucide-react"
-
+import type { Image } from "@/lib/mock-data"
 interface Command {
   id: string
   labelKey: string
   hint?: string
-  icon: React.ElementType
   section: string
   action: () => void
-  _searchRecord?: MockImage
+  _searchRecord?: Image
 }
 
 export function CommandPalette() {
@@ -36,7 +17,7 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
   const [focusedIndex, setFocusedIndex] = useState(0)
-  const [searchResults, setSearchResults] = useState<MockImage[]>([])
+  const [searchResults, setSearchResults] = useState<Image[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -75,22 +56,22 @@ export function CommandPalette() {
   }, [selectedIds, images, setRating])
 
   const commands = useMemo<Command[]>(() => [
-    { id: "nav-gallery", labelKey: "sidebar.gallery", icon: Image, section: "commandPalette.sections.navigation", action: () => setView("gallery") },
-    { id: "nav-curation", labelKey: "sidebar.curation", icon: Sparkles, section: "commandPalette.sections.navigation", action: () => setView("curation") },
-    { id: "nav-dashboard", labelKey: "sidebar.dashboard", icon: BarChart3, section: "commandPalette.sections.navigation", action: () => setView("dashboard") },
-    { id: "nav-settings", labelKey: "sidebar.settings", icon: Settings, section: "commandPalette.sections.navigation", action: () => setView("settings") },
-    { id: "nav-trash", labelKey: "sidebar.trash", icon: Trash2, section: "commandPalette.sections.navigation", action: () => setView("trash") },
-    { id: "action-new-import", labelKey: "commandPalette.commands.newImport", hint: "⌘N", icon: FolderPlus, section: "commandPalette.sections.import", action: () => window.dispatchEvent(new Event("open-import")) },
-    { id: "action-export", labelKey: "commandPalette.commands.exportSelected", hint: "⌘E", icon: Download, section: "commandPalette.sections.import", action: () => window.dispatchEvent(new Event("export-selected")) },
-    { id: "action-focus-search", labelKey: "commandPalette.commands.focusSearch", hint: "⌘F", icon: Search, section: "commandPalette.sections.actions", action: () => { closePalette(); requestAnimationFrame(() => openPalette()) } },
-    { id: "action-select-all", labelKey: "commandPalette.commands.selectAll", hint: "⌘A", icon: CheckSquare, section: "commandPalette.sections.actions", action: () => selectAll() },
-    { id: "action-clear-selection", labelKey: "commandPalette.commands.clearSelection", hint: "⌘D", icon: X, section: "commandPalette.sections.actions", action: () => clearSelection() },
-    { id: "action-add-tag", labelKey: "commandPalette.commands.addTagToSelected", hint: "⌘T", icon: Tag, section: "commandPalette.sections.actions", action: () => window.dispatchEvent(new Event("add-tag-selected")) },
-    { id: "action-rate-selected", labelKey: "commandPalette.commands.rateSelected", hint: "⌘R", icon: Star, section: "commandPalette.sections.actions", action: () => rateSelected() },
-    { id: "action-delete-selected", labelKey: "commandPalette.commands.deleteSelected", icon: Trash2, section: "commandPalette.sections.actions", action: () => { selectedIds.forEach((id) => deleteImage(id)) } },
-    { id: "sort-date", labelKey: "commandPalette.commands.sortByDate", icon: ArrowDownAZ, section: "commandPalette.sections.sort", action: () => setSortBy("date") },
-    { id: "sort-rating", labelKey: "commandPalette.commands.sortByRating", icon: ArrowUpAZ, section: "commandPalette.sections.sort", action: () => setSortBy("rating") },
-    { id: "sort-size", labelKey: "commandPalette.commands.sortBySize", icon: HardDrive, section: "commandPalette.sections.sort", action: () => setSortBy("size") },
+    { id: "nav-gallery", labelKey: "sidebar.gallery", section: "commandPalette.sections.navigation", action: () => setView("gallery") },
+    { id: "nav-curation", labelKey: "sidebar.curation", section: "commandPalette.sections.navigation", action: () => setView("curation") },
+    { id: "nav-dashboard", labelKey: "sidebar.dashboard", section: "commandPalette.sections.navigation", action: () => setView("dashboard") },
+    { id: "nav-settings", labelKey: "sidebar.settings", section: "commandPalette.sections.navigation", action: () => setView("settings") },
+    { id: "nav-trash", labelKey: "sidebar.trash", section: "commandPalette.sections.navigation", action: () => setView("trash") },
+    { id: "action-new-import", labelKey: "commandPalette.commands.newImport", hint: "⌘N", section: "commandPalette.sections.import", action: () => window.dispatchEvent(new Event("open-import")) },
+    { id: "action-export", labelKey: "commandPalette.commands.exportSelected", hint: "⌘E", section: "commandPalette.sections.import", action: () => window.dispatchEvent(new Event("export-selected")) },
+    { id: "action-focus-search", labelKey: "commandPalette.commands.focusSearch", hint: "⌘F", section: "commandPalette.sections.actions", action: () => { closePalette(); requestAnimationFrame(() => openPalette()) } },
+    { id: "action-select-all", labelKey: "commandPalette.commands.selectAll", hint: "⌘A", section: "commandPalette.sections.actions", action: () => selectAll() },
+    { id: "action-clear-selection", labelKey: "commandPalette.commands.clearSelection", hint: "⌘D", section: "commandPalette.sections.actions", action: () => clearSelection() },
+    { id: "action-add-tag", labelKey: "commandPalette.commands.addTagToSelected", hint: "⌘T", section: "commandPalette.sections.actions", action: () => window.dispatchEvent(new Event("add-tag-selected")) },
+    { id: "action-rate-selected", labelKey: "commandPalette.commands.rateSelected", hint: "⌘R", section: "commandPalette.sections.actions", action: () => rateSelected() },
+    { id: "action-delete-selected", labelKey: "commandPalette.commands.deleteSelected", section: "commandPalette.sections.actions", action: () => { selectedIds.forEach((id) => deleteImage(id)) } },
+    { id: "sort-date", labelKey: "commandPalette.commands.sortByDate", section: "commandPalette.sections.sort", action: () => setSortBy("date") },
+    { id: "sort-rating", labelKey: "commandPalette.commands.sortByRating", section: "commandPalette.sections.sort", action: () => setSortBy("rating") },
+    { id: "sort-size", labelKey: "commandPalette.commands.sortBySize", section: "commandPalette.sections.sort", action: () => setSortBy("size") },
   ], [setView, selectAll, clearSelection, setSortBy, deleteImage, selectedIds, closePalette, rateSelected])
 
   const filtered = useMemo(() => {
@@ -119,7 +100,6 @@ export function CommandPalette() {
       id: `search-${r.id}`,
       labelKey: "",
       hint: r.path.split(/[\\\\/]/).pop(),
-      icon: Image,
       section: "commandPalette.sections.searchResults",
       action: () => {
         const img = images.find((i) => i.id === String(r.id))
@@ -303,7 +283,6 @@ export function CommandPalette() {
                 </div>
                 {cmds.map((cmd) => {
                   const idx = flatIndex++
-                  const Icon = cmd.icon
                   const isFocused = idx === focusedIndex
                   const isSearch = cmd.section === "commandPalette.sections.searchResults"
                   return (
@@ -311,7 +290,7 @@ export function CommandPalette() {
                       key={cmd.id}
                       data-command-item
                       className={cn(
-                        "w-full flex items-center gap-2.5 px-3 py-2 rounded-[4px] text-[13px] font-serif transition-all duration-200 ease-out text-left",
+                        "w-full flex items-center px-3 py-2 rounded-[4px] text-[13px] font-serif transition-all duration-200 ease-out text-left",
                         isFocused
                           ? "bg-accent-subtle text-text"
                           : "text-text-secondary hover:bg-accent-subtle"
@@ -319,7 +298,6 @@ export function CommandPalette() {
                       onMouseEnter={() => setFocusedIndex(idx)}
                       onClick={() => executeCommand(cmd)}
                     >
-                      <Icon className="w-4 h-4 shrink-0 opacity-50" />
                       <span className="flex-1 truncate">
                         {isSearch ? highlightMatch(cmd._searchRecord?.path ?? "") : t(cmd.labelKey)}
                       </span>
