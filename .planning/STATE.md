@@ -3,7 +3,7 @@ gsd_state_version: 1
 project: Lumora
 milestone: v0.1-mvp
 phase: 001-ui-polish
-status: context_gathered
+status: ui_spec_approved
 last_updated: '2026-06-21'
 ---
 
@@ -11,7 +11,7 @@ last_updated: '2026-06-21'
 
 ## Current Position
 - **Milestone:** v0.1 MVP
-- **Phase:** 001 UI Polish — context captured
+- **Phase:** 001 UI Polish — UI design contract approved
 - **Next Step:** /gsd-plan-phase 001
 
 ## Architecture
