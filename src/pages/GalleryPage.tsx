@@ -30,6 +30,7 @@ export function GalleryPage() {
     setFocusedIndex,
     getFilteredImages,
     toggleSelect,
+    toggleFavorite,
     deleteFocusedImage,
     openFocusedImage,
     images,
@@ -112,6 +113,14 @@ export function GalleryPage() {
           if (img) toggleSelect(img.id)
         }
         break
+      case "f":
+      case "F":
+        if (focusedIndex >= 0) {
+          e.preventDefault()
+          const img = filteredImages[focusedIndex]
+          if (img) toggleFavorite(img.id)
+        }
+        break
       case "Delete":
       case "Backspace":
         if (focusedIndex >= 0 && target.tagName !== "INPUT") {
@@ -125,7 +134,7 @@ export function GalleryPage() {
         setFocusedIndex(-1)
         break
     }
-  }, [filteredImages, focusedIndex, setFocusedIndex, toggleSelect, deleteFocusedImage, openFocusedImage, clearSelection])
+  }, [filteredImages, focusedIndex, setFocusedIndex, toggleSelect, toggleFavorite, deleteFocusedImage, openFocusedImage, clearSelection])
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown)
