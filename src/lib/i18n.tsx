@@ -31,7 +31,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const t = useCallback(
     (key: string): string => {
       const keys = key.split(".")
-      let result: Record<string, unknown> = translations[locale]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let result: any = translations[locale]
       for (const k of keys) {
         if (result == null) return key
         result = result[k]

@@ -48,6 +48,7 @@ export function VirtualizedGrid({
   return (
     <Grid
       cellComponent={Cell}
+      // @ts-expect-error react-window injects columnIndex/rowIndex/style at runtime
       cellProps={{ images, columns, focusedIndex }}
       columnCount={columns}
       columnWidth={columnWidth}

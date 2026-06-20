@@ -1,4 +1,4 @@
-export type AspectRatio = '1/1' | '4/3' | '3/4' | '16/9' | '3/2'
+export type AspectRatio = '1/1' | '4/3' | '3/4' | '16/9' | '3/2' | '2/3' | '9/16'
 
 export interface Tag {
   name: string
