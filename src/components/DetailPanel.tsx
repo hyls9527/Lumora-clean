@@ -28,13 +28,13 @@ export function DetailPanel() {
       <div className="flex-1 overflow-y-auto">
         {/* Image preview */}
         <div className="p-4">
-          <div className="relative rounded-[2px] overflow-hidden group shadow-sm">
+          <div className="relative rounded-[2px] overflow-hidden group shadow-card">
             <img
               src={image.thumbnail}
               alt={`Detail view: ${detailImage?.format || "image"}`}
               className="w-full object-cover"
             />
-            <button aria-label="关闭详情" className="absolute top-2 right-2 w-7 h-7 rounded-[4px] bg-black/30 text-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 ease-out">
+            <button aria-label="关闭详情" className="absolute top-2 right-2 w-7 h-7 rounded-[4px] bg-text/30 text-surface/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 ease-out">
               <span className="text-[11px]">全屏</span>
             </button>
           </div>

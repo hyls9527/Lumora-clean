@@ -163,8 +163,7 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
                 [&::-webkit-slider-thumb]:border-surface
                 [&::-webkit-slider-thumb]:shadow-[0_1px_3px_rgba(78,50,23,0.15)]
                 [&::-webkit-slider-thumb]:transition-all
-                [&::-webkit-slider-thumb]:duration-200
-                [&::-webkit-slider-thumb]:hover:scale-110"
+                [&::-webkit-slider-thumb]:duration-200"
             />
           </div>
         )}
@@ -176,7 +175,7 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
           </label>
           <div className="flex items-center gap-2 px-3 py-2 rounded-[4px] bg-bg border border-border-subtle text-[12px] text-text-secondary font-mono">
             <span className="flex-1 truncate">D:\Gallery\Exports</span>
-            <button className="text-accent hover:text-accent-hover text-[11px] font-serif transition-colors">
+            <button className="text-accent hover:text-accent-hover text-[11px] font-serif transition-all duration-200 ease-out">
               {t("export.destination.browse")}
             </button>
           </div>
@@ -216,7 +215,7 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
             disabled={exporting || selectedImages.length === 0}
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-[4px] text-[12px] font-serif transition-all duration-200 ease-out",
-              "bg-accent text-white hover:bg-accent-hover disabled:opacity-50"
+              "bg-accent text-surface hover:bg-accent-hover disabled:opacity-50"
             )}
           >
             <span>{exporting ? t("export.exporting") : t("export.button")}</span>

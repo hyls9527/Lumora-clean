@@ -41,7 +41,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
         {/* Hover overlay — gradient from bottom */}
         <div
           className={cn(
-            "absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent transition-opacity duration-200",
+            "absolute inset-0 bg-gradient-to-t from-text/45 via-transparent to-transparent transition-opacity duration-200",
             isHovered ? "opacity-100" : "opacity-0"
           )}
         />
@@ -53,7 +53,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
             "absolute top-2.5 left-2.5 w-[22px] h-[22px] rounded-[4px] border-[1.5px] flex items-center justify-center transition-all duration-200",
             isSelected
               ? "bg-accent border-accent text-text"
-              : "bg-white/70 border-white/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-white/90"
+              : "bg-surface/70 border-surface/50 opacity-0 group-hover:opacity-100 hover:bg-surface/90"
           )}
           onClick={(e) => {
             e.stopPropagation()
@@ -120,7 +120,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
           {/* Format badge */}
           <span
             className={cn(
-              "px-1.5 py-px rounded-[4px] font-sans text-[8px] font-bold uppercase tracking-wider bg-black/25 text-white/60 backdrop-blur-sm",
+              "px-1.5 py-px rounded-[4px] font-sans text-[8px] font-bold uppercase tracking-wider bg-text/25 text-surface/60",
               isHovered ? "opacity-100" : "opacity-0"
             )}
           >

@@ -37,7 +37,7 @@ export function Sidebar() {
   return (
     <aside 
       className={cn(
-        "relative h-screen flex flex-col bg-surface border-r border-border shrink-0 transition-all duration-300 ease-out",
+        "relative h-screen flex flex-col bg-surface border-r border-border shrink-0 transition-all duration-200 ease-out",
         collapsed ? "w-[60px]" : "w-[200px]"
       )}
       aria-label="侧边栏"
@@ -67,7 +67,7 @@ export function Sidebar() {
       <div className={cn("my-5", collapsed ? "mx-2" : "mx-4")}>
         <button
           className={cn(
-            "group flex items-center gap-2 rounded-md bg-bg border border-border-subtle hover:bg-surface-hover focus:border-accent focus:ring-1 focus:ring-accent/20 transition-all duration-200 ease-out",
+            "group flex items-center gap-2 rounded-[4px] bg-bg border border-border-subtle hover:bg-surface-hover focus:border-accent focus:ring-1 focus:ring-accent/20 transition-all duration-200 ease-out",
             collapsed ? "w-10 h-10 justify-center px-0" : "w-full px-3 py-2"
           )}
           onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
@@ -94,7 +94,7 @@ export function Sidebar() {
               key={item.id}
               onClick={() => setView(item.id)}
               className={cn(
-                "relative w-full flex items-center gap-2.5 transition-colors",
+                "relative w-full flex items-center gap-2.5 transition-all duration-200 ease-out",
                 collapsed ? "justify-center px-0 py-2" : "px-3 py-[7px] text-[13px]",
                 isActive
                   ? "font-serif font-semibold text-text mt-1.5 mb-2"
@@ -122,7 +122,7 @@ export function Sidebar() {
       {/* Stats */}
       {!collapsed && (
         <div className="mx-4 mb-6">
-          <div className="px-4 py-3.5 rounded-md bg-bg border border-border-subtle">
+          <div className="px-4 py-3.5 rounded-[2px] bg-bg border border-border-subtle">
             <div className="space-y-2.5">
               <StatRow label={t("sidebar.total")} value={stats.total} />
               <div className="border-t border-dotted" style={{ borderColor: "rgba(139,115,75,0.06)" }} />
@@ -143,7 +143,7 @@ export function Sidebar() {
         className={cn(
           "absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-surface border border-border-subtle flex items-center justify-center text-text-muted hover:bg-surface-hover transition-all duration-200 ease-out",
           "opacity-0 hover:opacity-100",
-          isMobile && "opacity-100 shadow-md"
+          isMobile && "opacity-100 shadow-card"
         )}
         onClick={() => setCollapsed(!collapsed)}
         aria-label={collapsed ? "展开侧边栏" : "收起侧边栏"}
