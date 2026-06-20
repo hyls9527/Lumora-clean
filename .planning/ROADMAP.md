@@ -17,6 +17,9 @@
 - [x] 002-02-PLAN.md — Toast notification system + DropZone rewrite (no fake progress, SVG support, toast + auto-navigate)
 - [x] 002-03-PLAN.md — Keyboard shortcuts: SettingsPage reference completion + F key favorite handler
 
+**Phase 003 Plans:**
+- [ ] 003-01-PLAN.md — Fix 25 ESLint errors + 2 warnings across 10 files, verify clean tsc/build/lint, visual spot-check all 5 pages
+
 ## v0.2 AI Enhancement (future)
 - CLIP embeddings
 - Semantic search
