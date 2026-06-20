@@ -38,8 +38,6 @@ function fileToMockImage(file: File): Image {
 
 export function DropZone() {
   const { t } = useTranslation()
-  const images = useAppStore((s) => s.images)
-  const openFolderDialog = useAppStore((s) => s.openFolderDialog)
   const [dragOver, setDragOver] = useState(false)
   const [importing, setImporting] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -124,22 +122,11 @@ export function DropZone() {
       dragCountRef.current = 0
       setDragOver(false)
 
-      if (false) { // Tauri removed
-        openFolderDialog()
-        return
-      }
-
       const files = Array.from(e.dataTransfer.files)
       simulateImport(files)
     },
-    [simulateImport, openFolderDialog],
+    [simulateImport],
   )
-
-  const handleClick = useCallback(() => {
-    if (false) { // Tauri removed
-      openFolderDialog()
-    }
-  }, [openFolderDialog])
 
   return (
     <div
@@ -163,8 +150,7 @@ export function DropZone() {
       {/* Drop target area */}
       {dragOver && (
         <div
-          className="absolute inset-8 rounded-[6px] border-2 border-dashed border-accent/30 flex items-center justify-center cursor-pointer"
-          onClick={handleClick}
+          className="absolute inset-8 rounded-[6px] border-2 border-dashed border-accent/30 flex items-center justify-center"
         >
           <div className="text-center">
             <div className="text-[32px] mb-3 opacity-40">

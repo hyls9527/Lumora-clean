@@ -1,25 +1,7 @@
 import { create } from "zustand"
 import { type Image, type Tag, generateMockImages, MOCK_TAGS } from "../lib/mock-data"
-import { type ImageRecord, getImages, updateImageRating, toggleImageFavorite, deleteImage as deleteImageApi, importFolder as importFolderApi, openFolderDialog as openFolderDialogApi } from "../lib/api/images"
 
 type View = "gallery" | "curation" | "dashboard" | "trash" | "settings"
-
-function recordToImage(r: ImageRecord): Image {
-  return {
-    id: String(r.id),
-    path: r.file_path,
-    thumbnail: "",
-    width: r.width ?? 0,
-    height: r.height ?? 0,
-    sizeKb: r.file_size_kb,
-    format: r.format,
-    rating: r.rating,
-    favorite: r.favorite,
-    tags: [],
-    createdAt: r.created_at,
-    aspectRatio: "1/1",
-  }
-}
 
 interface AppState {
   images: Image[]
@@ -68,33 +50,15 @@ export const useAppStore = create<AppState>((set, get) => ({
   clearSelection: () => set({ selectedIds: new Set() }),
   toggleFavorite: (id) => {
     set((s) => ({ images: s.images.map((i) => (i.id === id ? { ...i, favorite: !i.favorite } : i)) }))
-    if (isTauri()) {
-      toggleImageFavorite(Number(id)).catch((err) => {
-        console.error("toggleImageFavorite failed:", err)
-        set((s) => ({ images: s.images.map((i) => (i.id === id ? { ...i, favorite: !i.favorite } : i)) }))
-      })
-    }
   },
   setRating: (id, r) => {
     set((s) => ({ images: s.images.map((i) => (i.id === id ? { ...i, rating: r } : i)) }))
-    if (isTauri()) {
-      updateImageRating(Number(id), r).catch((err) => {
-        console.error("updateImageRating failed:", err)
-      })
-    }
   },
   deleteImage: (id) => {
-    const prev = get().images
     set((s) => ({
       images: s.images.filter((i) => i.id !== id),
       selectedIds: (() => { const n = new Set(s.selectedIds); n.delete(id); return n })(),
     }))
-    if (isTauri()) {
-      deleteImageApi(Number(id)).catch((err) => {
-        console.error("deleteImage failed:", err)
-        set({ images: prev })
-      })
-    }
   },
   searchQuery: "",
   setSearchQuery: (q) => set({ searchQuery: q }),
@@ -153,39 +117,14 @@ export const useAppStore = create<AppState>((set, get) => ({
   }),
   clearTagFilters: () => set({ activeTagFilters: new Set() }),
   loadImages: async () => {
-    if (!isTauri()) return
-    set({ isLoading: true, error: null })
-    try {
-      const records = await getImages(500, 0)
-      set({ images: records.map(recordToImage), isLoading: false })
-    } catch (err) {
-      console.error("loadImages failed:", err)
-      set({ error: String(err), isLoading: false })
-    }
+    // No-op: Tauri backend removed. Mock data loaded synchronously via generateMockImages(200).
   },
-  importFolder: async (folderPath) => {
-    if (!isTauri()) return null
-    try {
-      return await importFolderApi(folderPath)
-    } catch (err) {
-      console.error("importFolder failed:", err)
-      set({ error: String(err) })
-      return null
-    }
+  importFolder: async (_folderPath: string) => {
+    // No-op: Tauri backend removed.
+    return null
   },
   openFolderDialog: async () => {
-    if (!isTauri()) return null
-    set({ isLoading: true, error: null })
-    try {
-      const result = await openFolderDialogApi()
-      await get().loadImages()
-      return result
-    } catch (err) {
-      console.error("openFolderDialog failed:", err)
-      set({ error: String(err) })
-      return null
-    } finally {
-      set({ isLoading: false })
-    }
+    // No-op: Tauri backend removed.
+    return null
   },
 }))

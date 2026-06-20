@@ -9,7 +9,7 @@ const TABS = ["general", "appearance", "shortcuts", "about"] as const
 type Tab = typeof TABS[number]
 
 export function SettingsPage() {
-  const { t, locale, setLocale } = useTranslation()
+  const { t, setLocale } = useTranslation()
   const {
     language,
     theme,
@@ -174,7 +174,7 @@ export function SettingsPage() {
             >
               <div className="space-y-2">
                 <InfoRow label={t("settings.about.version")} value="0.1.0" />
-                <InfoRow label={t("settings.about.engine")} value="Tauri 2" />
+                <InfoRow label={t("settings.about.engine")} value="Vite (Web)" />
                 <InfoRow label={t("settings.about.frontend")} value="React 19" />
               </div>
             </SettingsSection>
