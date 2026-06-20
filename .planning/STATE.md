@@ -2,68 +2,38 @@
 gsd_state_version: 1
 project: Lumora
 milestone: v0.1-mvp
-phase: 007-real-features
-status: completed
-last_updated: '2026-06-15'
+phase: 001-ui-polish
+status: context_gathered
+last_updated: '2026-06-21'
 ---
 
 # Lumora Project State
 
 ## Current Position
 - **Milestone:** v0.1 MVP
-- **Phase:** 007-real-features ✅ COMPLETE
-- **Progress:** 3/3 plans complete
-
-## Completed Work
-- Phase 001-006: UI + Backend + Frontend-Backend Connection
-- Phase 007: Real Features
-  - Wave 1: Real image import via Tauri dialog
-  - Wave 2: Settings persistence (SQLite)
-  - Wave 3: FTS5 full-text search
-- Bug fixes: react-window v2, CommandPalette hook order, import paths, SVG placeholders, Error Boundary, lazy-load Tauri API
+- **Phase:** 001 UI Polish — context captured
+- **Next Step:** /gsd-plan-phase 001
 
 ## Architecture
-```
-Frontend (React 19 + TypeScript)
-    ↓ dynamic import()
-Tauri IPC (9 commands)
-    ↓
-Backend (Rust + Tauri 2)
-    ↓
-SQLite Database + FTS5 + Filesystem
-```
-
-## Tauri Commands (9 total)
-1. get_image_count
-2. get_images (pagination)
-3. import_folder (recursive scan + thumbnails)
-4. open_folder_dialog (native folder picker)
-5. update_image_rating
-6. toggle_image_favorite
-7. delete_image (soft delete)
-8. search_images (FTS5 MATCH with LIKE fallback)
-9. get_setting / set_setting
-
-## Features
-- Real image import via native folder picker
-- Settings persistence (language, theme, grid columns)
-- FTS5 full-text search with debounced input
-- Search result highlighting in CommandPalette
-- Page-level Error Boundaries with poetic fallbacks
-- Loading states (研墨中…)
-- Empty states (此处尚无藏品)
+Pure Vite + React 19 + TypeScript + Tailwind CSS v4 frontend. No backend — Tauri/Rust was removed. State-based view switching (no URL routing). Zustand stores with mock data.
 
 ## Design System
 - **Name:** 古卷·灯火 (Ancient Manuscript · Lamplight)
+- **Authority:** DESIGN.md (single source of truth)
 - **Colors:** ivory #f2ede4 + ink #2a2118 + patina gold #7a5c12
 - **Typography:** Noto Serif SC (titles) + DM Sans (body)
+- **Transitions:** 200ms ease-out
+- **Anti-patterns:** no lucide-react icons, no hover scale, no Inter, no pill buttons
 
-## Known Limitations
-- Browser tool cannot render ES modules (use actual browser)
-- DevSidecar may intercept external URLs (use local assets)
+## Key Decisions (001)
+- DESIGN.md is the authoritative design spec
+- 200ms transitions, 200px sidebar, 3-layer shadows
+- Replace lucide-react icons with text labels
+- Remove hover scale, extract PlumFlower as shared component
+- Full visual consistency audit (26 components)
+- Clear all Tauri migration dead code
 
 ## Next
-- CLIP/ONNX integration (v0.2)
-- Ollama LLM integration (v0.2)
-- Duplicate detection (v0.2)
-- Backup/restore (v0.2)
+- /gsd-plan-phase 001 — create execution plan
+- Phase 002: Feature Completion
+- Phase 003: Build & Verify
