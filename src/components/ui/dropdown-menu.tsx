@@ -94,7 +94,7 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
           else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node
         }}
         className={cn(
-          "absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
+          "absolute z-50 min-w-[8rem] overflow-hidden rounded-lg border bg-surface p-1 text-text shadow-elevated animate-in fade-in-0 zoom-in-95",
           align === "start" && "left-0",
           align === "center" && "left-1/2 -translate-x-1/2",
           align === "end" && "right-0",
@@ -121,7 +121,7 @@ const DropdownMenuItem = React.forwardRef<HTMLDivElement, DropdownMenuItemProps>
       <div
         ref={ref}
         className={cn(
-          "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+          "relative flex cursor-default select-none items-center rounded-[4px] px-2 py-1.5 text-sm outline-none transition-all duration-200 ease-out hover:bg-surface-hover hover:text-text focus:bg-surface-hover focus:text-text",
           inset && "pl-8",
           className
         )}
@@ -140,7 +140,7 @@ const DropdownMenuLabel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<
   ({ className, inset, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("px-2 py-1.5 text-sm font-semibold", inset && "pl-8", className)}
+      className={cn("px-2 py-1.5 text-sm font-medium", inset && "pl-8", className)}
       {...props}
     />
   )
@@ -149,7 +149,7 @@ DropdownMenuLabel.displayName = "DropdownMenuLabel"
 
 const DropdownMenuSeparator = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("-mx-1 my-1 h-px bg-muted", className)} {...props} />
+    <div ref={ref} className={cn("-mx-1 my-1 h-px bg-border", className)} {...props} />
   )
 )
 DropdownMenuSeparator.displayName = "DropdownMenuSeparator"
