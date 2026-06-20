@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { Sidebar } from "@/components/Sidebar"
 import { DetailPanel } from "@/components/DetailPanel"
 import { CommandPalette } from "@/components/CommandPalette"
+import { ToastContainer } from "@/components/ui/toast"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { GalleryPage } from "@/pages/GalleryPage"
 import { CurationPage } from "@/pages/CurationPage"
@@ -76,6 +77,7 @@ function AppContent() {
       </main>
       {detailImage && <DetailPanel />}
       <CommandPalette />
+      <ToastContainer />
     </div>
   )
 }
