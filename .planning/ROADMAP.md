@@ -82,7 +82,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 005-01-PLAN.md — API stubs (searchSemantic, getSearchSuggestions), Zustand semantic search store, i18n keys (SEM-01, SEM-03)
+- [x] 005-01-PLAN.md — API stubs (searchSemantic, getSearchSuggestions), Zustand semantic search store, i18n keys (SEM-01, SEM-03)
 - [ ] 005-02-PLAN.md — SimilarityScore badge component, SemanticSearchBar (input + mode toggle + autocomplete dropdown) (SEM-01, SEM-02, SEM-03, SEM-04, SEM-05)
 - [ ] 005-03-PLAN.md — GalleryPage integration (search bar + filtering + empty state + shortcut), ImageCard integration (similarity score badge) (SEM-01, SEM-02, SEM-05)
 **UI hint**: yes
