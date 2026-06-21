@@ -64,8 +64,8 @@ Plans:
 
 Plans:
 - [x] 004-01-PLAN.md — API stubs, Zustand embedding store, i18n keys (INT-01, INT-02, INT-03)
-- [ ] 004-02-PLAN.md — EmbeddingStatusBadge, ImageCard integration, EmbeddingDetailCard, DetailPanel integration, Dashboard stats (EMB-01, EMB-02, EMB-03, INT-04)
-- [ ] 004-03-PLAN.md — BatchEmbeddingBar, GalleryPage integration with progress feedback (EMB-04, INT-04)
+- [x] 004-02-PLAN.md — EmbeddingStatusBadge, ImageCard integration, EmbeddingDetailCard, DetailPanel integration, Dashboard stats (EMB-01, EMB-02, EMB-03, INT-04)
+- [x] 004-03-PLAN.md — BatchEmbeddingBar, GalleryPage integration with progress feedback (EMB-04, INT-04)
 
 **UI hint**: yes
 
@@ -104,6 +104,6 @@ Plans:
 | 001. UI Polish | v0.1 | 2/2 | Complete | 2026-06-20 |
 | 002. Feature Completion | v0.1 | 3/3 | Complete | 2026-06-20 |
 | 003. Build & Verify | v0.1 | 1/1 | Complete | 2026-06-21 |
-| 004. Embedding Foundation | v0.2 | 1/3 | In Progress|  |
+| 004. Embedding Foundation | v0.2 | 3/3 | Complete   | 2026-06-21 |
 | 005. Semantic Search | v0.2 | 0/TBD | Not started | - |
 | 006. AI Analysis Panel | v0.2 | 0/TBD | Not started | - |

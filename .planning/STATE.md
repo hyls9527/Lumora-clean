@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v0.2
 milestone_name: AI-Ready Frontend
 status: executing
-last_updated: "2026-06-21T17:57:34.352Z"
-last_activity: 2026-06-22 — 004-01 Embedding Data Layer completed
+last_updated: "2026-06-21T18:05:35.617Z"
+last_activity: 2026-06-21
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 13
-  completed_plans: 1
-  percent: 0
+  completed_plans: 3
+  percent: 23
 ---
 
 # Project State
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-06-21)
 ## Current Position
 
 Phase: 4 of 6 (Embedding Foundation & AI Infrastructure)
-Plan: 1 of 3 in current phase
-Status: In progress
-Last activity: 2026-06-22 — 004-01 Embedding Data Layer completed
+Plan: 3 of 3 in current phase
+Status: Ready to execute
+Last activity: 2026-06-21
 
-Progress: [█░░░░░░░░░] 8%
+Progress: [██░░░░░░░░] 23%
 
 ## Performance Metrics
 
@@ -53,6 +53,8 @@ Progress: [█░░░░░░░░░] 8%
 
 *Updated after each plan completion*
 | Phase 004 P01 | 96 | 3 tasks | 4 files |
+| Phase 004-embedding-foundation P02 | 12 | 3 tasks | 5 files |
+| Phase 004-embedding-foundation P03 | 181 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -62,6 +64,12 @@ Progress: [█░░░░░░░░░] 8%
 - v0.1: DESIGN.md as authoritative design spec; 200ms transitions, 200px sidebar
 - v0.2: Pure frontend AI UI only — no model inference, no backend; all AI data mocked via API stubs following the pattern established in `lib/api/`
 - v0.2: INT requirements (stubs, stores, i18n, DESIGN.md) mapped to Phase 004 as foundational setup — applied once, consumed by Phases 005-006
+- [Phase ?]: Badge always visible for embedded images — permanent confidence signal
+- [Phase ?]: SectionLabel/InfoRow replicated as private helpers in EmbeddingDetailCard — avoids premature abstraction
+- [Phase ?]: EmbeddingDetailCard inserted between Analysis and Score — ensures section always renders regardless of analysis data
+- [Phase ?]: BatchEmbeddingBar placed between toolbar and tag filter bar in Gallery for contextual prominence
+- [Phase ?]: Selection locking during generation uses store isGenerating flag, not local state
+- [Phase ?]: Toast auto-dismisses after 3s, bar resets to idle, no interactive try-again button needed
 
 ### Pending Todos
 
@@ -82,6 +90,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-21T17:57:26.814Z
+Last session: 2026-06-21T18:05:19.604Z
 Stopped at: v0.2 roadmap created; Phase 004 ready for `/gsd-plan-phase 4`
 Resume file: None

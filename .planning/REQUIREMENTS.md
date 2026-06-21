@@ -7,10 +7,10 @@
 
 ### Embedding Panel (EMB)
 
-- [ ] **EMB-01**: Gallery ImageCard shows an embedding status indicator (embedded ✓ / pending ○ / error ✗)
-- [ ] **EMB-02**: DetailPanel shows embedding vector dimensions and generation timestamp when available
-- [ ] **EMB-03**: Embedding status summary visible in Dashboard statistics
-- [ ] **EMB-04**: Batch embedding generation trigger UI (select images → "generate embeddings" action)
+- [x] **EMB-01**: Gallery ImageCard shows an embedding status indicator (embedded ✓ / pending ○ / error ✗)
+- [x] **EMB-02**: DetailPanel shows embedding vector dimensions and generation timestamp when available
+- [x] **EMB-03**: Embedding status summary visible in Dashboard statistics
+- [x] **EMB-04**: Batch embedding generation trigger UI (select images → "generate embeddings" action)
 
 ### Semantic Search (SEM)
 
@@ -33,7 +33,7 @@
 - [x] **INT-01**: New API stub layer for embedding/search/analysis endpoints (mock data, async pattern matching existing lib/api/)
 - [x] **INT-02**: All new UI uses Zustand stores following existing patterns
 - [x] **INT-03**: All new text uses i18n (en.json + zh.json)
-- [ ] **INT-04**: All new components follow DESIGN.md (colors, typography, spacing, transitions, anti-patterns)
+- [x] **INT-04**: All new components follow DESIGN.md (colors, typography, spacing, transitions, anti-patterns)
 
 ## Out of Scope
 
@@ -49,10 +49,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EMB-01 | Phase 004 | Pending |
-| EMB-02 | Phase 004 | Pending |
-| EMB-03 | Phase 004 | Pending |
-| EMB-04 | Phase 004 | Pending |
+| EMB-01 | Phase 004 | Complete |
+| EMB-02 | Phase 004 | Complete |
+| EMB-03 | Phase 004 | Complete |
+| EMB-04 | Phase 004 | Complete |
 | SEM-01 | Phase 005 | Pending |
 | SEM-02 | Phase 005 | Pending |
 | SEM-03 | Phase 005 | Pending |
@@ -66,7 +66,7 @@
 | INT-01 | Phase 004 | Complete |
 | INT-02 | Phase 004 | Complete |
 | INT-03 | Phase 004 | Complete |
-| INT-04 | Phase 004 | Pending |
+| INT-04 | Phase 004 | Complete |
 
 **Coverage:**
 - v0.2 requirements: 18 total
