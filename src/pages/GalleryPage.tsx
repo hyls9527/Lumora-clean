@@ -8,6 +8,8 @@ import { TagFilterBar } from "@/components/TagManager"
 import { ExportDialog } from "@/components/ExportDialog"
 import { DropZone } from "@/components/DropZone"
 import { PageErrorBoundary } from "@/components/PageErrorBoundary"
+import { BatchEmbeddingBar } from "@/components/BatchEmbeddingBar"
+import { useEmbeddingStore } from "@/stores/embedding-store"
 
 const VIRTUALIZE_THRESHOLD = 100
 const COLS = 4
@@ -35,6 +37,8 @@ export function GalleryPage() {
     openFocusedImage,
     images,
   } = useAppStore()
+
+  const isGenerating = useEmbeddingStore((s) => s.isGenerating)
 
   const filteredImages = getFilteredImages()
   const useVirtualized = filteredImages.length >= VIRTUALIZE_THRESHOLD
@@ -107,7 +111,7 @@ export function GalleryPage() {
         }
         break
       case " ":
-        if (focusedIndex >= 0) {
+        if (focusedIndex >= 0 && !isGenerating) {
           e.preventDefault()
           const img = filteredImages[focusedIndex]
           if (img) toggleSelect(img.id)
@@ -134,7 +138,7 @@ export function GalleryPage() {
         setFocusedIndex(-1)
         break
     }
-  }, [filteredImages, focusedIndex, setFocusedIndex, toggleSelect, toggleFavorite, deleteFocusedImage, openFocusedImage, clearSelection])
+  }, [filteredImages, focusedIndex, setFocusedIndex, toggleSelect, toggleFavorite, deleteFocusedImage, openFocusedImage, clearSelection, isGenerating])
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown)
@@ -220,6 +224,17 @@ export function GalleryPage() {
           </button>
         </div>
       </div>
+
+      {/* Batch embedding bar — appears when images are selected */}
+      <BatchEmbeddingBar
+        selectedIds={selectedIds}
+        onGenerationStart={() => {
+          // Selection is locked during generation — the batch bar handles visual state
+        }}
+        onGenerationEnd={() => {
+          // Re-enable selection interaction. The store's isGenerating flag drives the lock.
+        }}
+      />
 
       {/* Tag filter bar */}
       <div className="px-10 py-2 border-b border-border-subtle shrink-0">
