@@ -294,5 +294,46 @@
       "pending": "等待生成",
       "error": "生成错误"
     }
+  },
+  "aiAnalysis": {
+    "sectionLabel": "AI 分析",
+    "cta": {
+      "analyze": "AI 分析",
+      "analyzing": "分析中...",
+      "reanalyze": "重新分析",
+      "retry": "重试"
+    },
+    "description": {
+      "heading": "描述"
+    },
+    "tags": {
+      "heading": "建议标签",
+      "accept": "接受",
+      "reject": "拒绝",
+      "allReviewed": "所有建议已审阅",
+      "none": "此图像无标签建议",
+      "confidence": "{n}%"
+    },
+    "objects": {
+      "heading": "检测物体",
+      "overflow": "+{n} 个"
+    },
+    "palette": {
+      "heading": "色彩方案"
+    },
+    "composition": {
+      "heading": "构图分析"
+    },
+    "history": {
+      "heading": "分析历史",
+      "viewAll": "查看全部",
+      "statsLine": "{confidence}% 置信度, {objects} 个物体, {tags} 个标签"
+    },
+    "empty": {
+      "body": "分析此图像以查看 AI 生成的描述、检测到的物体和建议标签"
+    },
+    "error": {
+      "unavailable": "分析不可用 — 请重试"
+    }
   }
 }

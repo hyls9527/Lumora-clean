@@ -294,5 +294,46 @@
       "pending": "Awaiting generation",
       "error": "Generation error"
     }
+  },
+  "aiAnalysis": {
+    "sectionLabel": "AI ANALYSIS",
+    "cta": {
+      "analyze": "Analyze with AI",
+      "analyzing": "Analyzing...",
+      "reanalyze": "Re-analyze",
+      "retry": "Retry"
+    },
+    "description": {
+      "heading": "Description"
+    },
+    "tags": {
+      "heading": "SUGGESTED TAGS",
+      "accept": "Accept",
+      "reject": "Reject",
+      "allReviewed": "All suggestions reviewed",
+      "none": "No tag suggestions for this image",
+      "confidence": "{n}%"
+    },
+    "objects": {
+      "heading": "OBJECTS DETECTED",
+      "overflow": "+{n} more"
+    },
+    "palette": {
+      "heading": "COLOR PALETTE"
+    },
+    "composition": {
+      "heading": "COMPOSITION"
+    },
+    "history": {
+      "heading": "ANALYSIS HISTORY",
+      "viewAll": "View all",
+      "statsLine": "{confidence}% confidence, {objects} objects, {tags} tags"
+    },
+    "empty": {
+      "body": "Analyze this image to see AI-generated descriptions, detected objects, and suggested tags"
+    },
+    "error": {
+      "unavailable": "Analysis unavailable — try again"
+    }
   }
 }
