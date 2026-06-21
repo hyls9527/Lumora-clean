@@ -11,7 +11,7 @@ v0.1 delivered the 古卷·灯火 image library — gallery, curation, command p
 
 ## Phases
 
-- [ ] **Phase 004: Embedding Foundation & AI Infrastructure** — API stub layer, Zustand AI stores, embedding status UI
+- [x] **Phase 004: Embedding Foundation & AI Infrastructure** — API stub layer, Zustand AI stores, embedding status UI
 - [ ] **Phase 005: Semantic Search UI** — Natural language search with similarity scores
 - [ ] **Phase 006: AI Analysis Panel** — Image descriptions, tag suggestions, analysis history
 
@@ -79,7 +79,12 @@ Plans:
   3. User can toggle between exact-match search (current ⌘K behavior) and semantic search modes
   4. User sees descriptive search suggestions / autocomplete when typing in the semantic search field
   5. User sees a helpful empty state prompt ("describe what you're looking for...") when the semantic search field is empty
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 005-01-PLAN.md — API stubs (searchSemantic, getSearchSuggestions), Zustand semantic search store, i18n keys (SEM-01, SEM-03)
+- [ ] 005-02-PLAN.md — SimilarityScore badge component, SemanticSearchBar (input + mode toggle + autocomplete dropdown) (SEM-01, SEM-02, SEM-03, SEM-04, SEM-05)
+- [ ] 005-03-PLAN.md — GalleryPage integration (search bar + filtering + empty state + shortcut), ImageCard integration (similarity score badge) (SEM-01, SEM-02, SEM-05)
 **UI hint**: yes
 
 #### Phase 006: AI Analysis Panel
@@ -105,5 +110,5 @@ Plans:
 | 002. Feature Completion | v0.1 | 3/3 | Complete | 2026-06-20 |
 | 003. Build & Verify | v0.1 | 1/1 | Complete | 2026-06-21 |
 | 004. Embedding Foundation | v0.2 | 3/3 | Complete   | 2026-06-21 |
-| 005. Semantic Search | v0.2 | 0/TBD | Not started | - |
+| 005. Semantic Search | v0.2 | 0/3 | Planned | - |
 | 006. AI Analysis Panel | v0.2 | 0/TBD | Not started | - |
