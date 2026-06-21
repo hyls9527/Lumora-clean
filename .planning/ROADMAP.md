@@ -102,7 +102,7 @@ Plans:
 Plans:
 - [x] 006-01-PLAN.md — API stubs (analyzeImage, getAnalysisResult, getAnalysisHistory), Zustand ai-analysis-store, i18n keys (AI-01 through AI-05 data layer)
 - [x] 006-02-PLAN.md — TagSuggestionCard, ColorPaletteStrip, AnalysisHistoryList sub-components (AI-02, AI-03, AI-05)
-- [ ] 006-03-PLAN.md — AiAnalysisSection container + DetailPanel integration (AI-01, AI-04)
+- [x] 006-03-PLAN.md — AiAnalysisSection container + DetailPanel integration (AI-01, AI-04)
 
 **UI hint**: yes
 
@@ -117,4 +117,4 @@ Plans:
 | 003. Build & Verify | v0.1 | 1/1 | Complete | 2026-06-21 |
 | 004. Embedding Foundation | v0.2 | 3/3 | Complete   | 2026-06-21 |
 | 005. Semantic Search | v0.2 | 3/3 | Complete   | 2026-06-21 |
-| 006. AI Analysis Panel | v0.2 | 2/3 | In Progress|  |
+| 006. AI Analysis Panel | v0.2 | 3/3 | Complete   | 2026-06-21 |
