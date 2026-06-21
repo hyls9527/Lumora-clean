@@ -12,7 +12,7 @@ v0.1 delivered the 古卷·灯火 image library — gallery, curation, command p
 ## Phases
 
 - [x] **Phase 004: Embedding Foundation & AI Infrastructure** — API stub layer, Zustand AI stores, embedding status UI
-- [ ] **Phase 005: Semantic Search UI** — Natural language search with similarity scores
+- [x] **Phase 005: Semantic Search UI** — Natural language search with similarity scores
 - [ ] **Phase 006: AI Analysis Panel** — Image descriptions, tag suggestions, analysis history
 
 ## Phase Details
@@ -97,7 +97,13 @@ Plans:
   3. User can see content analysis results (detected objects, color palette, composition notes) for an image in the DetailPanel
   4. User can trigger AI analysis for a specific image via an "Analyze with AI" button in the DetailPanel
   5. User can browse a history of past analysis runs with timestamps and summary results in the DetailPanel
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 006-01-PLAN.md — API stubs (analyzeImage, getAnalysisResult, getAnalysisHistory), Zustand ai-analysis-store, i18n keys (AI-01 through AI-05 data layer)
+- [ ] 006-02-PLAN.md — TagSuggestionCard, ColorPaletteStrip, AnalysisHistoryList sub-components (AI-02, AI-03, AI-05)
+- [ ] 006-03-PLAN.md — AiAnalysisSection container + DetailPanel integration (AI-01, AI-04)
+
 **UI hint**: yes
 
 ## Progress
@@ -111,4 +117,4 @@ Plans:
 | 003. Build & Verify | v0.1 | 1/1 | Complete | 2026-06-21 |
 | 004. Embedding Foundation | v0.2 | 3/3 | Complete   | 2026-06-21 |
 | 005. Semantic Search | v0.2 | 3/3 | Complete   | 2026-06-21 |
-| 006. AI Analysis Panel | v0.2 | 0/TBD | Not started | - |
+| 006. AI Analysis Panel | v0.2 | 0/3 | Planned | 2026-06-22 |
