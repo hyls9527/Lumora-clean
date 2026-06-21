@@ -60,7 +60,13 @@ Plans:
   3. User can see embedding coverage statistics (embedded count / total) on the Dashboard
   4. User can select multiple gallery images and trigger batch embedding generation, observing progress feedback
   5. All new UI text is available in both English and Chinese, and all new components follow DESIGN.md color/typography/spacing rules
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 004-01-PLAN.md — API stubs, Zustand embedding store, i18n keys (INT-01, INT-02, INT-03)
+- [ ] 004-02-PLAN.md — EmbeddingStatusBadge, ImageCard integration, EmbeddingDetailCard, DetailPanel integration, Dashboard stats (EMB-01, EMB-02, EMB-03, INT-04)
+- [ ] 004-03-PLAN.md — BatchEmbeddingBar, GalleryPage integration with progress feedback (EMB-04, INT-04)
+
 **UI hint**: yes
 
 #### Phase 005: Semantic Search UI
@@ -98,6 +104,6 @@ Plans:
 | 001. UI Polish | v0.1 | 2/2 | Complete | 2026-06-20 |
 | 002. Feature Completion | v0.1 | 3/3 | Complete | 2026-06-20 |
 | 003. Build & Verify | v0.1 | 1/1 | Complete | 2026-06-21 |
-| 004. Embedding Foundation | v0.2 | 0/TBD | Not started | - |
+| 004. Embedding Foundation | v0.2 | 0/3 | Not started | - |
 | 005. Semantic Search | v0.2 | 0/TBD | Not started | - |
 | 006. AI Analysis Panel | v0.2 | 0/TBD | Not started | - |
