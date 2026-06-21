@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { PlumFlower } from "@/components/ui/plum-flower"
 import { EmbeddingDetailCard } from "@/components/EmbeddingDetailCard"
+import { AiAnalysisSection } from "@/components/AiAnalysisSection"
 
 export function DetailPanel() {
   const { t } = useTranslation()
@@ -111,6 +112,9 @@ export function DetailPanel() {
             ))}
           </div>
         </div>
+
+        <div className="h-px bg-border-subtle mx-4" />
+        <AiAnalysisSection imageId={image.id} />
 
         {/* Analysis */}
         {image.analysis && (
