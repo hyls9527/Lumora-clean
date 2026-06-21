@@ -41,9 +41,20 @@ A calming, beautiful image library that feels like browsing an ancient scroll �
 ### Out of Scope
 - Real backend/persistence — mock data only (deferred to future)
 - Tauri integration — removed (deferred to future)
-- AI/CLIP/LLM features — v0.2
-- Duplicate detection — v0.2
-- Backup/restore — v0.2
+- AI model inference — v0.2 delivers UI only, backend integration deferred
+- Duplicate detection — deferred
+- Backup/restore — deferred
+
+## Current Milestone: v0.2 AI-Ready Frontend
+
+**Goal:** Build all frontend UI for three AI capabilities (semantic embeddings, natural language search, LLM analysis) — backend-free, ready for future API integration.
+
+**Target features:**
+- Embedding status panel — per-image embedding indicators, progress tracking, dimension display
+- Semantic search UI — natural language search bar, similarity-scored results, search suggestions
+- AI analysis panel — image description display, tag suggestion cards, content analysis results, analysis trigger + history
+
+**Key constraint:** Pure frontend. All AI data is mocked via API stubs. Design follows 古卷·灯火.
 
 ## Context
 
@@ -70,4 +81,4 @@ A calming, beautiful image library that feels like browsing an ancient scroll �
 | 200ms transitions, 200px sidebar, 3-layer shadows | From DESIGN.md — consistent,克制 aesthetic | ✓ Good |
 
 ---
-*Last updated: 2026-06-21 after v0.1-mvp milestone*
+*Last updated: 2026-06-21 — v0.2 milestone definition*
