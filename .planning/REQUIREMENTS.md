@@ -30,9 +30,9 @@
 
 ### Integration (INT)
 
-- [ ] **INT-01**: New API stub layer for embedding/search/analysis endpoints (mock data, async pattern matching existing lib/api/)
-- [ ] **INT-02**: All new UI uses Zustand stores following existing patterns
-- [ ] **INT-03**: All new text uses i18n (en.json + zh.json)
+- [x] **INT-01**: New API stub layer for embedding/search/analysis endpoints (mock data, async pattern matching existing lib/api/)
+- [x] **INT-02**: All new UI uses Zustand stores following existing patterns
+- [x] **INT-03**: All new text uses i18n (en.json + zh.json)
 - [ ] **INT-04**: All new components follow DESIGN.md (colors, typography, spacing, transitions, anti-patterns)
 
 ## Out of Scope
@@ -63,9 +63,9 @@
 | AI-03 | Phase 006 | Pending |
 | AI-04 | Phase 006 | Pending |
 | AI-05 | Phase 006 | Pending |
-| INT-01 | Phase 004 | Pending |
-| INT-02 | Phase 004 | Pending |
-| INT-03 | Phase 004 | Pending |
+| INT-01 | Phase 004 | Complete |
+| INT-02 | Phase 004 | Complete |
+| INT-03 | Phase 004 | Complete |
 | INT-04 | Phase 004 | Pending |
 
 **Coverage:**
