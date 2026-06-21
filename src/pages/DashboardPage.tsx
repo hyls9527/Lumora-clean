@@ -1,4 +1,5 @@
 import { useAppStore } from "@/stores/app-store"
+import { useEmbeddingStore } from "@/stores/embedding-store"
 import { useTranslation } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import { PageErrorBoundary } from "@/components/PageErrorBoundary"
@@ -30,6 +31,11 @@ export function DashboardPage() {
   }))
   const maxRatingCount = Math.max(...ratingDistribution.map((d) => d.count))
 
+  const embeddingStats = useEmbeddingStore((s) => ({
+    embedded: s.embeddedCount(),
+    total: s.statuses.size,
+  }))
+
   const topTags = getTopTags(images)
 
   const directoryStats = [
@@ -37,6 +43,7 @@ export function DashboardPage() {
     { label: t("dashboard.avgRating"), value: stats.avgRating.toFixed(1) },
     { label: t("dashboard.totalSize"), value: `${stats.totalSize.toFixed(1)} GB` },
     { label: t("sidebar.rated"), value: stats.rated.toString() },
+    { label: t("embedding.dashboard.label"), value: `${embeddingStats.embedded} / ${embeddingStats.total}` },
   ]
 
   return (
