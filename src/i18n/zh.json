@@ -224,5 +224,41 @@
     "importedToast": "已导入 {count} 张图片",
     "warningManyFiles": "一次导入过多文件可能影响浏览器性能",
     "noValidFiles": "未找到有效的图片文件"
+  },
+  "embedding": {
+    "generate": "生成向量",
+    "cancel": "取消生成",
+    "status": {
+      "embedded": "已嵌入",
+      "pending": "待处理",
+      "error": "错误"
+    },
+    "detail": {
+      "sectionLabel": "向量",
+      "dimensions": "维度",
+      "model": "模型",
+      "generated": "生成时间",
+      "notGenerated": "尚未生成",
+      "failed": "生成失败",
+      "retry": "重新生成"
+    },
+    "dashboard": {
+      "label": "已嵌入",
+      "emptyTitle": "尚未生成向量",
+      "emptyBody": "生成向量以启用语义搜索"
+    },
+    "batch": {
+      "progress": "{n} / {total}"
+    },
+    "toast": {
+      "failed": "向量生成失败",
+      "tryAgain": "重试",
+      "success": "向量生成完成"
+    },
+    "tooltip": {
+      "embedded": "已嵌入 — {date}",
+      "pending": "等待生成",
+      "error": "生成错误"
+    }
   }
 }

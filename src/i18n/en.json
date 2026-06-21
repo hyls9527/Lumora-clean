@@ -224,5 +224,41 @@
     "importedToast": "Imported {count} images",
     "warningManyFiles": "Importing many files may affect browser performance",
     "noValidFiles": "No valid image files found"
+  },
+  "embedding": {
+    "generate": "Generate Embeddings",
+    "cancel": "Cancel Generation",
+    "status": {
+      "embedded": "Embedded",
+      "pending": "Pending",
+      "error": "Error"
+    },
+    "detail": {
+      "sectionLabel": "EMBEDDING",
+      "dimensions": "Dimensions",
+      "model": "Model",
+      "generated": "Generated",
+      "notGenerated": "Not yet generated",
+      "failed": "Generation failed",
+      "retry": "Retry Generation"
+    },
+    "dashboard": {
+      "label": "EMBEDDED",
+      "emptyTitle": "No embeddings yet",
+      "emptyBody": "Generate embeddings to enable semantic search"
+    },
+    "batch": {
+      "progress": "{n} of {total}"
+    },
+    "toast": {
+      "failed": "Embedding generation failed",
+      "tryAgain": "Try again",
+      "success": "Embeddings generated"
+    },
+    "tooltip": {
+      "embedded": "Embedded — {date}",
+      "pending": "Awaiting generation",
+      "error": "Generation error"
+    }
   }
 }
