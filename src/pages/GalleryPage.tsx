@@ -10,6 +10,8 @@ import { DropZone } from "@/components/DropZone"
 import { PageErrorBoundary } from "@/components/PageErrorBoundary"
 import { BatchEmbeddingBar } from "@/components/BatchEmbeddingBar"
 import { useEmbeddingStore } from "@/stores/embedding-store"
+import { SemanticSearchBar } from "@/components/SemanticSearchBar"
+import { useSemanticSearchStore } from "@/stores/semantic-search-store"
 
 const VIRTUALIZE_THRESHOLD = 100
 const COLS = 4
@@ -40,13 +42,42 @@ export function GalleryPage() {
 
   const isGenerating = useEmbeddingStore((s) => s.isGenerating)
 
-  const filteredImages = getFilteredImages()
-  const useVirtualized = filteredImages.length >= VIRTUALIZE_THRESHOLD
+  // Semantic search store selectors
+  const searchMode = useSemanticSearchStore((s) => s.searchMode)
+  const semanticResults = useSemanticSearchStore((s) => s.results)
+  const semanticQuery = useSemanticSearchStore((s) => s.query)
+  const semanticError = useSemanticSearchStore((s) => s.error)
+  const isSearching = useSemanticSearchStore((s) => s.isSearching)
+  const setSearchMode = useSemanticSearchStore((s) => s.setSearchMode)
+
+  const exactFilteredImages = getFilteredImages()
+
+  const semanticFilteredImages = (() => {
+    if (searchMode !== 'semantic' || semanticResults.length === 0) {
+      // When no semantic results, fall back to exact filtering
+      // (but only if there's a query — otherwise show all)
+      if (semanticQuery.length > 0) return []
+      return exactFilteredImages
+    }
+    // Build a map of imageId -> score for fast lookup
+    const scoreMap = new Map(semanticResults.map(r => [r.imageId, r.score]))
+    // Filter images to only those in semantic results, sorted by score DESC
+    return exactFilteredImages
+      .filter(img => scoreMap.has(img.id))
+      .sort((a, b) => (scoreMap.get(b.id) ?? 0) - (scoreMap.get(a.id) ?? 0))
+  })()
+
+  // Use semanticFilteredImages as the display list
+  const displayImages = searchMode === 'semantic' && semanticQuery.length > 0
+    ? semanticFilteredImages
+    : exactFilteredImages
+
+  const useVirtualized = displayImages.length >= VIRTUALIZE_THRESHOLD
 
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
   const [exportOpen, setExportOpen] = useState(false)
-  const [showOnboarding, setShowOnboarding] = useState(() => 
+  const [showOnboarding, setShowOnboarding] = useState(() =>
     !localStorage.getItem('lumora-onboarded')
   )
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
@@ -73,7 +104,7 @@ export function GalleryPage() {
 
   const virtualizedRowHeight = useVirtualized
     ? (() => {
-        const avgRatio = filteredImages.reduce((sum, img) => sum + parseAspectRatio(img.aspectRatio), 0) / filteredImages.length
+        const avgRatio = displayImages.reduce((sum, img) => sum + parseAspectRatio(img.aspectRatio), 0) / displayImages.length
         return Math.floor(virtualizedColumnWidth / avgRatio) + GAP
       })()
     : 0
@@ -82,7 +113,7 @@ export function GalleryPage() {
     const target = e.target as HTMLElement
     if (target.tagName === "INPUT" || target.closest("[data-slot='dialog-content']")) return
 
-    const len = filteredImages.length
+    const len = displayImages.length
     if (len === 0) return
 
     const cols = 4
@@ -113,7 +144,7 @@ export function GalleryPage() {
       case " ":
         if (focusedIndex >= 0 && !isGenerating) {
           e.preventDefault()
-          const img = filteredImages[focusedIndex]
+          const img = displayImages[focusedIndex]
           if (img) toggleSelect(img.id)
         }
         break
@@ -121,7 +152,7 @@ export function GalleryPage() {
       case "F":
         if (focusedIndex >= 0) {
           e.preventDefault()
-          const img = filteredImages[focusedIndex]
+          const img = displayImages[focusedIndex]
           if (img) toggleFavorite(img.id)
         }
         break
@@ -134,11 +165,25 @@ export function GalleryPage() {
         break
       case "Escape":
         e.preventDefault()
+        // If semantic search is active and has a query, clear search first
+        if (searchMode === 'semantic' && semanticQuery.length > 0) {
+          useSemanticSearchStore.getState().clearSearch()
+          return
+        }
         clearSelection()
         setFocusedIndex(-1)
         break
     }
-  }, [filteredImages, focusedIndex, setFocusedIndex, toggleSelect, toggleFavorite, deleteFocusedImage, openFocusedImage, clearSelection, isGenerating])
+
+    // Detect ⌘⇧K / Ctrl+Shift+K — outside switch to avoid fallthrough
+    if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'k') {
+      e.preventDefault()
+      setSearchMode('semantic')
+      // Focus the SemanticSearchBar input via a custom event
+      window.dispatchEvent(new CustomEvent('focus-semantic-search'))
+      return
+    }
+  }, [displayImages, focusedIndex, setFocusedIndex, toggleSelect, toggleFavorite, deleteFocusedImage, openFocusedImage, clearSelection, isGenerating, searchMode, semanticQuery, setSearchMode])
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown)
@@ -146,10 +191,10 @@ export function GalleryPage() {
   }, [handleKeyDown])
 
   useEffect(() => {
-    if (focusedIndex >= filteredImages.length && filteredImages.length > 0) {
-      setFocusedIndex(filteredImages.length - 1)
+    if (focusedIndex >= displayImages.length && displayImages.length > 0) {
+      setFocusedIndex(displayImages.length - 1)
     }
-  }, [filteredImages.length, focusedIndex, setFocusedIndex])
+  }, [displayImages.length, focusedIndex, setFocusedIndex])
 
   useEffect(() => {
     const handler = () => setExportOpen(true)
@@ -236,20 +281,25 @@ export function GalleryPage() {
         }}
       />
 
+      {/* Semantic search bar — Phase 005 */}
+      <div className="px-10 py-3 border-b border-border-subtle shrink-0">
+        <SemanticSearchBar />
+      </div>
+
       {/* Tag filter bar */}
       <div className="px-10 py-2 border-b border-border-subtle shrink-0">
         <TagFilterBar />
       </div>
-      
+
       {/* Onboarding hint (first visit) */}
       {images.length > 0 && showOnboarding && (
         <div className="px-10 py-3 bg-accent/5 border-b border-accent/10 transition-all duration-200 ease-out">
           <p className="font-serif text-[12px] text-text-muted text-center">
-            按 <kbd className="px-1.5 py-0.5 rounded bg-bg border border-border-subtle text-[10px]">⌘K</kbd> 打开命令面板 · 
-            点击图片查看详情 · 
+            按 <kbd className="px-1.5 py-0.5 rounded bg-bg border border-border-subtle text-[10px]">⌘K</kbd> 打开命令面板 ·
+            点击图片查看详情 ·
             悬停显示评分和收藏
           </p>
-          <button 
+          <button
             className="block mx-auto mt-2 text-[10px] text-accent hover:underline transition-all duration-200 ease-out"
             onClick={() => {
               localStorage.setItem('lumora-onboarded', 'true')
@@ -261,6 +311,15 @@ export function GalleryPage() {
         </div>
       )}
 
+      {/* Semantic results count */}
+      {searchMode === 'semantic' && semanticQuery.length > 0 && semanticResults.length > 0 && !isSearching && (
+        <div className="px-10 py-1.5">
+          <span className="font-sans text-[12px] text-text-muted">
+            {t("semanticSearch.results.count").replace("{n}", String(semanticResults.length))}
+          </span>
+        </div>
+      )}
+
       {/* Image masonry */}
       <div ref={containerRef} className="flex-1 overflow-y-auto p-10">
         {isLoading ? (
@@ -269,29 +328,72 @@ export function GalleryPage() {
               {t("loading.grinding")}
             </p>
           </div>
-        ) : filteredImages.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-[2px] bg-bg border border-border-subtle flex items-center justify-center mx-auto mb-4">
-                <span className="font-serif text-[20px] text-text-faint">◆</span>
+        ) : isSearching && searchMode === 'semantic' ? (
+          <div className="columns-4 gap-x-4 gap-y-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="break-inside-avoid mb-4">
+                <div className="rounded-[2px] bg-surface animate-pulse" style={{ aspectRatio: '1/1' }} />
               </div>
-              <h3 className="font-serif text-[16px] text-text-muted mb-1">
-                {t("gallery.empty.title")}
-              </h3>
-              <p className="font-serif text-[13px] text-text-faint mb-4">
-                {t("gallery.empty.subtitle")}
-              </p>
-              <button
-                onClick={() => window.dispatchEvent(new Event("open-import"))}
-                className="px-4 py-2 rounded-[4px] font-serif text-[12px] bg-accent text-surface hover:bg-accent-hover transition-all duration-200 ease-out"
-              >
-                导入图片
-              </button>
-            </div>
+            ))}
           </div>
+        ) : displayImages.length === 0 ? (
+          <>
+            {/* Semantic search empty state: query entered, no results */}
+            {searchMode === 'semantic' && semanticQuery.length > 0 && !isSearching ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-[2px] bg-bg border border-border-subtle flex items-center justify-center mx-auto mb-4">
+                    <span className="font-serif text-[24px] text-text-faint">♢</span>
+                  </div>
+                  <h3 className="font-serif text-[18px] text-text mb-1">
+                    {t("semanticSearch.empty.heading")}
+                  </h3>
+                  <p className="font-sans text-[14px] text-text-muted mb-4 max-w-sm leading-relaxed">
+                    {t("semanticSearch.empty.body")}
+                  </p>
+                  <button
+                    onClick={() => {
+                      useSemanticSearchStore.getState().clearSearch()
+                      useSemanticSearchStore.getState().setSearchMode('exact')
+                    }}
+                    className="font-serif text-[12px] text-accent hover:underline transition-all duration-200 ease-out"
+                  >
+                    {t("semanticSearch.empty.action")}
+                  </button>
+                  {/* No embeddings note — shown when embeddedCount === 0 */}
+                  {useEmbeddingStore.getState().embeddedCount() === 0 && (
+                    <p className="font-sans text-[10px] text-text-faint mt-3">
+                      {t("semanticSearch.empty.noEmbeddingsNote")}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* Original empty state (no images at all) */
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="w-16 h-16 rounded-[2px] bg-bg border border-border-subtle flex items-center justify-center mx-auto mb-4">
+                    <span className="font-serif text-[20px] text-text-faint">◆</span>
+                  </div>
+                  <h3 className="font-serif text-[16px] text-text-muted mb-1">
+                    {t("gallery.empty.title")}
+                  </h3>
+                  <p className="font-serif text-[13px] text-text-faint mb-4">
+                    {t("gallery.empty.subtitle")}
+                  </p>
+                  <button
+                    onClick={() => window.dispatchEvent(new Event("open-import"))}
+                    className="px-4 py-2 rounded-[4px] font-serif text-[12px] bg-accent text-surface hover:bg-accent-hover transition-all duration-200 ease-out"
+                  >
+                    导入图片
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         ) : useVirtualized && containerSize.width > 0 ? (
           <VirtualizedGrid
-            images={filteredImages}
+            images={displayImages}
             columns={COLS}
             columnWidth={virtualizedColumnWidth}
             rowHeight={virtualizedRowHeight}
@@ -301,7 +403,7 @@ export function GalleryPage() {
           />
         ) : (
           <div className="columns-4 gap-x-4 gap-y-4">
-            {filteredImages.map((image, index) => (
+            {displayImages.map((image, index) => (
               <div key={image.id} className="break-inside-avoid mb-4">
                 <ImageCard image={image} focused={index === focusedIndex} />
               </div>

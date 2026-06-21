@@ -63,6 +63,15 @@ export function SemanticSearchBar({ className }: SemanticSearchBarProps) {
     }
   }, [])
 
+  // Listen for external focus event (from GalleryPage keyboard shortcut)
+  useEffect(() => {
+    const handler = () => {
+      inputRef.current?.focus()
+    }
+    window.addEventListener('focus-semantic-search', handler)
+    return () => window.removeEventListener('focus-semantic-search', handler)
+  }, [])
+
   const handleFocus = () => setShowDropdown(true)
 
   const handleBlur = () => {
