@@ -1,8 +1,10 @@
 import { type Image } from "@/lib/mock-data"
 import { useAppStore } from "@/stores/app-store"
+import { useEmbeddingStore } from "@/stores/embedding-store"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
 import { PlumFlower } from "@/components/ui/plum-flower"
+import { EmbeddingStatusBadge } from "@/components/ui/embedding-status-badge"
 
 interface ImageCardProps {
   image: Image
@@ -12,6 +14,7 @@ interface ImageCardProps {
 export function ImageCard({ image, focused }: ImageCardProps) {
   const { selectedIds, toggleSelect, toggleFavorite, setRating, setDetailImage } =
     useAppStore()
+  const embeddingStatus = useEmbeddingStore((s) => s.getStatus(image.id))
   const [isHovered, setIsHovered] = useState(false)
   const isSelected = selectedIds.has(image.id)
 
@@ -117,15 +120,33 @@ export function ImageCard({ image, focused }: ImageCardProps) {
             ))}
           </div>
 
-          {/* Format badge */}
-          <span
-            className={cn(
-              "px-1.5 py-px rounded-[4px] font-sans text-[8px] font-bold uppercase tracking-wider bg-text/25 text-surface/60",
-              isHovered ? "opacity-100" : "opacity-0"
-            )}
-          >
-            {image.format}
-          </span>
+          {/* Embedding status + Format badge group */}
+          <div className="flex items-center gap-1.5">
+            {/* Embedding status badge — only visible on hover or when embedded */}
+            <div
+              className={cn(
+                "transition-opacity duration-200",
+                (isHovered || embeddingStatus.status === "embedded")
+                  ? "opacity-100"
+                  : "opacity-0"
+              )}
+            >
+              <EmbeddingStatusBadge
+                status={embeddingStatus.status}
+                generatedAt={embeddingStatus.generatedAt}
+                errorMessage={embeddingStatus.errorMessage}
+              />
+            </div>
+            {/* Format badge */}
+            <span
+              className={cn(
+                "px-1.5 py-px rounded-[4px] font-sans text-[8px] font-bold uppercase tracking-wider bg-text/25 text-surface/60",
+                isHovered ? "opacity-100" : "opacity-0"
+              )}
+            >
+              {image.format}
+            </span>
+          </div>
         </div>
       </div>
     </div>
