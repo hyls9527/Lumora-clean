@@ -1,10 +1,12 @@
 import { type Image } from "@/lib/mock-data"
 import { useAppStore } from "@/stores/app-store"
 import { useEmbeddingStore } from "@/stores/embedding-store"
+import { useSemanticSearchStore } from "@/stores/semantic-search-store"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
 import { PlumFlower } from "@/components/ui/plum-flower"
 import { EmbeddingStatusBadge } from "@/components/ui/embedding-status-badge"
+import { SimilarityScore } from "@/components/ui/similarity-score"
 
 interface ImageCardProps {
   image: Image
@@ -15,8 +17,15 @@ export function ImageCard({ image, focused }: ImageCardProps) {
   const { selectedIds, toggleSelect, toggleFavorite, setRating, setDetailImage } =
     useAppStore()
   const embeddingStatus = useEmbeddingStore((s) => s.getStatus(image.id))
+  const searchMode = useSemanticSearchStore((s) => s.searchMode)
+  const getScore = useSemanticSearchStore((s) => s.getScore)
+  const semanticQuery = useSemanticSearchStore((s) => s.query)
   const [isHovered, setIsHovered] = useState(false)
   const isSelected = selectedIds.has(image.id)
+
+  const similarityScore = searchMode === 'semantic' && semanticQuery.length > 0
+    ? getScore(image.id)
+    : null
 
   return (
     <div
@@ -120,7 +129,7 @@ export function ImageCard({ image, focused }: ImageCardProps) {
             ))}
           </div>
 
-          {/* Embedding status + Format badge group */}
+          {/* Embedding status + SimilarityScore + Format badge group */}
           <div className="flex items-center gap-1.5">
             {/* Embedding status badge — only visible on hover or when embedded */}
             <div
@@ -137,6 +146,10 @@ export function ImageCard({ image, focused }: ImageCardProps) {
                 errorMessage={embeddingStatus.errorMessage}
               />
             </div>
+            {/* SimilarityScore badge — Phase 005: always visible when score exists */}
+            {similarityScore !== null && (
+              <SimilarityScore score={similarityScore} />
+            )}
             {/* Format badge */}
             <span
               className={cn(
