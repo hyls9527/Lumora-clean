@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v0.2
 milestone_name: AI-Ready Frontend
 status: verifying
-last_updated: "2026-06-21T18:27:53.857Z"
+last_updated: "2026-06-21T18:34:12.311Z"
 last_activity: 2026-06-21
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 16
-  completed_plans: 5
-  percent: 20
+  completed_plans: 6
+  percent: 38
 ---
 
 # Project State
@@ -29,7 +29,7 @@ Plan: 3 of 3 in current phase
 Status: Phase complete — ready for verification
 Last activity: 2026-06-21
 
-Progress: [███░░░░░░░] 31%
+Progress: [████░░░░░░] 38%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [███░░░░░░░] 31%
 | Phase 004-embedding-foundation P03 | 181 | 2 tasks | 2 files |
 | Phase 005-semantic-search P01 | 103 | 3 tasks | 4 files |
 | Phase 005-semantic-search P02 | 90s | 2 tasks | 2 files |
+| Phase 005 P03 | 110 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,11 @@ Progress: [███░░░░░░░] 31%
 - [Phase ?]: score.label and results.count use literal {n} replacement (matching embedding.batch.progress pattern from Phase 004)
 - [Phase ?]: loadSuggestions failures degrade gracefully (clear suggestions, don't set error) — search still works without autocomplete
 - [Phase ?]: i18n section placed after commandPalette for logical grouping near other search/UI sections
+- [Phase ?]: SimilarityScore badge always visible when score exists — no hover-reveal pattern
+- [Phase ?]: ⌘⇧K shortcut uses CustomEvent focus-semantic-search pattern matching existing event bus conventions
+- [Phase ?]: SemanticSearchBar always rendered — visible in both Exact and Semantic modes per UI-SPEC
+- [Phase ?]: Escape key clears semantic search before clearing selection when semantic mode is active
+- [Phase ?]: displayImages derivation uses exactFilteredImages as fallback when no semantic results
 
 ### Pending Todos
 
@@ -96,6 +102,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-21T18:27:40.134Z
+Last session: 2026-06-21T18:32:25.854Z
 Stopped at: Completed 005-01-PLAN.md
 Resume file: None
