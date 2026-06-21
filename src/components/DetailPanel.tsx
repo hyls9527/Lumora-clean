@@ -3,6 +3,7 @@ import { useTranslation } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { PlumFlower } from "@/components/ui/plum-flower"
+import { EmbeddingDetailCard } from "@/components/EmbeddingDetailCard"
 
 export function DetailPanel() {
   const { t } = useTranslation()
@@ -142,6 +143,9 @@ export function DetailPanel() {
             </div>
           </>
         )}
+
+        <div className="h-px bg-border-subtle mx-4" />
+        <EmbeddingDetailCard imageId={image.id} />
 
         {/* Score */}
         {image.score && (
