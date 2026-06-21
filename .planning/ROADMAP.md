@@ -83,7 +83,7 @@ Plans:
 
 Plans:
 - [x] 005-01-PLAN.md — API stubs (searchSemantic, getSearchSuggestions), Zustand semantic search store, i18n keys (SEM-01, SEM-03)
-- [ ] 005-02-PLAN.md — SimilarityScore badge component, SemanticSearchBar (input + mode toggle + autocomplete dropdown) (SEM-01, SEM-02, SEM-03, SEM-04, SEM-05)
+- [x] 005-02-PLAN.md — SimilarityScore badge component, SemanticSearchBar (input + mode toggle + autocomplete dropdown) (SEM-01, SEM-02, SEM-03, SEM-04, SEM-05)
 - [ ] 005-03-PLAN.md — GalleryPage integration (search bar + filtering + empty state + shortcut), ImageCard integration (similarity score badge) (SEM-01, SEM-02, SEM-05)
 **UI hint**: yes
 
@@ -110,5 +110,5 @@ Plans:
 | 002. Feature Completion | v0.1 | 3/3 | Complete | 2026-06-20 |
 | 003. Build & Verify | v0.1 | 1/1 | Complete | 2026-06-21 |
 | 004. Embedding Foundation | v0.2 | 3/3 | Complete   | 2026-06-21 |
-| 005. Semantic Search | v0.2 | 0/3 | Planned | - |
+| 005. Semantic Search | v0.2 | 2/3 | In Progress|  |
 | 006. AI Analysis Panel | v0.2 | 0/TBD | Not started | - |

@@ -15,10 +15,10 @@
 ### Semantic Search (SEM)
 
 - [x] **SEM-01**: Natural language search input — accepts descriptive queries ("sunset over mountains", "portrait with warm lighting")
-- [ ] **SEM-02**: Search results show similarity scores (0–100%) next to each result
+- [x] **SEM-02**: Search results show similarity scores (0–100%) next to each result
 - [x] **SEM-03**: Search suggestions / autocomplete based on common descriptive terms
-- [ ] **SEM-04**: Empty state for semantic search ("describe what you're looking for...")
-- [ ] **SEM-05**: Search mode toggle between exact match (current ⌘K) and semantic search
+- [x] **SEM-04**: Empty state for semantic search ("describe what you're looking for...")
+- [x] **SEM-05**: Search mode toggle between exact match (current ⌘K) and semantic search
 
 ### AI Analysis Panel (AI)
 
@@ -54,10 +54,10 @@
 | EMB-03 | Phase 004 | Complete |
 | EMB-04 | Phase 004 | Complete |
 | SEM-01 | Phase 005 | Complete |
-| SEM-02 | Phase 005 | Pending |
+| SEM-02 | Phase 005 | Complete |
 | SEM-03 | Phase 005 | Complete |
-| SEM-04 | Phase 005 | Pending |
-| SEM-05 | Phase 005 | Pending |
+| SEM-04 | Phase 005 | Complete |
+| SEM-05 | Phase 005 | Complete |
 | AI-01 | Phase 006 | Pending |
 | AI-02 | Phase 006 | Pending |
 | AI-03 | Phase 006 | Pending |
