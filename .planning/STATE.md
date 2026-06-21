@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v0.2
 milestone_name: AI-Ready Frontend
 status: verifying
-last_updated: "2026-06-21T18:34:12.311Z"
+last_updated: "2026-06-21T18:49:13.908Z"
 last_activity: 2026-06-21
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 2
-  total_plans: 16
-  completed_plans: 6
-  percent: 38
+  total_plans: 19
+  completed_plans: 7
+  percent: 33
 ---
 
 # Project State
@@ -29,7 +29,7 @@ Plan: 3 of 3 in current phase
 Status: Phase complete — ready for verification
 Last activity: 2026-06-21
 
-Progress: [████░░░░░░] 38%
+Progress: [████░░░░░░] 37%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [████░░░░░░] 38%
 | Phase 005-semantic-search P01 | 103 | 3 tasks | 4 files |
 | Phase 005-semantic-search P02 | 90s | 2 tasks | 2 files |
 | Phase 005 P03 | 110 | 2 tasks | 3 files |
+| Phase 006-ai-analysis-panel P01 | 140 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,10 @@ Progress: [████░░░░░░] 38%
 - [Phase ?]: SemanticSearchBar always rendered — visible in both Exact and Semantic modes per UI-SPEC
 - [Phase ?]: Escape key clears semantic search before clearing selection when semantic mode is active
 - [Phase ?]: displayImages derivation uses exactFilteredImages as fallback when no semantic results
+- [Phase ?]: Mock data generation seeded by imageId numeric suffix (img-{N}) for deterministic but varied results
+- [Phase ?]: Store uses per-image Maps (not flat objects) matching embedding-store pattern
+- [Phase ?]: Progress intervals tracked in module-level Map enabling concurrent multi-image analysis
+- [Phase ?]: i18n placeholders ({n}, {confidence}, etc.) are literal strings with manual .replace(), matching existing semanticSearch.score.label convention
 
 ### Pending Todos
 
@@ -102,6 +107,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-21T18:32:25.854Z
+Last session: 2026-06-21T18:49:13.894Z
 Stopped at: Completed 005-01-PLAN.md
 Resume file: None

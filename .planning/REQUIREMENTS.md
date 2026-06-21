@@ -22,11 +22,11 @@
 
 ### AI Analysis Panel (AI)
 
-- [ ] **AI-01**: DetailPanel includes an AI Analysis section showing generated image description
-- [ ] **AI-02**: Tag suggestion cards — AI-proposed tags with confidence scores, accept/reject buttons
-- [ ] **AI-03**: Content analysis display — objects detected, color palette extraction, composition notes
-- [ ] **AI-04**: "Analyze with AI" trigger button on DetailPanel for individual images
-- [ ] **AI-05**: Analysis history — list of past analysis runs with timestamps and summary results
+- [x] **AI-01**: DetailPanel includes an AI Analysis section showing generated image description
+- [x] **AI-02**: Tag suggestion cards — AI-proposed tags with confidence scores, accept/reject buttons
+- [x] **AI-03**: Content analysis display — objects detected, color palette extraction, composition notes
+- [x] **AI-04**: "Analyze with AI" trigger button on DetailPanel for individual images
+- [x] **AI-05**: Analysis history — list of past analysis runs with timestamps and summary results
 
 ### Integration (INT)
 
@@ -58,11 +58,11 @@
 | SEM-03 | Phase 005 | Complete |
 | SEM-04 | Phase 005 | Complete |
 | SEM-05 | Phase 005 | Complete |
-| AI-01 | Phase 006 | Pending |
-| AI-02 | Phase 006 | Pending |
-| AI-03 | Phase 006 | Pending |
-| AI-04 | Phase 006 | Pending |
-| AI-05 | Phase 006 | Pending |
+| AI-01 | Phase 006 | Complete |
+| AI-02 | Phase 006 | Complete |
+| AI-03 | Phase 006 | Complete |
+| AI-04 | Phase 006 | Complete |
+| AI-05 | Phase 006 | Complete |
 | INT-01 | Phase 004 | Complete |
 | INT-02 | Phase 004 | Complete |
 | INT-03 | Phase 004 | Complete |
