@@ -239,7 +239,7 @@ Text: "Not yet generated" (12px, text-muted)
 ```
 SectionLabel: "EMBEDDING"
 Text: "Generation failed" (12px, text-danger)
-Button: "Retry" (12px, accent link style)
+Button: "Retry Generation" (12px, accent link style)
 ```
 
 ### EMB-03: Dashboard Embedding Stats
@@ -262,14 +262,14 @@ Empty state: stat row shows "0 / 200" with faint/muted styling.
 
 **States:**
 1. **Idle (selection present):** Shows selection count + "Generate Embeddings" button
-2. **Generating:** Button replaced with progress bar + item count (e.g., "34 of 142") + "Cancel" text button
+2. **Generating:** Button replaced with progress bar + item count (e.g., "34 of 142") + "Cancel Generation" text button
 3. **Complete:** Progress bar fills, brief "Complete" toast (3s auto-dismiss, success variant)
 4. **Error:** Toast with "Embedding generation failed -- Try again" (warning variant, 5s dismiss)
 
 **Interaction:**
 - Click "Generate Embeddings" triggers `generateEmbeddings` API stub
 - Progress updates via Zustand store polling pattern or interval-based mock
-- "Cancel" is a simple interrupt -- no confirmation dialog, calls `cancelEmbeddingGeneration` API stub, resets to idle
+- "Cancel Generation" is a simple interrupt -- no confirmation dialog, calls `cancelEmbeddingGeneration` API stub, resets to idle
 - During generation, image selection is locked (can't deselect images being processed)
 
 **Pattern:** Follows existing DropZone/Export patterns for progress feedback. Toast notification system already exists -- reuse directly.
@@ -281,14 +281,14 @@ Empty state: stat row shows "0 / 200" with faint/muted styling.
 | Element | EN | ZH |
 |---------|----|----|
 | Primary CTA | Generate Embeddings | 生成向量 |
-| CTA cancel (batch) | Cancel | 取消 |
+| CTA cancel (batch) | Cancel Generation | 取消生成 |
 | Status: embedded | Embedded | 已嵌入 |
 | Status: pending | Pending | 待处理 |
 | Status: error | Error | 错误 |
 | DetailPanel section label | EMBEDDING | 向量 |
 | DetailPanel: not generated | Not yet generated | 尚未生成 |
 | DetailPanel: error | Generation failed | 生成失败 |
-| DetailPanel: retry action | Retry | 重试 |
+| DetailPanel: retry action | Retry Generation | 重新生成 |
 | DetailPanel info: Dimensions | Dimensions | 维度 |
 | DetailPanel info: Model | Model | 模型 |
 | DetailPanel info: Generated | Generated | 生成时间 |
@@ -305,7 +305,7 @@ Empty state: stat row shows "0 / 200" with faint/muted styling.
 
 ### Destructive Actions
 
-- **Cancel batch embedding generation:** Simple interrupt, no confirmation dialog. Text button labeled "Cancel" / "取消". Cancels the API stub call and resets UI to idle.
+- **Cancel batch embedding generation:** Simple interrupt, no confirmation dialog. Text button labeled "Cancel Generation" / "取消生成". Cancels the API stub call and resets UI to idle.
 
 ---
 
@@ -335,7 +335,7 @@ Empty state: stat row shows "0 / 200" with faint/muted styling.
 |---------|-----------|
 | Batch generation API fails | Toast: "Embedding generation failed" + "Try again" action. Batch bar resets to idle. |
 | Single image embedding error (ImageCard) | "✗" marker in danger color. Tooltip on hover: "Generation error". |
-| DetailPanel: embedding error | "Generation failed" in text-danger. "Retry" button in accent link style. |
+| DetailPanel: embedding error | "Generation failed" in text-danger. "Retry Generation" button in accent link style. |
 
 ---
 
@@ -356,7 +356,7 @@ New keys for `src/i18n/en.json` and `src/i18n/zh.json`:
 ```
 embedding:
   generate: "Generate Embeddings" / "生成向量"
-  cancel: "Cancel" / "取消"
+  cancel: "Cancel Generation" / "取消生成"
   status:
     embedded: "Embedded" / "已嵌入"
     pending: "Pending" / "待处理"
@@ -368,7 +368,7 @@ embedding:
     generated: "Generated" / "生成时间"
     notGenerated: "Not yet generated" / "尚未生成"
     failed: "Generation failed" / "生成失败"
-    retry: "Retry" / "重试"
+    retry: "Retry Generation" / "重新生成"
   dashboard:
     label: "EMBEDDED" / "已嵌入"
     emptyTitle: "No embeddings yet" / "尚未生成向量"
