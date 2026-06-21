@@ -165,6 +165,40 @@
       "action": "浏览图库"
     }
   },
+  "semanticSearch": {
+    "placeholder": "描述您正在寻找的内容...",
+    "clear": "清除",
+    "searching": "搜索中...",
+    "mode": {
+      "exact": "精准",
+      "semantic": "语义",
+      "exactHint": "精准 (⌘K)",
+      "semanticHint": "语义 (⌘⇧K)"
+    },
+    "score": {
+      "label": "匹配: {n}%",
+      "tooltip": "语义相似度分数 — 越高越匹配"
+    },
+    "suggestions": {
+      "heading": "建议",
+      "tryDescribing": "试试描述",
+      "noSuggestions": "暂无建议",
+      "loadingFailed": "建议不可用"
+    },
+    "empty": {
+      "heading": "未找到结果",
+      "body": "尝试其他描述，如“山间日落”或“温暖光线的人像”",
+      "action": "浏览图库",
+      "noEmbeddingsNote": "需要向量嵌入以进行语义搜索"
+    },
+    "error": {
+      "unavailable": "搜索不可用 — 请尝试精确匹配",
+      "switchToExact": "切换到精准搜索"
+    },
+    "results": {
+      "count": "{n} 个结果"
+    }
+  },
   "empty": {
     "no_images": "此处尚无藏品"
   },

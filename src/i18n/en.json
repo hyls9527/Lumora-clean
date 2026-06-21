@@ -165,6 +165,40 @@
       "action": "Browse Gallery"
     }
   },
+  "semanticSearch": {
+    "placeholder": "Describe what you're looking for...",
+    "clear": "Clear",
+    "searching": "Searching...",
+    "mode": {
+      "exact": "Exact",
+      "semantic": "Semantic",
+      "exactHint": "Exact (⌘K)",
+      "semanticHint": "Semantic (⌘⇧K)"
+    },
+    "score": {
+      "label": "Match: {n}%",
+      "tooltip": "Semantic similarity score — higher means better match"
+    },
+    "suggestions": {
+      "heading": "SUGGESTIONS",
+      "tryDescribing": "TRY DESCRIBING",
+      "noSuggestions": "No suggestions available",
+      "loadingFailed": "Suggestions unavailable"
+    },
+    "empty": {
+      "heading": "No Results Found",
+      "body": "Try a different description like \"sunset over mountains\" or \"portrait with warm lighting\"",
+      "action": "Browse Gallery",
+      "noEmbeddingsNote": "Embeddings needed for semantic search"
+    },
+    "error": {
+      "unavailable": "Search unavailable — try exact match instead",
+      "switchToExact": "Switch to Exact"
+    },
+    "results": {
+      "count": "{n} results"
+    }
+  },
   "empty": {
     "no_images": "No images yet"
   },
