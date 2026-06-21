@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v0.1-mvp
 milestone_name: MVP Frontend
 status: in_progress
-last_updated: "2026-06-20T20:42:15.627Z"
+last_updated: "2026-06-21T16:27:42Z"
 progress:
-  total_phases: 7
-  completed_phases: 2
-  total_plans: 22
-  completed_plans: 6
-  percent: 27
+  total_phases: 8
+  completed_phases: 3
+  total_plans: 23
+  completed_plans: 7
+  percent: 30
 ---
 
 # Lumora Project State
@@ -17,9 +17,9 @@ progress:
 ## Current Position
 
 - **Milestone:** v0.1 MVP
-- **Phase:** 002 Feature Completion — ALL PLANS COMPLETE
-- **Plan:** 002-01 complete — CommandPalette search completion
-- **Next Step:** Phase 002 complete. Proceed to Phase 003 (Build & Verify).
+- **Phase:** 003 Build & Verify — COMPLETE
+- **Plan:** 003-01 complete — ESLint + TypeScript + build verification + visual spot-check
+- **Next Step:** Phase 003 complete. Proceed to Phase 004.
 
 ## Architecture
 
@@ -113,7 +113,23 @@ Pure Vite + React 19 + TypeScript + Tailwind CSS v4 frontend. No backend — Tau
 - SVG MIME type (image/svg+xml) added to ACCEPTED_TYPES alongside png/jpg/webp/gif
 - Instant import: files mapped to Image objects and prepended to store array, no artificial delays
 
+## Plan 003-01 Complete
+
+- SUMMARY: .planning/phases/003-build-verify/003-01-SUMMARY.md
+- Commits: ff0baea, 2d0d424
+- Tasks: 3/3 complete
+- Files: 16 modified (13 ESLint fixes + 3 tsc -b fixes)
+- Deviations: 2 (Rule 1 auto-fixes: synchronous setState in CommandPalette useEffect, Record<string,unknown> broke i18n traversal)
+- UX findings: 2 non-blocking (DetailPanel scroll overflow, preview transition smoothness) logged to deferred-items.md
+- Verification: tsc --noEmit zero errors, npm run build success, eslint zero problems, visual spot-check passed
+
+## Key Decisions (003-01)
+
+- ESLint argsIgnorePattern '^_' handles underscore-prefixed unused params across all TS files
+- react-hooks/set-state-in-effect resolved by moving synchronous setState calls to onChange handler
+- AspectRatio type extended with '2/3' and '9/16' to match mock data constants
+- react-window Grid cellProps uses @ts-expect-error for known runtime prop injection
+
 ## Next
 
-- Phase 002: Feature Completion — ALL PLANS COMPLETE (3/3)
-- Phase 003: Build & Verify
+- All Phases 001-003 complete. Proceed to Phase 004.

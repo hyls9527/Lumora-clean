@@ -6,7 +6,7 @@
 |-------|------|--------|-------|
 | 001 | 2/2 | Complete   | 2026-06-20 |
 | 002 | 3/3 | Complete   | 2026-06-20 |
-| 003 | Build & Verify — 构建验证 + 截图审查 | ⏳ pending | 1 |
+| 003 | Build & Verify — 构建验证 + 截图审查 | ✅ Complete | 1 |
 
 **Phase 001 Plans:**
 - [x] 001-01-PLAN.md — Anti-pattern cleanup (lucide icons, hover:scale, PlumFlower extraction) + 12 UI primitives audit
@@ -18,7 +18,7 @@
 - [x] 002-03-PLAN.md — Keyboard shortcuts: SettingsPage reference completion + F key favorite handler
 
 **Phase 003 Plans:**
-- [ ] 003-01-PLAN.md — Fix 25 ESLint errors + 2 warnings across 10 files, verify clean tsc/build/lint, visual spot-check all 5 pages
+- [x] 003-01-PLAN.md — Fix 25 ESLint errors + 2 warnings across 10 files, verify clean tsc/build/lint, visual spot-check all 5 pages
 
 ## v0.2 AI Enhancement (future)
 - CLIP embeddings
