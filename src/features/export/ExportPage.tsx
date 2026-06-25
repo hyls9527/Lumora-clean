@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react';
-import { open } from '@tauri-apps/plugin-dialog';
 import { useImageStore } from '../../stores/imageStore';
 import { useTranslation } from '../../lib/i18n';
 import type { ExportResult } from '../../lib/api/images';
@@ -21,6 +20,7 @@ export function ExportPage() {
   }, []);
 
   const handleSelectFolder = useCallback(async () => {
+    const { open } = await import(/* @vite-ignore */ '@tauri-apps/plugin-dialog');
     const selected = await open({ directory: true, multiple: false });
     if (typeof selected === 'string') setDestDir(selected);
   }, []);
@@ -383,3 +383,5 @@ function ResultRow({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+export default ExportPage;

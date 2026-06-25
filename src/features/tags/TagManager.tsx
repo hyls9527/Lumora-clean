@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from '../../lib/tauri';
 
 interface Tag {
   id: string;
@@ -368,3 +368,5 @@ export function TagManager() {
     </div>
   );
 }
+
+export default TagManager;

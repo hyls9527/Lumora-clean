@@ -13,6 +13,9 @@ export default defineConfig({
     },
   },
   envPrefix: ["VITE_", "TAURI_"],
+  optimizeDeps: {
+    exclude: ["@tauri-apps/api", "@tauri-apps/plugin-dialog", "@tauri-apps/plugin-store", "@tauri-apps/plugin-fs"],
+  },
   build: {
     target: ["es2021", "chrome100", "safari13"],
     minify: !process.env.TAURI_DEBUG ? "esbuild" : false,

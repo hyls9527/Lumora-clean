@@ -433,3 +433,5 @@ export function TrashPage() {
     </div>
   );
 }
+
+export default TrashPage;

@@ -738,3 +738,5 @@ function ResultCard({
     </article>
   );
 }
+
+export default SearchPage;

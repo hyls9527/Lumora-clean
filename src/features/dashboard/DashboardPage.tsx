@@ -520,3 +520,5 @@ export function DashboardPage() {
     </div>
   );
 }
+
+export default DashboardPage;

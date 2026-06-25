@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from '../tauri';
 import type { ImageRecord } from '../../stores/imageStore';
 
 /** Tauri 返回的原始记录结构（camelCase，serde 重命名后） */

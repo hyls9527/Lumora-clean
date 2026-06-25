@@ -549,3 +549,5 @@ const selectStyle: React.CSSProperties = {
   borderRadius: 4,
   color: '#2a2118',
 };
+
+export default ImportPage;

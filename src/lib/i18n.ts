@@ -2,6 +2,7 @@ import zh from '../i18n/zh.json';
 import en from '../i18n/en.json';
 import { useSettingsStore } from '../stores/settingsStore';
 import type { Language } from '../stores/settingsStore';
+import { useCallback, useMemo } from 'react';
 
 type NestedRecord = { [key: string]: string | NestedRecord };
 
@@ -23,17 +24,21 @@ function getNestedValue(obj: NestedRecord, path: string): string | undefined {
 export function useTranslation(namespace?: string) {
   const lang = useSettingsStore((s) => s.language);
   const dict = resources[lang] ?? resources.zh;
+  const ns = namespace ?? '';
 
-  function t(key: string, params?: Record<string, string | number>): string {
-    const fullKey = namespace ? `${namespace}.${key}` : key;
-    let value = getNestedValue(dict, fullKey) ?? fullKey;
-    if (params) {
-      for (const [pk, pv] of Object.entries(params)) {
-        value = value.replace(`{${pk}}`, String(pv));
+  const t = useCallback(
+    (key: string, params?: Record<string, string | number>): string => {
+      const fullKey = ns ? `${ns}.${key}` : key;
+      let value = getNestedValue(dict, fullKey) ?? fullKey;
+      if (params) {
+        for (const [pk, pv] of Object.entries(params)) {
+          value = value.replace(`{${pk}}`, String(pv));
+        }
       }
-    }
-    return value;
-  }
+      return value;
+    },
+    [dict, ns],
+  );
 
-  return { t, lang };
+  return useMemo(() => ({ t, lang }), [t, lang]);
 }
