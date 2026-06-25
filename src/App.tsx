@@ -7,6 +7,7 @@ import { SearchPage } from './features/search/SearchPage';
 import { SettingsPage } from './features/settings/SettingsPage';
 import { TrashPage } from './features/trash/TrashPage';
 import { TagManager } from './features/tags/TagManager';
+import { DashboardPage } from './features/dashboard/DashboardPage';
 import { useSettingsStore } from './stores/settingsStore';
 import { useCommandStore } from './stores/commandStore';
 import { useTranslation } from './lib/i18n';
@@ -27,6 +28,7 @@ function App() {
     const commands: Command[] = [
       // Navigation
       { id: 'nav-gallery', name: t('nav.creatorGallery'), description: t('commandPalette.descGallery'), section: 'navigation', action: () => setRoute('/gallery') },
+      { id: 'nav-dashboard', name: t('nav.dashboard'), description: t('commandPalette.descDashboard'), section: 'navigation', action: () => setRoute('/dashboard') },
       { id: 'nav-import', name: t('nav.import'), description: t('commandPalette.descImport'), section: 'navigation', action: () => setRoute('/import') },
       { id: 'nav-search', name: t('nav.search'), description: t('commandPalette.descSearch'), section: 'navigation', action: () => setRoute('/search') },
       { id: 'nav-tags', name: t('nav.tags'), description: t('commandPalette.descTags'), section: 'navigation', action: () => setRoute('/tags') },
@@ -56,6 +58,8 @@ function App() {
     switch (route) {
       case '/trash':
         return <TrashPage />;
+      case '/dashboard':
+        return <DashboardPage />;
       case '/gallery':
       case '/normal':
         return <GalleryPage />;

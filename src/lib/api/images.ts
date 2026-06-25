@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { ImageRecord } from '../../stores/imageStore';
 
 /** Tauri 返回的原始记录结构（camelCase，serde 重命名后） */
-interface TauriImageRecord {
+export interface TauriImageRecord {
   id: string;
   filePath: string;
   fileHash: string;
@@ -187,4 +187,35 @@ export async function emptyTrash(): Promise<number> {
   return await invoke<number>('empty_trash');
 }
 
+// ---------------------------------------------------------------------------
+// Dashboard API
+// ---------------------------------------------------------------------------
+
+export interface FormatCount {
+  format: string;
+  count: number;
+}
+
+export interface RatingCount {
+  rating: number;
+  count: number;
+}
+
+export interface TagCount {
+  name: string;
+  count: number;
+}
+
+export interface DashboardStats {
+  totalImages: number;
+  totalSizeKb: number;
+  formatCounts: FormatCount[];
+  ratingCounts: RatingCount[];
+  topTags: TagCount[];
+  recentImports: TauriImageRecord[];
+}
+
+export async function getDashboardStats(): Promise<DashboardStats> {
+  return invoke<DashboardStats>('get_dashboard_stats');
+}
 

@@ -40,3 +40,36 @@ pub struct Tag {
     pub color: Option<String>,
     pub created_at: String,
 }
+
+/// Dashboard stats returned by get_dashboard_stats.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DashboardStats {
+    pub total_images: i64,
+    pub total_size_kb: i64,
+    pub format_counts: Vec<FormatCount>,
+    pub rating_counts: Vec<RatingCount>,
+    pub top_tags: Vec<TagCount>,
+    pub recent_imports: Vec<ImageRecord>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FormatCount {
+    pub format: String,
+    pub count: i64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RatingCount {
+    pub rating: i32,
+    pub count: i64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TagCount {
+    pub name: String,
+    pub count: i64,
+}

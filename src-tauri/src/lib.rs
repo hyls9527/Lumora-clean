@@ -52,6 +52,7 @@ pub fn run() {
             commands::trash::permanent_delete_image,
             commands::trash::list_trash,
             commands::trash::empty_trash,
+            commands::dashboard::get_dashboard_stats,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -186,6 +186,23 @@
     "version": "版本",
     "license": "许可"
   },
+  "dashboard": {
+    "overview": "概览",
+    "totalImages": "图片总数",
+    "storage": "存储占用",
+    "formatDist": "格式分布",
+    "ratingDist": "评分分布",
+    "topTags": "热门标签",
+    "recentImports": "最近导入",
+    "images": "张图片",
+    "loading": "加载中…",
+    "retry": "重试",
+    "noData": "暂无数据",
+    "noTags": "暂无标签",
+    "noRecent": "暂无导入记录",
+    "unrated": "未评分",
+    "summary": "共 {count} 张图片，占用 {size}"
+  },
   "commandPalette": {
     "placeholder": "输入命令或搜索…",
     "ariaLabel": "命令面板",
@@ -193,6 +210,7 @@
     "sectionNavigation": "导航",
     "sectionAction": "操作",
     "descGallery": "查看创作者图库",
+    "descDashboard": "查看仪表盘统计",
     "descImport": "管理导入任务",
     "descSearch": "语义搜索图片",
     "descTags": "管理标签",

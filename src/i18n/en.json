@@ -186,6 +186,23 @@
     "version": "Version",
     "license": "License"
   },
+  "dashboard": {
+    "overview": "Overview",
+    "totalImages": "Total Images",
+    "storage": "Storage",
+    "formatDist": "Format Distribution",
+    "ratingDist": "Rating Distribution",
+    "topTags": "Top Tags",
+    "recentImports": "Recent Imports",
+    "images": "images",
+    "loading": "Loading…",
+    "retry": "Retry",
+    "noData": "No data",
+    "noTags": "No tags",
+    "noRecent": "No imports yet",
+    "unrated": "Unrated",
+    "summary": "{count} images, {size} used"
+  },
   "commandPalette": {
     "placeholder": "Type a command or search…",
     "ariaLabel": "Command Palette",
@@ -193,6 +210,7 @@
     "sectionNavigation": "Navigation",
     "sectionAction": "Actions",
     "descGallery": "View creator gallery",
+    "descDashboard": "View dashboard stats",
     "descImport": "Manage import tasks",
     "descSearch": "Semantic image search",
     "descTags": "Manage tags",
