@@ -173,5 +173,24 @@
     "aboutDesc": "Lumora — 光之韵律，AI 创作者的图片管理器",
     "version": "版本",
     "license": "许可"
+  },
+  "commandPalette": {
+    "placeholder": "输入命令或搜索…",
+    "ariaLabel": "命令面板",
+    "noResults": "未找到匹配命令",
+    "sectionNavigation": "导航",
+    "sectionAction": "操作",
+    "descGallery": "查看创作者图库",
+    "descImport": "管理导入任务",
+    "descSearch": "语义搜索图片",
+    "descTags": "管理标签",
+    "descSettings": "应用设置",
+    "descTrash": "查看回收站",
+    "importImages": "导入图片",
+    "importImagesDesc": "打开导入页面",
+    "refreshGallery": "刷新图库",
+    "refreshGalleryDesc": "重新加载图库",
+    "emptyTrash": "清空回收站",
+    "emptyTrashDesc": "永久删除所有已删除图片"
   }
 }
