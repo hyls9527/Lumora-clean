@@ -3,7 +3,7 @@ use rusqlite::Connection;
 use super::schema;
 
 /// Current schema version — bump when adding migrations.
-pub const SCHEMA_VERSION: i64 = 1;
+pub const SCHEMA_VERSION: i64 = 3;
 
 /// Run all pending migrations inside a single transaction.
 pub fn run_migrations(conn: &Connection) -> Result<(), rusqlite::Error> {
@@ -47,6 +47,8 @@ fn set_version(conn: &Connection, version: i64) -> Result<(), rusqlite::Error> {
 fn apply_migration(conn: &Connection, version: i64) -> Result<(), rusqlite::Error> {
     match version {
         1 => apply_v1(conn),
+        2 => apply_v2(conn),
+        3 => apply_v3(conn),
         _ => Err(rusqlite::Error::InvalidQuery),
     }
 }
@@ -63,6 +65,20 @@ fn apply_v1(conn: &Connection) -> Result<(), rusqlite::Error> {
     Ok(())
 }
 
+fn apply_v2(conn: &Connection) -> Result<(), rusqlite::Error> {
+    conn.execute_batch(schema::V2_CREATE_TAGS)?;
+    conn.execute_batch(schema::V2_CREATE_IMAGE_TAGS)?;
+    conn.execute_batch(schema::V2_INDEX_IMAGE_TAGS_IMAGE)?;
+    conn.execute_batch(schema::V2_INDEX_IMAGE_TAGS_TAG)?;
+    Ok(())
+}
+
+fn apply_v3(conn: &Connection) -> Result<(), rusqlite::Error> {
+    conn.execute_batch(schema::V3_ADD_DELETED_AT)?;
+    conn.execute_batch(schema::V3_INDEX_DELETED_AT)?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -72,7 +88,7 @@ mod tests {
         let conn = Connection::open_in_memory().unwrap();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
-        assert_eq!(v, 1);
+        assert_eq!(v, 3);
     }
 
     #[test]
@@ -81,7 +97,7 @@ mod tests {
         run_migrations(&conn).unwrap();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
-        assert_eq!(v, 1);
+        assert_eq!(v, 3);
     }
 
     #[test]

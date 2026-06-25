@@ -1,14 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Sidebar } from './components/ui/Sidebar';
 import { GalleryPage } from './features/gallery/GalleryPage';
 import { ImportPage } from './features/import/ImportPage';
 import { SearchPage } from './features/search/SearchPage';
+import { SettingsPage } from './features/settings/SettingsPage';
+import { TrashPage } from './features/trash/TrashPage';
+import { useSettingsStore } from './stores/settingsStore';
 
 function App() {
   const [route, setRoute] = useState('/gallery');
+  const hydrate = useSettingsStore((s) => s.hydrate);
+
+  useEffect(() => {
+    void hydrate();
+  }, [hydrate]);
 
   const renderPage = () => {
     switch (route) {
+      case '/trash':
+        return <TrashPage />;
       case '/gallery':
       case '/normal':
         return <GalleryPage />;
@@ -16,6 +26,8 @@ function App() {
         return <ImportPage />;
       case '/search':
         return <SearchPage />;
+      case '/settings':
+        return <SettingsPage />;
       default:
         return (
           <div

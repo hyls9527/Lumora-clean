@@ -11,6 +11,7 @@ use db::DbHandle;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::default().build())
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
@@ -38,6 +39,19 @@ pub fn run() {
             commands::images::search_images,
             commands::images::update_rating,
             commands::images::toggle_favorite,
+            commands::tags::create_tag,
+            commands::tags::list_tags,
+            commands::tags::delete_tag,
+            commands::tags::add_tag_to_image,
+            commands::tags::remove_tag_from_image,
+            commands::tags::get_image_tags,
+            commands::settings::get_setting,
+            commands::settings::set_setting,
+            commands::trash::soft_delete_image,
+            commands::trash::restore_image,
+            commands::trash::permanent_delete_image,
+            commands::trash::list_trash,
+            commands::trash::empty_trash,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

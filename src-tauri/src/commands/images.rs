@@ -301,7 +301,7 @@ fn load_record(conn: &rusqlite::Connection, id: &str) -> Result<ImageRecord, rus
     )
 }
 
-fn row_to_record(row: &rusqlite::Row<'_>) -> Result<ImageRecord, rusqlite::Error> {
+pub fn row_to_record(row: &rusqlite::Row<'_>) -> Result<ImageRecord, rusqlite::Error> {
     Ok(ImageRecord {
         id: row.get("id")?,
         file_path: row.get("file_path")?,
@@ -316,6 +316,7 @@ fn row_to_record(row: &rusqlite::Row<'_>) -> Result<ImageRecord, rusqlite::Error
         rating: row.get("rating")?,
         favorite: row.get::<_, i32>("favorite")? != 0,
         metadata_json: row.get("metadata_json")?,
+        deleted_at: row.get("deleted_at").ok(),
     })
 }
 

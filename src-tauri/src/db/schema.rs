@@ -50,3 +50,36 @@ pub const V1_TRIGGER_UPDATE: &str =
     INSERT INTO images_fts(rowid, file_path, metadata_json)
     VALUES (new.rowid, new.file_path, new.metadata_json);
 END;";
+
+// ---------------------------------------------------------------------------
+// V2 — Tags
+// ---------------------------------------------------------------------------
+
+pub const V2_CREATE_TAGS: &str = "CREATE TABLE IF NOT EXISTS tags (
+    id         TEXT PRIMARY KEY,
+    name       TEXT NOT NULL UNIQUE,
+    color      TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);";
+
+pub const V2_CREATE_IMAGE_TAGS: &str = "CREATE TABLE IF NOT EXISTS image_tags (
+    image_id TEXT NOT NULL REFERENCES images(id),
+    tag_id   TEXT NOT NULL REFERENCES tags(id),
+    PRIMARY KEY (image_id, tag_id)
+);";
+
+pub const V2_INDEX_IMAGE_TAGS_IMAGE: &str =
+    "CREATE INDEX IF NOT EXISTS idx_image_tags_image ON image_tags(image_id);";
+
+pub const V2_INDEX_IMAGE_TAGS_TAG: &str =
+    "CREATE INDEX IF NOT EXISTS idx_image_tags_tag ON image_tags(tag_id);";
+
+// ---------------------------------------------------------------------------
+// V3 — deleted_at column for trash
+// ---------------------------------------------------------------------------
+
+pub const V3_ADD_DELETED_AT: &str =
+    "ALTER TABLE images ADD COLUMN deleted_at TEXT;";
+
+pub const V3_INDEX_DELETED_AT: &str =
+    "CREATE INDEX IF NOT EXISTS idx_images_deleted_at ON images(deleted_at) WHERE deleted = 1;";

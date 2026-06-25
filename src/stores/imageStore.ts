@@ -16,6 +16,8 @@ export interface ImageRecord {
   prompt: string;
   tags: string[];
   similarity?: number;   // 0-100, used by search
+  deleted?: boolean;
+  deletedAt?: string;
 }
 
 interface FilterState {
@@ -55,6 +57,11 @@ interface ImageStore {
   toggleSelect: (id: string) => void;
   selectAll: () => void;
   clearSelection: () => void;
+  // Tag actions
+  fetchImageTags: (imageId: string) => Promise<void>;
+  addTagToImage: (imageId: string, tagId: string) => Promise<void>;
+  removeTagFromImage: (imageId: string, tagId: string) => Promise<void>;
+  imageTags: Record<string, string[]>;
   // Derived
   getFilteredImages: () => ImageRecord[];
   getSearchResults: () => ImageRecord[];
@@ -62,6 +69,7 @@ interface ImageStore {
 
 export const useImageStore = create<ImageStore>((set, get) => ({
   images: [],
+  imageTags: {},
   filters: {
     mode: 'creator',
     view: 'grid',
@@ -77,7 +85,6 @@ export const useImageStore = create<ImageStore>((set, get) => ({
   page: 1,
   total: 0,
   perPage: 40,
-
   // ---------------------------------------------------------------------------
   // Async actions
   // ---------------------------------------------------------------------------
@@ -210,6 +217,42 @@ export const useImageStore = create<ImageStore>((set, get) => ({
     })),
 
   clearSelection: () => set({ selectedIds: new Set() }),
+
+  fetchImageTags: async (imageId: string) => {
+    try {
+      const tags = await api.getImageTags(imageId);
+      set((s) => ({
+        imageTags: { ...s.imageTags, [imageId]: tags.map((t) => t.name) },
+      }));
+    } catch {
+      // silent
+    }
+  },
+
+  addTagToImage: async (imageId: string, tagId: string) => {
+    try {
+      await api.addTagToImage(imageId, tagId);
+      // refresh image tags
+      const tags = await api.getImageTags(imageId);
+      set((s) => ({
+        imageTags: { ...s.imageTags, [imageId]: tags.map((t) => t.name) },
+      }));
+    } catch {
+      // silent
+    }
+  },
+
+  removeTagFromImage: async (imageId: string, tagId: string) => {
+    try {
+      await api.removeTagFromImage(imageId, tagId);
+      const tags = await api.getImageTags(imageId);
+      set((s) => ({
+        imageTags: { ...s.imageTags, [imageId]: tags.map((t) => t.name) },
+      }));
+    } catch {
+      // silent
+    }
+  },
 
   getFilteredImages: () => {
     const { images, filters } = get();

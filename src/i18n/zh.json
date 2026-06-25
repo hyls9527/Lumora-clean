@@ -12,6 +12,7 @@
     "search": "语义搜索",
     "favorites": "收藏",
     "prompts": "提示词库",
+    "tags": "标签",
     "settings": "设置",
     "trash": "回收站"
   },
@@ -94,6 +95,23 @@
     "importComplete": "导入完成",
     "filesProcessed": "已处理 {count} 个文件"
   },
+  "trash": {
+    "title": "回收站",
+    "empty": "回收站为空",
+    "restore": "恢复",
+    "permanentDelete": "永久删除",
+    "confirmDelete": "确认删除",
+    "cancel": "取消",
+    "emptyTrash": "清空回收站",
+    "emptyTrashConfirm": "清空回收站？",
+    "emptyTrashDesc": "永久删除回收站中的所有 {count} 张图片，此操作不可撤销。",
+    "confirmEmpty": "确认清空",
+    "deletedCount": "{count} 张已删除图片",
+    "deletedAt": "删除时间",
+    "fileName": "文件名",
+    "dimensions": "尺寸",
+    "actions": "操作"
+  },
   "search": {
     "title": "语义搜索",
     "resultCount": "找到 {count} 个相似结果",
@@ -121,5 +139,39 @@
     "searchHistory": "搜索历史",
     "emptyTitle": "未找到相似结果",
     "emptyDesc": "尝试使用更具体的画面描述，如风格、色调、构图。也可以降低相似度阈值，或切换到以图搜图模式。"
+  },
+  "tags": {
+    "title": "标签管理",
+    "subtitle": "创建和管理标签，为图片添加分类标记",
+    "createTag": "创建标签",
+    "tagName": "标签名称",
+    "tagColor": "标签颜色",
+    "editColor": "编辑颜色",
+    "delete": "删除",
+    "emptyHint": "暂无标签，创建一个开始使用吧",
+    "removeFromImage": "移除标签",
+    "createSuccess": "标签创建成功",
+    "deleteSuccess": "标签已删除",
+    "inputPlaceholder": "输入标签名称..."
+  },
+  "settings": {
+    "title": "设置",
+    "language": "语言",
+    "theme": "主题",
+    "lightTheme": "浅色",
+    "darkTheme": "深色（即将推出）",
+    "shortcuts": "快捷键参考",
+    "shortcutSearch": "搜索图片",
+    "shortcutSearchKey": "⌘K",
+    "shortcutSelectAll": "全选",
+    "shortcutSelectAllKey": "⌘A",
+    "shortcutDelete": "删除选中",
+    "shortcutDeleteKey": "Delete",
+    "shortcutEscape": "取消选择",
+    "shortcutEscapeKey": "Esc",
+    "about": "关于",
+    "aboutDesc": "Lumora — 光之韵律，AI 创作者的图片管理器",
+    "version": "版本",
+    "license": "许可"
   }
 }

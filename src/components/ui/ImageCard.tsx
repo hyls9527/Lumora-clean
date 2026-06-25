@@ -1,5 +1,7 @@
 import { useImageStore, type ImageRecord } from '../../stores/imageStore';
+import { useTrashStore } from '../../stores/trashStore';
 import { Rating } from './Rating';
+import { TagBadge } from './TagBadge';
 
 interface ImageCardProps {
   image: ImageRecord;
@@ -9,6 +11,8 @@ interface ImageCardProps {
 export function ImageCard({ image, onClick }: ImageCardProps) {
   const toggleFavorite = useImageStore((s) => s.toggleFavorite);
   const setRating = useImageStore((s) => s.setRating);
+  const softDelete = useTrashStore((s) => s.softDeleteImage);
+  const fetchImages = useImageStore((s) => s.fetchImages);
 
   return (
     <div
@@ -92,6 +96,27 @@ export function ImageCard({ image, onClick }: ImageCardProps) {
               ◆
             </button>
             <Rating value={image.rating} onChange={(v) => setRating(image.id, v)} />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                softDelete(image.id).then(() => fetchImages());
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                fontSize: '11px',
+                color: '#c4b89e',
+                transition: 'color 200ms',
+                lineHeight: 1,
+              }}
+              aria-label="删除"
+              title="移到回收站"
+            >
+              ✕
+            </button>
           </div>
         </div>
 
@@ -115,19 +140,7 @@ export function ImageCard({ image, onClick }: ImageCardProps) {
         {/* Tags */}
         <div style={{ display: 'flex', gap: '4px', marginTop: '6px', flexWrap: 'wrap' }}>
           {image.tags.map((tag) => (
-            <span
-              key={tag}
-              style={{
-                fontSize: '9px',
-                padding: '1px 6px',
-                border: '1px solid rgba(139, 115, 75, 0.10)',
-                borderRadius: '2px',
-                color: '#6b5d48',
-                fontFamily: 'var(--font-body)',
-              }}
-            >
-              {tag}
-            </span>
+            <TagBadge key={tag} name={tag} />
           ))}
         </div>
       </div>

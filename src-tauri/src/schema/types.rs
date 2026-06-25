@@ -17,6 +17,8 @@ pub struct ImageRecord {
     pub rating: i32,
     pub favorite: bool,
     pub metadata_json: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub deleted_at: Option<String>,
 }
 
 /// Paginated wrapper returned by list commands.
@@ -27,4 +29,14 @@ pub struct PaginatedResult {
     pub total: i64,
     pub page: u32,
     pub per_page: u32,
+}
+
+/// Tag record stored in SQLite — matches `tags` table 1:1.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Tag {
+    pub id: String,
+    pub name: String,
+    pub color: Option<String>,
+    pub created_at: String,
 }

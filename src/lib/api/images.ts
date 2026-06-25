@@ -13,6 +13,7 @@ interface TauriImageRecord {
   createdAt: string;
   importedAt: string;
   deleted: boolean;
+  deletedAt: string | null;
   rating: number;
   favorite: boolean;
   metadataJson: string | null;
@@ -58,6 +59,7 @@ function toImageRecord(raw: TauriImageRecord): ImageRecord {
     createdAt: raw.createdAt,
     rating: raw.rating,
     favorite: raw.favorite,
+    deletedAt: raw.deletedAt ?? undefined,
     model,
     prompt,
     tags,
@@ -106,3 +108,83 @@ export async function updateRating(
 export async function toggleFavorite(id: string): Promise<void> {
   await invoke('toggle_favorite', { id });
 }
+
+// ---------------------------------------------------------------------------
+// Tag API
+// ---------------------------------------------------------------------------
+
+export interface TagRecord {
+  id: string;
+  name: string;
+  color: string | null;
+  createdAt: string;
+}
+
+export async function createTag(
+  name: string,
+  color: string | null,
+): Promise<TagRecord> {
+  return invoke<TagRecord>('create_tag', { name, color });
+}
+
+export async function listTags(): Promise<TagRecord[]> {
+  return invoke<TagRecord[]>('list_tags');
+}
+
+export async function deleteTag(id: string): Promise<void> {
+  await invoke('delete_tag', { id });
+}
+
+export async function addTagToImage(
+  imageId: string,
+  tagId: string,
+): Promise<void> {
+  await invoke('add_tag_to_image', { imageId, tagId });
+}
+
+export async function removeTagFromImage(
+  imageId: string,
+  tagId: string,
+): Promise<void> {
+  await invoke('remove_tag_from_image', { imageId, tagId });
+}
+
+export async function getImageTags(imageId: string): Promise<TagRecord[]> {
+  return invoke<TagRecord[]>('get_image_tags', { imageId });
+}
+
+// ---------------------------------------------------------------------------
+// Trash API
+// ---------------------------------------------------------------------------
+
+export async function softDeleteImage(id: string): Promise<void> {
+  await invoke('soft_delete_image', { id });
+}
+
+export async function restoreImage(id: string): Promise<void> {
+  await invoke('restore_image', { id });
+}
+
+export async function permanentDeleteImage(id: string): Promise<void> {
+  await invoke('permanent_delete_image', { id });
+}
+
+export async function listTrash(
+  page: number,
+  perPage: number,
+): Promise<{ items: ImageRecord[]; total: number }> {
+  const raw = await invoke<TauriPaginatedResult>('list_trash', {
+    page,
+    perPage,
+  });
+  return {
+    items: raw.items.map(toImageRecord),
+    total: raw.total,
+  };
+}
+
+export async function emptyTrash(): Promise<number> {
+  return await invoke<number>('empty_trash');
+}
+
+

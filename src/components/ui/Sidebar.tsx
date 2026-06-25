@@ -19,6 +19,7 @@ const navItems: NavItem[] = [
   { key: '/search', label: '语义搜索' },
   { key: '/favorites', label: '收藏' },
   { key: '/prompts', label: '提示词库' },
+  { key: '/tags', label: '标签' },
   { key: '/settings', label: '设置' },
   { key: '/trash', label: '回收站' },
 ];
