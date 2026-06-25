@@ -8,6 +8,7 @@ import { SettingsPage } from './features/settings/SettingsPage';
 import { TrashPage } from './features/trash/TrashPage';
 import { TagManager } from './features/tags/TagManager';
 import { DashboardPage } from './features/dashboard/DashboardPage';
+import { ExportPage } from './features/export/ExportPage';
 import { useSettingsStore } from './stores/settingsStore';
 import { useCommandStore } from './stores/commandStore';
 import { useTranslation } from './lib/i18n';
@@ -32,6 +33,7 @@ function App() {
       { id: 'nav-import', name: t('nav.import'), description: t('commandPalette.descImport'), section: 'navigation', action: () => setRoute('/import') },
       { id: 'nav-search', name: t('nav.search'), description: t('commandPalette.descSearch'), section: 'navigation', action: () => setRoute('/search') },
       { id: 'nav-tags', name: t('nav.tags'), description: t('commandPalette.descTags'), section: 'navigation', action: () => setRoute('/tags') },
+      { id: 'nav-export', name: t('nav.export'), description: t('commandPalette.descExport'), section: 'navigation', action: () => setRoute('/export') },
       { id: 'nav-settings', name: t('nav.settings'), description: t('commandPalette.descSettings'), section: 'navigation', action: () => setRoute('/settings') },
       { id: 'nav-trash', name: t('nav.trash'), description: t('commandPalette.descTrash'), section: 'navigation', action: () => setRoute('/trash') },
       // Actions
@@ -69,6 +71,8 @@ function App() {
         return <SearchPage />;
       case '/tags':
         return <TagManager />;
+      case '/export':
+        return <ExportPage />;
       case '/settings':
         return <SettingsPage />;
       default:

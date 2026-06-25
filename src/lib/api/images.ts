@@ -219,3 +219,27 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   return invoke<DashboardStats>('get_dashboard_stats');
 }
 
+// ---------------------------------------------------------------------------
+// Export API
+// ---------------------------------------------------------------------------
+
+export interface ExportResult {
+  success: number;
+  failed: number;
+  destDir: string;
+}
+
+export async function exportImages(
+  ids: string[],
+  destDir: string,
+  format: string,
+  renameTemplate?: string,
+): Promise<ExportResult> {
+  return invoke<ExportResult>('export_images', {
+    ids,
+    destDir,
+    format,
+    renameTemplate: renameTemplate || undefined,
+  });
+}
+

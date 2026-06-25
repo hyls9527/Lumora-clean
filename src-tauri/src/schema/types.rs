@@ -73,3 +73,12 @@ pub struct TagCount {
     pub name: String,
     pub count: i64,
 }
+
+/// Result returned by export_images command.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExportResult {
+    pub success: u32,
+    pub failed: u32,
+    pub dest_dir: String,
+}

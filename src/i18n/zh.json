@@ -13,6 +13,7 @@
     "favorites": "收藏",
     "prompts": "提示词库",
     "tags": "标签",
+    "export": "导出",
     "settings": "设置",
     "trash": "回收站"
   },
@@ -203,6 +204,27 @@
     "unrated": "未评分",
     "summary": "共 {count} 张图片，占用 {size}"
   },
+  "export": {
+    "title": "导出",
+    "subtitle": "将选中的图片导出到指定文件夹，支持格式转换和自定义命名",
+    "selection": "导出范围",
+    "selectedCount": "已选 {count} 张图片",
+    "allCount": "全部 {count} 张图片",
+    "destFolder": "目标文件夹",
+    "selectDest": "选择导出目标文件夹…",
+    "browse": "浏览",
+    "outputFormat": "输出格式",
+    "renameTemplate": "重命名模板",
+    "templateHint": "可用变量: {name} 文件名、{id} 编号、{date} 日期、{rating} 评分、{tags} 标签",
+    "startExport": "开始导出",
+    "exporting": "导出中…",
+    "exportingProgress": "正在导出 {count} 张图片…",
+    "result": "导出结果",
+    "successCount": "成功",
+    "failCount": "失败",
+    "destPath": "目标路径",
+    "complete": "导出完成"
+  },
   "commandPalette": {
     "placeholder": "输入命令或搜索…",
     "ariaLabel": "命令面板",
@@ -214,6 +236,7 @@
     "descImport": "管理导入任务",
     "descSearch": "语义搜索图片",
     "descTags": "管理标签",
+    "descExport": "导出图片到文件夹",
     "descSettings": "应用设置",
     "descTrash": "查看回收站",
     "importImages": "导入图片",

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as api from '../lib/api/images';
+import type { ExportResult } from '../lib/api/images';
 
 export interface ImageRecord {
   id: string;
@@ -44,6 +45,7 @@ interface ImageStore {
   fetchImages: (page?: number) => Promise<void>;
   searchImages: (query: string) => Promise<void>;
   importImages: (folderPath: string) => Promise<void>;
+  exportImages: (ids: string[], destDir: string, format: string, renameTemplate?: string) => Promise<ExportResult>;
   // Sync actions
   setMode: (mode: 'creator' | 'normal') => void;
   setView: (view: 'grid' | 'list') => void;
@@ -141,6 +143,15 @@ export const useImageStore = create<ImageStore>((set, get) => ({
         error: err instanceof Error ? err.message : '导入失败',
       });
     }
+  },
+
+  exportImages: async (
+    ids: string[],
+    destDir: string,
+    format: string,
+    renameTemplate?: string,
+  ) => {
+    return api.exportImages(ids, destDir, format, renameTemplate);
   },
 
   // ---------------------------------------------------------------------------

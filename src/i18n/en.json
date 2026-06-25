@@ -13,6 +13,7 @@
     "favorites": "Favorites",
     "prompts": "Prompt Library",
     "tags": "Tags",
+    "export": "Export",
     "settings": "Settings",
     "trash": "Trash"
   },
@@ -203,6 +204,27 @@
     "unrated": "Unrated",
     "summary": "{count} images, {size} used"
   },
+  "export": {
+    "title": "Export",
+    "subtitle": "Export selected images to a folder with format conversion and custom naming",
+    "selection": "Export Scope",
+    "selectedCount": "{count} images selected",
+    "allCount": "All {count} images",
+    "destFolder": "Destination Folder",
+    "selectDest": "Select export destination…",
+    "browse": "Browse",
+    "outputFormat": "Output Format",
+    "renameTemplate": "Rename Template",
+    "templateHint": "Available: {name} filename, {id} id, {date} date, {rating} rating, {tags} tags",
+    "startExport": "Start Export",
+    "exporting": "Exporting…",
+    "exportingProgress": "Exporting {count} images…",
+    "result": "Export Result",
+    "successCount": "Success",
+    "failCount": "Failed",
+    "destPath": "Destination",
+    "complete": "Export complete"
+  },
   "commandPalette": {
     "placeholder": "Type a command or search…",
     "ariaLabel": "Command Palette",
@@ -214,6 +236,7 @@
     "descImport": "Manage import tasks",
     "descSearch": "Semantic image search",
     "descTags": "Manage tags",
+    "descExport": "Export images to folder",
     "descSettings": "Application settings",
     "descTrash": "View trash",
     "importImages": "Import Images",

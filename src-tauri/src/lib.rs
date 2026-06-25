@@ -12,6 +12,7 @@ use db::DbHandle;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
@@ -53,6 +54,7 @@ pub fn run() {
             commands::trash::list_trash,
             commands::trash::empty_trash,
             commands::dashboard::get_dashboard_stats,
+            commands::export::export_images,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
