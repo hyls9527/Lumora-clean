@@ -1,20 +1,31 @@
+import { useEffect } from 'react';
 import { useImageStore, type ImageRecord } from '../../stores/imageStore';
 import { useTrashStore } from '../../stores/trashStore';
+import { useEmbeddingStore } from '../../stores/embeddingStore';
 import { Rating } from './Rating';
 import { TagBadge } from './TagBadge';
+import { SimilarityBadge } from './SimilarityBadge';
+import { EmbeddingBadge } from './EmbeddingBadge';
 
 interface ImageCardProps {
   image: ImageRecord;
   onClick?: () => void;
   onOpen?: () => void;
   focused?: boolean;
+  showSimilarity?: boolean;
 }
 
-export function ImageCard({ image, onClick, onOpen, focused }: ImageCardProps) {
+export function ImageCard({ image, onClick, onOpen, focused, showSimilarity }: ImageCardProps) {
   const toggleFavorite = useImageStore((s) => s.toggleFavorite);
   const setRating = useImageStore((s) => s.setRating);
   const softDelete = useTrashStore((s) => s.softDeleteImage);
   const fetchImages = useImageStore((s) => s.fetchImages);
+  const embeddingStatus = useEmbeddingStore((s) => s.statusMap[image.id]);
+  const fetchStatus = useEmbeddingStore((s) => s.fetchStatus);
+
+  useEffect(() => {
+    if (!embeddingStatus) fetchStatus(image.id);
+  }, [image.id, embeddingStatus, fetchStatus]);
 
   return (
     <div
@@ -60,6 +71,7 @@ export function ImageCard({ image, onClick, onOpen, focused }: ImageCardProps) {
       {/* Placeholder image area */}
       <div
         style={{
+          position: 'relative',
           width: '100%',
           aspectRatio: `${image.width} / ${image.height}`,
           background: 'rgba(139, 115, 75, 0.08)',
@@ -73,6 +85,11 @@ export function ImageCard({ image, onClick, onOpen, focused }: ImageCardProps) {
         }}
       >
         {image.width}×{image.height}
+        {showSimilarity && image.similarity != null && (
+          <div style={{ position: 'absolute', top: 8, right: 8 }}>
+            <SimilarityBadge value={image.similarity} />
+          </div>
+        )}
       </div>
 
       {/* Card body */}
@@ -158,11 +175,14 @@ export function ImageCard({ image, onClick, onOpen, focused }: ImageCardProps) {
           {image.prompt}
         </p>
 
-        {/* Tags */}
-        <div style={{ display: 'flex', gap: '4px', marginTop: '6px', flexWrap: 'wrap' }}>
-          {image.tags.map((tag) => (
-            <TagBadge key={tag} name={tag} />
-          ))}
+        {/* Tags + Embedding badge */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
+          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            {image.tags.map((tag) => (
+              <TagBadge key={tag} name={tag} />
+            ))}
+          </div>
+          {embeddingStatus && <EmbeddingBadge status={embeddingStatus.status} />}
         </div>
       </div>
     </div>

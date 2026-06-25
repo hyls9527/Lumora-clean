@@ -2,6 +2,10 @@ import { useState, useCallback } from 'react';
 import { useImageStore } from '../../stores/imageStore';
 import { SearchSkeleton } from '../../components/ui/LoadingSkeleton';
 import { ErrorState } from '../../components/ui/ErrorState';
+import { SemanticSearchBar } from '../../components/ui/SemanticSearchBar';
+import { SimilarityBadge } from '../../components/ui/SimilarityBadge';
+import { useSemanticSearchStore } from '../../stores/semanticSearchStore';
+import { useTranslation } from '../../lib/i18n';
 
 const filterOptions = [
   { key: 'all', label: '全部' },
@@ -19,15 +23,18 @@ const searchHistory = [
 ];
 
 export function SearchPage() {
+  const { t } = useTranslation('search');
   const {
     filters,
     setSearchQuery,
-    setSearchMode,
     getSearchResults,
     searchImages: searchImagesApi,
     loading,
     error,
   } = useImageStore();
+
+  const { mode: searchMode } =
+    useSemanticSearchStore();
 
   const [activeFilter, setActiveFilter] = useState('all');
   const [compareOpen, setCompareOpen] = useState(false);
@@ -84,17 +91,19 @@ export function SearchPage() {
           </p>
         </header>
 
-        {/* Search box */}
-        <section aria-label="搜索输入" style={{ marginBottom: 24 }}>
-          {filters.searchMode === 'text' ? (
+        {/* Search bar with semantic search integration */}
+        {searchMode === 'semantic' ? (
+          <SemanticSearchBar />
+        ) : (
+          <section aria-label={t('searchQuery')} style={{ marginBottom: 24 }}>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="描述你想要找到的画面..."
-                aria-label="语义搜索输入"
+                placeholder={t('textDescription')}
+                aria-label={t('textDescription')}
                 style={{
                   width: '100%',
                   padding: '14px 110px 14px 20px',
@@ -141,7 +150,7 @@ export function SearchPage() {
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
-                    aria-label="清除搜索"
+                    aria-label={t('clearSearch')}
                   >
                     ×
                   </button>
@@ -161,62 +170,14 @@ export function SearchPage() {
                     cursor: 'pointer',
                     transition: 'background 200ms',
                   }}
-                  aria-label="搜索"
+                  aria-label={t('search')}
                 >
-                  搜索
+                  {t('search')}
                 </button>
               </div>
             </div>
-          ) : (
-            <div
-              style={{
-                border: '2px dashed rgba(139, 115, 75, 0.10)',
-                borderRadius: 4,
-                background: 'var(--color-surface)',
-                height: 200,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'border-color 200ms, background 200ms',
-              }}
-              role="button"
-              tabIndex={0}
-              aria-label="上传图片进行搜索"
-            >
-              <p
-                style={{
-                  fontSize: 14,
-                  fontFamily: 'var(--font-display)',
-                  color: '#6b5d48',
-                  marginBottom: 8,
-                }}
-              >
-                拖拽图片到此处，或点击上传
-              </p>
-              <p style={{ fontSize: 11, fontFamily: 'var(--font-body)', color: '#a09480' }}>
-                支持 PNG, JPG, WEBP · 将以此图片的向量特征搜索相似作品
-              </p>
-            </div>
-          )}
-
-          {/* Mode tabs */}
-          <div style={{ display: 'flex', gap: 24, marginTop: 16 }}>
-            <ModeTab
-              active={filters.searchMode === 'text'}
-              onClick={() => setSearchMode('text')}
-            >
-              文字搜图
-            </ModeTab>
-            <ModeTab
-              active={filters.searchMode === 'image'}
-              onClick={() => setSearchMode('image')}
-            >
-              以图搜图
-            </ModeTab>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Results status bar */}
         {results.length > 0 && (
@@ -627,37 +588,6 @@ export function SearchPage() {
 
 /* --- Sub-components --- */
 
-function ModeTab({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        padding: '0 0 8px',
-        fontSize: 13,
-        fontWeight: 500,
-        fontFamily: 'var(--font-display)',
-        color: active ? '#7a5c12' : '#6b5d48',
-        background: 'none',
-        border: 'none',
-        borderBottom: `2px solid ${active ? '#7a5c12' : 'transparent'}`,
-        cursor: 'pointer',
-        transition: 'color 200ms, border-color 200ms',
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
 function ResultCard({
   image,
 }: {
@@ -692,23 +622,9 @@ function ResultCard({
           {image.width}×{image.height}
         </div>
         {image.similarity != null && (
-          <span
-            style={{
-              position: 'absolute',
-              top: 8,
-              right: 8,
-              padding: '3px 8px',
-              fontSize: 11,
-              fontWeight: 600,
-              fontFamily: 'var(--font-body)',
-              color: image.similarity >= 90 ? '#f2ede4' : '#f2ede4',
-              background: image.similarity >= 90 ? '#4a7a3a' : '#7a5c12',
-              borderRadius: 4,
-              lineHeight: 1.2,
-            }}
-          >
-            {image.similarity}%
-          </span>
+          <div style={{ position: 'absolute', top: 8, right: 8 }}>
+            <SimilarityBadge value={image.similarity} />
+          </div>
         )}
       </div>
       <div style={{ padding: '12px 14px' }}>

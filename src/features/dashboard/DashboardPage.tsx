@@ -4,6 +4,7 @@ import {
   type DashboardStats,
 } from '../../lib/api/images';
 import type { ImageRecord } from '../../stores/imageStore';
+import { useEmbeddingStore } from '../../stores/embeddingStore';
 import { useTranslation } from '../../lib/i18n';
 
 /** Format bytes to human-readable string */
@@ -151,6 +152,10 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { t } = useTranslation();
+  const { t: tEmbed } = useTranslation('embedding');
+  const embStats = useEmbeddingStore((s) => s.stats);
+  const embLoading = useEmbeddingStore((s) => s.statsLoading);
+  const fetchEmbStats = useEmbeddingStore((s) => s.fetchStats);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -167,7 +172,8 @@ export function DashboardPage() {
 
   useEffect(() => {
     load();
-  }, [load]);
+    fetchEmbStats();
+  }, [load, fetchEmbStats]);
 
   // Ensure all ratings 0-5 are present
   const ratingMap = new Map<number, number>();
@@ -302,6 +308,63 @@ export function DashboardPage() {
                 label={t('dashboard.storage')}
                 value={formatSize(stats.totalSizeKb)}
               />
+            </div>
+          </section>
+
+          {/* Embedding Coverage */}
+          <section>
+            <SectionTitle>{tEmbed('title')}</SectionTitle>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
+              }}
+            >
+              {embLoading ? (
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: '#a09480',
+                    fontFamily: 'var(--font-body)',
+                  }}
+                >
+                  {t('dashboard.loading')}
+                </span>
+              ) : embStats ? (
+                <>
+                  <DotRow
+                    label={tEmbed('statusEmbedded')}
+                    value={embStats.embedded}
+                  />
+                  <DotRow
+                    label={tEmbed('statusPending')}
+                    value={embStats.pending}
+                  />
+                  <DotRow
+                    label={tEmbed('statusError')}
+                    value={embStats.error}
+                  />
+                  <DotRow
+                    label={tEmbed('coverage')}
+                    value={
+                      embStats.total > 0
+                        ? `${Math.round((embStats.embedded / embStats.total) * 100)}%`
+                        : '—'
+                    }
+                  />
+                </>
+              ) : (
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: '#a09480',
+                    fontFamily: 'var(--font-body)',
+                  }}
+                >
+                  {t('dashboard.noData')}
+                </span>
+              )}
             </div>
           </section>
 

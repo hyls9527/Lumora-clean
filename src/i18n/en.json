@@ -98,6 +98,17 @@
   },
   "search": {
     "title": "Semantic Search",
+    "searchInput": "Search Input",
+    "exactMatch": "Exact Match",
+    "semanticMode": "Semantic Search",
+    "describeContent": "Describe what you're looking for…",
+    "exactMatchPlaceholder": "Enter keywords for exact search…",
+    "semanticSearchInput": "Semantic search input",
+    "exactMatchInput": "Exact match search input",
+    "clearSearch": "Clear search",
+    "searching": "Searching…",
+    "search": "Search",
+    "describeHint": "Describe the scene you're looking for in natural language, e.g. 'forest under moonlight' or 'eastern female character'",
     "resultCount": "{count} similar results found",
     "searchTerm": "Search term: {term}",
     "textSearch": "Text Search",
@@ -245,5 +256,14 @@
     "refreshGalleryDesc": "Reload the gallery",
     "emptyTrash": "Empty Trash",
     "emptyTrashDesc": "Permanently delete all deleted images"
+  },
+  "embedding": {
+    "title": "Embedding Status",
+    "statusEmbedded": "Embedded",
+    "statusPending": "Pending",
+    "statusError": "Error",
+    "coverage": "Coverage",
+    "generate": "Generate Embeddings",
+    "generating": "Generating…"
   }
 }
