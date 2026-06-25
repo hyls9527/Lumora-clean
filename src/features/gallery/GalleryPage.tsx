@@ -1,8 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useImageStore } from '../../stores/imageStore';
+import { useTrashStore } from '../../stores/trashStore';
 import { ImageCard } from '../../components/ui/ImageCard';
+import { DetailModal } from '../../components/ui/DetailModal';
 import { GridSkeleton } from '../../components/ui/LoadingSkeleton';
 import { ErrorState } from '../../components/ui/ErrorState';
+import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 
 const sortOptions = [
   { key: 'time' as const, label: '生成时间 ↓' },
@@ -115,17 +118,125 @@ export function GalleryPage() {
     loading,
     error,
     fetchImages,
+    toggleFavorite,
+    setRating,
+    toggleSelect,
+    clearSelection,
     page,
     total,
     perPage,
   } = useImageStore();
+  const softDelete = useTrashStore((s) => s.softDeleteImage);
 
   const images = getFilteredImages();
   const totalPages = Math.max(1, Math.ceil(total / perPage));
 
+  // Keyboard nav state
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [detailImage, setDetailImage] = useState<ReturnType<typeof getFilteredImages>[0] | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     fetchImages(1);
   }, [fetchImages]);
+
+  // Scroll focused card into view
+  useEffect(() => {
+    if (focusedIndex < 0 || !gridRef.current) return;
+    const card = gridRef.current.querySelector(
+      `[data-image-id="${images[focusedIndex]?.id}"]`,
+    ) as HTMLElement | null;
+    card?.focus();
+  }, [focusedIndex, images]);
+
+  const handleArrowUp = useCallback(() => {
+    setFocusedIndex((prev) => Math.max(0, prev - 1));
+  }, []);
+
+  const handleArrowDown = useCallback(() => {
+    setFocusedIndex((prev) => Math.min(images.length - 1, prev + 1));
+  }, [images.length]);
+
+  const handleArrowLeft = useCallback(() => {
+    // In grid view, jump one column left (approx 4 columns)
+    setFocusedIndex((prev) => Math.max(0, prev - 1));
+  }, []);
+
+  const handleArrowRight = useCallback(() => {
+    setFocusedIndex((prev) => Math.min(images.length - 1, prev + 1));
+  }, [images.length]);
+
+  const handleEnter = useCallback(() => {
+    if (focusedIndex >= 0 && focusedIndex < images.length) {
+      setDetailImage(images[focusedIndex]);
+    }
+  }, [focusedIndex, images]);
+
+  const handleSpace = useCallback(() => {
+    if (focusedIndex >= 0 && focusedIndex < images.length) {
+      toggleSelect(images[focusedIndex].id);
+    }
+  }, [focusedIndex, images, toggleSelect]);
+
+  const handleEscape = useCallback(() => {
+    if (selectedIds.size > 0) {
+      clearSelection();
+    }
+    setFocusedIndex(-1);
+  }, [selectedIds.size, clearSelection]);
+
+  const handleDelete = useCallback(() => {
+    if (focusedIndex >= 0 && focusedIndex < images.length) {
+      softDelete(images[focusedIndex].id).then(() => fetchImages());
+    }
+  }, [focusedIndex, images, softDelete, fetchImages]);
+
+  const handleFavorite = useCallback(() => {
+    if (focusedIndex >= 0 && focusedIndex < images.length) {
+      toggleFavorite(images[focusedIndex].id);
+    }
+  }, [focusedIndex, images, toggleFavorite]);
+
+  const handleRate = useCallback(
+    (rating: number) => {
+      if (focusedIndex >= 0 && focusedIndex < images.length) {
+        setRating(images[focusedIndex].id, rating);
+      }
+    },
+    [focusedIndex, images, setRating],
+  );
+
+  const handleDetailPrev = useCallback(() => {
+    setDetailImage((prev) => {
+      if (!prev) return prev;
+      const idx = images.findIndex((i) => i.id === prev.id);
+      const nextIdx = Math.max(0, idx - 1);
+      return images[nextIdx] ?? prev;
+    });
+  }, [images]);
+
+  const handleDetailNext = useCallback(() => {
+    setDetailImage((prev) => {
+      if (!prev) return prev;
+      const idx = images.findIndex((i) => i.id === prev.id);
+      const nextIdx = Math.min(images.length - 1, idx + 1);
+      return images[nextIdx] ?? prev;
+    });
+  }, [images]);
+
+  useKeyboardNav({
+    route: '/gallery',
+    onArrowUp: handleArrowUp,
+    onArrowDown: handleArrowDown,
+    onArrowLeft: handleArrowLeft,
+    onArrowRight: handleArrowRight,
+    onEnter: handleEnter,
+    onSpace: handleSpace,
+    onEscape: handleEscape,
+    onDelete: handleDelete,
+    onFavorite: handleFavorite,
+    onRate: handleRate,
+  });
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
@@ -257,13 +368,14 @@ export function GalleryPage() {
         <>
           {/* Image Grid (Masonry via CSS columns) */}
           <div
+            ref={gridRef}
             style={{
               columnCount: filters.view === 'grid' ? 4 : 1,
               columnGap: 12,
               padding: '24px 32px',
             }}
           >
-            {images.map((img) => (
+            {images.map((img, index) => (
               <div
                 key={img.id}
                 style={{
@@ -271,7 +383,12 @@ export function GalleryPage() {
                   marginBottom: 12,
                 }}
               >
-                <ImageCard image={img} />
+                <ImageCard
+                  image={img}
+                  focused={focusedIndex === index}
+                  onOpen={() => setDetailImage(img)}
+                  onClick={() => setFocusedIndex(index)}
+                />
               </div>
             ))}
           </div>
@@ -337,6 +454,16 @@ export function GalleryPage() {
           第 {page} / {totalPages} 页
         </span>
       </div>
+
+      {/* Detail Modal */}
+      <DetailModal
+        image={detailImage}
+        onClose={() => setDetailImage(null)}
+        onPrev={handleDetailPrev}
+        onNext={handleDetailNext}
+        onToggleFavorite={toggleFavorite}
+        onSetRating={setRating}
+      />
     </div>
   );
 }

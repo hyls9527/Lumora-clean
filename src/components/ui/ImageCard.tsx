@@ -6,9 +6,11 @@ import { TagBadge } from './TagBadge';
 interface ImageCardProps {
   image: ImageRecord;
   onClick?: () => void;
+  onOpen?: () => void;
+  focused?: boolean;
 }
 
-export function ImageCard({ image, onClick }: ImageCardProps) {
+export function ImageCard({ image, onClick, onOpen, focused }: ImageCardProps) {
   const toggleFavorite = useImageStore((s) => s.toggleFavorite);
   const setRating = useImageStore((s) => s.setRating);
   const softDelete = useTrashStore((s) => s.softDeleteImage);
@@ -16,24 +18,43 @@ export function ImageCard({ image, onClick }: ImageCardProps) {
 
   return (
     <div
+      tabIndex={0}
+      data-image-id={image.id}
       style={{
         borderRadius: '2px',
         cursor: 'pointer',
         background: 'var(--color-surface)',
-        border: '1px solid rgba(139, 115, 75, 0.10)',
+        border: focused
+          ? '2px solid #7a5c12'
+          : '1px solid rgba(139, 115, 75, 0.10)',
         boxShadow:
           'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px',
         overflow: 'hidden',
-        transition: 'box-shadow 200ms ease-out',
+        transition: 'box-shadow 200ms ease-out, border-color 200ms ease-out',
+        outline: 'none',
       }}
-      onClick={onClick}
+      onClick={onClick ?? onOpen}
+      onFocus={(e) => {
+        if (!focused) {
+          e.currentTarget.style.boxShadow =
+            'rgba(139,115,75,0.14) 0px 0px 0px 1px, rgba(78,50,23,0.08) 0px 4px 16px, rgba(78,50,23,0.04) 0px 1px 4px';
+        }
+      }}
+      onBlur={(e) => {
+        if (!focused) {
+          e.currentTarget.style.boxShadow =
+            'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px';
+        }
+      }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.boxShadow =
           'rgba(139,115,75,0.14) 0px 0px 0px 1px, rgba(78,50,23,0.08) 0px 4px 16px, rgba(78,50,23,0.04) 0px 1px 4px';
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow =
-          'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px';
+        if (!focused) {
+          (e.currentTarget as HTMLElement).style.boxShadow =
+            'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px';
+        }
       }}
     >
       {/* Placeholder image area */}
