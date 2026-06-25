@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumora - 回收站</title>
+    <style id="theme-vars">
+:root {
+  --color-background: #faf8f5; --color-surface: #f0ece5; --color-card: #faf8f5;
+  --color-foreground: #4e4238; --color-on-surface: #4e4238; --color-muted-foreground: #877461;
+  --color-primary: #c9922e; --color-primary-hover: #a87425; --color-on-primary: #1a1614;
+  --color-primary-container: #fdf8ef; --color-on-primary-container: #5a3815;
+  --color-accent: #b57540; --color-accent-foreground: #faf8f5;
+  --color-success: #4d6f44; --color-warning: #cc5c15; --color-error: #954242;
+  --color-border: #e2dbd0; --color-outline: #e2dbd0;
+  --radius-sm: 2px; --radius-md: 4px; --radius-lg: 8px; --radius-xl: 12px;
+  --font-display: 'Noto Serif SC', serif; --font-body: 'Noto Sans SC', sans-serif; --font-mono: 'Noto Sans SC', monospace;
+  --legend-neutral-50: #faf8f5; --legend-neutral-100: #f0ece5; --legend-neutral-200: #e2dbd0; --legend-neutral-300: #cfc4b4; --legend-neutral-400: #b5a693; --legend-neutral-500: #9e8d78; --legend-neutral-600: #877461; --legend-neutral-700: #6f5d4e; --legend-neutral-800: #5c4d42; --legend-neutral-900: #4e4238;
+  --legend-primary-50: #fdf8ef; --legend-primary-100: #f9edcf; --legend-primary-200: #f0d89e; --legend-primary-300: #e5bf64; --legend-primary-400: #d9a63e; --legend-primary-500: #c9922e; --legend-primary-600: #a87425; --legend-primary-700: #87571e; --legend-primary-800: #6d4419; --legend-primary-900: #5a3815;
+  --legend-accent-50: #faf5f0; --legend-accent-100: #f0e4d6; --legend-accent-200: #e0c9b0; --legend-accent-300: #cca882; --legend-accent-400: #c08c5a; --legend-accent-500: #b57540; --legend-accent-600: #9a5f33; --legend-accent-700: #7d4c2a; --legend-accent-800: #663e25; --legend-accent-900: #543520;
+  --legend-success-50: #f4f7f2; --legend-success-100: #e5edde; --legend-success-200: #c9d9be; --legend-success-300: #a5be97; --legend-success-400: #82a372; --legend-success-500: #648c58; --legend-success-600: #4d6f44; --legend-success-700: #3b5635; --legend-success-800: #2d432a; --legend-success-900: #243722;
+  --legend-warning-50: #fef7ef; --legend-warning-100: #fde8cf; --legend-warning-200: #facda0; --legend-warning-300: #f6ac6a; --legend-warning-400: #f18e3e; --legend-warning-500: #e87520; --legend-warning-600: #cc5c15; --legend-warning-700: #a84612; --legend-warning-800: #8a3814; --legend-warning-900: #723014;
+  --legend-error-50: #f9f2f2; --legend-error-100: #f0e0e0; --legend-error-200: #e0c0bf; --legend-error-300: #cc9a98; --legend-error-400: #bc7573; --legend-error-500: #ab5553; --legend-error-600: #954242; --legend-error-700: #7c3535; --legend-error-800: #662d2d; --legend-error-900: #552828;
+}
+.card-shadow { box-shadow: 0 1px 2px rgba(78,50,23,0.06), 0 1px 1px rgba(78,50,23,0.04); }
+html.dark { --color-background: #1a1614; --color-surface: #231f1b; --color-card: #2a2520; --color-foreground: #e2dbd0; --color-on-surface: #e2dbd0; --color-muted-foreground: #9e8d78; --color-primary: #d9a63e; --color-primary-hover: #e5bf64; --color-on-primary: #1a1614; --color-primary-container: #2a2520; --color-on-primary-container: #e5bf64; --color-accent: #c08c5a; --color-accent-foreground: #1a1614; --color-success: #82a372; --color-warning: #f18e3e; --color-error: #cc9a98; --color-border: #3d362e; --color-outline: #3d362e; --legend-neutral-50: #1a1614; --legend-neutral-100: #231f1b; --legend-neutral-200: #2a2520; --legend-neutral-300: #3d362e; --legend-neutral-400: #5c4d42; --legend-neutral-500: #877461; --legend-neutral-600: #9e8d78; --legend-neutral-700: #b5a693; --legend-neutral-800: #cfc4b4; --legend-neutral-900: #e2dbd0; --legend-primary-50: #2a2520; --legend-primary-100: #3d362e; --legend-primary-200: #5a3815; --legend-primary-300: #6d4419; --legend-primary-400: #87571e; --legend-primary-500: #a87425; --legend-primary-600: #c9922e; --legend-primary-700: #d9a63e; --legend-primary-800: #e5bf64; --legend-primary-900: #f0d89e; --legend-accent-50: #2a2520; --legend-accent-100: #3d362e; --legend-accent-200: #543520; --legend-accent-300: #663e25; --legend-accent-400: #7d4c2a; --legend-accent-500: #9a5f33; --legend-accent-600: #b57540; --legend-accent-700: #c08c5a; --legend-accent-800: #cca882; --legend-accent-900: #e0c9b0; --legend-success-50: #2a2520; --legend-success-100: #3b5635; --legend-success-200: #4d6f44; --legend-success-300: #648c58; --legend-success-400: #82a372; --legend-success-500: #a5be97; --legend-success-600: #c9d9be; --legend-success-700: #e5edde; --legend-success-800: #f4f7f2; --legend-success-900: #faf8f5; --legend-warning-50: #2a2520; --legend-warning-100: #723014; --legend-warning-200: #8a3814; --legend-warning-300: #a84612; --legend-warning-400: #cc5c15; --legend-warning-500: #e87520; --legend-warning-600: #f18e3e; --legend-warning-700: #f6ac6a; --legend-warning-800: #facda0; --legend-warning-900: #fde8cf; --legend-error-50: #2a2520; --legend-error-100: #552828; --legend-error-200: #662d2d; --legend-error-300: #7c3535; --legend-error-400: #954242; --legend-error-500: #ab5553; --legend-error-600: #cc9a98; --legend-error-700: #e0c0bf; --legend-error-800: #f0e0e0; --legend-error-900: #f9f2f2; }
+html.dark .card-shadow { box-shadow: 0 1px 2px rgba(42,37,32,0.25), 0 1px 1px rgba(42,37,32,0.18); }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @layer base {
+    body { background: var(--color-background); color: var(--color-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+</head>
+<body>
+    <div style="display:flex; min-height:100vh;">
+
+      <!-- Sidebar -->
+      <aside style="width:200px; flex-shrink:0; display:flex; flex-direction:column; background:var(--color-background); border-right:1px solid var(--color-border);" role="navigation" aria-label="主导航">
+        <!-- Logo -->
+        <div style="padding:32px 24px 24px;">
+          <h1 style="font-size:28px; font-weight:700; font-family:var(--font-display); color:var(--color-primary); line-height:1;">L</h1>
+        </div>
+        <!-- Navigation -->
+        <nav style="flex:1; display:flex; flex-direction:column; gap:4px; padding:0 12px;" aria-label="Main navigation">
+          <a href="#" data-dom-id="nav-creator-gallery" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">
+            创作者图库
+          </a>
+          <a href="#" data-dom-id="nav-normal-gallery" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">
+            普通图库
+          </a>
+          <a href="#" data-dom-id="nav-curation" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">
+            策展
+          </a>
+          <a href="#" data-dom-id="nav-dashboard" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">
+            仪表盘
+          </a>
+          <a href="#" data-dom-id="nav-import" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">
+            导入管理
+          </a>
+          <a href="#" data-dom-id="nav-search" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">
+            语义搜索
+          </a>
+          <a href="#" data-dom-id="nav-favorites" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">
+            收藏
+          </a>
+          <a href="#" data-dom-id="nav-prompts" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">
+            提示词库
+          </a>
+          <a href="#" data-dom-id="nav-settings" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">
+            设置
+          </a>
+          <a href="#" data-dom-id="nav-trash" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:700; font-family:var(--font-display); color:var(--color-foreground); border-left:3px solid var(--color-primary); letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;" aria-current="page">
+            回收站
+          </a>
+        </nav>
+        <!-- Theme Toggle -->
+        <div style="padding:0 12px 8px;">
+          <button onclick="document.documentElement.classList.toggle('dark'); document.documentElement.classList.toggle('light'); this.textContent = document.documentElement.classList.contains('dark') ? '切换亮色' : '切换暗色';" style="display:flex; align-items:center; justify-content:center; width:100%; padding:8px 12px; font-size:10px; font-family:var(--font-display); color:var(--color-muted-foreground); background:none; border:1px solid var(--color-border); border-radius:var(--radius-md); cursor:pointer; transition:color 200ms, border-color 200ms;">
+            切换暗色
+          </button>
+        </div>
+        <!-- Bottom: Search -->
+        <div style="padding:0 12px 24px;">
+          <button style="display:flex; align-items:center; justify-content:center; width:100%; padding:10px 12px; font-size:11px; font-family:var(--font-display); color:var(--color-muted-foreground); background:none; border:1px solid var(--color-border); border-radius:var(--radius-md); cursor:pointer; transition:color 200ms, border-color 200ms;" aria-label="搜索">
+            搜索 ⌘K
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <main style="flex:1; overflow-y:auto; display:flex; flex-direction:column;">
+        <div style="width:100%; max-width:960px; margin:0 auto; padding:32px;">
+
+          <!-- Page Header -->
+          <header style="margin-bottom:24px;">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+              <div>
+                <h2 style="font-size:20px; font-weight:600; font-family:var(--font-display); color:var(--color-foreground);">回收站</h2>
+                <p style="margin-top:4px; font-size:12px; font-family:var(--font-body); color:var(--color-muted-foreground);">12 件已删除 · 30 天后自动清理</p>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                <button
+                  style="padding:6px 14px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border:1px solid var(--color-border); border-radius:var(--radius-md); background:transparent; cursor:pointer; transition:all 200ms;"
+                  onmouseover="this.style.borderColor='var(--legend-neutral-300)'; this.style.color='var(--color-foreground)'"
+                  onmouseout="this.style.borderColor='var(--color-border)'; this.style.color='var(--color-muted-foreground)'"
+                  aria-label="清空回收站"
+                >
+                  清空回收站
+                </button>
+                <button
+                  onclick="toggleBatchMode()"
+                  style="padding:6px 14px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border:1px solid var(--color-border); border-radius:var(--radius-md); background:transparent; cursor:pointer; transition:all 200ms;"
+                  onmouseover="this.style.borderColor='var(--legend-neutral-300)'; this.style.color='var(--color-foreground)'"
+                  onmouseout="this.style.borderColor='var(--color-border)'; this.style.color='var(--color-muted-foreground)'"
+                  aria-label="批量操作"
+                >
+                  批量操作
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <!-- Info Banner -->
+          <div class="info-banner" style="margin-bottom:24px;">
+            已删除的作品将在 30 天后自动永久删除。你可以随时恢复它们。
+          </div>
+
+          <!-- Batch Operation Bar (hidden by default) -->
+          <div id="batch-bar" class="batch-bar" style="margin-bottom:16px;">
+            <label>
+              <input type="checkbox" id="select-all" onchange="toggleSelectAll(this.checked)">
+              全选
+            </label>
+            <span class="count" id="batch-count">已选 0 张</span>
+            <div style="flex:1;"></div>
+            <button class="btn-batch btn-batch-restore" aria-label="批量恢复">批量恢复</button>
+            <button class="btn-batch btn-batch-delete" aria-label="批量永久删除">批量永久删除</button>
+            <button class="btn-cancel" onclick="toggleBatchMode()">取消</button>
+          </div>
+
+          <!-- Deleted Items List -->
+          <section id="trash-list" style="display:flex; flex-direction:column; gap:8px;" aria-label="已删除作品列表">
+
+            <!-- Item 1: 幻想浮岛 v1 -->
+            <div class="trash-row" data-id="1">
+              <input type="checkbox" class="row-checkbox" aria-label="选择 幻想浮岛 v1">
+              <img class="thumb" src="../assets/ai-fantasy-01.jpg" alt="幻想浮岛 v1 缩略图">
+              <div class="meta">
+                <div class="meta-title">幻想浮岛 v1</div>
+                <div class="meta-detail">
+                  SDXL 1.0 · 删除于 3天前
+                  <span class="days">剩余 27天</span>
+                </div>
+              </div>
+              <div class="actions">
+                <button class="btn-restore" onclick="restoreItem(this)" aria-label="恢复 幻想浮岛 v1">恢复</button>
+                <button class="btn-delete-perm" onclick="deletePermanently(this)" aria-label="永久删除 幻想浮岛 v1">永久删除</button>
+              </div>
+            </div>
+
+            <!-- Item 2: 赛博艺伎 (draft) -->
+            <div class="trash-row" data-id="2">
+              <input type="checkbox" class="row-checkbox" aria-label="选择 赛博艺伎 (draft)">
+              <img class="thumb" src="../assets/ai-character-01.jpg" alt="赛博艺伎 (draft) 缩略图">
+              <div class="meta">
+                <div class="meta-title">赛博艺伎 (draft)</div>
+                <div class="meta-detail">
+                  Flux.1 · 删除于 7天前
+                  <span class="days">剩余 23天</span>
+                </div>
+              </div>
+              <div class="actions">
+                <button class="btn-restore" onclick="restoreItem(this)" aria-label="恢复 赛博艺伎 (draft)">恢复</button>
+                <button class="btn-delete-perm" onclick="deletePermanently(this)" aria-label="永久删除 赛博艺伎 (draft)">永久删除</button>
+              </div>
+            </div>
+
+            <!-- Item 3: 废弃构图 -->
+            <div class="trash-row" data-id="3">
+              <input type="checkbox" class="row-checkbox" aria-label="选择 废弃构图">
+              <img class="thumb" src="../assets/ai-landscape-01.jpg" alt="废弃构图 缩略图">
+              <div class="meta">
+                <div class="meta-title">废弃构图</div>
+                <div class="meta-detail">
+                  Midjourney v6 · 删除于 15天前
+                  <span class="days">剩余 15天</span>
+                </div>
+              </div>
+              <div class="actions">
+                <button class="btn-restore" onclick="restoreItem(this)" aria-label="恢复 废弃构图">恢复</button>
+                <button class="btn-delete-perm" onclick="deletePermanently(this)" aria-label="永久删除 废弃构图">永久删除</button>
+              </div>
+            </div>
+
+            <!-- Item 4: 测试输出 #47 (urgent) -->
+            <div class="trash-row" data-id="4">
+              <input type="checkbox" class="row-checkbox" aria-label="选择 测试输出 #47">
+              <img class="thumb" src="../assets/ai-abstract-01.jpg" alt="测试输出 #47 缩略图">
+              <div class="meta">
+                <div class="meta-title">测试输出 #47</div>
+                <div class="meta-detail">
+                  ComfyUI · 删除于 28天前
+                  <span class="days urgent">剩余 2天</span>
+                </div>
+              </div>
+              <div class="actions">
+                <button class="btn-restore" onclick="restoreItem(this)" aria-label="恢复 测试输出 #47">恢复</button>
+                <button class="btn-delete-perm" onclick="deletePermanently(this)" aria-label="永久删除 测试输出 #47">永久删除</button>
+              </div>
+            </div>
+
+          </section>
+
+          <!-- Empty State (hidden by default) -->
+          <section id="empty-trash" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:80px 0;" aria-label="回收站为空">
+            <div style="font-family:var(--font-display); font-size:48px; color:var(--legend-neutral-300); line-height:1;">&#9670;</div>
+            <h3 style="margin-top:24px; font-size:16px; font-weight:400; font-family:var(--font-display); color:var(--color-muted-foreground);">回收站为空</h3>
+            <p style="margin-top:8px; text-align:center; max-width:280px; font-size:13px; line-height:1.6; font-family:var(--font-body); color:var(--legend-neutral-300);">没有已删除的作品</p>
+            <button
+              disabled
+              style="margin-top:20px; padding:8px 20px; font-size:12px; font-family:var(--font-display); color:var(--legend-neutral-400); background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); cursor:not-allowed; opacity:0.6;"
+              aria-label="清空回收站"
+            >
+              清空回收站
+            </button>
+          </section>
+
+        </div>
+      </main>
+
+    </div>
+    <script>
+      let batchMode = false;
+
+      function toggleBatchMode() {
+        batchMode = !batchMode;
+        const bar = document.getElementById('batch-bar');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        if (batchMode) {
+          bar.style.display = 'flex';
+          checkboxes.forEach(function(cb) { cb.classList.add('visible'); });
+        } else {
+          bar.style.display = 'none';
+          checkboxes.forEach(function(cb) { cb.classList.remove('visible'); cb.checked = false; });
+          document.getElementById('select-all').checked = false;
+          updateBatchCount();
+        }
+      }
+
+      function toggleSelectAll(checked) {
+        var checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(function(cb) { cb.checked = checked; });
+        updateBatchCount();
+      }
+
+      function updateBatchCount() {
+        var checked = document.querySelectorAll('.row-checkbox:checked').length;
+        document.getElementById('batch-count').textContent = '已选 ' + checked + ' 张';
+      }
+
+      document.querySelectorAll('.row-checkbox').forEach(function(cb) {
+        cb.addEventListener('change', updateBatchCount);
+      });
+
+      function restoreItem(btn) {
+        var row = btn.closest('.trash-row');
+        row.style.opacity = '0';
+        row.style.transform = 'translateX(20px)';
+        row.style.transition = 'opacity 200ms, transform 200ms';
+        setTimeout(function() {
+          row.remove();
+          checkEmpty();
+        }, 200);
+      }
+
+      function deletePermanently(btn) {
+        var row = btn.closest('.trash-row');
+        row.style.opacity = '0';
+        row.style.transform = 'translateX(-20px)';
+        row.style.transition = 'opacity 200ms, transform 200ms';
+        setTimeout(function() {
+          row.remove();
+          checkEmpty();
+        }, 200);
+      }
+
+      function checkEmpty() {
+        var list = document.getElementById('trash-list');
+        var empty = document.getElementById('empty-trash');
+        if (list.children.length === 0) {
+          list.style.display = 'none';
+          empty.style.display = 'flex';
+        }
+      }
+    </script>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] { display: inline-flex; align-items: center; justify-content: center; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; background-color: currentColor; }
+      .trash-row { display: flex; align-items: center; gap: 16px; padding: 14px 20px; background: var(--color-card); border: 1px solid var(--color-border); border-radius: var(--radius-sm); transition: background 200ms, border-color 200ms; }
+      .trash-row:hover { background: var(--color-surface); border-color: var(--legend-neutral-300); }
+      .trash-row .thumb { width: 60px; height: 60px; object-fit: cover; border-radius: var(--radius-sm); flex-shrink: 0; }
+      .trash-row .meta { flex: 1; min-width: 0; }
+      .trash-row .meta-title { font-size: 13px; font-family: var(--font-display); color: var(--color-foreground); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .trash-row .meta-detail { font-size: 11px; font-family: var(--font-body); color: var(--color-muted-foreground); margin-top: 3px; }
+      .trash-row .meta-detail .days { margin-left: 8px; }
+      .trash-row .meta-detail .days.urgent { color: var(--color-warning); font-weight: 500; }
+      .trash-row .actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+      .btn-restore { padding: 5px 14px; font-size: 11px; font-family: var(--font-display); color: var(--color-success); background: transparent; border: 1px solid var(--color-success); border-radius: var(--radius-md); cursor: pointer; transition: all 200ms; }
+      .btn-restore:hover { background: var(--color-success); color: var(--legend-neutral-50); }
+      .btn-delete-perm { padding: 5px 14px; font-size: 11px; font-family: var(--font-display); color: var(--color-error); background: transparent; border: none; cursor: pointer; transition: color 200ms; }
+      .btn-delete-perm:hover { color: var(--legend-error-400); }
+      .info-banner { background: var(--color-primary-container); border: 1px solid var(--legend-primary-200); padding: 10px 20px; font-size: 12px; color: var(--color-on-primary-container); border-radius: var(--radius-md); font-family: var(--font-body); line-height: 1.6; }
+      .batch-bar { display: none; padding: 10px 32px; background: var(--color-surface); border-bottom: 1px solid var(--color-border); align-items: center; gap: 12px; }
+      .batch-bar label { display: flex; align-items: center; gap: 6px; font-size: 11px; font-family: var(--font-display); color: var(--color-foreground); cursor: pointer; }
+      .batch-bar label input[type="checkbox"] { accent-color: var(--color-primary); width: 14px; height: 14px; }
+      .batch-bar .count { font-size: 11px; color: var(--color-muted-foreground); }
+      .batch-bar .btn-batch { font-size: 11px; font-family: var(--font-display); background: none; border: 1px solid var(--color-border); padding: 4px 12px; border-radius: var(--radius-md); cursor: pointer; transition: color 200ms, border-color 200ms; }
+      .batch-bar .btn-batch-restore { color: var(--color-success); border-color: var(--color-success); }
+      .batch-bar .btn-batch-restore:hover { background: var(--color-success); color: var(--legend-neutral-50); }
+      .batch-bar .btn-batch-delete { color: var(--color-error); border-color: var(--color-error); }
+      .batch-bar .btn-batch-delete:hover { background: var(--color-error); color: var(--legend-neutral-50); }
+      .batch-bar .btn-cancel { font-size: 11px; font-family: var(--font-display); color: var(--color-muted-foreground); background: none; border: none; padding: 4px 12px; cursor: pointer; transition: color 200ms; text-decoration: underline; text-underline-offset: 2px; }
+      .trash-row .row-checkbox { accent-color: var(--color-primary); width: 14px; height: 14px; flex-shrink: 0; cursor: pointer; display: none; }
+      .trash-row .row-checkbox.visible { display: block; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+    </style>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

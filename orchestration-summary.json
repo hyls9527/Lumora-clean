@@ -1,0 +1,173 @@
+{
+  "project": {
+    "name": "Lumora 二级页面",
+    "operation": "create",
+    "operationMode": "library-bound",
+    "deviceType": "desktop",
+    "designRead": "image management app / creative professionals / warm scholarly / information-dense / avoid cold tech",
+    "designDials": {
+      "layoutVariance": 3,
+      "motionIntensity": 1,
+      "visualDensity": 3
+    },
+    "generationTree": {
+      "nodeId": "gen-project-shell",
+      "kind": "project-shell",
+      "pageIds": [],
+      "output": "partials/project-shell.html",
+      "sharedRegions": ["sidebar-nav", "app-frame", "brand-css"],
+      "privateRegions": [],
+      "mutableSlots": ["activeNavItem", "pageTitle", "pageContent"],
+      "status": "planned",
+      "children": [
+        {
+          "nodeId": "gen-page-curation",
+          "kind": "page-leaf",
+          "pageIds": ["page-curation"],
+          "output": "pages/curation.html",
+          "sharedRegions": [],
+          "privateRegions": ["curation-main"],
+          "mutableSlots": [],
+          "status": "planned",
+          "children": []
+        },
+        {
+          "nodeId": "gen-page-dashboard",
+          "kind": "page-leaf",
+          "pageIds": ["page-dashboard"],
+          "output": "pages/dashboard.html",
+          "sharedRegions": [],
+          "privateRegions": ["dashboard-main"],
+          "mutableSlots": [],
+          "status": "planned",
+          "children": []
+        },
+        {
+          "nodeId": "gen-page-settings",
+          "kind": "page-leaf",
+          "pageIds": ["page-settings"],
+          "output": "pages/settings.html",
+          "sharedRegions": [],
+          "privateRegions": ["settings-main"],
+          "mutableSlots": [],
+          "status": "planned",
+          "children": []
+        },
+        {
+          "nodeId": "gen-page-trash",
+          "kind": "page-leaf",
+          "pageIds": ["page-trash"],
+          "output": "pages/trash.html",
+          "sharedRegions": [],
+          "privateRegions": ["trash-main"],
+          "mutableSlots": [],
+          "status": "planned",
+          "children": []
+        }
+      ]
+    }
+  },
+  "designSource": {
+    "operatingMode": "library-bound",
+    "libraryIdentity": {
+      "name": "legend",
+      "id": "NWA0FDCHAQUFN_",
+      "version": "1",
+      "scope": "built-in-global",
+      "path": "c:\\Users\\Admin\\.trae-cn\\design_libraries\\NWA0FDCHAQUFN_",
+      "versionSource": "metadata.json"
+    },
+    "brandPrefix": "legend",
+    "cssPath": "c:\\Users\\Admin\\.trae-cn\\design_libraries\\NWA0FDCHAQUFN_\\css\\colors_and_type.css"
+  },
+  "pages": [
+    {
+      "nodeId": "page-curation",
+      "title": "策展",
+      "htmlSrc": "pages/curation.html",
+      "pageIndex": 1,
+      "pageType": "task-driven",
+      "visualNorthStar": "Tinder-style image review with scholarly restraint — centered image, three decision buttons, progress counter",
+      "continuityAnchors": {
+        "sidebar": "200px left sidebar with serif nav labels, gold active indicator",
+        "surface": "warm cream #faf8f5 background, #f0ece5 surface cards",
+        "typography": "Noto Serif SC headings, Noto Sans SC body",
+        "radius": "2px cards, 4px buttons",
+        "shadow": "warm brown rgba(78,50,23,...) card shadows",
+        "transition": "200ms ease-out"
+      },
+      "imagePlan": [],
+      "chartsRequired": false
+    },
+    {
+      "nodeId": "page-dashboard",
+      "title": "仪表盘",
+      "htmlSrc": "pages/dashboard.html",
+      "pageIndex": 2,
+      "pageType": "information-dense",
+      "visualNorthStar": "Scholarly catalog layout — dotted-line directory stats, rating distribution bars, format breakdown, top tags",
+      "continuityAnchors": {
+        "sidebar": "200px left sidebar with serif nav labels, gold active indicator",
+        "surface": "warm cream #faf8f5 background, #f0ece5 surface cards",
+        "typography": "Noto Serif SC headings, Noto Sans SC body",
+        "radius": "2px cards, 4px buttons",
+        "shadow": "warm brown rgba(78,50,23,...) card shadows",
+        "transition": "200ms ease-out"
+      },
+      "imagePlan": [],
+      "chartsRequired": false
+    },
+    {
+      "nodeId": "page-settings",
+      "title": "设置",
+      "htmlSrc": "pages/settings.html",
+      "pageIndex": 3,
+      "pageType": "information-dense",
+      "visualNorthStar": "Clean settings panel with tab navigation, card sections, keyboard shortcut reference",
+      "continuityAnchors": {
+        "sidebar": "200px left sidebar with serif nav labels, gold active indicator",
+        "surface": "warm cream #faf8f5 background, #f0ece5 surface cards",
+        "typography": "Noto Serif SC headings, Noto Sans SC body",
+        "radius": "2px cards, 4px buttons",
+        "shadow": "warm brown rgba(78,50,23,...) card shadows",
+        "transition": "200ms ease-out"
+      },
+      "imagePlan": [],
+      "chartsRequired": false
+    },
+    {
+      "nodeId": "page-trash",
+      "title": "回收站",
+      "htmlSrc": "pages/trash.html",
+      "pageIndex": 4,
+      "pageType": "information-dense",
+      "visualNorthStar": "Minimal empty state page with centered placeholder and subtle call-to-action",
+      "continuityAnchors": {
+        "sidebar": "200px left sidebar with serif nav labels, gold active indicator",
+        "surface": "warm cream #faf8f5 background, #f0ece5 surface cards",
+        "typography": "Noto Serif SC headings, Noto Sans SC body",
+        "radius": "2px cards, 4px buttons",
+        "shadow": "warm brown rgba(78,50,23,...) card shadows",
+        "transition": "200ms ease-out"
+      },
+      "imagePlan": [],
+      "chartsRequired": false
+    }
+  ],
+  "assets": [],
+  "wiringPlan": [
+    { "source": "page-curation", "domId": "nav-dashboard", "target": "page-dashboard", "hideEdge": true },
+    { "source": "page-curation", "domId": "nav-settings", "target": "page-settings", "hideEdge": true },
+    { "source": "page-curation", "domId": "nav-trash", "target": "page-trash", "hideEdge": true },
+    { "source": "page-dashboard", "domId": "nav-curation", "target": "page-curation", "hideEdge": true },
+    { "source": "page-dashboard", "domId": "nav-settings", "target": "page-settings", "hideEdge": true },
+    { "source": "page-dashboard", "domId": "nav-trash", "target": "page-trash", "hideEdge": true },
+    { "source": "page-settings", "domId": "nav-curation", "target": "page-curation", "hideEdge": true },
+    { "source": "page-settings", "domId": "nav-dashboard", "target": "page-dashboard", "hideEdge": true },
+    { "source": "page-settings", "domId": "nav-trash", "target": "page-trash", "hideEdge": true },
+    { "source": "page-trash", "domId": "nav-curation", "target": "page-curation", "hideEdge": true },
+    { "source": "page-trash", "domId": "nav-dashboard", "target": "page-dashboard", "hideEdge": true },
+    { "source": "page-trash", "domId": "nav-settings", "target": "page-settings", "hideEdge": true }
+  ],
+  "hiddenInteractionPlan": []
+}

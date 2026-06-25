@@ -1,0 +1,775 @@
+{
+  "data": [
+    {
+      "id": "page-gallery",
+      "title": "创作者图库",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 620,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/gallery.html",
+        "interactions": [
+          {
+            "domId": "nav-creator-gallery",
+            "targetPageId": "page-gallery"
+          },
+          {
+            "domId": "nav-normal-gallery",
+            "targetPageId": "page-normal-gallery"
+          },
+          {
+            "domId": "nav-curation",
+            "targetPageId": "page-curation"
+          },
+          {
+            "domId": "nav-dashboard",
+            "targetPageId": "page-dashboard"
+          },
+          {
+            "domId": "nav-import",
+            "targetPageId": "page-import"
+          },
+          {
+            "domId": "nav-search",
+            "targetPageId": "page-search"
+          },
+          {
+            "domId": "nav-favorites",
+            "targetPageId": "page-favorites"
+          },
+          {
+            "domId": "nav-prompts",
+            "targetPageId": "page-prompts"
+          },
+          {
+            "domId": "nav-settings",
+            "targetPageId": "page-settings"
+          },
+          {
+            "domId": "nav-trash",
+            "targetPageId": "page-trash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-normal-gallery",
+      "title": "普通图库",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 620,
+        "y": 377,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/normal-gallery.html",
+        "interactions": [
+          {
+            "domId": "nav-creator-gallery",
+            "targetPageId": "page-gallery"
+          },
+          {
+            "domId": "nav-normal-gallery",
+            "targetPageId": "page-normal-gallery"
+          },
+          {
+            "domId": "nav-curation",
+            "targetPageId": "page-curation"
+          },
+          {
+            "domId": "nav-dashboard",
+            "targetPageId": "page-dashboard"
+          },
+          {
+            "domId": "nav-import",
+            "targetPageId": "page-import"
+          },
+          {
+            "domId": "nav-search",
+            "targetPageId": "page-search"
+          },
+          {
+            "domId": "nav-favorites",
+            "targetPageId": "page-favorites"
+          },
+          {
+            "domId": "nav-prompts",
+            "targetPageId": "page-prompts"
+          },
+          {
+            "domId": "nav-settings",
+            "targetPageId": "page-settings"
+          },
+          {
+            "domId": "nav-trash",
+            "targetPageId": "page-trash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-curation",
+      "title": "策展",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 620,
+        "y": 754,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/curation.html",
+        "interactions": [
+          {
+            "domId": "nav-creator-gallery",
+            "targetPageId": "page-gallery"
+          },
+          {
+            "domId": "nav-normal-gallery",
+            "targetPageId": "page-normal-gallery"
+          },
+          {
+            "domId": "nav-curation",
+            "targetPageId": "page-curation"
+          },
+          {
+            "domId": "nav-dashboard",
+            "targetPageId": "page-dashboard"
+          },
+          {
+            "domId": "nav-import",
+            "targetPageId": "page-import"
+          },
+          {
+            "domId": "nav-search",
+            "targetPageId": "page-search"
+          },
+          {
+            "domId": "nav-favorites",
+            "targetPageId": "page-favorites"
+          },
+          {
+            "domId": "nav-prompts",
+            "targetPageId": "page-prompts"
+          },
+          {
+            "domId": "nav-settings",
+            "targetPageId": "page-settings"
+          },
+          {
+            "domId": "nav-trash",
+            "targetPageId": "page-trash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-dashboard",
+      "title": "仪表盘",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 620,
+        "y": 1131,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/dashboard.html",
+        "interactions": [
+          {
+            "domId": "nav-creator-gallery",
+            "targetPageId": "page-gallery"
+          },
+          {
+            "domId": "nav-normal-gallery",
+            "targetPageId": "page-normal-gallery"
+          },
+          {
+            "domId": "nav-curation",
+            "targetPageId": "page-curation"
+          },
+          {
+            "domId": "nav-dashboard",
+            "targetPageId": "page-dashboard"
+          },
+          {
+            "domId": "nav-import",
+            "targetPageId": "page-import"
+          },
+          {
+            "domId": "nav-search",
+            "targetPageId": "page-search"
+          },
+          {
+            "domId": "nav-favorites",
+            "targetPageId": "page-favorites"
+          },
+          {
+            "domId": "nav-prompts",
+            "targetPageId": "page-prompts"
+          },
+          {
+            "domId": "nav-settings",
+            "targetPageId": "page-settings"
+          },
+          {
+            "domId": "nav-trash",
+            "targetPageId": "page-trash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-import",
+      "title": "导入管理",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 620,
+        "y": 1720,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/import.html",
+        "interactions": [
+          {
+            "domId": "nav-creator-gallery",
+            "targetPageId": "page-gallery"
+          },
+          {
+            "domId": "nav-normal-gallery",
+            "targetPageId": "page-normal-gallery"
+          },
+          {
+            "domId": "nav-curation",
+            "targetPageId": "page-curation"
+          },
+          {
+            "domId": "nav-dashboard",
+            "targetPageId": "page-dashboard"
+          },
+          {
+            "domId": "nav-import",
+            "targetPageId": "page-import"
+          },
+          {
+            "domId": "nav-search",
+            "targetPageId": "page-search"
+          },
+          {
+            "domId": "nav-favorites",
+            "targetPageId": "page-favorites"
+          },
+          {
+            "domId": "nav-prompts",
+            "targetPageId": "page-prompts"
+          },
+          {
+            "domId": "nav-settings",
+            "targetPageId": "page-settings"
+          },
+          {
+            "domId": "nav-trash",
+            "targetPageId": "page-trash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-search",
+      "title": "语义搜索",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 620,
+        "y": 2097,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/search.html",
+        "interactions": [
+          {
+            "domId": "nav-creator-gallery",
+            "targetPageId": "page-gallery"
+          },
+          {
+            "domId": "nav-normal-gallery",
+            "targetPageId": "page-normal-gallery"
+          },
+          {
+            "domId": "nav-curation",
+            "targetPageId": "page-curation"
+          },
+          {
+            "domId": "nav-dashboard",
+            "targetPageId": "page-dashboard"
+          },
+          {
+            "domId": "nav-import",
+            "targetPageId": "page-import"
+          },
+          {
+            "domId": "nav-search",
+            "targetPageId": "page-search"
+          },
+          {
+            "domId": "nav-favorites",
+            "targetPageId": "page-favorites"
+          },
+          {
+            "domId": "nav-prompts",
+            "targetPageId": "page-prompts"
+          },
+          {
+            "domId": "nav-settings",
+            "targetPageId": "page-settings"
+          },
+          {
+            "domId": "nav-trash",
+            "targetPageId": "page-trash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-favorites",
+      "title": "收藏",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 620,
+        "y": 2585,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/favorites.html",
+        "interactions": [
+          {
+            "domId": "nav-creator-gallery",
+            "targetPageId": "page-gallery"
+          },
+          {
+            "domId": "nav-normal-gallery",
+            "targetPageId": "page-normal-gallery"
+          },
+          {
+            "domId": "nav-curation",
+            "targetPageId": "page-curation"
+          },
+          {
+            "domId": "nav-dashboard",
+            "targetPageId": "page-dashboard"
+          },
+          {
+            "domId": "nav-import",
+            "targetPageId": "page-import"
+          },
+          {
+            "domId": "nav-search",
+            "targetPageId": "page-search"
+          },
+          {
+            "domId": "nav-favorites",
+            "targetPageId": "page-favorites"
+          },
+          {
+            "domId": "nav-prompts",
+            "targetPageId": "page-prompts"
+          },
+          {
+            "domId": "nav-settings",
+            "targetPageId": "page-settings"
+          },
+          {
+            "domId": "nav-trash",
+            "targetPageId": "page-trash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-prompts",
+      "title": "提示词库",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 620,
+        "y": 3010,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/prompts.html",
+        "interactions": [
+          {
+            "domId": "nav-creator-gallery",
+            "targetPageId": "page-gallery"
+          },
+          {
+            "domId": "nav-normal-gallery",
+            "targetPageId": "page-normal-gallery"
+          },
+          {
+            "domId": "nav-curation",
+            "targetPageId": "page-curation"
+          },
+          {
+            "domId": "nav-dashboard",
+            "targetPageId": "page-dashboard"
+          },
+          {
+            "domId": "nav-import",
+            "targetPageId": "page-import"
+          },
+          {
+            "domId": "nav-search",
+            "targetPageId": "page-search"
+          },
+          {
+            "domId": "nav-favorites",
+            "targetPageId": "page-favorites"
+          },
+          {
+            "domId": "nav-prompts",
+            "targetPageId": "page-prompts"
+          },
+          {
+            "domId": "nav-settings",
+            "targetPageId": "page-settings"
+          },
+          {
+            "domId": "nav-trash",
+            "targetPageId": "page-trash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-settings",
+      "title": "设置",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 620,
+        "y": 3387,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/settings.html",
+        "interactions": [
+          {
+            "domId": "nav-creator-gallery",
+            "targetPageId": "page-gallery"
+          },
+          {
+            "domId": "nav-normal-gallery",
+            "targetPageId": "page-normal-gallery"
+          },
+          {
+            "domId": "nav-curation",
+            "targetPageId": "page-curation"
+          },
+          {
+            "domId": "nav-dashboard",
+            "targetPageId": "page-dashboard"
+          },
+          {
+            "domId": "nav-import",
+            "targetPageId": "page-import"
+          },
+          {
+            "domId": "nav-search",
+            "targetPageId": "page-search"
+          },
+          {
+            "domId": "nav-favorites",
+            "targetPageId": "page-favorites"
+          },
+          {
+            "domId": "nav-prompts",
+            "targetPageId": "page-prompts"
+          },
+          {
+            "domId": "nav-settings",
+            "targetPageId": "page-settings"
+          },
+          {
+            "domId": "nav-trash",
+            "targetPageId": "page-trash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-trash",
+      "title": "回收站",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 620,
+        "y": 3764,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/trash.html",
+        "interactions": [
+          {
+            "domId": "nav-creator-gallery",
+            "targetPageId": "page-gallery"
+          },
+          {
+            "domId": "nav-normal-gallery",
+            "targetPageId": "page-normal-gallery"
+          },
+          {
+            "domId": "nav-curation",
+            "targetPageId": "page-curation"
+          },
+          {
+            "domId": "nav-dashboard",
+            "targetPageId": "page-dashboard"
+          },
+          {
+            "domId": "nav-import",
+            "targetPageId": "page-import"
+          },
+          {
+            "domId": "nav-search",
+            "targetPageId": "page-search"
+          },
+          {
+            "domId": "nav-favorites",
+            "targetPageId": "page-favorites"
+          },
+          {
+            "domId": "nav-prompts",
+            "targetPageId": "page-prompts"
+          },
+          {
+            "domId": "nav-settings",
+            "targetPageId": "page-settings"
+          },
+          {
+            "domId": "nav-trash",
+            "targetPageId": "page-trash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-artwork-detail",
+      "title": "作品详情",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 0,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/artwork-detail.html",
+        "interactions": [
+          {
+            "domId": "nav-creator-gallery",
+            "targetPageId": "page-gallery"
+          },
+          {
+            "domId": "nav-normal-gallery",
+            "targetPageId": "page-normal-gallery"
+          },
+          {
+            "domId": "nav-curation",
+            "targetPageId": "page-curation"
+          },
+          {
+            "domId": "nav-dashboard",
+            "targetPageId": "page-dashboard"
+          },
+          {
+            "domId": "nav-import",
+            "targetPageId": "page-import"
+          },
+          {
+            "domId": "nav-search",
+            "targetPageId": "page-search"
+          },
+          {
+            "domId": "nav-favorites",
+            "targetPageId": "page-favorites"
+          },
+          {
+            "domId": "nav-prompts",
+            "targetPageId": "page-prompts"
+          },
+          {
+            "domId": "nav-settings",
+            "targetPageId": "page-settings"
+          },
+          {
+            "domId": "nav-trash",
+            "targetPageId": "page-trash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "image-001",
+      "title": "AI 幻想浮岛",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 0,
+        "y": 4141
+      },
+      "devMetadata": {
+        "imageSrc": "assets/ai-fantasy-01.jpg"
+      }
+    },
+    {
+      "id": "image-002",
+      "title": "AI 赛博艺伎",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 620,
+        "y": 4141
+      },
+      "devMetadata": {
+        "imageSrc": "assets/ai-character-01.jpg"
+      }
+    },
+    {
+      "id": "image-003",
+      "title": "AI 超现实沙漠",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 1240,
+        "y": 4141
+      },
+      "devMetadata": {
+        "imageSrc": "assets/ai-landscape-01.jpg"
+      }
+    },
+    {
+      "id": "image-004",
+      "title": "AI 流体抽象",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 1860,
+        "y": 4141
+      },
+      "devMetadata": {
+        "imageSrc": "assets/ai-abstract-01.jpg"
+      }
+    },
+    {
+      "id": "image-005",
+      "title": "AI 太阳庞克城市",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 2480,
+        "y": 4141
+      },
+      "devMetadata": {
+        "imageSrc": "assets/ai-architecture-01.jpg"
+      }
+    },
+    {
+      "id": "image-006",
+      "title": "AI 暗黑图书馆",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 3100,
+        "y": 4141
+      },
+      "devMetadata": {
+        "imageSrc": "assets/ai-dark-01.jpg"
+      }
+    },
+    {
+      "id": "image-007",
+      "title": "日落海景",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 3720,
+        "y": 4141
+      },
+      "devMetadata": {
+        "imageSrc": "assets/photo-sunset-01.jpg"
+      }
+    },
+    {
+      "id": "image-008",
+      "title": "窗台猫咪",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 4340,
+        "y": 4141
+      },
+      "devMetadata": {
+        "imageSrc": "assets/photo-cat-01.jpg"
+      }
+    },
+    {
+      "id": "image-009",
+      "title": "咖啡时光",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1750824000000,
+      "canvasData": {
+        "x": 4960,
+        "y": 4141
+      },
+      "devMetadata": {
+        "imageSrc": "assets/photo-cafe-01.jpg"
+      }
+    }
+  ],
+  "config": {
+    "autoLayout": true,
+    "deviceType": "desktop",
+    "projectName": "Lumora - AI 作品管理",
+    "designLibrary": {
+      "name": "legend",
+      "id": "NWA0FDCHAQUFN_",
+      "version": "1",
+      "scope": "built-in-global",
+      "path": "c:\\Users\\Admin\\.trae-cn\\design_libraries\\NWA0FDCHAQUFN_",
+      "versionSource": "metadata.json"
+    },
+    "showEdge": false,
+    "windowSize": {
+      "width": 800,
+      "height": 600
+    }
+  }
+}

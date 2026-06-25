@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumora - 仪表盘</title>
+    <style id="theme-vars">
+:root {
+  --color-background: #faf8f5; --color-surface: #f0ece5; --color-card: #faf8f5;
+  --color-foreground: #4e4238; --color-on-surface: #4e4238; --color-muted-foreground: #877461;
+  --color-primary: #c9922e; --color-primary-hover: #a87425; --color-on-primary: #1a1614;
+  --color-primary-container: #fdf8ef; --color-on-primary-container: #5a3815;
+  --color-accent: #b57540; --color-accent-foreground: #faf8f5;
+  --color-success: #4d6f44; --color-warning: #cc5c15; --color-error: #954242;
+  --color-border: #e2dbd0; --color-outline: #e2dbd0;
+  --radius-sm: 2px; --radius-md: 4px; --radius-lg: 8px; --radius-xl: 12px;
+  --font-display: 'Noto Serif SC', serif; --font-body: 'Noto Sans SC', sans-serif; --font-mono: 'Noto Sans SC', monospace;
+  --legend-neutral-50: #faf8f5; --legend-neutral-100: #f0ece5; --legend-neutral-200: #e2dbd0; --legend-neutral-300: #cfc4b4; --legend-neutral-400: #b5a693; --legend-neutral-500: #9e8d78; --legend-neutral-600: #877461; --legend-neutral-700: #6f5d4e; --legend-neutral-800: #5c4d42; --legend-neutral-900: #4e4238;
+  --legend-primary-50: #fdf8ef; --legend-primary-100: #f9edcf; --legend-primary-200: #f0d89e; --legend-primary-300: #e5bf64; --legend-primary-400: #d9a63e; --legend-primary-500: #c9922e; --legend-primary-600: #a87425; --legend-primary-700: #87571e; --legend-primary-800: #6d4419; --legend-primary-900: #5a3815;
+  --legend-accent-50: #faf5f0; --legend-accent-100: #f0e4d6; --legend-accent-200: #e0c9b0; --legend-accent-300: #cca882; --legend-accent-400: #c08c5a; --legend-accent-500: #b57540; --legend-accent-600: #9a5f33;
+  --legend-success-600: #4d6f44; --legend-warning-600: #cc5c15; --legend-error-600: #954242;
+}
+.card-shadow { box-shadow: 0 1px 2px rgba(78,50,23,0.06), 0 1px 1px rgba(78,50,23,0.04); }
+html.dark { --color-background: #1a1614; --color-surface: #231f1b; --color-card: #2a2520; --color-foreground: #e2dbd0; --color-on-surface: #e2dbd0; --color-muted-foreground: #9e8d78; --color-primary: #d9a63e; --color-primary-hover: #e5bf64; --color-on-primary: #1a1614; --color-primary-container: #2a2520; --color-on-primary-container: #e5bf64; --color-accent: #c08c5a; --color-accent-foreground: #1a1614; --color-success: #82a372; --color-warning: #f18e3e; --color-error: #cc9a98; --color-border: #3d362e; --color-outline: #3d362e; --legend-neutral-50: #1a1614; --legend-neutral-100: #231f1b; --legend-neutral-200: #2a2520; --legend-neutral-300: #3d362e; --legend-neutral-400: #5c4d42; --legend-neutral-500: #877461; --legend-neutral-600: #9e8d78; --legend-neutral-700: #b5a693; --legend-neutral-800: #cfc4b4; --legend-neutral-900: #e2dbd0; --legend-primary-50: #2a2520; --legend-primary-100: #3d362e; --legend-primary-200: #5a3815; --legend-primary-300: #6d4419; --legend-primary-400: #87571e; --legend-primary-500: #a87425; --legend-primary-600: #c9922e; --legend-primary-700: #d9a63e; --legend-primary-800: #e5bf64; --legend-primary-900: #f0d89e; --legend-accent-50: #2a2520; --legend-accent-100: #3d362e; --legend-accent-200: #543520; --legend-accent-300: #663e25; --legend-accent-400: #7d4c2a; --legend-accent-500: #9a5f33; --legend-accent-600: #b57540; --legend-accent-700: #c08c5a; --legend-accent-800: #cca882; --legend-accent-900: #e0c9b0; --legend-success-50: #2a2520; --legend-success-100: #3b5635; --legend-success-200: #4d6f44; --legend-success-300: #648c58; --legend-success-400: #82a372; --legend-success-500: #a5be97; --legend-success-600: #c9d9be; --legend-success-700: #e5edde; --legend-success-800: #f4f7f2; --legend-success-900: #faf8f5; --legend-warning-50: #2a2520; --legend-warning-100: #723014; --legend-warning-200: #8a3814; --legend-warning-300: #a84612; --legend-warning-400: #cc5c15; --legend-warning-500: #e87520; --legend-warning-600: #f18e3e; --legend-warning-700: #f6[... 358 chars omitted ...]
+html.dark .card-shadow { box-shadow: 0 1px 2px rgba(42,37,32,0.25), 0 1px 1px rgba(42,37,32,0.18); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] { display: inline-flex; align-items: center; justify-content: center; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; background-color: currentColor; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @layer base {
+    body { background: var(--color-background); color: var(--color-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+    </style>
+</head>
+<body style="margin:0; background:var(--color-background); color:var(--color-foreground);">
+  <div style="display:flex; min-height:100vh;">
+
+    <!-- Sidebar -->
+    <aside style="width:200px; flex-shrink:0; display:flex; flex-direction:column; background:var(--color-background); border-right:1px solid var(--color-border);" role="navigation" aria-label="主导航">
+      <div style="padding:32px 24px 24px;">
+        <h1 style="font-size:28px; font-weight:700; font-family:var(--font-display); color:var(--color-primary); line-height:1;">L</h1>
+      </div>
+      <nav style="flex:1; display:flex; flex-direction:column; gap:4px; padding:0 12px;" aria-label="Main navigation">
+        <a href="#" data-dom-id="nav-creator-gallery" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">创作者图库</a>
+        <a href="#" data-dom-id="nav-normal-gallery" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">普通图库</a>
+        <a href="#" data-dom-id="nav-curation" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">策展</a>
+        <a href="#" data-dom-id="nav-dashboard" aria-current="page" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:700; font-family:var(--font-display); color:var(--color-foreground); border-left:3px solid var(--color-primary); letter-spacing:0.1em; text-transform:uppercase;text-decoration:none; transition:color 200ms, border-color 200ms;">仪表盘</a>
+        <a href="#" data-dom-id="nav-import" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">导入管理</a>
+        <a href="#" data-dom-id="nav-search" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">语义搜索</a>
+        <a href="#" data-dom-id="nav-favorites" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">收藏</a>
+        <a href="#" data-dom-id="nav-prompts" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">提示词库</a>
+        <a href="#" data-dom-id="nav-settings" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">设置</a>
+        <a href="#" data-dom-id="nav-trash" style="display:flex; align-items:center; padding:10px 12px; font-size:11px; font-weight:500; font-family:var(--font-display); color:var(--color-muted-foreground); border-left:3px solid transparent; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 200ms, border-color 200ms;">回收站</a>
+      </nav>
+      <div style="padding:0 12px 8px;">
+        <button onclick="document.documentElement.classList.toggle('dark'); document.documentElement.classList.toggle('light'); this.textContent = document.documentElement.classList.contains('dark') ? '切换亮色' : '切换暗色';" style="display:flex; align-items:center; justify-content:center; width:100%; padding:8px 12px; font-size:10px; font-family:var(--font-display); color:var(--color-muted-foreground); background:none; border:1px solid var(--color-border); border-radius:var(--radius-md); cursor:pointer; transition:color 200ms, border-color 200ms;">
+          切换暗色
+        </button>
+      </div>
+      <div style="padding:0 12px 24px;">
+        <button style="display:flex; align-items:center; justify-content:center; width:100%; padding:10px 12px; font-size:11px; font-family:var(--font-display); color:var(--color-muted-foreground); background:none; border:1px solid var(--color-border); border-radius:var(--radius-md); cursor:pointer; transition:color 200ms, border-color 200ms;" aria-label="搜索">搜索 ⌘K</button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main style="flex:1; overflow-y:auto;">
+      <div style="max-width:960px; margin:0 auto; padding:32px;">
+
+        <!-- Page title -->
+        <h2 style="font-size:20px; font-weight:600; font-family:var(--font-display); color:var(--color-foreground); margin:0 0 4px;">仪表盘</h2>
+
+        <!-- Section heading -->
+        <div style="font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; padding-bottom:12px; margin-bottom:32px; font-family:var(--font-display); color:var(--color-muted-foreground); border-bottom:1px solid var(--color-border);">创作概览</div>
+
+        <!-- Hero stat -->
+        <div style="display:flex; align-items:baseline; gap:12px; margin-bottom:40px;">
+          <span style="font-size:32px; font-weight:300; line-height:1; font-family:var(--font-display); color:var(--color-foreground);">1,247</span>
+          <span style="font-size:14px; color:var(--color-muted-foreground);">张作品</span>
+        </div>
+
+        <!-- Directory-style stats -->
+        <section style="margin-bottom:40px;" aria-label="作品统计">
+          <div style="display:flex; align-items:center; font-size:14px; padding:8px 0; border-bottom:1px dotted var(--color-border);">
+            <span style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em; flex-shrink:0; font-family:var(--font-display); color:var(--color-muted-foreground);">创作者作品</span>
+            <span style="flex:1; border-bottom:1px dotted var(--color-border); margin:0 8px;"></span>
+            <span style="font-size:15px; font-weight:500; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-foreground);">1,124</span>
+            <span style="font-size:11px; font-variant-numeric:tabular-nums; flex-shrink:0; margin-left:6px; color:var(--color-muted-foreground);">90.1%</span>
+          </div>
+          <div style="display:flex; align-items:center; font-size:14px; padding:8px 0; border-bottom:1px dotted var(--color-border);">
+            <span style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em; flex-shrink:0; font-family:var(--font-display); color:var(--color-muted-foreground);">普通照片</span>
+            <span style="flex:1; border-bottom:1px dotted var(--color-border); margin:0 8px;"></span>
+            <span style="font-size:15px; font-weight:500; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-foreground);">123</span>
+            <span style="font-size:11px; font-variant-numeric:tabular-nums; flex-shrink:0; margin-left:6px; color:var(--color-muted-foreground);">9.9%</span>
+          </div>
+          <div style="display:flex; align-items:center; font-size:14px; padding:8px 0; border-bottom:1px dotted var(--color-border);">
+            <span style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em; flex-shrink:0; font-family:var(--font-display); color:var(--color-muted-foreground);">收藏作品</span>
+            <span style="flex:1; border-bottom:1px dotted var(--color-border); margin:0 8px;"></span>
+            <span style="font-size:15px; font-weight:500; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-foreground);">89</span>
+            <span style="font-size:11px; font-variant-numeric:tabular-nums; flex-shrink:0; margin-left:6px; color:var(--color-muted-foreground);">7.1%</span>
+          </div>
+          <div style="display:flex; align-items:center; font-size:14px; padding:8px 0; border-bottom:1px dotted var(--color-border);">
+            <span style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em; flex-shrink:0; font-family:var(--font-display); color:var(--color-muted-foreground);">平均评分</span>
+            <span style="flex:1; border-bottom:1px dotted var(--color-border); margin:0 8px;"></span>
+            <span style="font-size:15px; font-weight:500; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-foreground);">3.6</span>
+            <span style="font-size:11px; font-variant-numeric:tabular-nums; flex-shrink:0; margin-left:6px; color:var(--color-muted-foreground);">/ 5.0</span>
+          </div>
+          <div style="display:flex; align-items:center; font-size:14px; padding:8px 0; border-bottom:1px dotted var(--color-border);">
+            <span style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em; flex-shrink:0; font-family:var(--font-display); color:var(--color-muted-foreground);">总占用</span>
+            <span style="flex:1; border-bottom:1px dotted var(--color-border); margin:0 8px;"></span>
+            <span style="font-size:15px; font-weight:500; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-foreground);">4.2 GB</span>
+          </div>
+          <div style="display:flex; align-items:center; font-size:14px; padding:8px 0; border-bottom:1px dotted var(--color-border);">
+            <span style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em; flex-shrink:0; font-family:var(--font-display); color:var(--color-muted-foreground);">已嵌入向量</span>
+            <span style="flex:1; border-bottom:1px dotted var(--color-border); margin:0 8px;"></span>
+            <span style="font-size:15px; font-weight:500; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-foreground);">892 / 1,247</span>
+          </div>
+          <div style="display:flex; align-items:center; font-size:14px; padding:8px 0;">
+            <span style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em; flex-shrink:0; font-family:var(--font-display); color:var(--color-muted-foreground);">本周新增</span>
+            <span style="flex:1; border-bottom:1px dotted var(--color-border); margin:0 8px;"></span>
+            <span style="font-size:15px; font-weight:500; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-foreground);">47</span>
+          </div>
+        </section>
+
+        <!-- Dotted divider -->
+        <div style="margin:32px 0; border-top:1px dotted var(--color-border);"></div>
+
+        <!-- Import sources -->
+        <section style="margin-bottom:40px;" aria-label="导入来源">
+          <h3 style="font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:24px; font-family:var(--font-display); color:var(--color-muted-foreground);">导入来源</h3>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:96px; flex-shrink:0; color:var(--color-foreground);">ComfyUI 自动</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:68%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:80px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">847 张 (68%)</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:96px; flex-shrink:0; color:var(--color-foreground);">手动导入</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:22%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:80px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">277 张 (22%)</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:96px; flex-shrink:0; color:var(--color-foreground);">其他来源</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:10%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:80px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">123 张 (10%)</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dotted divider -->
+        <div style="margin:32px 0; border-top:1px dotted var(--color-border);"></div>
+
+        <!-- Model distribution -->
+        <section style="margin-bottom:40px;" aria-label="模型分布">
+          <h3 style="font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:24px; font-family:var(--font-display); color:var(--color-muted-foreground);">模型分布</h3>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:96px; flex-shrink:0; color:var(--color-foreground);">SDXL 1.0</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:45%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:64px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">45% (612)</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:96px; flex-shrink:0; color:var(--color-foreground);">Flux.1</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:28%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:64px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">28% (349)</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:96px; flex-shrink:0; color:var(--color-foreground);">Midjourney</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:15%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:64px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">15% (187)</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:96px; flex-shrink:0; color:var(--color-foreground);">ComfyUI</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:8%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:64px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">8% (99)</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:96px; flex-shrink:0; color:var(--color-foreground);">未识别</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:4%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:64px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">4% (54)</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dotted divider -->
+        <div style="margin:32px 0; border-top:1px dotted var(--color-border);"></div>
+
+        <!-- Rating distribution -->
+        <section style="margin-bottom:40px;" aria-label="评分分布">
+          <h3 style="font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:24px; font-family:var(--font-display); color:var(--color-muted-foreground);">评分分布</h3>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:16px; text-align:right; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-muted-foreground);">0</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:52%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:32px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">648</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:16px; text-align:right; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-muted-foreground);">1</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:18%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:32px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">224</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:16px; text-align:right; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-muted-foreground);">2</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:12%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:32px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">150</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:16px; text-align:right; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-muted-foreground);">3</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:9%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:32px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">112</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:16px; text-align:right; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-muted-foreground);">4</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:6%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:32px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">75</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:16px; text-align:right; font-variant-numeric:tabular-nums; flex-shrink:0; color:var(--color-muted-foreground);">5</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:3.2%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:32px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">38</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dotted divider -->
+        <div style="margin:32px 0; border-top:1px dotted var(--color-border);"></div>
+
+        <!-- Top prompt keywords -->
+        <section style="margin-bottom:40px;" aria-label="热门提示词">
+          <h3 style="font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:24px; font-family:var(--font-display); color:var(--color-muted-foreground);">热门提示词</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <span style="display:inline-flex; align-items:center; padding:4px 12px; font-size:12px; white-space:nowrap; color:var(--color-on-primary); background:var(--legend-primary-500); border-radius:var(--radius-md);">ethereal</span>
+            <span style="display:inline-flex; align-items:center; padding:4px 12px; font-size:12px; white-space:nowrap; color:var(--color-on-primary); background:var(--legend-primary-500); border-radius:var(--radius-md);">cinematic lighting</span>
+            <span style="display:inline-flex; align-items:center; padding:4px 12px; font-size:12px; white-space:nowrap; color:var(--color-on-primary-container); background:transparent; border:1px solid var(--color-border); border-radius:var(--radius-md);">concept art</span>
+            <span style="display:inline-flex; align-items:center; padding:4px 12px; font-size:12px; white-space:nowrap; color:var(--color-on-primary-container); background:transparent; border:1px solid var(--color-border); border-radius:var(--radius-md);">cyberpunk</span>
+            <span style="display:inline-flex; align-items:center; padding:4px 12px; font-size:12px; white-space:nowrap; color:var(--color-on-primary-container); background:transparent; border:1px solid var(--color-border); border-radius:var(--radius-md);">dark fantasy</span>
+            <span style="display:inline-flex; align-items:center; padding:4px 12px; font-size:12px; white-space:nowrap; color:var(--color-on-primary-container); background:transparent; border:1px solid var(--color-border); border-radius:var(--radius-md);">solarpunk</span>
+            <span style="display:inline-flex; align-items:center; padding:4px 12px; font-size:12px; white-space:nowrap; color:var(--color-on-primary-container); background:transparent; border:1px solid var(--color-border); border-radius:var(--radius-md);">matte painting</span>
+            <span style="display:inline-flex; align-items:center; padding:4px 12px; font-size:12px; white-space:nowrap; color:var(--color-on-primary-container); background:transparent; border:1px solid var(--color-border); border-radius:var(--radius-md);">generative</span>
+          </div>
+        </section>
+
+        <!-- Dotted divider -->
+        <div style="margin:32px 0; border-top:1px dotted var(--color-border);"></div>
+
+        <!-- Size distribution -->
+        <section aria-label="尺寸分布">
+          <h3 style="font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:24px; font-family:var(--font-display); color:var(--color-muted-foreground);">尺寸分布</h3>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:96px; flex-shrink:0; font-variant-numeric:tabular-nums; color:var(--color-foreground);">1024x1024</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:62%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:40px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">62%</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:96px; flex-shrink:0; font-variant-numeric:tabular-nums; color:var(--color-foreground);">1024x1536</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:21%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:40px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">21%</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:96px; flex-shrink:0; font-variant-numeric:tabular-nums; color:var(--color-foreground);">1536x1024</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:12%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:40px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">12%</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; width:96px; flex-shrink:0; color:var(--color-foreground);">其他</span>
+              <div style="flex:1; height:20px; position:relative; background:var(--legend-neutral-100); border-radius:var(--radius-sm);">
+                <div style="height:100%; width:5%; background:var(--legend-primary-500); border-radius:var(--radius-sm);"></div>
+              </div>
+              <span style="font-size:12px; font-variant-numeric:tabular-nums; width:40px; text-align:right; flex-shrink:0; color:var(--color-muted-foreground);">5%</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+  <script>lucide.createIcons();</script>
+</body>
+</html>
