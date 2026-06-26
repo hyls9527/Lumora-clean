@@ -186,6 +186,67 @@ pub async fn get_embedding_stats_cmd(
     get_embedding_stats_db(&conn).map_err(|e| e.to_string())
 }
 
+/// Generate text embedding using Ollama.
+async fn embed_text_ollama(text: &str, model: &str) -> Result<Vec<f64>, String> {
+    let client = reqwest::Client::new();
+    let response = client
+        .post("http://localhost:11434/api/embed")
+        .json(&serde_json::json!({
+            "model": model,
+            "input": text
+        }))
+        .send()
+        .await
+        .map_err(|e| format!("Ollama request failed: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(format!("Ollama returned status: {}", response.status()));
+    }
+
+    let body: serde_json::Value = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse Ollama response: {}", e))?;
+
+    let embeddings = body["embeddings"][0]
+        .as_array()
+        .ok_or_else(|| "Invalid embeddings response".to_string())?;
+
+    let vec: Vec<f64> = embeddings
+        .iter()
+        .map(|v| v.as_f64().unwrap_or(0.0))
+        .collect();
+
+    if vec.is_empty() {
+        return Err("Empty embedding returned".to_string());
+    }
+
+    Ok(vec)
+}
+
+#[command]
+pub async fn embed_text_cmd(
+    text: String,
+    model: Option<String>,
+) -> Result<Vec<f64>, String> {
+    let model_name = model.unwrap_or_else(|| "nomic-embed-text".to_string());
+    embed_text_ollama(&text, &model_name).await
+}
+
+#[command]
+pub async fn generate_embedding_for_image_cmd(
+    db: tauri::State<'_, DbHandle>,
+    image_id: String,
+    description: String,
+    model: Option<String>,
+) -> Result<(), String> {
+    let model_name = model.unwrap_or_else(|| "nomic-embed-text".to_string());
+    let embedding = embed_text_ollama(&description, &model_name).await?;
+
+    let conn = db.conn().lock().map_err(|e| e.to_string())?;
+    upsert_embedding(&conn, &image_id, &embedding).map_err(|e| e.to_string())
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------

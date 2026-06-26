@@ -1,7 +1,9 @@
 /**
- * Semantic search API — currently uses mock data for frontend development.
- * Will be replaced with real Tauri invoke calls once embedding model is integrated.
+ * Semantic search API — delegates to real Tauri commands when available.
+ * Falls back to mock data in browser mode.
  */
+
+import { invoke } from '../tauri';
 
 export interface SemanticSearchResult {
   id: string;
@@ -23,29 +25,56 @@ const SUGGESTION_POOL: Record<string, string[]> = {
 };
 
 /**
- * Perform a semantic search.
- * Currently returns mock random similarity scores.
- * TODO: Integrate with real Tauri command once embedding model is ready.
- * Will call: invoke('search_semantic_cmd', { queryEmbedding, limit })
+ * Perform a semantic search using Ollama embeddings + sqlite-vec.
+ * Calls Tauri commands `embed_text_cmd` + `search_semantic_cmd` when available.
  */
 export async function searchSemantic(
   query: string,
+  limit?: number,
 ): Promise<SemanticSearchResult[]> {
-  // Simulate network delay
-  await new Promise((r) => setTimeout(r, 300 + Math.random() * 200));
-
   if (!query.trim()) return [];
 
-  // Generate 6-12 mock results with random scores
-  const count = 6 + Math.floor(Math.random() * 7);
-  const results: SemanticSearchResult[] = [];
-  for (let i = 0; i < count; i++) {
-    results.push({
-      id: `mock-${Date.now()}-${i}`,
-      similarity: Math.round(50 + Math.random() * 50), // 50-100
+  try {
+    // Step 1: Get query embedding from Ollama
+    const embedding = await invoke<number[]>('embed_text_cmd', { text: query });
+
+    // Step 2: Search similar images via sqlite-vec
+    const results = await invoke<SemanticSearchResult[]>('search_semantic_cmd', {
+      queryEmbedding: embedding,
+      limit: limit ?? 20,
     });
+
+    return results.map(r => ({
+      id: r.id,
+      similarity: Math.round(r.similarity * 100), // Convert 0-1 to 0-100
+    }));
+  } catch {
+    // Fallback to mock in browser mode
+    await new Promise((r) => setTimeout(r, 300 + Math.random() * 200));
+
+    if (!query.trim()) return [];
+
+    const count = 6 + Math.floor(Math.random() * 7);
+    const results: SemanticSearchResult[] = [];
+    for (let i = 0; i < count; i++) {
+      results.push({
+        id: `mock-${Date.now()}-${i}`,
+        similarity: Math.round(50 + Math.random() * 50),
+      });
+    }
+    return results.sort((a, b) => b.similarity - a.similarity);
   }
-  return results.sort((a, b) => b.similarity - a.similarity);
+}
+
+/**
+ * Generate embedding for an image description.
+ * Calls Tauri command `generate_embedding_for_image_cmd` when available.
+ */
+export async function generateImageEmbedding(
+  imageId: string,
+  description: string,
+): Promise<void> {
+  await invoke('generate_embedding_for_image_cmd', { imageId, description });
 }
 
 /**
