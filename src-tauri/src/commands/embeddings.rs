@@ -143,6 +143,49 @@ pub async fn search_semantic_cmd(
     search_semantic_db(&conn, &query_embedding, limit.unwrap_or(20)).map_err(|e| e.to_string())
 }
 
+/// Aggregate embedding statistics.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct EmbeddingStats {
+    pub embedded: i64,
+    pub pending: i64,
+    pub error: i64,
+    pub total: i64,
+}
+
+/// Get aggregate embedding stats from the database.
+pub fn get_embedding_stats_db(conn: &Connection) -> Result<EmbeddingStats, rusqlite::Error> {
+    let embedded: i64 = conn.query_row(
+        "SELECT COUNT(*) FROM embeddings WHERE status = 'embedded'",
+        [],
+        |r| r.get(0),
+    )?;
+    let pending: i64 = conn.query_row(
+        "SELECT COUNT(*) FROM embeddings WHERE status = 'pending'",
+        [],
+        |r| r.get(0),
+    )?;
+    let error: i64 = conn.query_row(
+        "SELECT COUNT(*) FROM embeddings WHERE status = 'error'",
+        [],
+        |r| r.get(0),
+    )?;
+    let total = embedded + pending + error;
+    Ok(EmbeddingStats {
+        embedded,
+        pending,
+        error,
+        total,
+    })
+}
+
+#[command]
+pub async fn get_embedding_stats_cmd(
+    db: tauri::State<'_, DbHandle>,
+) -> Result<EmbeddingStats, String> {
+    let conn = db.conn().lock().map_err(|e| e.to_string())?;
+    get_embedding_stats_db(&conn).map_err(|e| e.to_string())
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -275,5 +318,36 @@ mod tests {
         let query: Vec<f64> = vec![0.0; 512];
         let results = search_semantic_db(&conn, &query, 2).unwrap();
         assert!(results.len() <= 2);
+    }
+
+    #[test]
+    fn embedding_stats_counts_correctly() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+
+        // Insert test images
+        for i in 0..3 {
+            conn.execute(
+                "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+                 VALUES (?1, ?2, ?3, 100, 'png', '2025-01-01')",
+                rusqlite::params![
+                    format!("img-{}", i),
+                    format!("/test{}.png", i),
+                    format!("hash{}", i)
+                ],
+            )
+            .unwrap();
+        }
+
+        // Insert 2 embedded, 0 pending, 0 error
+        let embedding: Vec<f64> = vec![0.0; 512];
+        upsert_embedding(&conn, "img-0", &embedding).unwrap();
+        upsert_embedding(&conn, "img-1", &embedding).unwrap();
+
+        let stats = get_embedding_stats_db(&conn).unwrap();
+        assert_eq!(stats.embedded, 2);
+        assert_eq!(stats.pending, 0);
+        assert_eq!(stats.error, 0);
+        assert_eq!(stats.total, 2);
     }
 }

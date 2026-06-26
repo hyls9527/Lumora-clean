@@ -101,14 +101,19 @@ export async function storeEmbedding(
 
 /**
  * Get aggregate embedding stats.
- * In browser mode, returns mock data.
+ * Calls Tauri command `get_embedding_stats_cmd` when available.
  */
 export async function getEmbeddingStats(): Promise<EmbeddingStats> {
   try {
-    // This command doesn't exist yet in backend — will be added later
-    // For now, return mock data
-    return { embedded: 12, pending: 3, error: 1, total: 16 };
+    const result = await invoke<EmbeddingStats>('get_embedding_stats_cmd');
+    return {
+      embedded: result.embedded ?? 0,
+      pending: result.pending ?? 0,
+      error: result.error ?? 0,
+      total: result.total ?? 0,
+    };
   } catch {
-    return { embedded: 0, pending: 0, error: 0, total: 0 };
+    // Fallback to mock in browser mode
+    return { embedded: 12, pending: 3, error: 1, total: 16 };
   }
 }
