@@ -1,5 +1,3 @@
-use rusqlite::params;
-
 use crate::db::DbHandle;
 use crate::schema::types::{DashboardStats, FormatCount, RatingCount, TagCount};
 use crate::commands::images::row_to_record;
