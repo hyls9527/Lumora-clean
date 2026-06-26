@@ -37,7 +37,7 @@ export function Rating({ value, onChange }: { value: number; onChange?: (v: numb
             transition: 'opacity 200ms',
             opacity: i < value ? 1 : 0.5,
           }}
-          aria-label={`${i + 1} 星`}
+          aria-label={`${i + 1} 梅花印`}
         >
           <PlumStamp filled={i < value} />
         </button>
