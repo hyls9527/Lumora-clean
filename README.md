@@ -7,28 +7,20 @@ Lumora 是一个本地优先、隐私至上的 AI 图片管理桌面应用，服
 ## 项目结构
 
 ```
-lumora-secondary-pages/
-├── pages/                  # 前端 UI 设计稿（静态 HTML 高保真原型）
-│   ├── gallery.html        # 创作者图库
-│   ├── curation.html       # 策展
-│   ├── dashboard.html      # 仪表盘
-│   ├── settings.html       # 设置
-│   ├── search.html         # 搜索
-│   ├── artwork-detail.html # 作品详情
-│   ├── prompts.html        # Prompts 管理
-│   ├── favorites.html      # 收藏
-│   ├── trash.html          # 回收站
-│   ├── import.html         # 导入
-│   └── normal-gallery.html # 标准图库
-├── assets/                 # 设计稿图片资源
-├── docs/                   # 项目文档
-│   ├── ARCHITECTURE.md     # 架构设计（技术栈、数据模型、IPC 契约）
-│   ├── DESIGN.md           # 设计语言规范（色彩、字体、圆角、阴影）
-│   ├── CLAUDE.md           # Claude Code 工作指南
-│   ├── README.md           # 文档索引
-│   └── .planning/          # 里程碑、阶段计划、需求、审计
-├── lumora-secondary-pages.design  # 设计工具源文件
-└── orchestration-summary.json     # 页面编排元数据
+Lumora-clean/
+├── src/                          # 前端源码
+│   ├── components/ui/            # UI 组件（ImageCard, DetailModal, CommandPalette 等）
+│   ├── features/                 # 页面模块（gallery, search, dashboard, import, export, settings, trash, tags）
+│   ├── stores/                   # Zustand 状态管理（imageStore, trashStore, settingsStore 等）
+│   ├── lib/api/                  # API 层（images.ts, ai.ts, embeddings.ts, semantic.ts）
+│   ├── hooks/                    # 自定义 hooks（useKeyboardNav）
+│   └── lib/tauri.ts              # Tauri invoke 包装器（浏览器/Tauri 双模式）
+├── src-tauri/                    # Rust 后端
+│   ├── src/commands/             # Tauri commands（images, ai, embeddings, tags, trash, dashboard, export, settings）
+│   ├── src/db/                   # 数据库层（migrations, schema）
+│   └── src/schema/               # 类型定义
+├── tests/                        # 骨架测试
+└── docs/                         # 文档
 ```
 
 ## 技术栈
@@ -39,8 +31,8 @@ lumora-secondary-pages/
 | 前端 | React 19 + TypeScript + Tailwind CSS v4 |
 | 状态管理 | Zustand 5 |
 | 数据库 | SQLite (rusqlite) + FTS5 + sqlite-vec |
-| AI 推理 | Python sidecar (CLIP via open-clip-torch) + Ollama (可选) |
-| 打包 | Windows .msi (PyInstaller for Python sidecar) |
+| AI 推理 | Ollama（nomic-embed-text embedding + llava 图片分析） |
+| 打包 | Windows .msi + .exe |
 
 ## 设计语言：古卷·灯火
 
@@ -57,11 +49,24 @@ lumora-secondary-pages/
 
 | 版本 | 状态 | 内容 |
 |------|------|------|
-| **v0.1** MVP Frontend | ✅ shipped 2026-06-21 | 图库、策展、命令面板、键盘导航、评分收藏 |
-| **v0.2** AI-Ready Frontend | ✅ shipped 2026-06-21 | 嵌入状态、语义搜索 UI、AI 分析面板（mock 数据） |
-| **v0.3** Tauri Backend | ✅ completed 2026-06-23 | SQLite 持久化、Python CLIP、Ollama 分析、sqlite-vec、Windows .msi |
+| **v0.1** MVP Frontend | ✅ shipped | 图库、策展、命令面板、键盘导航、评分收藏 |
+| **v0.2** AI-Ready Frontend | ✅ shipped | 嵌入状态、语义搜索 UI、AI 分析面板 |
+| **v0.3** Tauri Backend | ✅ shipped | SQLite 持久化、Ollama 集成、sqlite-vec、Windows .msi |
 
-详见 [`docs/.planning/ROADMAP.md`](docs/.planning/ROADMAP.md)。
+## 测试
+
+```bash
+# 前端测试（159 个）
+npx vitest run
+
+# Rust 测试（18 个）
+cd src-tauri && cargo test --lib
+
+# TypeScript 类型检查
+npx tsc --noEmit
+```
+
+**当前状态：177 测试全绿（18 Rust + 159 TypeScript）**
 
 ## 开发
 
@@ -79,28 +84,31 @@ npx tsc --noEmit
 npm run build
 
 # Tauri 桌面构建
-cargo tauri build --bundles msi
+cargo tauri build
 ```
 
-### Python Sidecar 构建
+### Ollama 配置
+
+语义搜索和 AI 分析需要 Ollama：
 
 ```bash
-cd src-tauri/sidecar
-pip install -r requirements.txt
-python build.py
+# 安装 Ollama
+# https://ollama.com/download
+
+# 拉取 embedding 模型
+ollama pull nomic-embed-text
+
+# 拉取视觉模型（用于图片分析）
+ollama pull llava
 ```
 
 ## 文档索引
 
 | 文档 | 用途 |
 |------|------|
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | 系统架构、数据模型、IPC 契约、验收标准 |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | 系统架构、数据模型、IPC 契约 |
 | [DESIGN.md](docs/DESIGN.md) | 设计语言规范 |
-| [CLAUDE.md](docs/CLAUDE.md) | AI 编码助手工作规则 |
-| [REQUIREMENTS.md](docs/.planning/REQUIREMENTS.md) | v0.3 需求追踪矩阵 |
-| [ROADMAP.md](docs/.planning/ROADMAP.md) | 里程碑路线图 |
-| [SECURITY.md](docs/.planning/audits/SECURITY.md) | 安全审计 |
-| [UI-REVIEW.md](docs/.planning/audits/UI-REVIEW.md) | UI 审计 |
+| [CLAUDE.md](CLAUDE.md) | AI 编码助手工作规则 |
 
 ## License
 
