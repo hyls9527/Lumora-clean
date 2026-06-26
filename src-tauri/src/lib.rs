@@ -55,6 +55,9 @@ pub fn run() {
             commands::trash::empty_trash,
             commands::dashboard::get_dashboard_stats,
             commands::export::export_images,
+            commands::embeddings::generate_embedding,
+            commands::embeddings::get_embedding_status_cmd,
+            commands::embeddings::search_semantic_cmd,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

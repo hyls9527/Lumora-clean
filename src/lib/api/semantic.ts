@@ -1,6 +1,6 @@
 /**
- * Semantic search API stubs — returns mock data for frontend development.
- * Will be replaced with real Tauri invoke calls once the backend is ready.
+ * Semantic search API — currently uses mock data for frontend development.
+ * Will be replaced with real Tauri invoke calls once embedding model is integrated.
  */
 
 export interface SemanticSearchResult {
@@ -23,7 +23,10 @@ const SUGGESTION_POOL: Record<string, string[]> = {
 };
 
 /**
- * Perform a semantic search. Returns mock random similarity scores.
+ * Perform a semantic search.
+ * Currently returns mock random similarity scores.
+ * TODO: Integrate with real Tauri command once embedding model is ready.
+ * Will call: invoke('search_semantic_cmd', { queryEmbedding, limit })
  */
 export async function searchSemantic(
   query: string,
@@ -47,6 +50,7 @@ export async function searchSemantic(
 
 /**
  * Get search suggestions based on partial query input.
+ * Uses local suggestion pool — no Tauri backend needed.
  */
 export async function getSearchSuggestions(
   query: string,

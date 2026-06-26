@@ -83,3 +83,21 @@ pub const V3_ADD_DELETED_AT: &str =
 
 pub const V3_INDEX_DELETED_AT: &str =
     "CREATE INDEX IF NOT EXISTS idx_images_deleted_at ON images(deleted_at) WHERE deleted = 1;";
+
+// ---------------------------------------------------------------------------
+// V4 — Embeddings for vector search
+// ---------------------------------------------------------------------------
+
+pub const V4_CREATE_EMBEDDINGS: &str = "CREATE TABLE IF NOT EXISTS embeddings (
+    image_id     TEXT PRIMARY KEY REFERENCES images(id),
+    embedding    BLOB NOT NULL,
+    dimensions   INTEGER NOT NULL DEFAULT 512,
+    status       TEXT NOT NULL DEFAULT 'embedded' CHECK(status IN ('embedded', 'pending', 'error')),
+    generated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);";
+
+pub const V4_CREATE_VEC_TABLE: &str =
+    "CREATE VIRTUAL TABLE IF NOT EXISTS vec_embeddings USING vec0(
+    image_id TEXT PRIMARY KEY,
+    embedding float[512]
+);";
