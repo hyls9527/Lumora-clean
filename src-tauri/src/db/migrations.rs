@@ -3,7 +3,7 @@ use rusqlite::Connection;
 use super::schema;
 
 /// Current schema version — bump when adding migrations.
-pub const SCHEMA_VERSION: i64 = 4;
+pub const SCHEMA_VERSION: i64 = 5;
 
 /// Run all pending migrations inside a single transaction.
 pub fn run_migrations(conn: &Connection) -> Result<(), rusqlite::Error> {
@@ -50,6 +50,7 @@ fn apply_migration(conn: &Connection, version: i64) -> Result<(), rusqlite::Erro
         2 => apply_v2(conn),
         3 => apply_v3(conn),
         4 => apply_v4(conn),
+        5 => apply_v5(conn),
         _ => Err(rusqlite::Error::InvalidQuery),
     }
 }
@@ -88,6 +89,12 @@ fn apply_v4(conn: &Connection) -> Result<(), rusqlite::Error> {
     Ok(())
 }
 
+fn apply_v5(conn: &Connection) -> Result<(), rusqlite::Error> {
+    conn.execute_batch(schema::V5_CREATE_ANALYSIS_HISTORY)?;
+    conn.execute_batch(schema::V5_INDEX_ANALYSIS_IMAGE)?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -97,7 +104,7 @@ mod tests {
         let conn = Connection::open_in_memory().unwrap();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
-        assert_eq!(v, 4);
+        assert_eq!(v, 5);
     }
 
     #[test]
@@ -106,7 +113,7 @@ mod tests {
         run_migrations(&conn).unwrap();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
-        assert_eq!(v, 4);
+        assert_eq!(v, 5);
     }
 
     #[test]

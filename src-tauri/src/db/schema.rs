@@ -101,3 +101,17 @@ pub const V4_CREATE_VEC_TABLE: &str =
     image_id TEXT PRIMARY KEY,
     embedding float[512]
 );";
+
+// ---------------------------------------------------------------------------
+// V5 — AI Analysis history
+// ---------------------------------------------------------------------------
+
+pub const V5_CREATE_ANALYSIS_HISTORY: &str = "CREATE TABLE IF NOT EXISTS analysis_history (
+    id           TEXT PRIMARY KEY,
+    image_id     TEXT NOT NULL REFERENCES images(id),
+    result_json  TEXT NOT NULL,
+    analyzed_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);";
+
+pub const V5_INDEX_ANALYSIS_IMAGE: &str =
+    "CREATE INDEX IF NOT EXISTS idx_analysis_history_image ON analysis_history(image_id);";

@@ -5,3 +5,4 @@ pub mod tags;
 pub mod dashboard;
 pub mod export;
 pub mod embeddings;
+pub mod ai;

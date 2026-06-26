@@ -1,6 +1,9 @@
 // ---------------------------------------------------------------------------
-// AI Analysis API stub — mock data with simulated delay
+// AI Analysis API — delegates to real Tauri commands when available.
+// Falls back to mock data in browser mode.
 // ---------------------------------------------------------------------------
+
+import { invoke } from '../tauri';
 
 export interface AnalysisTag {
   name: string;
@@ -23,7 +26,7 @@ export interface AnalysisHistoryItem {
 }
 
 // ---------------------------------------------------------------------------
-// In-memory mock store
+// Mock fallback for browser mode
 // ---------------------------------------------------------------------------
 
 const mockResults = new Map<string, AnalysisResult>();
@@ -125,32 +128,91 @@ function generateMockResult(): AnalysisResult {
 // Public API
 // ---------------------------------------------------------------------------
 
-/** Analyze an image — returns a mock result after a 3-second delay. */
-export async function analyzeImage(imageId: string): Promise<AnalysisResult> {
-  await new Promise((r) => setTimeout(r, 3000));
+/**
+ * Analyze an image using AI (Ollama vision model).
+ * Calls Tauri command `analyze_image_cmd` when available.
+ * Falls back to mock in browser mode.
+ */
+export async function analyzeImage(
+  imageId: string,
+  imagePath?: string,
+  model?: string,
+): Promise<AnalysisResult> {
+  try {
+    const result = await invoke<AnalysisResult>('analyze_image_cmd', {
+      imageId,
+      imagePath: imagePath ?? '',
+      model: model ?? undefined,
+    });
+    // Convert snake_case response to camelCase
+    return {
+      description: result.description,
+      tags: result.tags,
+      objects: result.objects,
+      colorPalette: (result as unknown as Record<string, unknown>).color_palette as string[] ?? result.colorPalette,
+      composition: result.composition,
+    };
+  } catch {
+    // Fallback to mock in browser mode
+    await new Promise((r) => setTimeout(r, 3000));
+    const result = generateMockResult();
+    mockResults.set(imageId, result);
 
-  const result = generateMockResult();
-  mockResults.set(imageId, result);
+    const existing = mockHistory.get(imageId) ?? [];
+    existing.unshift({
+      id: `hist-${Date.now()}`,
+      imageId,
+      result,
+      analyzedAt: new Date().toISOString(),
+    });
+    mockHistory.set(imageId, existing);
 
-  // Append to history
-  const existing = mockHistory.get(imageId) ?? [];
-  existing.unshift({
-    id: `hist-${Date.now()}`,
-    imageId,
-    result,
-    analyzedAt: new Date().toISOString(),
-  });
-  mockHistory.set(imageId, existing);
-
-  return result;
+    return result;
+  }
 }
 
-/** Get the most recent analysis result for an image. */
-export function getAnalysisResult(imageId: string): AnalysisResult | null {
-  return mockResults.get(imageId) ?? null;
+/**
+ * Get the most recent analysis result for an image.
+ * Calls Tauri command `get_analysis_result_cmd` when available.
+ */
+export async function getAnalysisResult(imageId: string): Promise<AnalysisResult | null> {
+  try {
+    const result = await invoke<AnalysisResult | null>('get_analysis_result_cmd', { imageId });
+    if (result) {
+      return {
+        description: result.description,
+        tags: result.tags,
+        objects: result.objects,
+        colorPalette: (result as unknown as Record<string, unknown>).color_palette as string[] ?? result.colorPalette,
+        composition: result.composition,
+      };
+    }
+    return null;
+  } catch {
+    return mockResults.get(imageId) ?? null;
+  }
 }
 
-/** Get analysis history for an image. */
-export function getAnalysisHistory(imageId: string): AnalysisHistoryItem[] {
-  return mockHistory.get(imageId) ?? [];
+/**
+ * Get analysis history for an image.
+ * Calls Tauri command `get_analysis_history_cmd` when available.
+ */
+export async function getAnalysisHistory(imageId: string): Promise<AnalysisHistoryItem[]> {
+  try {
+    const items = await invoke<AnalysisHistoryItem[]>('get_analysis_history_cmd', { imageId });
+    return items.map(item => ({
+      id: item.id,
+      imageId: item.imageId,
+      result: {
+        description: item.result.description,
+        tags: item.result.tags,
+        objects: item.result.objects,
+        colorPalette: (item.result as unknown as Record<string, unknown>).color_palette as string[] ?? item.result.colorPalette,
+        composition: item.result.composition,
+      },
+      analyzedAt: item.analyzedAt,
+    }));
+  } catch {
+    return mockHistory.get(imageId) ?? [];
+  }
 }

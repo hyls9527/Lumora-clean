@@ -51,15 +51,15 @@ export const useAiAnalysisStore = create<AiAnalysisState>((set, get) => ({
     }
   },
 
-  loadResult: (imageId: string) => {
-    const result = aiApi.getAnalysisResult(imageId);
+  loadResult: async (imageId: string) => {
+    const result = await aiApi.getAnalysisResult(imageId);
     if (result) {
       set((s) => ({ results: { ...s.results, [imageId]: result } }));
     }
   },
 
-  loadHistory: (imageId: string) => {
-    const items = aiApi.getAnalysisHistory(imageId);
+  loadHistory: async (imageId: string) => {
+    const items = await aiApi.getAnalysisHistory(imageId);
     set((s) => ({ history: { ...s.history, [imageId]: items } }));
   },
 

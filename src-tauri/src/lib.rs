@@ -58,6 +58,9 @@ pub fn run() {
             commands::embeddings::generate_embedding,
             commands::embeddings::get_embedding_status_cmd,
             commands::embeddings::search_semantic_cmd,
+            commands::ai::analyze_image_cmd,
+            commands::ai::get_analysis_result_cmd,
+            commands::ai::get_analysis_history_cmd,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
