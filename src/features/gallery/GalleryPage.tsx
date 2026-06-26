@@ -5,6 +5,7 @@ import { ImageCard } from '../../components/ui/ImageCard';
 import { DetailModal } from '../../components/ui/DetailModal';
 import { GridSkeleton } from '../../components/ui/LoadingSkeleton';
 import { ErrorState } from '../../components/ui/ErrorState';
+import { LazyLoad } from '../../components/ui/LazyLoad';
 import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 
 const sortOptions = [
@@ -383,12 +384,14 @@ export function GalleryPage() {
                   marginBottom: 12,
                 }}
               >
-                <ImageCard
-                  image={img}
-                  focused={focusedIndex === index}
-                  onOpen={() => setDetailImage(img)}
-                  onClick={() => setFocusedIndex(index)}
-                />
+                <LazyLoad height={200}>
+                  <ImageCard
+                    image={img}
+                    focused={focusedIndex === index}
+                    onOpen={() => setDetailImage(img)}
+                    onClick={() => setFocusedIndex(index)}
+                  />
+                </LazyLoad>
               </div>
             ))}
           </div>
