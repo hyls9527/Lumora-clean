@@ -64,7 +64,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
           gap: 4,
           padding: '0 12px',
         }}
-        aria-label="Main navigation"
+        aria-label="主导航"
       >
         {navItems.map((item) => {
           const isActive = activeRoute === item.key;
@@ -99,7 +99,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
             cursor: 'pointer',
             transition: 'color 200ms, border-color 200ms',
           }}
-          aria-label="搜索"
+          aria-label="搜索 ⌘K"
         >
           搜索 ⌘K
         </button>
