@@ -26,6 +26,40 @@ export interface AnalysisHistoryItem {
 }
 
 // ---------------------------------------------------------------------------
+// Snake_case → camelCase conversion helper
+// ---------------------------------------------------------------------------
+
+function snakeToCamel(str: string): string {
+  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+}
+
+function convertKeysToCamel(obj: unknown): unknown {
+  if (Array.isArray(obj)) {
+    return obj.map(convertKeysToCamel);
+  }
+  if (obj !== null && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj as Record<string, unknown>).map(([key, value]) => [
+        snakeToCamel(key),
+        convertKeysToCamel(value),
+      ]),
+    );
+  }
+  return obj;
+}
+
+function normalizeAnalysisResult(raw: unknown): AnalysisResult {
+  const converted = convertKeysToCamel(raw) as Record<string, unknown>;
+  return {
+    description: (converted.description as string) ?? '',
+    tags: (converted.tags as AnalysisTag[]) ?? [],
+    objects: (converted.objects as string[]) ?? [],
+    colorPalette: (converted.colorPalette as string[]) ?? [],
+    composition: (converted.composition as string) ?? '',
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Mock fallback for browser mode
 // ---------------------------------------------------------------------------
 
@@ -139,19 +173,12 @@ export async function analyzeImage(
   model?: string,
 ): Promise<AnalysisResult> {
   try {
-    const result = await invoke<AnalysisResult>('analyze_image_cmd', {
+    const result = await invoke<unknown>('analyze_image_cmd', {
       imageId,
       imagePath: imagePath ?? '',
       model: model ?? undefined,
     });
-    // Convert snake_case response to camelCase
-    return {
-      description: result.description,
-      tags: result.tags,
-      objects: result.objects,
-      colorPalette: (result as unknown as Record<string, unknown>).color_palette as string[] ?? result.colorPalette,
-      composition: result.composition,
-    };
+    return normalizeAnalysisResult(result);
   } catch {
     // Fallback to mock in browser mode
     await new Promise((r) => setTimeout(r, 3000));
@@ -177,15 +204,9 @@ export async function analyzeImage(
  */
 export async function getAnalysisResult(imageId: string): Promise<AnalysisResult | null> {
   try {
-    const result = await invoke<AnalysisResult | null>('get_analysis_result_cmd', { imageId });
+    const result = await invoke<unknown>('get_analysis_result_cmd', { imageId });
     if (result) {
-      return {
-        description: result.description,
-        tags: result.tags,
-        objects: result.objects,
-        colorPalette: (result as unknown as Record<string, unknown>).color_palette as string[] ?? result.colorPalette,
-        composition: result.composition,
-      };
+      return normalizeAnalysisResult(result);
     }
     return null;
   } catch {
@@ -199,19 +220,16 @@ export async function getAnalysisResult(imageId: string): Promise<AnalysisResult
  */
 export async function getAnalysisHistory(imageId: string): Promise<AnalysisHistoryItem[]> {
   try {
-    const items = await invoke<AnalysisHistoryItem[]>('get_analysis_history_cmd', { imageId });
-    return items.map(item => ({
-      id: item.id,
-      imageId: item.imageId,
-      result: {
-        description: item.result.description,
-        tags: item.result.tags,
-        objects: item.result.objects,
-        colorPalette: (item.result as unknown as Record<string, unknown>).color_palette as string[] ?? item.result.colorPalette,
-        composition: item.result.composition,
-      },
-      analyzedAt: item.analyzedAt,
-    }));
+    const items = await invoke<unknown[]>('get_analysis_history_cmd', { imageId });
+    return items.map(item => {
+      const converted = convertKeysToCamel(item) as Record<string, unknown>;
+      return {
+        id: (converted.id as string) ?? '',
+        imageId: (converted.imageId as string) ?? '',
+        result: normalizeAnalysisResult(converted.result),
+        analyzedAt: (converted.analyzedAt as string) ?? '',
+      };
+    });
   } catch {
     return mockHistory.get(imageId) ?? [];
   }
