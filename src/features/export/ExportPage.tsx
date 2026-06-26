@@ -348,7 +348,7 @@ function FormatOption({
         border: `1px solid ${active ? '#7a5c12' : 'rgba(139, 115, 75, 0.10)'}`,
         borderRadius: 4,
         cursor: 'pointer',
-        transition: 'all 200ms',
+        transition: 'background 200ms, color 200ms, border-color 200ms',
         letterSpacing: '0.05em',
       }}
     >

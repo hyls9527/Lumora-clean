@@ -48,7 +48,7 @@ export function ImageCard({ image, onClick, onOpen, focused, showSimilarity }: I
       onFocus={(e) => {
         if (!focused) {
           e.currentTarget.style.boxShadow =
-            'rgba(139,115,75,0.14) 0px 0px 0px 1px, rgba(78,50,23,0.08) 0px 4px 16px, rgba(78,50,23,0.04) 0px 1px 4px';
+            'rgba(139,115,75,0.14) 0px 0px 0px 1px, rgba(78,50,23,0.08) 0px 4px 16px';
         }
       }}
       onBlur={(e) => {
@@ -59,7 +59,7 @@ export function ImageCard({ image, onClick, onOpen, focused, showSimilarity }: I
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.boxShadow =
-          'rgba(139,115,75,0.14) 0px 0px 0px 1px, rgba(78,50,23,0.08) 0px 4px 16px, rgba(78,50,23,0.04) 0px 1px 4px';
+          'rgba(139,115,75,0.14) 0px 0px 0px 1px, rgba(78,50,23,0.08) 0px 4px 16px';
       }}
       onMouseLeave={(e) => {
         if (!focused) {

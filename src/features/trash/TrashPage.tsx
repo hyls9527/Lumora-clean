@@ -190,7 +190,7 @@ export function TrashPage() {
                       key={img.id}
                       style={{
                         borderBottom: '1px solid rgba(139, 115, 75, 0.06)',
-                        transition: 'background 150ms',
+                        transition: 'background 200ms',
                       }}
                       onMouseEnter={(e) => {
                         (e.currentTarget as HTMLElement).style.background = 'rgba(139, 115, 75, 0.04)';
@@ -345,7 +345,7 @@ export function TrashPage() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(0, 0, 0, 0.3)',
+            background: 'rgba(42, 33, 24, 0.5)',
           }}
           onClick={() => setConfirmEmpty(false)}
         >
@@ -355,7 +355,7 @@ export function TrashPage() {
               borderRadius: 6,
               padding: '24px 28px',
               maxWidth: 360,
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+              boxShadow: 'rgba(139, 115, 75, 0.12) 0px 0px 0px 1px, rgba(78, 50, 23, 0.12) 0px 8px 32px',
               fontFamily: 'var(--font-body)',
             }}
             onClick={(e) => e.stopPropagation()}

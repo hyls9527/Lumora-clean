@@ -101,12 +101,12 @@ function SegmentedControl<T extends string>({
               color: isDisabled
                 ? 'rgba(107, 93, 72, 0.35)'
                 : active
-                  ? '#fff'
+                  ? '#f2ede4'
                   : token.muted,
               background: active ? token.accent : token.surface,
               border: 'none',
               cursor: isDisabled ? 'not-allowed' : 'pointer',
-              transition: 'background 150ms, color 150ms',
+              transition: 'background 200ms, color 200ms',
             }}
           >
             {opt.label}

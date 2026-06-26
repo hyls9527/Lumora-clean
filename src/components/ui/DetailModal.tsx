@@ -35,7 +35,6 @@ const overlayStyle: React.CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   background: 'rgba(42, 33, 24, 0.6)',
-  backdropFilter: 'blur(2px)',
   animation: 'fadeIn 200ms ease-out',
 };
 

@@ -38,15 +38,8 @@ export function ColorPaletteStrip({ colors }: ColorPaletteStripProps) {
               flex: 1,
               height: 28,
               background: color,
-              transition: 'transform 200ms',
               cursor: 'pointer',
               position: 'relative',
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.transform = 'scaleY(1.15)';
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.transform = 'scaleY(1)';
             }}
             title={color}
             aria-label={color}

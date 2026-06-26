@@ -7,9 +7,9 @@ interface EmbeddingBadgeProps {
 }
 
 const STATUS_COLORS: Record<EmbeddingStatus, string> = {
-  embedded: '#5a8f3c',   // muted green
-  pending: '#b8a88a',    // warm gray
-  error: '#b05544',      // muted red
+  embedded: '#4a7a3a',   // success
+  pending: '#a09480',    // muted
+  error: '#8b3030',      // danger
 };
 
 export function EmbeddingBadge({ status, size = 12 }: EmbeddingBadgeProps) {
@@ -35,7 +35,7 @@ export function EmbeddingBadge({ status, size = 12 }: EmbeddingBadgeProps) {
         height: size,
         borderRadius: '50%',
         backgroundColor: STATUS_COLORS[status],
-        color: '#fff',
+        color: '#f2ede4',
         fontSize: size * 0.6,
         lineHeight: 1,
         fontFamily: 'var(--font-body)',

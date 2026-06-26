@@ -603,7 +603,7 @@ function ResultCard({
         cursor: 'pointer',
         boxShadow:
           'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px',
-        transition: 'box-shadow 200ms',
+        transition: 'box-shadow 200ms ease-out',
       }}
     >
       <div style={{ position: 'relative' }}>

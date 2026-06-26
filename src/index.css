@@ -1,16 +1,28 @@
 @import "tailwindcss";
 
 @theme {
-  /* 古卷·灯火 设计令牌 */
+  /* 古卷·灯火 设计令牌 — 色彩 */
   --color-bg: #f2ede4;
   --color-surface: #f7f2ea;
+  --color-border: rgba(139, 115, 75, 0.10);
   --color-text: #2a2118;
+  --color-text-secondary: #6b5d48;
+  --color-text-muted: #a09480;
   --color-accent: #7a5c12;
+  --color-danger: #8b3030;
+  --color-success: #4a7a3a;
+
+  /* 别名 */
   --color-parchment: #f2ede4;
   --color-ink: #2a2118;
   --color-bronze: #7a5c12;
   --color-warm-gray: #b8a898;
   --color-warm-brown: #4e3217;
+
+  /* 阴影 */
+  --shadow-card: rgba(139, 115, 75, 0.08) 0px 0px 0px 1px, rgba(78, 50, 23, 0.04) 0px 1px 3px;
+  --shadow-card-hover: rgba(139, 115, 75, 0.14) 0px 0px 0px 1px, rgba(78, 50, 23, 0.08) 0px 4px 16px;
+  --shadow-elevated: rgba(139, 115, 75, 0.12) 0px 0px 0px 1px, rgba(78, 50, 23, 0.12) 0px 8px 32px;
 
   /* 字体 */
   --font-display: "Noto Serif SC", "Source Han Serif SC", serif;
@@ -21,8 +33,8 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-parchment);
-  color: var(--color-ink);
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 h1,

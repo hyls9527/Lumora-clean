@@ -131,8 +131,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'flex-start',
     justifyContent: 'center',
     paddingTop: '15vh',
-    background: 'rgba(42, 33, 24, 0.4)',
-    backdropFilter: 'blur(2px)',
+    background: 'rgba(42, 33, 24, 0.5)',
   },
   panel: {
     width: 520,

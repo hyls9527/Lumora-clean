@@ -211,7 +211,7 @@ export function SemanticSearchBar() {
               border: '1px solid rgba(139, 115, 75, 0.10)',
               borderRadius: 4,
               boxShadow:
-                'rgba(139,115,75,0.12) 0px 0px 0px 1px, rgba(78,50,23,0.12) 0px 8px 32px, rgba(78,50,23,0.06) 0px 2px 8px',
+                'rgba(139,115,75,0.12) 0px 0px 0px 1px, rgba(78,50,23,0.12) 0px 8px 32px',
               zIndex: 50,
               overflow: 'hidden',
               animation: 'fadeIn 200ms ease-out',

@@ -19,7 +19,7 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
         style={{
           fontSize: 14,
           fontFamily: 'var(--font-display)',
-          color: '#8b4513',
+          color: '#8b3030',
           marginBottom: 8,
         }}
       >
