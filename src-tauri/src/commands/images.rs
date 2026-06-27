@@ -323,19 +323,15 @@ pub fn row_to_record(row: &rusqlite::Row<'_>) -> Result<ImageRecord, rusqlite::E
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rusqlite::Connection;
 
-    fn test_db() -> Connection {
-        let conn = Connection::open_in_memory().unwrap();
-        conn.execute_batch("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;")
-            .unwrap();
-        crate::db::migrations::run_migrations(&conn).unwrap();
-        conn
+    fn test_db() -> crate::db::DbHandle {
+        crate::db::DbHandle::open_memory().unwrap()
     }
 
     #[test]
     fn insert_and_load_roundtrip() {
-        let conn = test_db();
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
         let entry = ImportEntry {
             id: "test-001".into(),
             file_path: "/tmp/test.png".into(),
@@ -355,7 +351,8 @@ mod tests {
 
     #[test]
     fn duplicate_path_is_ignored() {
-        let conn = test_db();
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
         let entry = ImportEntry {
             id: "dup-001".into(),
             file_path: "/tmp/dup.jpg".into(),
@@ -395,7 +392,8 @@ mod tests {
 
     #[test]
     fn update_rating_clamps_to_5() {
-        let conn = test_db();
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
         conn.execute(
             "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at)
              VALUES ('r1','/r','h',1,'png','2025-01-01')",
@@ -417,7 +415,8 @@ mod tests {
 
     #[test]
     fn toggle_favorite_roundtrip() {
-        let conn = test_db();
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
         conn.execute(
             "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at)
              VALUES ('f1','/f','h',1,'png','2025-01-01')",
@@ -448,5 +447,75 @@ mod tests {
             })
             .unwrap();
         assert_eq!(fav, 0);
+    }
+
+    #[test]
+    fn bulk_insert_1000_images_performance() {
+        use std::time::Instant;
+
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        let start = Instant::now();
+
+        // Insert 1000 images
+        for i in 0..1000 {
+            let id = format!("img-{:04}", i);
+            let file_path = format!("/path/to/image-{:04}.png", i);
+            let file_hash = format!("hash-{:04}", i);
+            let file_size_kb = 100 + (i % 500);
+            let width = 512 + (i % 512);
+            let height = 512 + (i % 512);
+
+            conn.execute(
+                "INSERT INTO images (id, file_path, file_hash, file_size_kb, width, height, format, created_at, metadata_json) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'png', '2026-06-27T00:00:00Z', ?7)",
+                rusqlite::params![
+                    id,
+                    file_path,
+                    file_hash,
+                    file_size_kb,
+                    width,
+                    height,
+                    format!(r#"{{"prompt":"Test image {}","model":"stable-diffusion"}}"#, i)
+                ],
+            )
+            .unwrap();
+        }
+
+        let duration = start.elapsed();
+        println!("Bulk insert 1000 images: {:?}", duration);
+
+        // Verify count
+        let count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM images", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, 1000);
+
+        // Test query performance
+        let start = Instant::now();
+        let mut stmt = conn
+            .prepare("SELECT id FROM images WHERE deleted = 0 ORDER BY imported_at DESC LIMIT 40")
+            .unwrap();
+        let rows: Vec<String> = stmt
+            .query_map([], |row| Ok(row.get::<_, String>(0)?))
+            .unwrap()
+            .filter_map(|r| r.ok())
+            .collect();
+        let duration = start.elapsed();
+        println!("Query 40 images from 1000: {:?}", duration);
+        assert_eq!(rows.len(), 40);
+
+        // Test search performance
+        let start = Instant::now();
+        let mut stmt = conn
+            .prepare("SELECT id FROM images WHERE metadata_json LIKE '%Test image 500%'")
+            .unwrap();
+        let rows: Vec<String> = stmt
+            .query_map([], |row| Ok(row.get::<_, String>(0)?))
+            .unwrap()
+            .filter_map(|r| r.ok())
+            .collect();
+        let duration = start.elapsed();
+        println!("Search by metadata in 1000 images: {:?}", duration);
+        assert_eq!(rows.len(), 1);
     }
 }
