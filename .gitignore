@@ -14,3 +14,26 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# Old project files (lumora-secondary-pages)
+assets/
+pages/
+lumora-secondary-pages.design
+orchestration-summary.json
+index.html
+
+# Python
+__pycache__/
+*.pyc
+src-tauri/sidecar/__pycache__/
+
+# Build artifacts
+*.msi
+*.exe
+*.dmg
+*.AppImage
+
+# Environment
+.env
+.env.local
+.env.*.local
