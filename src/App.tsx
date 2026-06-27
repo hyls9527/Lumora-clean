@@ -1,9 +1,11 @@
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useState, lazy, Suspense, useCallback } from 'react';
 import { Sidebar } from './components/ui/Sidebar';
 import { CommandPalette } from './components/ui/CommandPalette';
+import { DropOverlay } from './components/ui/DropOverlay';
 import { GalleryPage } from './features/gallery/GalleryPage';
 import { useSettingsStore } from './stores/settingsStore';
 import { useCommandStore } from './stores/commandStore';
+import { useDragDrop } from './hooks/useDragDrop';
 import { useTranslation } from './lib/i18n';
 import type { Command } from './stores/commandStore';
 
@@ -48,6 +50,28 @@ function App() {
     return () => window.removeEventListener('keydown', handler);
   }, [toggle]);
 
+  // Drag-and-drop: import files when dropped on window
+  const handleDrop = useCallback(
+    (paths: string[]) => {
+      // Filter for image files
+      const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff'];
+      const imagePaths = paths.filter((p) => {
+        const ext = p.toLowerCase().slice(p.lastIndexOf('.'));
+        return imageExts.includes(ext);
+      });
+
+      if (imagePaths.length > 0) {
+        // Navigate to import page with dropped files
+        setRoute('/import');
+        // Store dropped paths for ImportPage to pick up
+        (window as unknown as Record<string, unknown>).__droppedPaths = imagePaths;
+      }
+    },
+    [setRoute],
+  );
+
+  const { isDragging } = useDragDrop({ onDrop: handleDrop });
+
   const renderPage = () => {
     switch (route) {
       case '/trash': return <Suspense fallback={<Loading />}><TrashPage /></Suspense>;
@@ -67,6 +91,7 @@ function App() {
       <Sidebar activeRoute={route} onNavigate={setRoute} />
       {renderPage()}
       <CommandPalette />
+      <DropOverlay isVisible={isDragging} />
     </div>
   );
 }
