@@ -43,7 +43,7 @@ Lumora-clean/
 - **评分：** 梅花印 SVG（不用星星）
 - **收藏：** 藏书印 ◆（不用红心）
 
-详见 [`docs/DESIGN.md`](docs/DESIGN.md)。
+详见 [`DESIGN.md`](DESIGN.md)。
 
 ## 里程碑
 
@@ -107,7 +107,7 @@ ollama pull llava
 | 文档 | 用途 |
 |------|------|
 | [ARCHITECTURE.md](ARCHITECTURE.md) | 系统架构、数据模型、IPC 契约 |
-| [DESIGN.md](docs/DESIGN.md) | 设计语言规范 |
+| [DESIGN.md](DESIGN.md) | 设计语言规范 |
 | [CLAUDE.md](CLAUDE.md) | AI 编码助手工作规则 |
 
 ## License
