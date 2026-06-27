@@ -1,6 +1,5 @@
 /**
- * Semantic search API — delegates to real Tauri commands when available.
- * Falls back to mock data in browser mode.
+ * Semantic search API — delegates to real Tauri commands.
  */
 
 import { invoke } from '../tauri';
@@ -10,23 +9,9 @@ export interface SemanticSearchResult {
   similarity: number;
 }
 
-// Mock suggestion pool
-const SUGGESTION_POOL: Record<string, string[]> = {
-  月: ['月光下的森林', '月下独酌', '月色朦胧的湖面', '月夜星空'],
-  雪: ['雪山日出', '雪中红梅', '雪原驰骋', '雪夜灯火'],
-  风: ['风吹麦浪', '风云变幻', '风中凌乱的长发', '风暴前夕'],
-  星: ['星空银河', '星际穿越', '星辰大海', '星夜中的小镇'],
-  海: ['海边日落', '海浪拍岸', '海底世界', '海天一色'],
-  花: ['花开满园', '花间蝴蝶', '花瓣飘落', '花与少女'],
-  城: ['未来城市建筑', '城市夜景', '城市天际线', '城墙古韵'],
-  abstract: ['abstract fluid colors', 'abstract geometric shapes', 'abstract light patterns'],
-  sunset: ['sunset over mountains', 'sunset beach scene', 'sunset through clouds'],
-  forest: ['enchanted forest', 'misty forest morning', 'autumn forest path'],
-};
-
 /**
  * Perform a semantic search using Ollama embeddings + sqlite-vec.
- * Calls Tauri commands `embed_text_cmd` + `search_semantic_cmd` when available.
+ * Calls Tauri commands `embed_text_cmd` + `search_semantic_cmd`.
  */
 export async function searchSemantic(
   query: string,
@@ -34,41 +19,24 @@ export async function searchSemantic(
 ): Promise<SemanticSearchResult[]> {
   if (!query.trim()) return [];
 
-  try {
-    // Step 1: Get query embedding from Ollama
-    const embedding = await invoke<number[]>('embed_text_cmd', { text: query });
+  // Step 1: Get query embedding from Ollama
+  const embedding = await invoke<number[]>('embed_text_cmd', { text: query });
 
-    // Step 2: Search similar images via sqlite-vec
-    const results = await invoke<SemanticSearchResult[]>('search_semantic_cmd', {
-      queryEmbedding: embedding,
-      limit: limit ?? 20,
-    });
+  // Step 2: Search similar images via sqlite-vec
+  const results = await invoke<SemanticSearchResult[]>('search_semantic_cmd', {
+    queryEmbedding: embedding,
+    limit: limit ?? 20,
+  });
 
-    return results.map(r => ({
-      id: r.id,
-      similarity: Math.round(r.similarity * 100), // Convert 0-1 to 0-100
-    }));
-  } catch {
-    // Fallback to mock in browser mode
-    await new Promise((r) => setTimeout(r, 300 + Math.random() * 200));
-
-    if (!query.trim()) return [];
-
-    const count = 6 + Math.floor(Math.random() * 7);
-    const results: SemanticSearchResult[] = [];
-    for (let i = 0; i < count; i++) {
-      results.push({
-        id: `mock-${Date.now()}-${i}`,
-        similarity: Math.round(50 + Math.random() * 50),
-      });
-    }
-    return results.sort((a, b) => b.similarity - a.similarity);
-  }
+  return results.map(r => ({
+    id: r.id,
+    similarity: Math.round(r.similarity * 100), // Convert 0-1 to 0-100
+  }));
 }
 
 /**
  * Generate embedding for an image description.
- * Calls Tauri command `generate_embedding_for_image_cmd` when available.
+ * Calls Tauri command `generate_embedding_for_image_cmd`.
  */
 export async function generateImageEmbedding(
   imageId: string,
@@ -79,26 +47,10 @@ export async function generateImageEmbedding(
 
 /**
  * Get search suggestions based on partial query input.
- * Uses local suggestion pool — no Tauri backend needed.
+ * Returns empty array — suggestions are now generated client-side.
  */
 export async function getSearchSuggestions(
-  query: string,
+  _query: string,
 ): Promise<string[]> {
-  await new Promise((r) => setTimeout(r, 100));
-
-  if (!query.trim()) return [];
-
-  const lower = query.toLowerCase();
-  const suggestions: string[] = [];
-
-  for (const [, pool] of Object.entries(SUGGESTION_POOL)) {
-    for (const s of pool) {
-      if (s.toLowerCase().includes(lower)) {
-        suggestions.push(s);
-      }
-    }
-  }
-
-  // Deduplicate and limit
-  return Array.from(new Set(suggestions)).slice(0, 6);
+  return [];
 }
