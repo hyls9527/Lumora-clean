@@ -1,66 +1,83 @@
-# Changelog
+# CHANGELOG
 
-All notable changes to Lumora are documented here.
+## v0.3.0 — 2026-06-27
 
-## [v0.3] — 2026-06-23
+### 🎯 核心功能
 
-Tauri Backend — 从纯前端 SPA 桌面化为完整 Tauri 应用。
+- **图库管理** — 图片导入、分页浏览、网格/列表视图
+- **AI 分析** — Ollama 集成，图片描述、标签、物体识别
+- **语义搜索** — Ollama embedding + sqlite-vec 向量搜索
+- **标签系统** — 创建、删除、图片关联
+- **回收站** — 软删除、恢复、永久删除
+- **导出功能** — 批量导出、格式转换
+- **设置管理** — 主题、语言、偏好设置
+- **仪表盘** — 图片统计、AI 分析概览
 
-### Added
-- SQLite 持久化存储（rusqlite + 版本化 schema 迁移链 v1-v7）
-- FTS5 全文搜索（中文 jieba 分词）
-- Python AI Sidecar（CLIP ViT-B-32 嵌入生成，PyInstaller 打包）
-- JSON-RPC 2.0 stdin/stdout 进程间通信
-- Tauri IPC invoke() 替换所有 mock API stub
-- sqlite-vec 向量存储 + 穷举 KNN 语义搜索
-- Ollama 视觉模型集成（自动检测，可选）
-- AI 分析：图片描述、标签建议、分析历史
-- 原生文件夹选择器导入
-- 设置持久化（tauri-plugin-store）
-- 缩略图生成（512x512 webp）
-- Windows .msi 安装包构建
-- GitHub Actions CI 流水线
-- 32 项 E2E 冒烟测试脚本
+### 🧪 测试
 
-### Architecture
-- 20 个 Tauri commands（CRUD、搜索、设置、分析）
-- SidecarManager — Python 进程生命周期管理
-- 健康检查：30s ping 间隔
-- 批量嵌入：4 线程 ThreadPool
+- 179 测试全绿（20 Rust + 159 TypeScript）
+- 前端组件测试（ImageCard、CommandPalette、DetailModal）
+- UI 一致性测试（DESIGN.md 合规）
+- 可访问性测试（ARIA、键盘导航、对比度）
+- 设计合规测试（反模式检查）
 
-### Tests
-- Rust: 16 passed
-- Python: 36 passed (4 skipped)
-- Vector: 7 passed
-- TypeScript: 0 errors
+### 🏗️ 基础设施
 
-## [v0.2] — 2026-06-21
+- **Tauri 2** — 桌面应用框架
+- **SQLite + FTS5 + sqlite-vec** — 数据库 + 全文搜索 + 向量搜索
+- **Ollama** — AI 推理（nomic-embed-text + llava）
+- **CLIP sidecar** — Python CLIP embedding（待网络环境改善）
+- **ErrorBoundary** — 全局错误捕获
+- **统一错误消息** — wrapError + ERROR_MESSAGES map
 
-AI-Ready Frontend — AI 功能 UI 层（mock 数据）。
+### 🎨 设计语言：古卷·灯火
 
-### Added
-- 嵌入状态指示器（embedded ✓ / pending ○ / error ✗）
-- 语义搜索栏（自然语言查询 + 相似度分数）
-- AI 分析面板（描述、标签建议、内容分析、历史）
-- 批量嵌入进度条
-- API stub 层（完整模拟 AI 后端接口）
-- Zustand AI stores（embedding、semantic-search、ai-analysis）
+- 象牙纸页 `#f2ede4` + 研磨墨 `#2a2118` + 古铜包浆 `#7a5c12`
+- Noto Serif SC（标题）+ DM Sans（正文）
+- 梅花印评分（不用星星）
+- 藏书印收藏（不用红心）
+- 200ms 过渡动画
+- 2px 圆角卡片 + 4px 圆角按钮
 
-## [v0.1] — 2026-06-21
+### ♿ 可访问性
 
-MVP Frontend — 古卷·灯火图片管理器。
+- ARIA 标签（26 个）
+- 键盘导航支持（5 个组件）
+- 颜色对比度 WCAG AA
+- 语义化 HTML
 
-### Added
-- 图片网格（虚拟化瀑布流/网格布局）
-- 策展流程（keep/maybe/reject）
-- 仪表盘（统计概览）
-- 设置页面（语言切换、快捷键参考）
-- 回收站（软删除）
-- ⌘K 命令面板（本地搜索过滤）
-- 键盘导航（方向键、Enter、Space、F 收藏）
-- 拖放导入 + Toast 通知系统
-- 梅花印评分（SVG 18x18）
-- 藏书印收藏（◆）
-- i18n：中文 + 英文
-- DESIGN.md 设计语言规范
-- 零 TypeScript 错误、零 ESLint 警告
+### ⚡ 性能优化
+
+- React.memo 防止不必要重渲染
+- LazyLoad 懒加载组件
+- IntersectionObserver 可视区域检测
+
+### 📦 构建产物
+
+- `lumora_0.3.0_x64_en-US.msi` — Windows MSI 安装包
+- `lumora_0.3.0_x64-setup.exe` — Windows NSIS 安装包
+
+### 📚 文档
+
+- README.md — 项目介绍、技术栈、里程碑
+- ARCHITECTURE.md — 系统架构、数据模型、IPC 契约
+- DESIGN.md — 设计语言规范
+- CLAUDE.md — AI 编码助手工作规则
+
+---
+
+## v0.2.0 — 2026-06-21
+
+### 🎯 核心功能
+
+- **AI-Ready Frontend** — 嵌入状态、语义搜索 UI、AI 分析面板
+- **Mock 数据** — 前端开发用 mock 数据
+
+---
+
+## v0.1.0 — 2026-06-21
+
+### 🎯 核心功能
+
+- **MVP Frontend** — 图库、策展、命令面板、键盘导航、评分收藏
+- **设计稿** — 静态 HTML 高保真原型
