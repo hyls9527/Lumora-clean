@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import {
-  searchSemantic,
   getSearchSuggestions,
   type SemanticSearchResult,
 } from '../lib/api/semantic';
+import { searchSemanticCached, invalidateSemanticCache } from '../lib/api/semanticCache';
 
 export type SearchMode = 'exact' | 'semantic';
 
@@ -25,6 +25,7 @@ interface SemanticSearchState {
   clearSuggestions: () => void;
   setShowSuggestions: (show: boolean) => void;
   reset: () => void;
+  invalidateCache: () => void;
 }
 
 export const useSemanticSearchStore = create<SemanticSearchState>((set, get) => ({
@@ -49,7 +50,7 @@ export const useSemanticSearchStore = create<SemanticSearchState>((set, get) => 
     }
     set({ loading: true, error: null, showSuggestions: false });
     try {
-      const results = await searchSemantic(query);
+      const results = await searchSemanticCached(query);
       set({ results, loading: false });
     } catch (err) {
       set({
@@ -77,7 +78,8 @@ export const useSemanticSearchStore = create<SemanticSearchState>((set, get) => 
 
   setShowSuggestions: (show) => set({ showSuggestions: show }),
 
-  reset: () =>
+  reset: () => {
+    invalidateSemanticCache();
     set({
       query: '',
       results: [],
@@ -86,5 +88,8 @@ export const useSemanticSearchStore = create<SemanticSearchState>((set, get) => 
       suggestionsLoading: false,
       error: null,
       showSuggestions: false,
-    }),
+    });
+  },
+
+  invalidateCache: () => invalidateSemanticCache(),
 }));

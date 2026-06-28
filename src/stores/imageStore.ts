@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import * as api from '../lib/api/images';
 import type { ExportResult } from '../lib/api/images';
+import { invalidateSemanticCache } from '../lib/api/semanticCache';
 
 export interface ImageRecord {
   id: string;
@@ -156,6 +157,7 @@ export const useImageStore = create<ImageStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const imported = await api.importImages(folderPath);
+      invalidateSemanticCache(); // New images → cached search results stale
       set((s) => ({
         images: [...imported, ...s.images],
         total: s.total + imported.length,
