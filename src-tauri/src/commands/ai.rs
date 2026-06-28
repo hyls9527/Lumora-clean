@@ -54,12 +54,32 @@ struct OllamaResponse {
     message: OllamaMessage,
 }
 
+/// Check if Ollama is running and available.
+async fn check_ollama_available() -> Result<(), String> {
+    let client = reqwest::Client::new();
+    let response = client
+        .get("http://localhost:11434/api/tags")
+        .timeout(std::time::Duration::from_secs(5))
+        .send()
+        .await
+        .map_err(|_| "Ollama is not running. Please start Ollama to use AI features.".to_string())?;
+
+    if !response.status().is_success() {
+        return Err("Ollama is not responding correctly.".to_string());
+    }
+
+    Ok(())
+}
+
 /// Call Ollama API to analyze an image.
 /// Expects Ollama to be running locally with a vision model (e.g., llava).
 async fn call_ollama_analyze(
     image_path: &str,
     model: &str,
 ) -> Result<AnalysisResult, String> {
+    // Check Ollama availability first
+    check_ollama_available().await?;
+
     // Read image and encode as base64
     let image_bytes = std::fs::read(image_path)
         .map_err(|e| format!("Failed to read image: {}", e))?;

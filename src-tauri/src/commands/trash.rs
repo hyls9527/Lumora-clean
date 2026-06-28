@@ -89,8 +89,111 @@ pub fn list_trash(
 #[tauri::command]
 pub fn empty_trash(db: tauri::State<'_, DbHandle>) -> Result<u64, String> {
     let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
-    let count = conn
+    let affected = conn
         .execute("DELETE FROM images WHERE deleted = 1", [])
         .map_err(|e| e.to_string())?;
-    Ok(count as u64)
+    Ok(affected as u64)
+}
+
+// ---------------------------------------------------------------------------
+// Batch operations
+// ---------------------------------------------------------------------------
+
+/// Batch soft-delete: move multiple images to trash.
+#[tauri::command]
+pub fn batch_soft_delete(
+    db: tauri::State<'_, DbHandle>,
+    ids: Vec<String>,
+) -> Result<u64, String> {
+    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+    let mut affected: u64 = 0;
+    for id in &ids {
+        let n = conn
+            .execute(
+                "UPDATE images SET deleted = 1, deleted_at = datetime('now') WHERE id = ?1 AND deleted = 0",
+                rusqlite::params![id],
+            )
+            .map_err(|e| e.to_string())?;
+        affected += n as u64;
+    }
+    Ok(affected)
+}
+
+/// Batch restore: restore multiple images from trash.
+#[tauri::command]
+pub fn batch_restore(
+    db: tauri::State<'_, DbHandle>,
+    ids: Vec<String>,
+) -> Result<u64, String> {
+    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+    let mut affected: u64 = 0;
+    for id in &ids {
+        let n = conn
+            .execute(
+                "UPDATE images SET deleted = 0, deleted_at = NULL WHERE id = ?1 AND deleted = 1",
+                rusqlite::params![id],
+            )
+            .map_err(|e| e.to_string())?;
+        affected += n as u64;
+    }
+    Ok(affected)
+}
+
+/// Batch permanent delete: permanently delete multiple images.
+#[tauri::command]
+pub fn batch_permanent_delete(
+    db: tauri::State<'_, DbHandle>,
+    ids: Vec<String>,
+) -> Result<u64, String> {
+    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+    let mut affected: u64 = 0;
+    for id in &ids {
+        let n = conn
+            .execute("DELETE FROM images WHERE id = ?1", rusqlite::params![id])
+            .map_err(|e| e.to_string())?;
+        affected += n as u64;
+    }
+    Ok(affected)
+}
+
+/// Batch add tag: add a tag to multiple images.
+#[tauri::command]
+pub fn batch_add_tag(
+    db: tauri::State<'_, DbHandle>,
+    image_ids: Vec<String>,
+    tag_id: String,
+) -> Result<u64, String> {
+    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+    let mut affected: u64 = 0;
+    for image_id in &image_ids {
+        let n = conn
+            .execute(
+                "INSERT OR IGNORE INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
+                rusqlite::params![image_id, tag_id],
+            )
+            .map_err(|e| e.to_string())?;
+        affected += n as u64;
+    }
+    Ok(affected)
+}
+
+/// Batch remove tag: remove a tag from multiple images.
+#[tauri::command]
+pub fn batch_remove_tag(
+    db: tauri::State<'_, DbHandle>,
+    image_ids: Vec<String>,
+    tag_id: String,
+) -> Result<u64, String> {
+    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+    let mut affected: u64 = 0;
+    for image_id in &image_ids {
+        let n = conn
+            .execute(
+                "DELETE FROM image_tags WHERE image_id = ?1 AND tag_id = ?2",
+                rusqlite::params![image_id, tag_id],
+            )
+            .map_err(|e| e.to_string())?;
+        affected += n as u64;
+    }
+    Ok(affected)
 }
