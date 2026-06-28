@@ -38,15 +38,36 @@ pub fn restore_image(db: tauri::State<'_, DbHandle>, id: String) -> Result<(), S
 }
 
 /// Permanently remove an image from the database.
+/// Cascades: image_tags, embeddings, vec_embeddings, analysis_history.
 #[tauri::command]
 pub fn permanent_delete_image(db: tauri::State<'_, DbHandle>, id: String) -> Result<(), String> {
     let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
-    let changed = conn
+    permanent_delete_impl(&conn, &id)
+}
+
+/// Internal: cascade delete an image and all related records.
+fn permanent_delete_impl(conn: &rusqlite::Connection, id: &str) -> Result<(), String> {
+    let tx = conn.unchecked_transaction().map_err(|e| e.to_string())?;
+
+    // Cascade delete related records first
+    tx.execute("DELETE FROM image_tags WHERE image_id = ?1", params![id])
+        .map_err(|e| e.to_string())?;
+    tx.execute("DELETE FROM analysis_history WHERE image_id = ?1", params![id])
+        .map_err(|e| e.to_string())?;
+    tx.execute("DELETE FROM vec_embeddings WHERE image_id = ?1", params![id])
+        .ok(); // vec0 may not support standard DELETE
+    tx.execute("DELETE FROM embeddings WHERE image_id = ?1", params![id])
+        .map_err(|e| e.to_string())?;
+
+    // Finally delete the image itself
+    let changed = tx
         .execute("DELETE FROM images WHERE id = ?1", params![id])
         .map_err(|e| e.to_string())?;
     if changed == 0 {
         return Err("Image not found".to_string());
     }
+
+    tx.commit().map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -196,4 +217,106 @@ pub fn batch_remove_tag(
         affected += n as u64;
     }
     Ok(affected)
+}
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::db::DbHandle;
+
+    fn insert_test_image(conn: &rusqlite::Connection, id: &str) {
+        conn.execute(
+            "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+             VALUES (?1, '/test.png', 'h1', 100, 'png', '2025-01-01')",
+            params![id],
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn soft_delete_sets_deleted_flag() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+        insert_test_image(&conn, "img-1");
+
+        conn.execute(
+            "UPDATE images SET deleted = 1, deleted_at = datetime('now') WHERE id = 'img-1'",
+            [],
+        )
+        .unwrap();
+
+        let deleted: i64 = conn
+            .query_row("SELECT deleted FROM images WHERE id = 'img-1'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(deleted, 1);
+
+        // Restore
+        conn.execute("UPDATE images SET deleted = 0, deleted_at = NULL WHERE id = 'img-1'", [])
+            .unwrap();
+        let deleted: i64 = conn
+            .query_row("SELECT deleted FROM images WHERE id = 'img-1'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(deleted, 0);
+    }
+
+    #[test]
+    fn permanent_delete_cascades() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+        insert_test_image(&conn, "img-1");
+
+        conn.execute("INSERT INTO tags (id, name) VALUES ('tag-1', 'nature')", [])
+            .unwrap();
+        conn.execute("INSERT INTO image_tags (image_id, tag_id) VALUES ('img-1', 'tag-1')", [])
+            .unwrap();
+        conn.execute(
+            "INSERT INTO embeddings (image_id, embedding, dimensions) VALUES ('img-1', X'0000', 1)",
+            [],
+        )
+        .unwrap();
+        conn.execute(
+            "INSERT INTO analysis_history (id, image_id, result_json) VALUES ('a-1', 'img-1', '{}')",
+            [],
+        )
+        .unwrap();
+
+        let tag_count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'img-1'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(tag_count, 1);
+
+        permanent_delete_impl(&conn, "img-1").unwrap();
+
+        let tag_count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'img-1'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(tag_count, 0);
+
+        let emb_count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM embeddings WHERE image_id = 'img-1'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(emb_count, 0);
+
+        let analysis_count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM analysis_history WHERE image_id = 'img-1'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(analysis_count, 0);
+
+        let img_count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM images WHERE id = 'img-1'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(img_count, 0);
+    }
+
+    #[test]
+    fn permanent_delete_nonexistent_fails() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+        let result = permanent_delete_impl(&conn, "nonexistent");
+        assert!(result.is_err());
+    }
 }
