@@ -518,4 +518,87 @@ mod tests {
         println!("Search by metadata in 1000 images: {:?}", duration);
         assert_eq!(rows.len(), 1);
     }
+
+    #[test]
+    fn search_empty_query_returns_empty() {
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        conn.execute(
+            "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at,metadata_json)
+             VALUES ('s1','/search.png','h',1,'png','2025-01-01','{\"prompt\":\"test\"}')",
+            [],
+        )
+        .unwrap();
+
+        let mut stmt = conn
+            .prepare("SELECT id FROM images WHERE metadata_json LIKE '%nonexistent%'")
+            .unwrap();
+        let rows: Vec<String> = stmt
+            .query_map([], |row| Ok(row.get::<_, String>(0)?))
+            .unwrap()
+            .filter_map(|r| r.ok())
+            .collect();
+        assert_eq!(rows.len(), 0);
+    }
+
+    #[test]
+    fn pagination_beyond_total_returns_empty() {
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+
+        for i in 0..3 {
+            conn.execute(
+                "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at)
+                 VALUES (?1,?2,'h',1,'png','2025-01-01')",
+                rusqlite::params![format!("p-{}", i), format!("/p-{}.png", i)],
+            )
+            .unwrap();
+        }
+
+        let per_page = 40u32;
+        let page = 2u32;
+        let offset = (page - 1) * per_page;
+        let mut stmt = conn
+            .prepare("SELECT id FROM images WHERE deleted = 0 ORDER BY imported_at DESC LIMIT ?1 OFFSET ?2")
+            .unwrap();
+        let rows: Vec<String> = stmt
+            .query_map(rusqlite::params![per_page, offset], |row| {
+                Ok(row.get::<_, String>(0)?)
+            })
+            .unwrap()
+            .filter_map(|r| r.ok())
+            .collect();
+        assert_eq!(rows.len(), 0);
+    }
+
+    #[test]
+    fn count_reflects_actual_inserts() {
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+
+        for i in 0..5 {
+            conn.execute(
+                "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at)
+                 VALUES (?1,?2,'h',1,'png','2025-01-01')",
+                rusqlite::params![format!("c-{}", i), format!("/c-{}.png", i)],
+            )
+            .unwrap();
+        }
+
+        let count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM images WHERE deleted = 0", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert_eq!(count, 5);
+
+        conn.execute("UPDATE images SET deleted = 1 WHERE id = 'c-0'", [])
+            .unwrap();
+        let count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM images WHERE deleted = 0", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert_eq!(count, 4);
+    }
 }

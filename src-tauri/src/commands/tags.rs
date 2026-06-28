@@ -126,3 +126,106 @@ fn row_to_tag(row: &rusqlite::Row<'_>) -> Result<Tag, rusqlite::Error> {
         created_at: row.get("created_at")?,
     })
 }
+
+// ---------------------------------------------------------------------------
+// Internal helpers (for testing and cross-module use)
+// ---------------------------------------------------------------------------
+
+/// Internal: create a tag and return its ID.
+pub fn create_tag_impl(conn: &rusqlite::Connection, name: &str, color: Option<&str>) -> Result<String, String> {
+    let id = Uuid::new_v4().to_string();
+    conn.execute(
+        "INSERT INTO tags (id, name, color) VALUES (?1, ?2, ?3)",
+        params![id, name, color],
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(id)
+}
+
+/// Internal: associate a tag with an image.
+pub fn add_tag_to_image_impl(conn: &rusqlite::Connection, image_id: &str, tag_id: &str) -> Result<(), String> {
+    conn.execute(
+        "INSERT OR IGNORE INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
+        params![image_id, tag_id],
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::db::DbHandle;
+
+    fn insert_test_image(conn: &rusqlite::Connection, id: &str) {
+        conn.execute(
+            "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+             VALUES (?1, '/test.png', 'h1', 100, 'png', '2025-01-01')",
+            params![id],
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn create_and_list_tags() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+
+        let id1 = create_tag_impl(&conn, "nature", Some("#4a7a3a")).unwrap();
+        let id2 = create_tag_impl(&conn, "art", None).unwrap();
+
+        let mut stmt = conn
+            .prepare("SELECT id, name, color, created_at FROM tags ORDER BY name")
+            .unwrap();
+        let tags: Vec<Tag> = stmt.query_map([], row_to_tag).unwrap().filter_map(|r| r.ok()).collect();
+
+        assert_eq!(tags.len(), 2);
+        assert_eq!(tags[0].name, "art"); // sorted by name
+        assert_eq!(tags[1].name, "nature");
+        assert_eq!(tags[1].color.as_deref(), Some("#4a7a3a"));
+    }
+
+    #[test]
+    fn tag_image_association() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+
+        insert_test_image(&conn, "img-1");
+        let tag_id = create_tag_impl(&conn, "test-tag", None).unwrap();
+        add_tag_to_image_impl(&conn, "img-1", &tag_id).unwrap();
+
+        let count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'img-1'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, 1);
+
+        // Remove
+        conn.execute("DELETE FROM image_tags WHERE image_id = 'img-1' AND tag_id = ?1", params![tag_id])
+            .unwrap();
+        let count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'img-1'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, 0);
+    }
+
+    #[test]
+    fn duplicate_tag_association_is_ignored() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+
+        insert_test_image(&conn, "img-1");
+        let tag_id = create_tag_impl(&conn, "dup-tag", None).unwrap();
+
+        add_tag_to_image_impl(&conn, "img-1", &tag_id).unwrap();
+        add_tag_to_image_impl(&conn, "img-1", &tag_id).unwrap(); // duplicate
+
+        let count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'img-1'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, 1); // only one entry
+    }
+}
