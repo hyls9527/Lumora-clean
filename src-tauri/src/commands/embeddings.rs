@@ -268,14 +268,14 @@ mod tests {
         )
         .unwrap();
 
-        // Create a 512-dim embedding (zeros for test)
-        let embedding: Vec<f64> = vec![0.0; 512];
+        // Create a 768-dim embedding (zeros for test)
+        let embedding: Vec<f64> = vec![0.0; 768];
         upsert_embedding(&conn, "img-1", &embedding).unwrap();
 
         // Verify status
         let info = get_embedding_status_db(&conn, "img-1").unwrap().unwrap();
         assert_eq!(info.status, "embedded");
-        assert_eq!(info.dimensions, Some(512));
+        assert_eq!(info.dimensions, Some(768));
         assert!(info.generated_at.is_some());
     }
 
@@ -301,22 +301,22 @@ mod tests {
         .unwrap();
 
         // First insert with one set of values
-        let mut embedding1: Vec<f64> = vec![0.0; 512];
+        let mut embedding1: Vec<f64> = vec![0.0; 768];
         embedding1[0] = 0.1;
         upsert_embedding(&conn, "img-1", &embedding1).unwrap();
 
         let info = get_embedding_status_db(&conn, "img-1").unwrap().unwrap();
         assert_eq!(info.status, "embedded");
-        assert_eq!(info.dimensions, Some(512));
+        assert_eq!(info.dimensions, Some(768));
 
-        // Update with different values (same 512 dimensions for vec0)
-        let mut embedding2: Vec<f64> = vec![0.0; 512];
+        // Update with different values (same 768 dimensions for vec0)
+        let mut embedding2: Vec<f64> = vec![0.0; 768];
         embedding2[0] = 0.9;
         upsert_embedding(&conn, "img-1", &embedding2).unwrap();
 
         let info = get_embedding_status_db(&conn, "img-1").unwrap().unwrap();
         assert_eq!(info.status, "embedded");
-        assert_eq!(info.dimensions, Some(512));
+        assert_eq!(info.dimensions, Some(768));
     }
 
     #[test]
@@ -338,13 +338,13 @@ mod tests {
             .unwrap();
 
             // Create embeddings with slight variations
-            let mut embedding: Vec<f64> = vec![0.0; 512];
+            let mut embedding: Vec<f64> = vec![0.0; 768];
             embedding[0] = i as f64 * 0.1; // Small variation
             upsert_embedding(&conn, &format!("img-{}", i), &embedding).unwrap();
         }
 
         // Search with a query embedding close to img-0
-        let mut query: Vec<f64> = vec![0.0; 512];
+        let mut query: Vec<f64> = vec![0.0; 768];
         query[0] = 0.05; // Close to img-0's first dimension (0.0)
         let results = search_semantic_db(&conn, &query, 10).unwrap();
 
@@ -372,11 +372,11 @@ mod tests {
             )
             .unwrap();
 
-            let embedding: Vec<f64> = vec![0.0; 512];
+            let embedding: Vec<f64> = vec![0.0; 768];
             upsert_embedding(&conn, &format!("img-{}", i), &embedding).unwrap();
         }
 
-        let query: Vec<f64> = vec![0.0; 512];
+        let query: Vec<f64> = vec![0.0; 768];
         let results = search_semantic_db(&conn, &query, 2).unwrap();
         assert!(results.len() <= 2);
     }
@@ -401,7 +401,7 @@ mod tests {
         }
 
         // Insert 2 embedded, 0 pending, 0 error
-        let embedding: Vec<f64> = vec![0.0; 512];
+        let embedding: Vec<f64> = vec![0.0; 768];
         upsert_embedding(&conn, "img-0", &embedding).unwrap();
         upsert_embedding(&conn, "img-1", &embedding).unwrap();
 

@@ -99,7 +99,7 @@ pub const V4_CREATE_EMBEDDINGS: &str = "CREATE TABLE IF NOT EXISTS embeddings (
 pub const V4_CREATE_VEC_TABLE: &str =
     "CREATE VIRTUAL TABLE IF NOT EXISTS vec_embeddings USING vec0(
     image_id TEXT PRIMARY KEY,
-    embedding float[512]
+    embedding float[768]
 );";
 
 // ---------------------------------------------------------------------------
