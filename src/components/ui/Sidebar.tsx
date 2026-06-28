@@ -13,13 +13,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { key: '/gallery', label: '创作者图库' },
-  { key: '/normal', label: '普通图库' },
-  { key: '/curation', label: '策展' },
   { key: '/dashboard', label: '仪表盘' },
   { key: '/import', label: '导入管理' },
   { key: '/search', label: '语义搜索' },
-  { key: '/favorites', label: '收藏' },
-  { key: '/prompts', label: '提示词库' },
   { key: '/tags', label: '标签' },
   { key: '/export', label: '导出' },
   { key: '/settings', label: '设置' },

@@ -76,7 +76,7 @@ function App() {
     switch (route) {
       case '/trash': return <Suspense fallback={<Loading />}><TrashPage /></Suspense>;
       case '/dashboard': return <Suspense fallback={<Loading />}><DashboardPage /></Suspense>;
-      case '/gallery': case '/normal': return <GalleryPage />;
+      case '/gallery': return <GalleryPage />;
       case '/import': return <Suspense fallback={<Loading />}><ImportPage /></Suspense>;
       case '/search': return <Suspense fallback={<Loading />}><SearchPage /></Suspense>;
       case '/tags': return <Suspense fallback={<Loading />}><TagManager /></Suspense>;

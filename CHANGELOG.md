@@ -1,5 +1,35 @@
 # CHANGELOG
 
+## v0.3.1 — 2026-06-29
+
+### ⚡ 性能优化
+
+- **语义搜索缓存** — Map-based LRU, O(1) 查找, 30min TTL, 查询规范化, 5MB 驱逐
+- **批量持久化** — 300ms debounce, 避免同步 localStorage 写入阻塞主线程
+- **缓存失效** — 图片导入后自动清空语义搜索缓存
+
+### 🎯 核心功能
+
+- **Ollama 可用性检测** — Sidebar 绿点/红点状态指示器, 60s 轮询, 可点击重试
+- **依赖链深度调查** — 识别 6 层架构 7 条依赖链, 跨层风险矩阵
+
+### 🐛 Bug 修复
+
+- **GalleryPage loadMore** — 修复 `loadMore` 未解构导致的 TypeScript 错误
+- **项目 TS 错误清零** — 从 1 个降至 0 个
+
+### 🧪 测试
+
+- 172 TypeScript 测试全绿（+13 新增）
+- 新增: semanticCache (8), useOllamaStatus (5)
+
+### 📦 新增文件
+
+- `src/lib/api/semanticCache.ts` — 语义搜索缓存层
+- `src/hooks/useOllamaStatus.ts` — Ollama 状态检测 hook
+
+---
+
 ## v0.3.0 — 2026-06-27
 
 ### 🎯 核心功能
