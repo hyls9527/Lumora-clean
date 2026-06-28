@@ -13,6 +13,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { key: '/gallery', label: '创作者图库' },
+  { key: '/favorites', label: '收藏' },
   { key: '/dashboard', label: '仪表盘' },
   { key: '/import', label: '导入管理' },
   { key: '/search', label: '语义搜索' },
