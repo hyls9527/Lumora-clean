@@ -1,5 +1,9 @@
 # Lumora — 光之韵律
 
+[![CI](https://github.com/hyls9527/Lumora-clean/actions/workflows/ci.yml/badge.svg)](https://github.com/hyls9527/Lumora-clean/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue)](CHANGELOG.md)
+
 > AI 创作者的图片管理器 · 古卷·灯火设计语言
 
 Lumora 是一个本地优先、隐私至上的 AI 图片管理桌面应用，服务于 AI 创作者（Stable Diffusion / Midjourney / ComfyUI 用户）。

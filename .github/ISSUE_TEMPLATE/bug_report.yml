@@ -1,0 +1,79 @@
+name: Bug Report
+description: Report a bug in Lumora
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please fill in the details below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear description of the bug.
+      placeholder: What happened? What did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: page
+    attributes:
+      label: Affected Page
+      options:
+        - Gallery
+        - Search
+        - Dashboard
+        - Import
+        - Export
+        - Settings
+        - Tags
+        - Trash
+        - Other
+    validations:
+      required: false
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      placeholder: e.g. Windows 11, macOS 14
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Lumora Version
+      placeholder: e.g. 0.3.0
+    validations:
+      required: false
