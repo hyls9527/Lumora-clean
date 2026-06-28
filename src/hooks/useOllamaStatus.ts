@@ -18,16 +18,25 @@ interface OllamaStatus {
 }
 
 export function useOllamaStatus(): OllamaStatus {
-  const [available, setAvailable] = useState<boolean>(true); // Assume available until proven otherwise
-  const [checking, setChecking] = useState(false);
+  const [available, setAvailable] = useState<boolean>(false); // Fix #5: start false
+  const [checking, setChecking] = useState(true); // Fix #5: start checking
   const [error, setError] = useState<string | null>(null);
   const mountedRef = useRef(true);
+  const controllerRef = useRef<AbortController | null>(null); // Fix #1: track controller
 
   const check = useCallback(async () => {
     if (!mountedRef.current) return;
+
+    // Abort any in-flight request (Fix #1)
+    if (controllerRef.current) {
+      controllerRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
     setChecking(true);
     try {
-      const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
       const resp = await fetch(OLLAMA_URL, {
@@ -35,6 +44,8 @@ export function useOllamaStatus(): OllamaStatus {
         signal: controller.signal,
       });
       clearTimeout(timeout);
+
+      if (!mountedRef.current) return;
 
       if (resp.ok) {
         setAvailable(true);
@@ -45,25 +56,36 @@ export function useOllamaStatus(): OllamaStatus {
       }
     } catch (err) {
       if (!mountedRef.current) return;
-      setAvailable(false);
+      // Ignore aborted requests from previous check
       if (err instanceof DOMException && err.name === 'AbortError') {
-        setError('Ollama 连接超时');
+        // Only show timeout error if this controller wasn't replaced
+        if (controllerRef.current === controller) {
+          setAvailable(false);
+          setError('Ollama 连接超时');
+        }
       } else {
+        setAvailable(false);
         setError('Ollama 未运行');
       }
     } finally {
-      if (mountedRef.current) setChecking(false);
+      if (mountedRef.current && controllerRef.current === controller) {
+        setChecking(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     mountedRef.current = true;
-    check(); // Initial check
+    check();
 
     const interval = setInterval(check, POLL_INTERVAL_MS);
     return () => {
       mountedRef.current = false;
       clearInterval(interval);
+      // Fix #1: abort in-flight request on unmount
+      if (controllerRef.current) {
+        controllerRef.current.abort();
+      }
     };
   }, [check]);
 

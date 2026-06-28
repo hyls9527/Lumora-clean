@@ -16,12 +16,7 @@ pub fn create_tag(
     color: Option<String>,
 ) -> Result<Tag, String> {
     let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
-    let id = Uuid::new_v4().to_string();
-    conn.execute(
-        "INSERT INTO tags (id, name, color) VALUES (?1, ?2, ?3)",
-        params![id, name, color],
-    )
-    .map_err(|e| e.to_string())?;
+    let id = create_tag_impl(&conn, &name, color.as_deref())?;
     let tag = conn
         .query_row(
             "SELECT id, name, color, created_at FROM tags WHERE id = ?1",
@@ -132,20 +127,33 @@ fn row_to_tag(row: &rusqlite::Row<'_>) -> Result<Tag, rusqlite::Error> {
 // ---------------------------------------------------------------------------
 
 /// Internal: create a tag and return its ID.
-pub fn create_tag_impl(conn: &rusqlite::Connection, name: &str, color: Option<&str>) -> Result<String, String> {
+pub fn create_tag_impl(
+    conn: &rusqlite::Connection,
+    name: &str,
+    color: Option<&str>,
+) -> Result<String, String> {
+    let trimmed = name.trim();
+    if trimmed.is_empty() {
+        return Err("Tag name cannot be empty".to_string());
+    }
     let id = Uuid::new_v4().to_string();
     conn.execute(
         "INSERT INTO tags (id, name, color) VALUES (?1, ?2, ?3)",
-        params![id, name, color],
+        params![id, trimmed, color],
     )
     .map_err(|e| e.to_string())?;
     Ok(id)
 }
 
 /// Internal: associate a tag with an image.
-pub fn add_tag_to_image_impl(conn: &rusqlite::Connection, image_id: &str, tag_id: &str) -> Result<(), String> {
+pub fn add_tag_to_image_impl(
+    conn: &rusqlite::Connection,
+    image_id: &str,
+    tag_id: &str,
+) -> Result<(), String> {
+    // Fix #7: use INSERT instead of INSERT OR IGNORE to surface FK violations
     conn.execute(
-        "INSERT OR IGNORE INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
+        "INSERT INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
         params![image_id, tag_id],
     )
     .map_err(|e| e.to_string())?;
@@ -213,7 +221,19 @@ mod tests {
     }
 
     #[test]
-    fn duplicate_tag_association_is_ignored() {
+    fn empty_tag_name_fails() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+
+        let result = create_tag_impl(&conn, "", None);
+        assert!(result.is_err());
+
+        let result = create_tag_impl(&conn, "   ", None);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn duplicate_tag_association_fails() {
         let db = DbHandle::open_memory().unwrap();
         let conn = db.conn().lock().unwrap();
 
@@ -221,11 +241,12 @@ mod tests {
         let tag_id = create_tag_impl(&conn, "dup-tag", None).unwrap();
 
         add_tag_to_image_impl(&conn, "img-1", &tag_id).unwrap();
-        add_tag_to_image_impl(&conn, "img-1", &tag_id).unwrap(); // duplicate
+        let result = add_tag_to_image_impl(&conn, "img-1", &tag_id);
+        assert!(result.is_err()); // UNIQUE constraint violation
 
         let count: i64 = conn
             .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'img-1'", [], |r| r.get(0))
             .unwrap();
-        assert_eq!(count, 1); // only one entry
+        assert_eq!(count, 1);
     }
 }

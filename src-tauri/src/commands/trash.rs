@@ -54,8 +54,8 @@ fn permanent_delete_impl(conn: &rusqlite::Connection, id: &str) -> Result<(), St
         .map_err(|e| e.to_string())?;
     tx.execute("DELETE FROM analysis_history WHERE image_id = ?1", params![id])
         .map_err(|e| e.to_string())?;
-    tx.execute("DELETE FROM vec_embeddings WHERE image_id = ?1", params![id])
-        .ok(); // vec0 may not support standard DELETE
+    // vec0 virtual table may not support standard DELETE; failure is non-fatal
+    let _ = tx.execute("DELETE FROM vec_embeddings WHERE image_id = ?1", params![id]);
     tx.execute("DELETE FROM embeddings WHERE image_id = ?1", params![id])
         .map_err(|e| e.to_string())?;
 

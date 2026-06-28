@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useImageStore, type ImageRecord } from '../../stores/imageStore';
 import { ImageCard } from '../../components/ui/ImageCard';
 import { DetailModal } from '../../components/ui/DetailModal';
@@ -11,18 +11,27 @@ export function FavoritesPage() {
 
   const [detailImage, setDetailImage] = useState<ImageRecord | null>(null);
 
-  const favorites = images.filter((img) => img.favorite);
+  // Fix #6: memoize filtered favorites
+  const favorites = useMemo(() => images.filter((img) => img.favorite), [images]);
 
   useEffect(() => {
     fetchImages(1);
   }, [fetchImages]);
 
+  // Fix #2: close modal if current image is no longer in favorites
+  useEffect(() => {
+    if (detailImage && !favorites.find((f) => f.id === detailImage.id)) {
+      setDetailImage(null);
+    }
+  }, [favorites, detailImage]);
+
   const handleDetailPrev = useCallback(() => {
     setDetailImage((prev: ImageRecord | null) => {
       if (!prev) return prev;
       const idx = favorites.findIndex((i) => i.id === prev.id);
+      if (idx < 0) return null; // Fix #2: not found → close
       const nextIdx = Math.max(0, idx - 1);
-      return favorites[nextIdx] ?? prev;
+      return favorites[nextIdx] ?? null;
     });
   }, [favorites]);
 
@@ -30,8 +39,9 @@ export function FavoritesPage() {
     setDetailImage((prev: ImageRecord | null) => {
       if (!prev) return prev;
       const idx = favorites.findIndex((i) => i.id === prev.id);
+      if (idx < 0) return null; // Fix #2: not found → close
       const nextIdx = Math.min(favorites.length - 1, idx + 1);
-      return favorites[nextIdx] ?? prev;
+      return favorites[nextIdx] ?? null;
     });
   }, [favorites]);
 

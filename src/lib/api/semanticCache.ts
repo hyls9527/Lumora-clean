@@ -48,9 +48,11 @@ function normalizeQuery(q: string): string {
 
 /** Estimate serialized byte size of an entry (avoids JSON.stringify). */
 function estimateBytes(key: string, results: { id: string; similarity: number }[]): number {
-  let size = key.length + 6; // "key":{...}
+  // "key":{"results":[...],"ts":NNNNNN,"bytes":NNN}
+  let size = key.length + 40; // key + JSON overhead ({"results":[],"ts":0,"bytes":0})
   for (const r of results) {
-    size += 14 + r.id.length + 4; // {"id":"...","similarity":NN},
+    // {"id":"...","similarity":NNN} + comma
+    size += 16 + r.id.length + String(r.similarity).length;
   }
   return size;
 }
