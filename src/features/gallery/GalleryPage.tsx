@@ -6,6 +6,7 @@ import { DetailModal } from '../../components/ui/DetailModal';
 import { GridSkeleton } from '../../components/ui/LoadingSkeleton';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { LazyLoad } from '../../components/ui/LazyLoad';
+import { InfiniteScroll } from '../../components/ui/InfiniteScroll';
 import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 
 const sortOptions = [
@@ -368,33 +369,39 @@ export function GalleryPage() {
       ) : !error ? (
         <>
           {/* Image Grid (Masonry via CSS columns) */}
-          <div
-            ref={gridRef}
-            style={{
-              columnCount: filters.view === 'grid' ? 4 : 1,
-              columnGap: 12,
-              padding: '24px 32px',
-            }}
+          <InfiniteScroll
+            onLoadMore={loadMore}
+            hasMore={images.length < total}
+            loading={loading}
           >
-            {images.map((img, index) => (
-              <div
-                key={img.id}
-                style={{
-                  breakInside: 'avoid',
-                  marginBottom: 12,
-                }}
-              >
-                <LazyLoad height={200}>
-                  <ImageCard
-                    image={img}
-                    focused={focusedIndex === index}
-                    onOpen={() => setDetailImage(img)}
-                    onClick={() => setFocusedIndex(index)}
-                  />
-                </LazyLoad>
-              </div>
-            ))}
-          </div>
+            <div
+              ref={gridRef}
+              style={{
+                columnCount: filters.view === 'grid' ? 4 : 1,
+                columnGap: 12,
+                padding: '24px 32px',
+              }}
+            >
+              {images.map((img, index) => (
+                <div
+                  key={img.id}
+                  style={{
+                    breakInside: 'avoid',
+                    marginBottom: 12,
+                  }}
+                >
+                  <LazyLoad height={200}>
+                    <ImageCard
+                      image={img}
+                      focused={focusedIndex === index}
+                      onOpen={() => setDetailImage(img)}
+                      onClick={() => setFocusedIndex(index)}
+                    />
+                  </LazyLoad>
+                </div>
+              ))}
+            </div>
+          </InfiniteScroll>
 
           {/* Pagination */}
           {totalPages > 1 && (

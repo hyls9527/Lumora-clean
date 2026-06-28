@@ -43,6 +43,7 @@ interface ImageStore {
   perPage: number;
   // Async actions
   fetchImages: (page?: number) => Promise<void>;
+  loadMore: () => Promise<void>;
   searchImages: (query: string) => Promise<void>;
   importImages: (folderPath: string) => Promise<void>;
   exportImages: (ids: string[], destDir: string, format: string, renameTemplate?: string) => Promise<ExportResult>;
@@ -107,6 +108,29 @@ export const useImageStore = create<ImageStore>((set, get) => ({
       set({
         loading: false,
         error: err instanceof Error ? err.message : '加载失败',
+      });
+    }
+  },
+
+  loadMore: async () => {
+    const { page, perPage, images, total, loading } = get();
+    if (loading) return;
+    if (images.length >= total) return;
+
+    const nextPage = page + 1;
+    set({ loading: true });
+    try {
+      const result = await api.listImages(nextPage, perPage);
+      set({
+        images: [...images, ...result.items],
+        total: result.total,
+        page: nextPage,
+        loading: false,
+      });
+    } catch (err) {
+      set({
+        loading: false,
+        error: err instanceof Error ? err.message : '加载更多失败',
       });
     }
   },

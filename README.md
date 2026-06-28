@@ -8,7 +8,7 @@
 
 Lumora 是一个本地优先、隐私至上的 AI 图片管理桌面应用，服务于 AI 创作者（Stable Diffusion / Midjourney / ComfyUI 用户）。
 
-https://github.com/hyls9527/Lumora-clean/media/lumora-showcase.mp4
+https://raw.githubusercontent.com/hyls9527/Lumora-clean/main/media/lumora-showcase.mp4
 
 ## 项目结构
 
