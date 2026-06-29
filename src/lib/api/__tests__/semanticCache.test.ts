@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as tauri from '../../tauri';
 
 import {
@@ -154,5 +154,34 @@ describe('SemanticSearchCache', () => {
 
     // At least one of them should be evicted
     expect(q0 === null || q1 === null || (q0 !== null && q1 !== null)).toBe(true);
+  });
+});
+
+describe('Debounce persistence', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('should write to localStorage after 300ms debounce', async () => {
+    setCachedResult('test-query', [
+      { id: 'img-1', similarity: 90 },
+    ]);
+
+    // Before 300ms — localStorage should NOT have the cache yet
+    const before = localStorage.getItem('lumora:semantic-cache');
+    expect(before).toBeNull();
+
+    // Advance past debounce
+    vi.advanceTimersByTime(350);
+
+    // Now localStorage should have the cache
+    const after = localStorage.getItem('lumora:semantic-cache');
+    expect(after).not.toBeNull();
+    expect(after).toContain('test-query');
   });
 });
