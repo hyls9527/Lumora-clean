@@ -14,6 +14,7 @@ interface UpdateInfo {
 interface UpdaterState {
   available: boolean;
   checking: boolean;
+  installing: boolean;
   downloaded: boolean;
   error: string | null;
   updateInfo: UpdateInfo | null;
@@ -24,17 +25,26 @@ interface UpdaterState {
 export function useUpdater(): UpdaterState {
   const [available, setAvailable] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [installing, setInstalling] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
   const updateRef = useRef<Update | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const checkForUpdates = useCallback(async () => {
+    if (!mountedRef.current) return;
     setChecking(true);
     setError(null);
     try {
       const { check } = await import('@tauri-apps/plugin-updater');
       const update = await check();
+      if (!mountedRef.current) return;
       if (update) {
         updateRef.current = update;
         setAvailable(true);
@@ -47,29 +57,29 @@ export function useUpdater(): UpdaterState {
         setUpdateInfo(null);
       }
     } catch (err) {
-      // Silently fail in dev mode or network issues
-      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        // Dev mode — expected
-      } else {
-        setError(err instanceof Error ? err.message : '检查更新失败');
-      }
+      if (!mountedRef.current) return;
+      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') return;
+      setError(err instanceof Error ? err.message : '检查更新失败');
     } finally {
-      setChecking(false);
+      if (mountedRef.current) setChecking(false);
     }
   }, []);
 
   const installUpdate = useCallback(async () => {
-    if (!updateRef.current) {
-      setError('没有可用的更新');
-      return;
-    }
+    if (!updateRef.current || installing) return;
+    setInstalling(true);
+    setError(null);
     try {
       await updateRef.current.downloadAndInstall();
-      setDownloaded(true);
+      if (mountedRef.current) setDownloaded(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '安装更新失败');
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : '安装更新失败');
+      }
+    } finally {
+      if (mountedRef.current) setInstalling(false);
     }
-  }, []);
+  }, [installing]);
 
   // Check on mount
   useEffect(() => {
@@ -79,6 +89,7 @@ export function useUpdater(): UpdaterState {
   return {
     available,
     checking,
+    installing,
     downloaded,
     error,
     updateInfo,

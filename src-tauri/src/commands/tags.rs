@@ -136,7 +136,7 @@ pub fn create_tag_impl(
 ) -> AppResult<String> {
     let trimmed = name.trim();
     if trimmed.is_empty() {
-        return Err(AppError::NotFound("Tag name cannot be empty".to_string()));
+        return Err(AppError::InvalidInput("Tag name cannot be empty".to_string()));
     }
     let id = Uuid::new_v4().to_string();
     conn.execute(

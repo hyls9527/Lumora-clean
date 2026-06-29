@@ -6,7 +6,7 @@
 import { useUpdater } from '../../hooks/useUpdater';
 
 export function UpdateBanner() {
-  const { available, checking, downloaded, error, updateInfo, installUpdate } = useUpdater();
+  const { available, checking, installing, downloaded, error, updateInfo, installUpdate } = useUpdater();
 
   if (checking || !available || downloaded) return null;
 
@@ -25,24 +25,25 @@ export function UpdateBanner() {
       }}
     >
       <div style={{ marginBottom: 4 }}>
-        新版本 {updateInfo?.version} 可用
+        新版本 {updateInfo?.version ?? ''} 可用
       </div>
       <button
         type="button"
         onClick={installUpdate}
+        disabled={installing}
         style={{
           fontSize: 10,
           fontFamily: 'var(--font-display)',
           color: '#f2ede4',
-          background: '#7a5c12',
+          background: installing ? '#a09480' : '#7a5c12',
           border: 'none',
           borderRadius: 4,
           padding: '4px 12px',
-          cursor: 'pointer',
+          cursor: installing ? 'not-allowed' : 'pointer',
           transition: 'background 200ms',
         }}
       >
-        更新并重启
+        {installing ? '安装中…' : '更新并重启'}
       </button>
       {error && (
         <div style={{ marginTop: 4, color: '#8b3030', fontSize: 9 }}>

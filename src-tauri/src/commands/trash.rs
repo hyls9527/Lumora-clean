@@ -47,28 +47,23 @@ pub fn permanent_delete_image(db: tauri::State<'_, DbHandle>, id: String) -> App
     permanent_delete_impl(&conn, &id)
 }
 
+/// Internal: cascade delete using an existing transaction.
+fn permanent_delete_tx(tx: &rusqlite::Transaction<'_>, id: &str) -> Result<(), AppError> {
+    tx.execute("DELETE FROM image_tags WHERE image_id = ?1", params![id])?;
+    tx.execute("DELETE FROM analysis_history WHERE image_id = ?1", params![id])?;
+    let _ = tx.execute("DELETE FROM vec_embeddings WHERE image_id = ?1", params![id]);
+    tx.execute("DELETE FROM embeddings WHERE image_id = ?1", params![id])?;
+    let changed = tx.execute("DELETE FROM images WHERE id = ?1", params![id])?;
+    if changed == 0 {
+        return Err(AppError::NotFound(format!("图片 {} 不存在", id)));
+    }
+    Ok(())
+}
+
 /// Internal: cascade delete an image and all related records.
 fn permanent_delete_impl(conn: &rusqlite::Connection, id: &str) -> AppResult<()> {
     let tx = conn.unchecked_transaction()?;
-
-    // Cascade delete related records first
-    tx.execute("DELETE FROM image_tags WHERE image_id = ?1", params![id])
-        ?;
-    tx.execute("DELETE FROM analysis_history WHERE image_id = ?1", params![id])
-        ?;
-    // vec0 virtual table may not support standard DELETE; failure is non-fatal
-    let _ = tx.execute("DELETE FROM vec_embeddings WHERE image_id = ?1", params![id]);
-    tx.execute("DELETE FROM embeddings WHERE image_id = ?1", params![id])
-        ?;
-
-    // Finally delete the image itself
-    let changed = tx
-        .execute("DELETE FROM images WHERE id = ?1", params![id])
-        ?;
-    if changed == 0 {
-        return Err(AppError::NotFound("Image not found".to_string()));
-    }
-
+    permanent_delete_tx(&tx, id)?;
     tx.commit()?;
     Ok(())
 }
@@ -113,19 +108,18 @@ pub fn list_trash(
 #[tauri::command]
 pub fn empty_trash(db: tauri::State<'_, DbHandle>) -> AppResult<u64> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-    let mut stmt = conn
-        .prepare("SELECT id FROM images WHERE deleted = 1")
-        ?;
+    let mut stmt = conn.prepare("SELECT id FROM images WHERE deleted = 1")?;
     let ids: Vec<String> = stmt
-        .query_map([], |row| row.get(0))
-        ?
+        .query_map([], |row| row.get(0))?
         .filter_map(|r| r.ok())
         .collect();
-    drop(stmt); // release borrow before permanent_delete_impl
+    drop(stmt);
     let affected = ids.len() as u64;
+    let tx = conn.unchecked_transaction()?;
     for id in &ids {
-        permanent_delete_impl(&conn, id)?;
+        permanent_delete_tx(&tx, id)?;
     }
+    tx.commit()?;
     Ok(affected)
 }
 
@@ -176,17 +170,14 @@ pub fn batch_restore(
 /// Batch permanent delete: permanently delete multiple images.
 /// Cascades: image_tags, embeddings, vec_embeddings, analysis_history.
 #[tauri::command]
-pub fn batch_permanent_delete(
-    db: tauri::State<'_, DbHandle>,
-    ids: Vec<String>,
-) -> AppResult<u64> {
+pub fn batch_permanent_delete(db: tauri::State<'_, DbHandle>, ids: Vec<String>) -> AppResult<u64> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-    let mut affected: u64 = 0;
+    let affected = ids.len() as u64;
+    let tx = conn.unchecked_transaction()?;
     for id in &ids {
-        if permanent_delete_impl(&conn, id).is_ok() {
-            affected += 1;
-        }
+        permanent_delete_tx(&tx, id)?;
     }
+    tx.commit()?;
     Ok(affected)
 }
 

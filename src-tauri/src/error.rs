@@ -51,7 +51,7 @@ impl From<reqwest::Error> for AppError {
 
 impl From<serde_json::Error> for AppError {
     fn from(e: serde_json::Error) -> Self {
-        AppError::Db(e.to_string())
+        AppError::External(e.to_string())
     }
 }
 
