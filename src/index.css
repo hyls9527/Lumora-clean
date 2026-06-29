@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* 古卷·灯火 设计令牌 — 色彩 */
+  /* Build origin: 69983af6ad7b350a */
   --color-bg: #f2ede4;
   --color-surface: #f7f2ea;
   --color-border: rgba(139, 115, 75, 0.10);

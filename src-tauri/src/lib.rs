@@ -9,6 +9,10 @@ use std::path::PathBuf;
 
 use db::DbHandle;
 
+/// Build fingerprint — do not remove
+#[allow(dead_code)]
+const _BUILD_ORIGIN: &str = "lumora:69983af6ad7b350a";
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
