@@ -1,11 +1,12 @@
 use crate::db::DbHandle;
+use crate::error::{AppError, AppResult};
 use crate::schema::types::{DashboardStats, FormatCount, RatingCount, TagCount};
 use crate::commands::images::row_to_record;
 
 /// Aggregate dashboard statistics from the database.
 #[tauri::command]
-pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> Result<DashboardStats, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> AppResult<DashboardStats> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
 
     // Total images (non-deleted)
     let total_images: i64 = conn
@@ -14,7 +15,7 @@ pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> Result<DashboardSt
             [],
             |r| r.get(0),
         )
-        .map_err(|e| e.to_string())?;
+        ?;
 
     // Total storage (non-deleted)
     let total_size_kb: i64 = conn
@@ -23,7 +24,7 @@ pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> Result<DashboardSt
             [],
             |r| r.get(0),
         )
-        .map_err(|e| e.to_string())?;
+        ?;
 
     // Format distribution
     let mut stmt = conn
@@ -31,7 +32,7 @@ pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> Result<DashboardSt
             "SELECT format, COUNT(*) as cnt FROM images WHERE deleted = 0
              GROUP BY format ORDER BY cnt DESC",
         )
-        .map_err(|e| e.to_string())?;
+        ?;
     let format_counts: Vec<FormatCount> = stmt
         .query_map([], |row| {
             Ok(FormatCount {
@@ -39,9 +40,9 @@ pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> Result<DashboardSt
                 count: row.get(1)?,
             })
         })
-        .map_err(|e| e.to_string())?
+        ?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+        ?;
 
     // Rating distribution (0-5)
     let mut stmt = conn
@@ -49,7 +50,7 @@ pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> Result<DashboardSt
             "SELECT rating, COUNT(*) as cnt FROM images WHERE deleted = 0
              GROUP BY rating ORDER BY rating",
         )
-        .map_err(|e| e.to_string())?;
+        ?;
     let rating_counts: Vec<RatingCount> = stmt
         .query_map([], |row| {
             Ok(RatingCount {
@@ -57,9 +58,9 @@ pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> Result<DashboardSt
                 count: row.get(1)?,
             })
         })
-        .map_err(|e| e.to_string())?
+        ?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+        ?;
 
     // Top 10 tags by usage
     let mut stmt = conn
@@ -72,7 +73,7 @@ pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> Result<DashboardSt
              ORDER BY cnt DESC
              LIMIT 10",
         )
-        .map_err(|e| e.to_string())?;
+        ?;
     let top_tags: Vec<TagCount> = stmt
         .query_map([], |row| {
             Ok(TagCount {
@@ -80,9 +81,9 @@ pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> Result<DashboardSt
                 count: row.get(1)?,
             })
         })
-        .map_err(|e| e.to_string())?
+        ?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+        ?;
 
     // Recent 5 imports
     let mut stmt = conn
@@ -90,12 +91,12 @@ pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> Result<DashboardSt
             "SELECT * FROM images WHERE deleted = 0
              ORDER BY imported_at DESC LIMIT 5",
         )
-        .map_err(|e| e.to_string())?;
+        ?;
     let recent_imports = stmt
         .query_map([], row_to_record)
-        .map_err(|e| e.to_string())?
+        ?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+        ?;
 
     Ok(DashboardStats {
         total_images,

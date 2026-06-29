@@ -1,4 +1,6 @@
 use rusqlite::params;
+
+use crate::error::{AppError, AppResult};
 use uuid::Uuid;
 
 use crate::db::DbHandle;
@@ -14,8 +16,8 @@ pub fn create_tag(
     db: tauri::State<'_, DbHandle>,
     name: String,
     color: Option<String>,
-) -> Result<Tag, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+) -> AppResult<Tag> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let id = create_tag_impl(&conn, &name, color.as_deref())?;
     let tag = conn
         .query_row(
@@ -23,33 +25,33 @@ pub fn create_tag(
             params![id],
             row_to_tag,
         )
-        .map_err(|e| e.to_string())?;
+        ?;
     Ok(tag)
 }
 
 /// List all tags, ordered by name.
 #[tauri::command]
-pub fn list_tags(db: tauri::State<'_, DbHandle>) -> Result<Vec<Tag>, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+pub fn list_tags(db: tauri::State<'_, DbHandle>) -> AppResult<Vec<Tag>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let mut stmt = conn
         .prepare("SELECT id, name, color, created_at FROM tags ORDER BY name")
-        .map_err(|e| e.to_string())?;
+        ?;
     let tags = stmt
         .query_map([], row_to_tag)
-        .map_err(|e| e.to_string())?
+        ?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+        ?;
     Ok(tags)
 }
 
 /// Delete a tag and its image associations.
 #[tauri::command]
-pub fn delete_tag(db: tauri::State<'_, DbHandle>, id: String) -> Result<(), String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+pub fn delete_tag(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<()> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     conn.execute("DELETE FROM image_tags WHERE tag_id = ?1", params![id])
-        .map_err(|e| e.to_string())?;
+        ?;
     conn.execute("DELETE FROM tags WHERE id = ?1", params![id])
-        .map_err(|e| e.to_string())?;
+        ?;
     Ok(())
 }
 
@@ -59,13 +61,13 @@ pub fn add_tag_to_image(
     db: tauri::State<'_, DbHandle>,
     image_id: String,
     tag_id: String,
-) -> Result<(), String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+) -> AppResult<()> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     conn.execute(
         "INSERT OR IGNORE INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
         params![image_id, tag_id],
     )
-    .map_err(|e| e.to_string())?;
+    ?;
     Ok(())
 }
 
@@ -75,13 +77,13 @@ pub fn remove_tag_from_image(
     db: tauri::State<'_, DbHandle>,
     image_id: String,
     tag_id: String,
-) -> Result<(), String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+) -> AppResult<()> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     conn.execute(
         "DELETE FROM image_tags WHERE image_id = ?1 AND tag_id = ?2",
         params![image_id, tag_id],
     )
-    .map_err(|e| e.to_string())?;
+    ?;
     Ok(())
 }
 
@@ -90,8 +92,8 @@ pub fn remove_tag_from_image(
 pub fn get_image_tags(
     db: tauri::State<'_, DbHandle>,
     image_id: String,
-) -> Result<Vec<Tag>, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+) -> AppResult<Vec<Tag>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let mut stmt = conn
         .prepare(
             "SELECT t.id, t.name, t.color, t.created_at
@@ -100,12 +102,12 @@ pub fn get_image_tags(
              WHERE it.image_id = ?1
              ORDER BY t.name",
         )
-        .map_err(|e| e.to_string())?;
+        ?;
     let tags = stmt
         .query_map(params![image_id], row_to_tag)
-        .map_err(|e| e.to_string())?
+        ?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+        ?;
     Ok(tags)
 }
 
@@ -131,17 +133,17 @@ pub fn create_tag_impl(
     conn: &rusqlite::Connection,
     name: &str,
     color: Option<&str>,
-) -> Result<String, String> {
+) -> AppResult<String> {
     let trimmed = name.trim();
     if trimmed.is_empty() {
-        return Err("Tag name cannot be empty".to_string());
+        return Err(AppError::NotFound("Tag name cannot be empty".to_string()));
     }
     let id = Uuid::new_v4().to_string();
     conn.execute(
         "INSERT INTO tags (id, name, color) VALUES (?1, ?2, ?3)",
         params![id, trimmed, color],
     )
-    .map_err(|e| e.to_string())?;
+    ?;
     Ok(id)
 }
 
@@ -150,13 +152,13 @@ pub fn add_tag_to_image_impl(
     conn: &rusqlite::Connection,
     image_id: &str,
     tag_id: &str,
-) -> Result<(), String> {
+) -> AppResult<()> {
     // Fix #7: use INSERT instead of INSERT OR IGNORE to surface FK violations
     conn.execute(
         "INSERT INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
         params![image_id, tag_id],
     )
-    .map_err(|e| e.to_string())?;
+    ?;
     Ok(())
 }
 

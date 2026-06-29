@@ -1,5 +1,7 @@
 use rusqlite::params;
 
+use crate::error::{AppError, AppResult};
+
 use crate::db::DbHandle;
 use crate::schema::types::PaginatedResult;
 
@@ -7,32 +9,32 @@ use super::images::row_to_record;
 
 /// Soft-delete: set deleted=1 and record the deletion timestamp.
 #[tauri::command]
-pub fn soft_delete_image(db: tauri::State<'_, DbHandle>, id: String) -> Result<(), String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+pub fn soft_delete_image(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<()> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let changed = conn
         .execute(
             "UPDATE images SET deleted = 1, deleted_at = datetime('now') WHERE id = ?1 AND deleted = 0",
             params![id],
         )
-        .map_err(|e| e.to_string())?;
+        ?;
     if changed == 0 {
-        return Err("Image not found or already deleted".to_string());
+        return Err(AppError::NotFound("Image not found or already deleted".to_string()));
     }
     Ok(())
 }
 
 /// Restore a soft-deleted image back to the library.
 #[tauri::command]
-pub fn restore_image(db: tauri::State<'_, DbHandle>, id: String) -> Result<(), String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+pub fn restore_image(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<()> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let changed = conn
         .execute(
             "UPDATE images SET deleted = 0, deleted_at = NULL WHERE id = ?1 AND deleted = 1",
             params![id],
         )
-        .map_err(|e| e.to_string())?;
+        ?;
     if changed == 0 {
-        return Err("Image not found in trash".to_string());
+        return Err(AppError::NotFound("Image not found in trash".to_string()));
     }
     Ok(())
 }
@@ -40,34 +42,34 @@ pub fn restore_image(db: tauri::State<'_, DbHandle>, id: String) -> Result<(), S
 /// Permanently remove an image from the database.
 /// Cascades: image_tags, embeddings, vec_embeddings, analysis_history.
 #[tauri::command]
-pub fn permanent_delete_image(db: tauri::State<'_, DbHandle>, id: String) -> Result<(), String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+pub fn permanent_delete_image(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<()> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     permanent_delete_impl(&conn, &id)
 }
 
 /// Internal: cascade delete an image and all related records.
-fn permanent_delete_impl(conn: &rusqlite::Connection, id: &str) -> Result<(), String> {
-    let tx = conn.unchecked_transaction().map_err(|e| e.to_string())?;
+fn permanent_delete_impl(conn: &rusqlite::Connection, id: &str) -> AppResult<()> {
+    let tx = conn.unchecked_transaction()?;
 
     // Cascade delete related records first
     tx.execute("DELETE FROM image_tags WHERE image_id = ?1", params![id])
-        .map_err(|e| e.to_string())?;
+        ?;
     tx.execute("DELETE FROM analysis_history WHERE image_id = ?1", params![id])
-        .map_err(|e| e.to_string())?;
+        ?;
     // vec0 virtual table may not support standard DELETE; failure is non-fatal
     let _ = tx.execute("DELETE FROM vec_embeddings WHERE image_id = ?1", params![id]);
     tx.execute("DELETE FROM embeddings WHERE image_id = ?1", params![id])
-        .map_err(|e| e.to_string())?;
+        ?;
 
     // Finally delete the image itself
     let changed = tx
         .execute("DELETE FROM images WHERE id = ?1", params![id])
-        .map_err(|e| e.to_string())?;
+        ?;
     if changed == 0 {
-        return Err("Image not found".to_string());
+        return Err(AppError::NotFound("Image not found".to_string()));
     }
 
-    tx.commit().map_err(|e| e.to_string())?;
+    tx.commit()?;
     Ok(())
 }
 
@@ -77,8 +79,8 @@ pub fn list_trash(
     db: tauri::State<'_, DbHandle>,
     page: u32,
     per_page: u32,
-) -> Result<PaginatedResult, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+) -> AppResult<PaginatedResult> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let offset = page.saturating_sub(1) * per_page;
     let total: i64 = conn
         .query_row(
@@ -86,18 +88,18 @@ pub fn list_trash(
             [],
             |r| r.get(0),
         )
-        .map_err(|e| e.to_string())?;
+        ?;
     let mut stmt = conn
         .prepare(
             "SELECT * FROM images WHERE deleted = 1
              ORDER BY deleted_at DESC LIMIT ?1 OFFSET ?2",
         )
-        .map_err(|e| e.to_string())?;
+        ?;
     let items = stmt
         .query_map(params![per_page, offset], row_to_record)
-        .map_err(|e| e.to_string())?
+        ?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+        ?;
     Ok(PaginatedResult {
         items,
         total,
@@ -109,14 +111,14 @@ pub fn list_trash(
 /// Permanently delete ALL images currently in the trash.
 /// Cascades: image_tags, embeddings, vec_embeddings, analysis_history.
 #[tauri::command]
-pub fn empty_trash(db: tauri::State<'_, DbHandle>) -> Result<u64, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+pub fn empty_trash(db: tauri::State<'_, DbHandle>) -> AppResult<u64> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let mut stmt = conn
         .prepare("SELECT id FROM images WHERE deleted = 1")
-        .map_err(|e| e.to_string())?;
+        ?;
     let ids: Vec<String> = stmt
         .query_map([], |row| row.get(0))
-        .map_err(|e| e.to_string())?
+        ?
         .filter_map(|r| r.ok())
         .collect();
     drop(stmt); // release borrow before permanent_delete_impl
@@ -136,8 +138,8 @@ pub fn empty_trash(db: tauri::State<'_, DbHandle>) -> Result<u64, String> {
 pub fn batch_soft_delete(
     db: tauri::State<'_, DbHandle>,
     ids: Vec<String>,
-) -> Result<u64, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+) -> AppResult<u64> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let mut affected: u64 = 0;
     for id in &ids {
         let n = conn
@@ -145,7 +147,7 @@ pub fn batch_soft_delete(
                 "UPDATE images SET deleted = 1, deleted_at = datetime('now') WHERE id = ?1 AND deleted = 0",
                 rusqlite::params![id],
             )
-            .map_err(|e| e.to_string())?;
+            ?;
         affected += n as u64;
     }
     Ok(affected)
@@ -156,8 +158,8 @@ pub fn batch_soft_delete(
 pub fn batch_restore(
     db: tauri::State<'_, DbHandle>,
     ids: Vec<String>,
-) -> Result<u64, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+) -> AppResult<u64> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let mut affected: u64 = 0;
     for id in &ids {
         let n = conn
@@ -165,7 +167,7 @@ pub fn batch_restore(
                 "UPDATE images SET deleted = 0, deleted_at = NULL WHERE id = ?1 AND deleted = 1",
                 rusqlite::params![id],
             )
-            .map_err(|e| e.to_string())?;
+            ?;
         affected += n as u64;
     }
     Ok(affected)
@@ -177,8 +179,8 @@ pub fn batch_restore(
 pub fn batch_permanent_delete(
     db: tauri::State<'_, DbHandle>,
     ids: Vec<String>,
-) -> Result<u64, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+) -> AppResult<u64> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let mut affected: u64 = 0;
     for id in &ids {
         if permanent_delete_impl(&conn, id).is_ok() {
@@ -194,8 +196,8 @@ pub fn batch_add_tag(
     db: tauri::State<'_, DbHandle>,
     image_ids: Vec<String>,
     tag_id: String,
-) -> Result<u64, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+) -> AppResult<u64> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let mut affected: u64 = 0;
     for image_id in &image_ids {
         let n = conn
@@ -203,7 +205,7 @@ pub fn batch_add_tag(
                 "INSERT OR IGNORE INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
                 rusqlite::params![image_id, tag_id],
             )
-            .map_err(|e| e.to_string())?;
+            ?;
         affected += n as u64;
     }
     Ok(affected)
@@ -215,8 +217,8 @@ pub fn batch_remove_tag(
     db: tauri::State<'_, DbHandle>,
     image_ids: Vec<String>,
     tag_id: String,
-) -> Result<u64, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+) -> AppResult<u64> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let mut affected: u64 = 0;
     for image_id in &image_ids {
         let n = conn
@@ -224,7 +226,7 @@ pub fn batch_remove_tag(
                 "DELETE FROM image_tags WHERE image_id = ?1 AND tag_id = ?2",
                 rusqlite::params![image_id, tag_id],
             )
-            .map_err(|e| e.to_string())?;
+            ?;
         affected += n as u64;
     }
     Ok(affected)

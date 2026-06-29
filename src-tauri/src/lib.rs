@@ -2,6 +2,7 @@ use tauri::Manager;
 
 mod commands;
 mod db;
+mod error;
 mod schema;
 
 use std::path::PathBuf;

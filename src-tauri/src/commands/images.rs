@@ -3,6 +3,8 @@ use std::fs;
 use std::hash::{Hash, Hasher};
 
 use rusqlite::params;
+
+use crate::error::{AppError, AppResult};
 use uuid::Uuid;
 
 use crate::db::DbHandle;
@@ -20,17 +22,17 @@ const IMAGE_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "webp", "avif", "bmp",
 pub fn import_images(
     db: tauri::State<'_, DbHandle>,
     path: String,
-) -> Result<Vec<ImageRecord>, String> {
-    let entries = scan_folder(&path).map_err(|e| e.to_string())?;
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
-    let tx = conn.unchecked_transaction().map_err(|e| e.to_string())?;
+) -> AppResult<Vec<ImageRecord>> {
+    let entries = scan_folder(&path)?;
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let tx = conn.unchecked_transaction()?;
     let mut imported = Vec::with_capacity(entries.len());
     for entry in &entries {
-        if insert_image(&tx, entry).map_err(|e| e.to_string())? {
-            imported.push(load_record(&tx, &entry.id).map_err(|e| e.to_string())?);
+        if insert_image(&tx, entry)? {
+            imported.push(load_record(&tx, &entry.id)?);
         }
     }
-    tx.commit().map_err(|e| e.to_string())?;
+    tx.commit()?;
     Ok(imported)
 }
 
@@ -40,25 +42,25 @@ pub fn list_images(
     db: tauri::State<'_, DbHandle>,
     page: u32,
     per_page: u32,
-) -> Result<PaginatedResult, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+) -> AppResult<PaginatedResult> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let offset = page.saturating_sub(1) * per_page;
     let total: i64 = conn
         .query_row("SELECT COUNT(*) FROM images WHERE deleted = 0", [], |r| {
             r.get(0)
         })
-        .map_err(|e| e.to_string())?;
+        ?;
     let mut stmt = conn
         .prepare(
             "SELECT * FROM images WHERE deleted = 0
              ORDER BY imported_at DESC LIMIT ?1 OFFSET ?2",
         )
-        .map_err(|e| e.to_string())?;
+        ?;
     let items = stmt
         .query_map(params![per_page, offset], row_to_record)
-        .map_err(|e| e.to_string())?
+        ?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+        ?;
     Ok(PaginatedResult {
         items,
         total,
@@ -72,8 +74,8 @@ pub fn list_images(
 pub fn search_images(
     db: tauri::State<'_, DbHandle>,
     query: String,
-) -> Result<Vec<ImageRecord>, String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+) -> AppResult<Vec<ImageRecord>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let mut stmt = conn
         .prepare(
             "SELECT i.* FROM images i
@@ -82,12 +84,12 @@ pub fn search_images(
              ORDER BY rank
              LIMIT 200",
         )
-        .map_err(|e| e.to_string())?;
+        ?;
     let items = stmt
         .query_map(params![query], row_to_record)
-        .map_err(|e| e.to_string())?
+        ?
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| e.to_string())?;
+        ?;
     Ok(items)
 }
 
@@ -97,26 +99,26 @@ pub fn update_rating(
     db: tauri::State<'_, DbHandle>,
     id: String,
     rating: u32,
-) -> Result<(), String> {
+) -> AppResult<()> {
     let clamped = rating.min(5);
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     conn.execute(
         "UPDATE images SET rating = ?1 WHERE id = ?2",
         params![clamped, id],
     )
-    .map_err(|e| e.to_string())?;
+    ?;
     Ok(())
 }
 
 /// Toggle the favorite flag for an image.
 #[tauri::command]
-pub fn toggle_favorite(db: tauri::State<'_, DbHandle>, id: String) -> Result<(), String> {
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+pub fn toggle_favorite(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<()> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     conn.execute(
         "UPDATE images SET favorite = CASE WHEN favorite = 0 THEN 1 ELSE 0 END WHERE id = ?1",
         params![id],
     )
-    .map_err(|e| e.to_string())?;
+    ?;
     Ok(())
 }
 
