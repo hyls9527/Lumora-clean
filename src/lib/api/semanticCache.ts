@@ -183,6 +183,11 @@ export function isCacheValid(): boolean {
 
 /** Invalidate entire cache (e.g., after image import). */
 export function invalidateSemanticCache(): void {
+  // Clear pending debounced persist to prevent re-writing stale data
+  if (persistTimer) {
+    clearTimeout(persistTimer);
+    persistTimer = null;
+  }
   cache.clear();
   totalBytes = 0;
   localStorage.removeItem(CACHE_KEY);
