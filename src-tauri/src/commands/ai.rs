@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use tauri::command;
 
 use crate::db::DbHandle;
+use crate::error::{AppError, AppResult};
 
 // ---------------------------------------------------------------------------
 // Data structures
@@ -55,7 +56,7 @@ struct OllamaResponse {
 }
 
 /// Check if Ollama is running and available.
-async fn check_ollama_available() -> Result<(), String> {
+async fn check_ollama_available() -> AppResult<()> {
     let client = reqwest::Client::new();
     let response = client
         .get("http://localhost:11434/api/tags")
@@ -65,7 +66,7 @@ async fn check_ollama_available() -> Result<(), String> {
         .map_err(|_| "Ollama is not running. Please start Ollama to use AI features.".to_string())?;
 
     if !response.status().is_success() {
-        return Err("Ollama is not responding correctly.".to_string());
+        return Err(AppError::External("Ollama is not responding correctly.".to_string()));
     }
 
     Ok(())
@@ -76,7 +77,7 @@ async fn check_ollama_available() -> Result<(), String> {
 async fn call_ollama_analyze(
     image_path: &str,
     model: &str,
-) -> Result<AnalysisResult, String> {
+) -> AppResult<AnalysisResult> {
     // Check Ollama availability first
     check_ollama_available().await?;
 
@@ -113,7 +114,7 @@ Return ONLY valid JSON, no other text."#;
         .map_err(|e| format!("Ollama request failed: {}", e))?;
 
     if !response.status().is_success() {
-        return Err(format!("Ollama returned status: {}", response.status()));
+        return Err(AppError::External(format!("Ollama returned status: {}", response.status())));
     }
 
     let ollama_resp: OllamaResponse = response
@@ -246,7 +247,7 @@ pub async fn analyze_image_cmd(
     image_id: String,
     image_path: String,
     model: Option<String>,
-) -> Result<AnalysisResult, String> {
+) -> AppResult<AnalysisResult> {
     let model_name = model.unwrap_or_else(|| "llava:latest".to_string());
 
     // Call Ollama to analyze the image
@@ -263,18 +264,18 @@ pub async fn analyze_image_cmd(
 pub async fn get_analysis_result_cmd(
     db: tauri::State<'_, DbHandle>,
     image_id: String,
-) -> Result<Option<AnalysisResult>, String> {
-    let conn = db.conn().lock().map_err(|e| e.to_string())?;
-    get_latest_analysis(&conn, &image_id).map_err(|e| e.to_string())
+) -> AppResult<Option<AnalysisResult>> {
+    let conn = db.conn().lock().map_err(|e| AppError::External(e.to_string()))?;
+    Ok(get_latest_analysis(&conn, &image_id)?)
 }
 
 #[command]
 pub async fn get_analysis_history_cmd(
     db: tauri::State<'_, DbHandle>,
     image_id: String,
-) -> Result<Vec<AnalysisHistoryItem>, String> {
-    let conn = db.conn().lock().map_err(|e| e.to_string())?;
-    get_analysis_history_db(&conn, &image_id).map_err(|e| e.to_string())
+) -> AppResult<Vec<AnalysisHistoryItem>> {
+    let conn = db.conn().lock().map_err(|e| AppError::External(e.to_string()))?;
+    Ok(get_analysis_history_db(&conn, &image_id)?)
 }
 
 // ---------------------------------------------------------------------------

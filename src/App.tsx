@@ -16,6 +16,7 @@ const TrashPage = lazy(() => import('./features/trash/TrashPage'));
 const TagManager = lazy(() => import('./features/tags/TagManager'));
 const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage'));
 const ExportPage = lazy(() => import('./features/export/ExportPage'));
+const FavoritesPage = lazy(() => import('./features/favorites/FavoritesPage'));
 
 function App() {
   const [route, setRoute] = useState('/gallery');
@@ -76,11 +77,12 @@ function App() {
     switch (route) {
       case '/trash': return <Suspense fallback={<Loading />}><TrashPage /></Suspense>;
       case '/dashboard': return <Suspense fallback={<Loading />}><DashboardPage /></Suspense>;
-      case '/gallery': case '/normal': return <GalleryPage />;
+      case '/gallery': return <GalleryPage />;
       case '/import': return <Suspense fallback={<Loading />}><ImportPage /></Suspense>;
       case '/search': return <Suspense fallback={<Loading />}><SearchPage /></Suspense>;
       case '/tags': return <Suspense fallback={<Loading />}><TagManager /></Suspense>;
       case '/export': return <Suspense fallback={<Loading />}><ExportPage /></Suspense>;
+      case '/favorites': return <Suspense fallback={<Loading />}><FavoritesPage /></Suspense>;
       case '/settings': return <Suspense fallback={<Loading />}><SettingsPage /></Suspense>;
       default: return <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',color:'#6b5d48',fontFamily:'var(--font-display)',fontSize:14}}>页面开发中…</div>;
     }

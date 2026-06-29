@@ -120,6 +120,7 @@ export function GalleryPage() {
     loading,
     error,
     fetchImages,
+    loadMore,
     toggleFavorite,
     setRating,
     toggleSelect,

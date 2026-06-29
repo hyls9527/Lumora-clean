@@ -3,6 +3,8 @@ use std::path::Path;
 
 use rusqlite::params;
 
+use crate::error::{AppError, AppResult};
+
 use crate::commands::images::row_to_record;
 use crate::db::DbHandle;
 use crate::schema::types::ExportResult;
@@ -15,11 +17,11 @@ pub fn export_images(
     dest_dir: String,
     format: String,
     rename_template: Option<String>,
-) -> Result<ExportResult, String> {
+) -> AppResult<ExportResult> {
     let dest = Path::new(&dest_dir);
     fs::create_dir_all(dest).map_err(|e| format!("创建目标文件夹失败: {e}"))?;
 
-    let conn = db.conn().lock().map_err(|_| "lock poisoned".to_string())?;
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
 
     let mut success = 0u32;
     let mut failed = 0u32;
@@ -110,23 +112,23 @@ fn resolve_extension<'a>(original_format: &'a str, target_format: &str) -> &'a s
     }
 }
 
-fn export_single(src: &str, dest: &Path, format: &str) -> Result<(), String> {
+fn export_single(src: &str, dest: &Path, format: &str) -> AppResult<()> {
     if format == "original" {
-        return fs::copy(src, dest)
-            .map(|_| ())
-            .map_err(|e| format!("复制失败: {e}"));
+        fs::copy(src, dest).map_err(|e| AppError::Io(format!("复制失败: {e}")))?;
+        return Ok(());
     }
 
-    let img = image::open(src).map_err(|e| format!("读取图片失败: {e}"))?;
+    let img = image::open(src).map_err(|e| AppError::External(format!("读取图片失败: {e}")))?;
     let img_format = match format {
         "png" => image::ImageFormat::Png,
         "jpg" | "jpeg" => image::ImageFormat::Jpeg,
         "webp" => image::ImageFormat::WebP,
-        _ => return Err(format!("不支持的格式: {format}")),
+        _ => return Err(AppError::InvalidInput(format!("不支持的格式: {format}"))),
     };
 
     let mut cursor = std::io::Cursor::new(Vec::new());
     img.write_to(&mut cursor, img_format)
-        .map_err(|e| format!("编码失败: {e}"))?;
-    fs::write(dest, cursor.into_inner()).map_err(|e| format!("写入文件失败: {e}"))
+        .map_err(|e| AppError::External(format!("编码失败: {e}")))?;
+    fs::write(dest, cursor.into_inner())
+        .map_err(|e| AppError::Io(format!("写入文件失败: {e}")))
 }

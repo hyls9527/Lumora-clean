@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useOllamaStatus } from '../../hooks/useOllamaStatus';
 
 interface SidebarProps {
   activeRoute: string;
@@ -12,13 +13,10 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { key: '/gallery', label: '创作者图库' },
-  { key: '/normal', label: '普通图库' },
-  { key: '/curation', label: '策展' },
+  { key: '/favorites', label: '收藏' },
   { key: '/dashboard', label: '仪表盘' },
   { key: '/import', label: '导入管理' },
   { key: '/search', label: '语义搜索' },
-  { key: '/favorites', label: '收藏' },
-  { key: '/prompts', label: '提示词库' },
   { key: '/tags', label: '标签' },
   { key: '/export', label: '导出' },
   { key: '/settings', label: '设置' },
@@ -26,6 +24,8 @@ const navItems: NavItem[] = [
 ];
 
 export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
+  const { available, checking, error, recheck } = useOllamaStatus();
+
   return (
     <aside
       role="navigation"
@@ -79,6 +79,69 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
           );
         })}
       </nav>
+
+      {/* Ollama status */}
+      {!available && !checking && (
+        <button
+          type="button"
+          onClick={recheck}
+          title={error ?? 'Ollama 未连接'}
+          aria-label="Ollama 状态：离线，点击重试"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            margin: '0 12px 8px',
+            padding: '6px 10px',
+            fontSize: 10,
+            fontFamily: 'var(--font-body)',
+            color: '#8b3030',
+            background: 'rgba(139, 48, 48, 0.06)',
+            border: '1px solid rgba(139, 48, 48, 0.12)',
+            borderRadius: 4,
+            cursor: 'pointer',
+            transition: 'background 200ms',
+          }}
+        >
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: '#8b3030',
+              flexShrink: 0,
+            }}
+          />
+          Ollama 离线
+        </button>
+      )}
+      {available && !checking && (
+        <div
+          role="status"
+          aria-label="Ollama 状态：在线"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            margin: '0 12px 8px',
+            padding: '6px 10px',
+            fontSize: 10,
+            fontFamily: 'var(--font-body)',
+            color: '#4a7a3a',
+          }}
+        >
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: '#4a7a3a',
+              flexShrink: 0,
+            }}
+          />
+          Ollama 在线
+        </div>
+      )}
 
       {/* Search button */}
       <div style={{ padding: '0 12px 24px' }}>

@@ -1,15 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock the API layer
+// Mock the API layers
 vi.mock('../../lib/api/semantic', () => ({
   searchSemantic: vi.fn(),
   getSearchSuggestions: vi.fn(),
 }));
 
+vi.mock('../../lib/api/semanticCache', () => ({
+  searchSemanticCached: vi.fn(),
+  invalidateSemanticCache: vi.fn(),
+}));
+
 import { useSemanticSearchStore } from '../semanticSearchStore';
 import * as api from '../../lib/api/semantic';
+import * as cacheApi from '../../lib/api/semanticCache';
 
-const mockSearch = vi.mocked(api.searchSemantic);
+const mockSearch = vi.mocked(cacheApi.searchSemanticCached);
 const mockSuggestions = vi.mocked(api.getSearchSuggestions);
 
 beforeEach(() => {

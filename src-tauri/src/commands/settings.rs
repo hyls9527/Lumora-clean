@@ -1,3 +1,4 @@
+use crate::error::{AppError, AppResult};
 use tauri::command;
 use tauri_plugin_store::StoreExt;
 
@@ -6,10 +7,10 @@ use tauri_plugin_store::StoreExt;
 pub async fn get_setting(
     app: tauri::AppHandle,
     key: String,
-) -> Result<Option<String>, String> {
+) -> AppResult<Option<String>> {
     let store = app
         .store("settings.json")
-        .map_err(|e| format!("failed to open store: {e}"))?;
+        .map_err(|e| AppError::External(format!("failed to open store: {e}")))?;
     let value = store.get(&key).and_then(|v| v.as_str().map(String::from));
     Ok(value)
 }
@@ -20,11 +21,11 @@ pub async fn set_setting(
     app: tauri::AppHandle,
     key: String,
     value: String,
-) -> Result<(), String> {
+) -> AppResult<()> {
     let store = app
         .store("settings.json")
-        .map_err(|e| format!("failed to open store: {e}"))?;
+        .map_err(|e| AppError::External(format!("failed to open store: {e}")))?;
     store.set(&key, serde_json::Value::String(value));
-    store.save().map_err(|e| format!("failed to save store: {e}"))?;
+    store.save().map_err(|e| AppError::External(format!("failed to save store: {e}")))?;
     Ok(())
 }

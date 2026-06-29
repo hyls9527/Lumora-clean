@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use tauri::command;
 
 use crate::db::DbHandle;
+use crate::error::{AppError, AppResult};
 
 /// Embedding status returned to frontend.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -119,18 +120,18 @@ pub async fn generate_embedding(
     db: tauri::State<'_, DbHandle>,
     image_id: String,
     embedding: Vec<f64>,
-) -> Result<(), String> {
-    let conn = db.conn().lock().map_err(|e| e.to_string())?;
-    upsert_embedding(&conn, &image_id, &embedding).map_err(|e| e.to_string())
+) -> AppResult<()> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    Ok(upsert_embedding(&conn, &image_id, &embedding)?)
 }
 
 #[command]
 pub async fn get_embedding_status_cmd(
     db: tauri::State<'_, DbHandle>,
     image_id: String,
-) -> Result<Option<EmbeddingInfo>, String> {
-    let conn = db.conn().lock().map_err(|e| e.to_string())?;
-    get_embedding_status_db(&conn, &image_id).map_err(|e| e.to_string())
+) -> AppResult<Option<EmbeddingInfo>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    Ok(get_embedding_status_db(&conn, &image_id)?)
 }
 
 #[command]
@@ -138,9 +139,9 @@ pub async fn search_semantic_cmd(
     db: tauri::State<'_, DbHandle>,
     query_embedding: Vec<f64>,
     limit: Option<i64>,
-) -> Result<Vec<SemanticSearchResult>, String> {
-    let conn = db.conn().lock().map_err(|e| e.to_string())?;
-    search_semantic_db(&conn, &query_embedding, limit.unwrap_or(20)).map_err(|e| e.to_string())
+) -> AppResult<Vec<SemanticSearchResult>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    Ok(search_semantic_db(&conn, &query_embedding, limit.unwrap_or(20))?)
 }
 
 /// Aggregate embedding statistics.
@@ -181,13 +182,13 @@ pub fn get_embedding_stats_db(conn: &Connection) -> Result<EmbeddingStats, rusql
 #[command]
 pub async fn get_embedding_stats_cmd(
     db: tauri::State<'_, DbHandle>,
-) -> Result<EmbeddingStats, String> {
-    let conn = db.conn().lock().map_err(|e| e.to_string())?;
-    get_embedding_stats_db(&conn).map_err(|e| e.to_string())
+) -> AppResult<EmbeddingStats> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    Ok(get_embedding_stats_db(&conn)?)
 }
 
 /// Generate text embedding using Ollama.
-async fn embed_text_ollama(text: &str, model: &str) -> Result<Vec<f64>, String> {
+async fn embed_text_ollama(text: &str, model: &str) -> AppResult<Vec<f64>> {
     let client = reqwest::Client::new();
     let response = client
         .post("http://localhost:11434/api/embed")
@@ -200,7 +201,7 @@ async fn embed_text_ollama(text: &str, model: &str) -> Result<Vec<f64>, String> 
         .map_err(|e| format!("Ollama request failed: {}", e))?;
 
     if !response.status().is_success() {
-        return Err(format!("Ollama returned status: {}", response.status()));
+        return Err(AppError::External(format!("Ollama returned status: {}", response.status())));
     }
 
     let body: serde_json::Value = response
@@ -218,7 +219,7 @@ async fn embed_text_ollama(text: &str, model: &str) -> Result<Vec<f64>, String> 
         .collect();
 
     if vec.is_empty() {
-        return Err("Empty embedding returned".to_string());
+        return Err(AppError::External("Empty embedding returned".to_string()));
     }
 
     Ok(vec)
@@ -228,7 +229,7 @@ async fn embed_text_ollama(text: &str, model: &str) -> Result<Vec<f64>, String> 
 pub async fn embed_text_cmd(
     text: String,
     model: Option<String>,
-) -> Result<Vec<f64>, String> {
+) -> AppResult<Vec<f64>> {
     let model_name = model.unwrap_or_else(|| "nomic-embed-text".to_string());
     embed_text_ollama(&text, &model_name).await
 }
@@ -239,12 +240,12 @@ pub async fn generate_embedding_for_image_cmd(
     image_id: String,
     description: String,
     model: Option<String>,
-) -> Result<(), String> {
+) -> AppResult<()> {
     let model_name = model.unwrap_or_else(|| "nomic-embed-text".to_string());
     let embedding = embed_text_ollama(&description, &model_name).await?;
 
-    let conn = db.conn().lock().map_err(|e| e.to_string())?;
-    upsert_embedding(&conn, &image_id, &embedding).map_err(|e| e.to_string())
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    Ok(upsert_embedding(&conn, &image_id, &embedding)?)
 }
 
 // ---------------------------------------------------------------------------
