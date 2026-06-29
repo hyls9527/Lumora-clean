@@ -20,7 +20,6 @@ assets/
 pages/
 lumora-secondary-pages.design
 orchestration-summary.json
-index.html
 
 # Python
 __pycache__/
