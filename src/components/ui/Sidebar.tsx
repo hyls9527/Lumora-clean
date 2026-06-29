@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useOllamaStatus } from '../../hooks/useOllamaStatus';
+import { UpdateBanner } from './UpdateBanner';
 
 interface SidebarProps {
   activeRoute: string;
@@ -79,6 +80,9 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
           );
         })}
       </nav>
+
+      {/* Auto-update banner */}
+      <UpdateBanner />
 
       {/* Ollama status */}
       {!available && !checking && (
