@@ -65,8 +65,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: dtolnay/rust-toolchain@stable
-      - name: Install rsign2
-        run: cargo install rsign2
+      - name: Install rsign2 and expect
+        run: |
+          sudo apt-get update && sudo apt-get install -y expect
+          cargo install rsign2
 
       - name: Sign and generate latest.json
         env:
@@ -92,7 +94,7 @@ jobs:
             echo "Downloading $NSIS_EXE..."
             gh release download "$TAG" -R "$REPO" -p "$NSIS_EXE" -D "$DIR"
             echo "Signing with rsign2..."
-            echo "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" | $HOME/.cargo/bin/rsign sign -s "$DIR/key" "$DIR/$NSIS_EXE" 2>&1
+            expect -c "spawn $HOME/.cargo/bin/rsign sign -s $DIR/key $DIR/$NSIS_EXE; expect -exact \"Password:\"; send \"$TAURI_SIGNING_PRIVATE_KEY_PASSWORD\r\"; expect eof" 2>&1
             if [ -f "$DIR/$NSIS_EXE.sig" ]; then
               WIN_SIG=$(cat "$DIR/$NSIS_EXE.sig" | tr -d '\r\n')
               WIN_URL="https://github.com/$REPO/releases/download/$TAG/$NSIS_EXE"
@@ -111,7 +113,7 @@ jobs:
             echo "Downloading $MAC_TAR..."
             gh release download "$TAG" -R "$REPO" -p "$MAC_TAR" -D "$DIR"
             echo "Signing with rsign2..."
-            echo "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" | $HOME/.cargo/bin/rsign sign -s "$DIR/key" "$DIR/$MAC_TAR" 2>&1
+            expect -c "spawn $HOME/.cargo/bin/rsign sign -s $DIR/key $DIR/$MAC_TAR; expect -exact \"Password:\"; send \"$TAURI_SIGNING_PRIVATE_KEY_PASSWORD\r\"; expect eof" 2>&1
             if [ -f "$DIR/$MAC_TAR.sig" ]; then
               MAC_SIG=$(cat "$DIR/$MAC_TAR.sig" | tr -d '\r\n')
               MAC_URL="https://github.com/$REPO/releases/download/$TAG/$MAC_TAR"
