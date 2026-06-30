@@ -64,8 +64,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Install minisign
-        run: sudo apt-get update && sudo apt-get install -y minisign
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install rsign2
+        run: cargo install rsign2
 
       - name: Sign and generate latest.json
         env:
@@ -79,7 +80,7 @@ jobs:
           REPO="${{ github.repository }}"
           DIR=$(mktemp -d)
 
-          # Save key
+          # Save key (base64-decoded)
           echo "$TAURI_SIGNING_PRIVATE_KEY" | base64 -d > "$DIR/key"
           chmod 600 "$DIR/key"
 
@@ -90,11 +91,9 @@ jobs:
           if [ -n "$NSIS_EXE" ]; then
             echo "Downloading $NSIS_EXE..."
             gh release download "$TAG" -R "$REPO" -p "$NSIS_EXE" -D "$DIR"
-            echo "Signing..."
-            echo "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" | minisign -S -s "$DIR/key" -m "$DIR/$NSIS_EXE" 2>&1
-            # minisign creates .minisig by default, rename to .sig for Tauri
-            if [ -f "$DIR/$NSIS_EXE.minisig" ]; then
-              mv "$DIR/$NSIS_EXE.minisig" "$DIR/$NSIS_EXE.sig"
+            echo "Signing with rsign2..."
+            rsign sign -s "$DIR/key" -p "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" "$DIR/$NSIS_EXE" 2>&1
+            if [ -f "$DIR/$NSIS_EXE.sig" ]; then
               WIN_SIG=$(cat "$DIR/$NSIS_EXE.sig" | tr -d '\r\n')
               WIN_URL="https://github.com/$REPO/releases/download/$TAG/$NSIS_EXE"
               PLATFORMS="\"windows-x86_64\":{\"signature\":\"$WIN_SIG\",\"url\":\"$WIN_URL\"}"
@@ -111,10 +110,9 @@ jobs:
           if [ -n "$MAC_TAR" ]; then
             echo "Downloading $MAC_TAR..."
             gh release download "$TAG" -R "$REPO" -p "$MAC_TAR" -D "$DIR"
-            echo "Signing..."
-            echo "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" | minisign -S -s "$DIR/key" -m "$DIR/$MAC_TAR" 2>&1
-            if [ -f "$DIR/$MAC_TAR.minisig" ]; then
-              mv "$DIR/$MAC_TAR.minisig" "$DIR/$MAC_TAR.sig"
+            echo "Signing with rsign2..."
+            rsign sign -s "$DIR/key" -p "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" "$DIR/$MAC_TAR" 2>&1
+            if [ -f "$DIR/$MAC_TAR.sig" ]; then
               MAC_SIG=$(cat "$DIR/$MAC_TAR.sig" | tr -d '\r\n')
               MAC_URL="https://github.com/$REPO/releases/download/$TAG/$MAC_TAR"
               if [ -n "$PLATFORMS" ]; then PLATFORMS="$PLATFORMS,"; fi
