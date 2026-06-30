@@ -46,7 +46,6 @@ jobs:
         run: npm run build
 
       - name: Build Tauri
-        id: tauri
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -60,66 +59,12 @@ jobs:
           prerelease: false
           updaterJsonPreferNsis: true
 
-      - name: Upload updater signature files
-        if: matrix.os == 'windows-latest' || matrix.os == 'macos-latest'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          TAG="${{ github.ref_name }}"
-          REPO="${{ github.repository }}"
-          UPLOADED=""
-
-          # Windows: find nsis.zip.sig
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            SIG=$(find src-tauri/target/release/bundle -name "*.nsis.zip.sig" 2>/dev/null | head -1)
-            ZIP=$(find src-tauri/target/release/bundle -name "*.nsis.zip" 2>/dev/null | head -1)
-            if [ -n "$SIG" ]; then
-              echo "Uploading $(basename "$SIG")"
-              gh release upload "$TAG" "$SIG" --clobber -R "$REPO" || true
-              UPLOADED="yes"
-            fi
-            if [ -n "$ZIP" ]; then
-              echo "Uploading $(basename "$ZIP")"
-              gh release upload "$TAG" "$ZIP" --clobber -R "$REPO" || true
-            fi
-          fi
-
-          # macOS: find app.tar.gz.sig
-          if [ "${{ matrix.os }}" = "macos-latest" ]; then
-            SIG=$(find src-tauri/target/release/bundle -name "*.app.tar.gz.sig" 2>/dev/null | head -1)
-            TAR=$(find src-tauri/target/release/bundle -name "*.app.tar.gz" 2>/dev/null | head -1)
-            if [ -n "$SIG" ]; then
-              echo "Uploading $(basename "$SIG")"
-              gh release upload "$TAG" "$SIG" --clobber -R "$REPO" || true
-              UPLOADED="yes"
-            fi
-            if [ -n "$TAR" ]; then
-              echo "Uploading $(basename "$TAR")"
-              gh release upload "$TAG" "$TAR" --clobber -R "$REPO" || true
-            fi
-          fi
-
-          if [ -z "$UPLOADED" ]; then
-            echo "WARNING: No sig files found, updater JSON will use local signing"
-          fi
-
   updater-json:
     name: Generate updater JSON
     needs: build
-    if: always() && needs.build.result != 'failure'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: x86_64-unknown-linux-gnu
-
-      - name: Install rsign2
-        run: cargo install rsign2
-
-      - name: Generate latest.json
+      - name: Generate latest.json with local signing
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -129,87 +74,68 @@ jobs:
           VERSION="${TAG#v}"
           PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           REPO="${{ github.repository }}"
-          TMPDIR=$(mktemp -d)
-          PLATFORMS=""
+          DIR=$(mktemp -d)
+
+          # Install minisign (lightweight, no Rust compile needed)
+          curl -sL https://github.com/jedisct1/minisign/releases/download/0.12/minisign-0.12-linux.tar.gz | tar xz -C "$DIR"
+          MINISIGN="$DIR/minisign-0.12-linux/x86_64/minisign"
 
           # Save signing key
-          echo "$TAURI_SIGNING_PRIVATE_KEY" > "$TMPDIR/key"
-          export RUST_BACKTRACE=1
+          echo "$TAURI_SIGNING_PRIVATE_KEY" > "$DIR/key"
+          chmod 600 "$DIR/key"
 
-          # --- Windows ---
-          NSIS_SIG_NAME=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | endswith(".nsis.zip.sig")) | .name' 2>/dev/null | head -1)
+          PLATFORMS=""
 
-          if [ -n "$NSIS_SIG_NAME" ]; then
-            # Sig file exists in release, download it
-            gh release download "$TAG" -R "$REPO" -p "$NSIS_SIG_NAME" -D "$TMPDIR"
-            WIN_SIG=$(cat "$TMPDIR/$NSIS_SIG_NAME" | tr -d '\r\n')
-            echo "Windows: downloaded sig from release"
-          else
-            # Sign locally
-            NSIS_EXE=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | endswith("x64-setup.exe")) | .name' 2>/dev/null | head -1)
-            if [ -n "$NSIS_EXE" ]; then
-              gh release download "$TAG" -R "$REPO" -p "$NSIS_EXE" -D "$TMPDIR"
-              rsign sign -s "$TMPDIR/key" -p "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" "$TMPDIR/$NSIS_EXE" 2>/dev/null || \
-                rsign sign -x "$TMPDIR/$NSIS_EXE.sig" -s "$TMPDIR/key" "$TMPDIR/$NSIS_EXE" 2>/dev/null
-              WIN_SIG=$(cat "$TMPDIR/$NSIS_EXE.sig" 2>/dev/null | tr -d '\r\n')
-              echo "Windows: signed locally"
+          # --- Windows: sign NSIS exe ---
+          NSIS_EXE=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | test("setup\\.exe$")) | .name' | head -1)
+          if [ -n "$NSIS_EXE" ]; then
+            echo "Downloading $NSIS_EXE..."
+            gh release download "$TAG" -R "$REPO" -p "$NSIS_EXE" -D "$DIR"
+            echo "Signing..."
+            echo "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" | "$MINISIGN" -S -s "$DIR/key" -m "$DIR/$NSIS_EXE" -x "$DIR/$NSIS_EXE.sig" 2>&1
+            if [ -f "$DIR/$NSIS_EXE.sig" ]; then
+              WIN_SIG=$(cat "$DIR/$NSIS_EXE.sig" | tr -d '\r\n')
+              WIN_URL="https://github.com/$REPO/releases/download/$TAG/$NSIS_EXE"
+              PLATFORMS="\"windows-x86_64\":{\"signature\":\"$WIN_SIG\",\"url\":\"$WIN_URL\"}"
+              echo "Windows: signed ✓"
+            else
+              echo "Windows: signing failed"
             fi
-          fi
-
-          NSIS_ZIP_NAME=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | endswith(".nsis.zip")) | .name' 2>/dev/null | head -1)
-          # Fallback to exe if no nsis.zip
-          if [ -z "$NSIS_ZIP_NAME" ]; then
-            NSIS_ZIP_NAME=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | endswith("x64-setup.exe")) | .name' 2>/dev/null | head -1)
-          fi
-
-          if [ -n "$WIN_SIG" ] && [ -n "$NSIS_ZIP_NAME" ]; then
-            WIN_URL="https://github.com/$REPO/releases/download/$TAG/$NSIS_ZIP_NAME"
-            PLATFORMS="\"windows-x86_64\":{\"signature\":\"$WIN_SIG\",\"url\":\"$WIN_URL\"}"
-            echo "Windows: OK"
           else
-            echo "Windows: SKIPPED (sig=$WIN_SIG zip=$NSIS_ZIP_NAME)"
+            echo "Windows: NSIS exe not found in release"
           fi
 
-          # --- macOS ---
-          MAC_SIG_NAME=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | endswith(".app.tar.gz.sig")) | .name' 2>/dev/null | head -1)
-
-          if [ -n "$MAC_SIG_NAME" ]; then
-            gh release download "$TAG" -R "$REPO" -p "$MAC_SIG_NAME" -D "$TMPDIR"
-            MAC_SIG=$(cat "$TMPDIR/$MAC_SIG_NAME" | tr -d '\r\n')
-            echo "macOS: downloaded sig from release"
-          else
-            MAC_TAR=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | endswith(".app.tar.gz")) | .name' 2>/dev/null | head -1)
-            if [ -n "$MAC_TAR" ]; then
-              gh release download "$TAG" -R "$REPO" -p "$MAC_TAR" -D "$TMPDIR"
-              rsign sign -s "$TMPDIR/key" -p "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" "$TMPDIR/$MAC_TAR" 2>/dev/null || \
-                rsign sign -x "$TMPDIR/$MAC_TAR.sig" -s "$TMPDIR/key" "$TMPDIR/$MAC_TAR" 2>/dev/null
-              MAC_SIG=$(cat "$TMPDIR/$MAC_TAR.sig" 2>/dev/null | tr -d '\r\n')
-              echo "macOS: signed locally"
+          # --- macOS: sign app.tar.gz ---
+          MAC_TAR=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | test("app\\.tar\\.gz$")) | .name' | head -1)
+          if [ -n "$MAC_TAR" ]; then
+            echo "Downloading $MAC_TAR..."
+            gh release download "$TAG" -R "$REPO" -p "$MAC_TAR" -D "$DIR"
+            echo "Signing..."
+            echo "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" | "$MINISIGN" -S -s "$DIR/key" -m "$DIR/$MAC_TAR" -x "$DIR/$MAC_TAR.sig" 2>&1
+            if [ -f "$DIR/$MAC_TAR.sig" ]; then
+              MAC_SIG=$(cat "$DIR/$MAC_TAR.sig" | tr -d '\r\n')
+              MAC_URL="https://github.com/$REPO/releases/download/$TAG/$MAC_TAR"
+              if [ -n "$PLATFORMS" ]; then PLATFORMS="$PLATFORMS,"; fi
+              PLATFORMS="$PLATFORMS\"darwin-aarch64\":{\"signature\":\"$MAC_SIG\",\"url\":\"$MAC_URL\"}"
+              echo "macOS: signed ✓"
+            else
+              echo "macOS: signing failed"
             fi
-          fi
-
-          MAC_TAR_NAME=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | endswith(".app.tar.gz")) | .name' 2>/dev/null | head -1)
-
-          if [ -n "$MAC_SIG" ] && [ -n "$MAC_TAR_NAME" ]; then
-            MAC_URL="https://github.com/$REPO/releases/download/$TAG/$MAC_TAR_NAME"
-            if [ -n "$PLATFORMS" ]; then PLATFORMS="$PLATFORMS,"; fi
-            PLATFORMS="$PLATFORMS\"darwin-aarch64\":{\"signature\":\"$MAC_SIG\",\"url\":\"$MAC_URL\"}"
-            echo "macOS: OK"
           else
-            echo "macOS: SKIPPED (sig=$MAC_SIG tar=$MAC_TAR_NAME)"
+            echo "macOS: app.tar.gz not found in release"
           fi
 
-          # --- Generate latest.json ---
+          # --- Generate and upload latest.json ---
           if [ -n "$PLATFORMS" ]; then
             printf '{"version":"%s","notes":"","pub_date":"%s","platforms":{%s}}' \
-              "$VERSION" "$PUB_DATE" "$PLATFORMS" > latest.json
+              "$VERSION" "$PUB_DATE" "$PLATFORMS" > "$DIR/latest.json"
 
             echo "=== latest.json ==="
-            cat latest.json | python3 -m json.tool 2>/dev/null || cat latest.json
+            cat "$DIR/latest.json"
 
-            gh release upload "$TAG" latest.json --clobber -R "$REPO"
+            gh release upload "$TAG" "$DIR/latest.json" --clobber -R "$REPO"
             echo "Uploaded latest.json ✓"
           else
-            echo "ERROR: No platforms found!"
+            echo "ERROR: No platforms signed!"
             exit 1
           fi
