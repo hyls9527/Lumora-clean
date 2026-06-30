@@ -6,7 +6,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-const OLLAMA_URL = 'http://localhost:11434/api/tags';
+const OLLAMA_BASE = import.meta.env.VITE_OLLAMA_HOST || 'http://localhost:11434';
+const OLLAMA_URL = `${OLLAMA_BASE}/api/tags`;
 const POLL_INTERVAL_MS = 60_000; // 60 seconds
 const TIMEOUT_MS = 5_000; // 5 seconds
 
@@ -17,9 +18,10 @@ interface OllamaStatus {
   recheck: () => void;
 }
 
-export function useOllamaStatus(): OllamaStatus {
+export function useOllamaStatus(options?: { enabled?: boolean }): OllamaStatus {
+  const enabled = options?.enabled ?? true;
   const [available, setAvailable] = useState<boolean>(false); // Fix #5: start false
-  const [checking, setChecking] = useState(true); // Fix #5: start checking
+  const [checking, setChecking] = useState(enabled); // start checking only when enabled
   const [error, setError] = useState<string | null>(null);
   const mountedRef = useRef(true);
   const controllerRef = useRef<AbortController | null>(null); // Fix #1: track controller
@@ -76,6 +78,13 @@ export function useOllamaStatus(): OllamaStatus {
 
   useEffect(() => {
     mountedRef.current = true;
+
+    if (!enabled) {
+      setAvailable(false);
+      setChecking(false);
+      return;
+    }
+
     check();
 
     const interval = setInterval(check, POLL_INTERVAL_MS);
@@ -87,7 +96,7 @@ export function useOllamaStatus(): OllamaStatus {
         controllerRef.current.abort();
       }
     };
-  }, [check]);
+  }, [check, enabled]);
 
   return { available, checking, error, recheck: check };
 }

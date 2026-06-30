@@ -6,6 +6,7 @@ import {
   type EmbeddingInfo,
   type EmbeddingStats,
 } from '../lib/api/embeddings';
+import type { ImageRecord } from './imageStore';
 
 interface EmbeddingStore {
   /** Per-image embedding info, keyed by imageId */
@@ -19,7 +20,7 @@ interface EmbeddingStore {
   fetchStatus: (imageId: string) => Promise<void>;
   fetchStatuses: (imageIds: string[]) => Promise<void>;
   fetchStats: () => Promise<void>;
-  generate: (imageIds: string[]) => Promise<void>;
+  generate: (images: ImageRecord[]) => Promise<void>;
 }
 
 export const useEmbeddingStore = create<EmbeddingStore>((set, get) => ({
@@ -35,7 +36,13 @@ export const useEmbeddingStore = create<EmbeddingStore>((set, get) => ({
 
   fetchStatuses: async (imageIds: string[]) => {
     if (imageIds.length === 0) return;
-    const results = await Promise.all(imageIds.map(getEmbeddingStatus));
+    const BATCH = 10;
+    const results: EmbeddingInfo[] = [];
+    for (let i = 0; i < imageIds.length; i += BATCH) {
+      const batch = imageIds.slice(i, i + BATCH);
+      const batchResults = await Promise.all(batch.map(getEmbeddingStatus));
+      results.push(...batchResults);
+    }
     set((s) => {
       const next = { ...s.statusMap };
       imageIds.forEach((id, i) => {
@@ -55,13 +62,13 @@ export const useEmbeddingStore = create<EmbeddingStore>((set, get) => ({
     }
   },
 
-  generate: async (imageIds: string[]) => {
+  generate: async (images: ImageRecord[]) => {
     const prevStats = get().stats;
     set({ generating: true });
     try {
-      await generateEmbeddings(imageIds);
+      await generateEmbeddings(images);
       // Refresh statuses for generated images
-      await get().fetchStatuses(imageIds);
+      await get().fetchStatuses(images.map((img) => img.id));
       // Refresh global stats
       await get().fetchStats();
     } catch {

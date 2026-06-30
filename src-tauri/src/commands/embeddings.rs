@@ -188,10 +188,10 @@ pub async fn get_embedding_stats_cmd(
 }
 
 /// Generate text embedding using Ollama.
-async fn embed_text_ollama(text: &str, model: &str) -> AppResult<Vec<f64>> {
+async fn embed_text_ollama(cfg: &crate::ollama::OllamaConfig, text: &str, model: &str) -> AppResult<Vec<f64>> {
     let client = reqwest::Client::new();
     let response = client
-        .post("http://localhost:11434/api/embed")
+        .post(cfg.url("/api/embed"))
         .json(&serde_json::json!({
             "model": model,
             "input": text
@@ -227,22 +227,24 @@ async fn embed_text_ollama(text: &str, model: &str) -> AppResult<Vec<f64>> {
 
 #[command]
 pub async fn embed_text_cmd(
+    cfg: tauri::State<'_, crate::ollama::OllamaConfig>,
     text: String,
     model: Option<String>,
 ) -> AppResult<Vec<f64>> {
     let model_name = model.unwrap_or_else(|| "nomic-embed-text".to_string());
-    embed_text_ollama(&text, &model_name).await
+    embed_text_ollama(&cfg, &text, &model_name).await
 }
 
 #[command]
 pub async fn generate_embedding_for_image_cmd(
     db: tauri::State<'_, DbHandle>,
+    cfg: tauri::State<'_, crate::ollama::OllamaConfig>,
     image_id: String,
     description: String,
     model: Option<String>,
 ) -> AppResult<()> {
     let model_name = model.unwrap_or_else(|| "nomic-embed-text".to_string());
-    let embedding = embed_text_ollama(&description, &model_name).await?;
+    let embedding = embed_text_ollama(&cfg, &description, &model_name).await?;
 
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     Ok(upsert_embedding(&conn, &image_id, &embedding)?)

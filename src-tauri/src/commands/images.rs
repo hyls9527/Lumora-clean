@@ -8,7 +8,7 @@ use crate::error::{AppError, AppResult};
 use uuid::Uuid;
 
 use crate::db::DbHandle;
-use crate::schema::types::{ImageRecord, PaginatedResult};
+use crate::schema::types::{row_to_record, ImageRecord, PaginatedResult};
 
 /// Known image extensions we accept during import.
 const IMAGE_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "webp", "avif", "bmp", "gif", "tiff"];
@@ -85,8 +85,9 @@ pub fn search_images(
              LIMIT 200",
         )
         ?;
+    let escaped = escape_fts5(&query);
     let items = stmt
-        .query_map(params![query], row_to_record)
+        .query_map(params![escaped], row_to_record)
         ?
         .collect::<Result<Vec<_>, _>>()
         ?;
@@ -122,9 +123,33 @@ pub fn toggle_favorite(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<
     Ok(())
 }
 
+/// Rebuild FTS5 index from current images table data.
+#[tauri::command]
+pub fn rebuild_fts_index(db: tauri::State<'_, DbHandle>) -> AppResult<()> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    conn.execute("INSERT INTO images_fts(images_fts) VALUES('rebuild')", [])?;
+    Ok(())
+}
+
 // ---------------------------------------------------------------------------
 // Helpers (pure-ish domain helpers + thin DB adapters)
 // ---------------------------------------------------------------------------
+
+/// Escape FTS5 special characters so user input doesn't break MATCH queries.
+fn escape_fts5(query: &str) -> String {
+    let mut escaped = String::with_capacity(query.len());
+    for ch in query.chars() {
+        match ch {
+            '"' | '*' | '+' | '-' | '(' | ')' | ':' | '^' => {
+                escaped.push('"');
+                escaped.push(ch);
+                escaped.push('"');
+            }
+            _ => escaped.push(ch),
+        }
+    }
+    escaped
+}
 
 struct ImportEntry {
     id: String,
@@ -198,10 +223,17 @@ fn probe_dimensions(path: &str, ext: &str) -> (Option<i32>, Option<i32>) {
     if ext == "gif" {
         return probe_gif(path);
     }
-    let bytes = match fs::read(path) {
-        Ok(b) if b.len() > 32 => b,
+    // Only read first 64KB — enough for all image format headers
+    let mut buf = vec![0u8; 65536];
+    let file = match std::fs::File::open(path) {
+        Ok(f) => f,
         _ => return (None, None),
     };
+    use std::io::Read;
+    let mut reader = std::io::BufReader::new(file);
+    let n = reader.read(&mut buf).unwrap_or(0);
+    buf.truncate(n);
+    let bytes = if buf.len() > 32 { buf } else { return (None, None) };
     match ext {
         "png" => probe_png(&bytes),
         "jpg" | "jpeg" => probe_jpeg(&bytes),
@@ -263,10 +295,20 @@ fn probe_webp(bytes: &[u8]) -> (Option<i32>, Option<i32>) {
 }
 
 fn probe_gif(path: &str) -> (Option<i32>, Option<i32>) {
-    let bytes = match fs::read(path) {
-        Ok(b) if b.len() >= 10 => b,
+    // Only read first 10 bytes needed for GIF header
+    let mut buf = vec![0u8; 10];
+    let file = match std::fs::File::open(path) {
+        Ok(f) => f,
         _ => return (None, None),
     };
+    use std::io::Read;
+    let mut reader = std::io::BufReader::new(file);
+    let n = reader.read(&mut buf).unwrap_or(0);
+    buf.truncate(n);
+    if buf.len() < 10 {
+        return (None, None);
+    }
+    let bytes = buf;
     if &bytes[..3] != b"GIF" {
         return (None, None);
     }
@@ -299,27 +341,8 @@ fn load_record(conn: &rusqlite::Connection, id: &str) -> Result<ImageRecord, rus
     conn.query_row(
         "SELECT * FROM images WHERE id = ?1",
         params![id],
-        row_to_record,
+        crate::schema::types::row_to_record,
     )
-}
-
-pub fn row_to_record(row: &rusqlite::Row<'_>) -> Result<ImageRecord, rusqlite::Error> {
-    Ok(ImageRecord {
-        id: row.get("id")?,
-        file_path: row.get("file_path")?,
-        file_hash: row.get("file_hash")?,
-        file_size_kb: row.get("file_size_kb")?,
-        width: row.get("width")?,
-        height: row.get("height")?,
-        format: row.get("format")?,
-        created_at: row.get("created_at")?,
-        imported_at: row.get("imported_at")?,
-        deleted: row.get::<_, i32>("deleted")? != 0,
-        rating: row.get("rating")?,
-        favorite: row.get::<_, i32>("favorite")? != 0,
-        metadata_json: row.get("metadata_json")?,
-        deleted_at: row.get("deleted_at").ok(),
-    })
 }
 
 #[cfg(test)]
@@ -602,5 +625,18 @@ mod tests {
             })
             .unwrap();
         assert_eq!(count, 4);
+    }
+
+    #[test]
+    fn rebuild_fts_index_works() {
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        // Insert a test image
+        conn.execute(
+            "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at) VALUES ('fts-1', '/test.png', 'h1', 100, 'png', '2025-01-01')",
+            [],
+        ).unwrap();
+        // Rebuild should not error
+        conn.execute("INSERT INTO images_fts(images_fts) VALUES('rebuild')", []).unwrap();
     }
 }

@@ -1,26 +1,9 @@
 import { create } from 'zustand';
 import * as api from '../lib/api/images';
 import type { ExportResult } from '../lib/api/images';
-import { invalidateSemanticCache } from '../lib/api/semanticCache';
+import type { ImageRecord } from '../types/image';
 
-export interface ImageRecord {
-  id: string;
-  filePath: string;
-  fileName: string;
-  fileSizeKb: number;
-  width: number;
-  height: number;
-  format: 'png' | 'jpg' | 'webp' | 'avif';
-  createdAt: string;
-  rating: number;        // 0-5
-  favorite: boolean;
-  model: string;
-  prompt: string;
-  tags: string[];
-  similarity?: number;   // 0-100, used by search
-  deleted?: boolean;
-  deletedAt?: string;
-}
+export type { ImageRecord } from '../types/image';
 
 interface FilterState {
   mode: 'creator' | 'normal';
@@ -70,6 +53,9 @@ interface ImageStore {
   getFilteredImages: () => ImageRecord[];
   getSearchResults: () => ImageRecord[];
 }
+
+let _favSeq = 0;
+let _ratingSeq = 0;
 
 export const useImageStore = create<ImageStore>((set, get) => ({
   images: [],
@@ -157,7 +143,6 @@ export const useImageStore = create<ImageStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const imported = await api.importImages(folderPath);
-      invalidateSemanticCache(); // New images → cached search results stale
       set((s) => ({
         images: [...imported, ...s.images],
         total: s.total + imported.length,
@@ -206,23 +191,25 @@ export const useImageStore = create<ImageStore>((set, get) => ({
     set((s) => ({ filters: { ...s.filters, similarityThreshold } })),
 
   toggleFavorite: (id) => {
-    // 乐观更新
+    const seq = ++_favSeq;
     set((s) => ({
       images: s.images.map((img) =>
         img.id === id ? { ...img, favorite: !img.favorite } : img,
       ),
     }));
     api.toggleFavorite(id).catch(() => {
-      // 回滚
-      set((s) => ({
-        images: s.images.map((img) =>
-          img.id === id ? { ...img, favorite: !img.favorite } : img,
-        ),
-      }));
+      if (seq === _favSeq) {
+        set((s) => ({
+          images: s.images.map((img) =>
+            img.id === id ? { ...img, favorite: !img.favorite } : img,
+          ),
+        }));
+      }
     });
   },
 
   setRating: (id, rating) => {
+    const seq = ++_ratingSeq;
     const prev = get().images.find((img) => img.id === id)?.rating;
     set((s) => ({
       images: s.images.map((img) =>
@@ -230,7 +217,7 @@ export const useImageStore = create<ImageStore>((set, get) => ({
       ),
     }));
     api.updateRating(id, rating).catch(() => {
-      if (prev !== undefined) {
+      if (prev !== undefined && seq === _ratingSeq) {
         set((s) => ({
           images: s.images.map((img) =>
             img.id === id ? { ...img, rating: prev } : img,

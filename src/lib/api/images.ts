@@ -1,5 +1,5 @@
 import { invoke } from '../tauri';
-import type { ImageRecord } from '../../stores/imageStore';
+import type { ImageRecord } from '../../types/image';
 
 /** Tauri 返回的原始记录结构（camelCase，serde 重命名后） */
 export interface TauriImageRecord {

@@ -265,5 +265,25 @@
     "coverage": "Coverage",
     "generate": "Generate Embeddings",
     "generating": "Generating…"
+  },
+  "aiAnalysis": {
+    "title": "AI Analysis",
+    "analyze": "Analyze",
+    "reAnalyze": "Re-analyze",
+    "analyzing": "Analyzing…",
+    "analyzingHint": "AI model is analyzing the image, please wait",
+    "description": "Description",
+    "suggestedTags": "Suggested Tags",
+    "detectedObjects": "Detected Objects",
+    "composition": "Composition",
+    "accept": "Accept",
+    "reject": "Reject",
+    "accepted": "Accepted",
+    "rejected": "Rejected",
+    "acceptTag": "Accept tag {name}",
+    "rejectTag": "Reject tag {name}",
+    "applyAllTags": "Apply All Tags",
+    "applyingTags": "Applying…",
+    "tagsApplied": "Applied {count} tags"
   }
 }

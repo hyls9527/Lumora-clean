@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useImageStore, type ImageRecord } from '../imageStore';
+import { useImageStore } from '../imageStore';
+import type { ImageRecord } from '../../types/image';
 
 vi.mock('../../lib/api/images', () => ({
   toggleFavorite: vi.fn().mockResolvedValue(undefined),

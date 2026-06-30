@@ -56,10 +56,10 @@ struct OllamaResponse {
 }
 
 /// Check if Ollama is running and available.
-async fn check_ollama_available() -> AppResult<()> {
+async fn check_ollama_available(cfg: &crate::ollama::OllamaConfig) -> AppResult<()> {
     let client = reqwest::Client::new();
     let response = client
-        .get("http://localhost:11434/api/tags")
+        .get(cfg.url("/api/tags"))
         .timeout(std::time::Duration::from_secs(5))
         .send()
         .await
@@ -75,16 +75,18 @@ async fn check_ollama_available() -> AppResult<()> {
 /// Call Ollama API to analyze an image.
 /// Expects Ollama to be running locally with a vision model (e.g., llava).
 async fn call_ollama_analyze(
+    cfg: &crate::ollama::OllamaConfig,
     image_path: &str,
     model: &str,
 ) -> AppResult<AnalysisResult> {
     // Check Ollama availability first
-    check_ollama_available().await?;
+    check_ollama_available(cfg).await?;
 
     // Read image and encode as base64
     let image_bytes = std::fs::read(image_path)
         .map_err(|e| format!("Failed to read image: {}", e))?;
-    let image_base64 = base64_encode(&image_bytes);
+    use base64::Engine;
+    let image_base64 = base64::engine::general_purpose::STANDARD.encode(&image_bytes);
 
     let prompt = r#"Analyze this image and return a JSON object with these fields:
 - description: A detailed description of the image (2-3 sentences)
@@ -107,7 +109,7 @@ Return ONLY valid JSON, no other text."#;
 
     let client = reqwest::Client::new();
     let response = client
-        .post("http://localhost:11434/api/chat")
+        .post(cfg.url("/api/chat"))
         .json(&request)
         .send()
         .await
@@ -130,29 +132,6 @@ Return ONLY valid JSON, no other text."#;
     Ok(result)
 }
 
-fn base64_encode(data: &[u8]) -> String {
-    const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    let mut result = String::new();
-    for chunk in data.chunks(3) {
-        let b0 = chunk[0] as usize;
-        let b1 = if chunk.len() > 1 { chunk[1] as usize } else { 0 };
-        let b2 = if chunk.len() > 2 { chunk[2] as usize } else { 0 };
-
-        result.push(CHARS[(b0 >> 2) & 0x3F] as char);
-        result.push(CHARS[((b0 << 4) | (b1 >> 4)) & 0x3F] as char);
-        if chunk.len() > 1 {
-            result.push(CHARS[((b1 << 2) | (b2 >> 6)) & 0x3F] as char);
-        } else {
-            result.push('=');
-        }
-        if chunk.len() > 2 {
-            result.push(CHARS[b2 & 0x3F] as char);
-        } else {
-            result.push('=');
-        }
-    }
-    result
-}
 
 // ---------------------------------------------------------------------------
 // Database operations
@@ -244,6 +223,7 @@ pub fn get_analysis_history_db(
 #[command]
 pub async fn analyze_image_cmd(
     db: tauri::State<'_, DbHandle>,
+    cfg: tauri::State<'_, crate::ollama::OllamaConfig>,
     image_id: String,
     image_path: String,
     model: Option<String>,
@@ -251,7 +231,7 @@ pub async fn analyze_image_cmd(
     let model_name = model.unwrap_or_else(|| "llava:latest".to_string());
 
     // Call Ollama to analyze the image
-    let result = call_ollama_analyze(&image_path, &model_name).await?;
+    let result = call_ollama_analyze(&cfg, &image_path, &model_name).await?;
 
     // Store the result in the database
     let conn = db.conn().lock().map_err(|e| e.to_string())?;
@@ -380,8 +360,10 @@ mod tests {
 
     #[test]
     fn base64_encode_works() {
-        assert_eq!(base64_encode(b"hello"), "aGVsbG8=");
-        assert_eq!(base64_encode(b"world"), "d29ybGQ=");
-        assert_eq!(base64_encode(b""), "");
+        use base64::Engine;
+        let encode = |data: &[u8]| base64::engine::general_purpose::STANDARD.encode(data);
+        assert_eq!(encode(b"hello"), "aGVsbG8=");
+        assert_eq!(encode(b"world"), "d29ybGQ=");
+        assert_eq!(encode(b""), "");
     }
 }

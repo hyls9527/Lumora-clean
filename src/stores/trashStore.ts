@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import * as api from '../lib/api/images';
-import type { ImageRecord } from './imageStore';
+import type { ImageRecord } from '../types/image';
 
 interface TrashStore {
   images: ImageRecord[];

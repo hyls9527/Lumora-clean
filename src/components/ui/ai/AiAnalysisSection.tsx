@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { useAiAnalysisStore } from '../../../stores/aiAnalysisStore';
+import { useImageStore } from '../../../stores/imageStore';
+import { createTag, listTags, addTagToImage } from '../../../lib/api/images';
 import { useTranslation } from '../../../lib/i18n';
 import { TagSuggestionCard } from './TagSuggestionCard';
 import { ColorPaletteStrip } from './ColorPaletteStrip';
@@ -25,6 +28,8 @@ const valueStyle: React.CSSProperties = {
 
 export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
   const { t } = useTranslation('aiAnalysis');
+  const [applying, setApplying] = useState(false);
+  const [applied, setApplied] = useState(false);
 
   const result = useAiAnalysisStore((s) => s.results[imageId]);
   const history = useAiAnalysisStore((s) => s.history[imageId]);
@@ -41,6 +46,39 @@ export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
 
   const handleAnalyze = () => {
     analyze(imageId);
+  };
+
+  const handleApplyAllTags = async () => {
+    if (!result || applying) return;
+    setApplying(true);
+    setApplied(false);
+
+    const nonRejected = result.tags.filter((tag) => !rejectedTags.includes(tag.name));
+    if (nonRejected.length === 0) {
+      setApplying(false);
+      return;
+    }
+
+    try {
+      const existingTags = await listTags();
+
+      for (const tag of nonRejected) {
+        const existing = existingTags.find((et) => et.name === tag.name);
+        const tagId = existing ? existing.id : (await createTag(tag.name, null)).id;
+        await addTagToImage(imageId, tagId);
+      }
+
+      await useImageStore.getState().fetchImageTags(imageId);
+
+      for (const tag of nonRejected) {
+        acceptTag(imageId, tag.name);
+      }
+
+      setApplied(true);
+      setTimeout(() => setApplied(false), 3000);
+    } finally {
+      setApplying(false);
+    }
   };
 
   // Load history on first render if result exists
@@ -148,6 +186,40 @@ export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
                   />
                 ))}
               </div>
+              <button
+                type="button"
+                onClick={handleApplyAllTags}
+                disabled={applying || result.tags.every((tag) => rejectedTags.includes(tag.name))}
+                style={{
+                  marginTop: 8,
+                  background: applied ? 'rgba(122, 92, 18, 0.08)' : applying ? 'rgba(139, 115, 75, 0.06)' : 'none',
+                  border: '1px solid rgba(122, 92, 18, 0.25)',
+                  borderRadius: 4,
+                  padding: '5px 12px',
+                  fontSize: 11,
+                  fontFamily: 'var(--font-body)',
+                  color: applied ? '#5a7a3a' : '#7a5c12',
+                  cursor: applying ? 'default' : 'pointer',
+                  transition: 'background 200ms, color 200ms',
+                  width: '100%',
+                }}
+                onMouseEnter={(e) => {
+                  if (!applying) {
+                    (e.currentTarget as HTMLElement).style.background = 'rgba(122, 92, 18, 0.08)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!applying) {
+                    (e.currentTarget as HTMLElement).style.background = applied ? 'rgba(122, 92, 18, 0.08)' : 'none';
+                  }
+                }}
+              >
+                {applied
+                  ? t('tagsApplied', { count: result.tags.filter((tag) => !rejectedTags.includes(tag.name)).length })
+                  : applying
+                    ? t('applyingTags')
+                    : t('applyAllTags')}
+              </button>
             </div>
           )}
 

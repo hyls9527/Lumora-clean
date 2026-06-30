@@ -4,7 +4,18 @@
  * NEVER imports @tauri-apps/api at module level — only via dynamic import when isTauri=true.
  */
 
+import { invalidateSemanticCache } from './api/semanticCache';
+
 const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+
+const WRITE_COMMANDS = new Set([
+  'import_images', 'update_rating', 'toggle_favorite',
+  'soft_delete_image', 'restore_image', 'permanent_delete_image',
+  'empty_trash', 'create_tag', 'delete_tag',
+  'add_tag_to_image', 'remove_tag_from_image',
+  'batch_soft_delete', 'batch_restore', 'batch_permanent_delete',
+  'batch_add_tag', 'batch_remove_tag',
+]);
 
 function mockResponse(cmd: string): unknown {
   if (['list_images', 'list_trash', 'import_images'].includes(cmd))
@@ -79,7 +90,12 @@ export async function invoke<T = unknown>(cmd: string, args?: Record<string, unk
 
   if (_realInvoke) {
     try {
-      return await _realInvoke(cmd, args) as T;
+      const result = await _realInvoke(cmd, args) as T;
+      if (WRITE_COMMANDS.has(cmd)) {
+        // Fire-and-forget: don't block or alter return value
+        Promise.resolve().then(() => invalidateSemanticCache());
+      }
+      return result;
     } catch (error) {
       // Log in development
       if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
@@ -89,7 +105,11 @@ export async function invoke<T = unknown>(cmd: string, args?: Record<string, unk
     }
   }
 
-  return mockResponse(cmd) as T;
+  const result = mockResponse(cmd) as T;
+  if (WRITE_COMMANDS.has(cmd)) {
+    Promise.resolve().then(() => invalidateSemanticCache());
+  }
+  return result;
 }
 
 export { isTauri as isTauriAvailable };

@@ -9,6 +9,7 @@ vi.mock('../../lib/api/embeddings', () => ({
 
 import { useEmbeddingStore } from '../embeddingStore';
 import * as api from '../../lib/api/embeddings';
+import type { ImageRecord } from '../imageStore';
 
 const mockGetStatus = vi.mocked(api.getEmbeddingStatus);
 const mockGetStats = vi.mocked(api.getEmbeddingStats);
@@ -92,10 +93,19 @@ describe('generate', () => {
     mockGetStatus.mockResolvedValue({ status: 'embedded', dimensions: 512 });
     mockGetStats.mockResolvedValue({ embedded: 5, pending: 0, error: 0, total: 5 });
 
-    await useEmbeddingStore.getState().generate(['img-1', 'img-2']);
+    const testImages: ImageRecord[] = [
+      { id: 'img-1', prompt: 'a cat', fileName: 'cat.png', filePath: '/cat.png', fileSizeKb: 100, width: 512, height: 512, format: 'png', createdAt: '2025-01-01', rating: 0, favorite: false, model: '', tags: [] },
+      { id: 'img-2', prompt: 'a dog', fileName: 'dog.png', filePath: '/dog.png', fileSizeKb: 200, width: 512, height: 512, format: 'png', createdAt: '2025-01-01', rating: 0, favorite: false, model: '', tags: [] },
+    ];
+    await useEmbeddingStore.getState().generate(testImages);
 
     expect(useEmbeddingStore.getState().generating).toBe(false);
-    expect(mockGenerate).toHaveBeenCalledWith(['img-1', 'img-2']);
+    expect(mockGenerate).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'img-1', prompt: 'a cat' }),
+        expect.objectContaining({ id: 'img-2', prompt: 'a dog' }),
+      ]),
+    );
     expect(mockGetStatus).toHaveBeenCalledTimes(2);
     expect(mockGetStats).toHaveBeenCalled();
   });

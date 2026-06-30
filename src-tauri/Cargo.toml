@@ -30,5 +30,6 @@ rusqlite = { version = "0.35", features = ["bundled"] }
 sqlite-vec = "0.1"
 uuid = { version = "1", features = ["v4"] }
 chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
-image = "0.25"
-reqwest = { version = "0.12", features = ["json", "blocking"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "avif", "bmp", "gif", "tiff"] }
+reqwest = { version = "0.12", features = ["json"] }
+base64 = "0.22"

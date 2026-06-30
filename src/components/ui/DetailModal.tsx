@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { ImageRecord } from '../../stores/imageStore';
+import type { ImageRecord } from '../../types/image';
 import { Rating } from './Rating';
 import { TagBadge } from './TagBadge';
 

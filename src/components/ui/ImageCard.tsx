@@ -1,5 +1,6 @@
 import { useEffect, memo } from 'react';
-import { useImageStore, type ImageRecord } from '../../stores/imageStore';
+import { useImageStore } from '../../stores/imageStore';
+import type { ImageRecord } from '../../types/image';
 import { useTrashStore } from '../../stores/trashStore';
 import { useEmbeddingStore } from '../../stores/embeddingStore';
 import { Rating } from './Rating';

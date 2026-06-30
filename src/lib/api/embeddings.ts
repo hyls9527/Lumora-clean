@@ -1,9 +1,9 @@
 /**
- * Embedding API — delegates to real Tauri commands when available.
- * Falls back to mock data in browser mode.
+ * Embedding API — delegates to real Tauri commands.
  */
 
 import { invoke } from '../tauri';
+import type { ImageRecord } from '../../types/image';
 
 export type EmbeddingStatus = 'embedded' | 'pending' | 'error';
 
@@ -20,77 +20,54 @@ export interface EmbeddingStats {
   total: number;
 }
 
-// ---------------------------------------------------------------------------
-// Mock fallback for browser mode
-// ---------------------------------------------------------------------------
-
-function hashCode(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
-  }
-  return h;
-}
-
-const STATUS_BY_HASH: EmbeddingStatus[] = ['embedded', 'embedded', 'pending', 'error', 'embedded'];
-
-function mockStatus(imageId: string): EmbeddingInfo {
-  const h = Math.abs(hashCode(imageId));
-  const status = STATUS_BY_HASH[h % STATUS_BY_HASH.length];
-  return {
-    status,
-    dimensions: status === 'embedded' ? 512 : undefined,
-    generatedAt:
-      status === 'embedded'
-        ? new Date(Date.now() - h % 86400000).toISOString()
-        : undefined,
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
-
 /**
  * Get embedding status for a single image.
- * Calls Tauri command `get_embedding_status_cmd` when available.
+ * Calls Tauri command `get_embedding_status_cmd`.
  */
 export async function getEmbeddingStatus(
   imageId: string,
 ): Promise<EmbeddingInfo> {
-  try {
-    const result = await invoke<EmbeddingInfo | null>('get_embedding_status_cmd', { imageId });
-    if (result) {
-      return {
-        status: result.status as EmbeddingStatus,
-        dimensions: result.dimensions ?? undefined,
-        generatedAt: result.generatedAt ?? undefined,
-      };
-    }
-    // No embedding found — return pending status
-    return { status: 'pending' };
-  } catch {
-    // Fallback to mock in browser mode
-    return mockStatus(imageId);
+  const result = await invoke<EmbeddingInfo | null>('get_embedding_status_cmd', { imageId });
+  if (result) {
+    return {
+      status: result.status as EmbeddingStatus,
+      dimensions: result.dimensions ?? undefined,
+      generatedAt: result.generatedAt ?? undefined,
+    };
   }
+  return { status: 'pending' };
 }
 
 /**
  * Generate embeddings for a list of images.
- * In browser mode, this is a no-op mock.
- * In Tauri mode, the caller should provide the actual embedding vectors.
+ * Uses the image's prompt (from metadata) as description, falls back to filename.
+ * Calls Tauri command `generate_embedding_for_image_cmd` per image.
  */
 export async function generateEmbeddings(
-  imageIds: string[],
+  images: ImageRecord[],
 ): Promise<void> {
-  // In browser mode, simulate delay
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  void imageIds;
+  const CONCURRENCY = 3;
+  const results: Promise<void>[] = [];
+  for (const img of images) {
+    const description = img.prompt || img.fileName || img.id;
+    const p = invoke('generate_embedding_for_image_cmd', {
+      imageId: img.id,
+      description,
+    }).then(() => {});
+    results.push(p);
+    if (results.length >= CONCURRENCY) {
+      await Promise.all(results);
+      results.length = 0;
+    }
+  }
+  if (results.length > 0) {
+    await Promise.all(results);
+  }
 }
 
 /**
  * Store a generated embedding for an image.
- * Calls Tauri command `generate_embedding` when available.
+ * Calls Tauri command `generate_embedding`.
  */
 export async function storeEmbedding(
   imageId: string,
@@ -101,19 +78,14 @@ export async function storeEmbedding(
 
 /**
  * Get aggregate embedding stats.
- * Calls Tauri command `get_embedding_stats_cmd` when available.
+ * Calls Tauri command `get_embedding_stats_cmd`.
  */
 export async function getEmbeddingStats(): Promise<EmbeddingStats> {
-  try {
-    const result = await invoke<EmbeddingStats>('get_embedding_stats_cmd');
-    return {
-      embedded: result.embedded ?? 0,
-      pending: result.pending ?? 0,
-      error: result.error ?? 0,
-      total: result.total ?? 0,
-    };
-  } catch {
-    // Fallback to mock in browser mode
-    return { embedded: 12, pending: 3, error: 1, total: 16 };
-  }
+  const result = await invoke<EmbeddingStats>('get_embedding_stats_cmd');
+  return {
+    embedded: result.embedded ?? 0,
+    pending: result.pending ?? 0,
+    error: result.error ?? 0,
+    total: result.total ?? 0,
+  };
 }

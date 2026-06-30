@@ -1,7 +1,7 @@
 use crate::db::DbHandle;
 use crate::error::{AppError, AppResult};
 use crate::schema::types::{DashboardStats, FormatCount, RatingCount, TagCount};
-use crate::commands::images::row_to_record;
+use crate::schema::types::row_to_record;
 
 /// Aggregate dashboard statistics from the database.
 #[tauri::command]

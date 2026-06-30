@@ -93,4 +93,17 @@ describe('useOllamaStatus', () => {
     });
     expect(result.current.available).toBe(true);
   });
+
+  it('should skip polling when enabled=false', async () => {
+    const { result } = renderHook(() => useOllamaStatus({ enabled: false }));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(result.current.available).toBe(false);
+    expect(result.current.checking).toBe(false);
+    expect(result.current.error).toBeNull();
+  });
 });

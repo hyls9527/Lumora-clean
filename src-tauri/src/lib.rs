@@ -3,6 +3,7 @@ use tauri::Manager;
 mod commands;
 mod db;
 mod error;
+mod ollama;
 mod schema;
 
 use std::path::PathBuf;
@@ -38,6 +39,7 @@ pub fn run() {
             let db = DbHandle::open(&db_path).expect("failed to open database");
 
             app.manage(db);
+            app.manage(ollama::OllamaConfig::from_env());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -46,6 +48,7 @@ pub fn run() {
             commands::images::search_images,
             commands::images::update_rating,
             commands::images::toggle_favorite,
+            commands::images::rebuild_fts_index,
             commands::tags::create_tag,
             commands::tags::list_tags,
             commands::tags::delete_tag,

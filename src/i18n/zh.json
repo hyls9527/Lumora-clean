@@ -265,5 +265,25 @@
     "coverage": "覆盖率",
     "generate": "生成嵌入",
     "generating": "生成中…"
+  },
+  "aiAnalysis": {
+    "title": "AI 分析",
+    "analyze": "分析",
+    "reAnalyze": "重新分析",
+    "analyzing": "分析中…",
+    "analyzingHint": "正在使用 AI 模型分析图片，请稍候",
+    "description": "描述",
+    "suggestedTags": "建议标签",
+    "detectedObjects": "检测到的物体",
+    "composition": "构图",
+    "accept": "接受",
+    "reject": "拒绝",
+    "accepted": "已接受",
+    "rejected": "已拒绝",
+    "acceptTag": "接受标签 {name}",
+    "rejectTag": "拒绝标签 {name}",
+    "applyAllTags": "应用所有标签",
+    "applyingTags": "正在应用…",
+    "tagsApplied": "已应用 {count} 个标签"
   }
 }

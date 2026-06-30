@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { open } from '@tauri-apps/plugin-dialog';
 import { useImageStore } from '../../stores/imageStore';
 import { ErrorState } from '../../components/ui/ErrorState';
 
@@ -27,6 +28,11 @@ export function ImportPage() {
     },
     [importImages],
   );
+
+  const handleBrowseFolder = useCallback(async () => {
+    const selected = await open({ directory: true, title: '选择导入文件夹' });
+    if (selected) handleImport(selected);
+  }, [handleImport]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -73,7 +79,7 @@ export function ImportPage() {
           </h2>
           <button
             type="button"
-            onClick={() => handleImport('D:\\ComfyUI\\output')}
+            onClick={handleBrowseFolder}
             style={{
               padding: '8px 16px',
               fontSize: 12,
@@ -89,7 +95,7 @@ export function ImportPage() {
               transition: 'background 200ms',
             }}
           >
-            手动导入
+            选择文件夹
           </button>
         </div>
 
@@ -98,7 +104,7 @@ export function ImportPage() {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => handleImport('D:\\ComfyUI\\output')}
+          onClick={handleBrowseFolder}
           role="button"
           tabIndex={0}
           aria-label="选择文件夹导入"
@@ -134,7 +140,7 @@ export function ImportPage() {
         </div>
 
         {/* Error state */}
-        {error && <ErrorState message={error} onRetry={() => handleImport('D:\\ComfyUI\\output')} />}
+        {error && <ErrorState message={error} onRetry={handleBrowseFolder} />}
 
         {/* Import loading */}
         {loading && (

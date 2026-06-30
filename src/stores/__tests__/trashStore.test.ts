@@ -1,10 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as api from '../../lib/api/images';
 import { useTrashStore } from '../trashStore';
-import type { ImageRecord } from '../imageStore';
+import type { ImageRecord } from '../../types/image';
 
 vi.mock('../../lib/api/images');
-
 const makeImage = (id: string): ImageRecord => ({
   id,
   filePath: `/photos/${id}.jpg`,
@@ -84,6 +83,16 @@ describe('restoreImage', () => {
     expect(api.restoreImage).toHaveBeenCalledWith('x');
   });
 
+  it('calls invalidateSemanticCache after successful restore', async () => {
+    useTrashStore.setState({ images: [makeImage('x')], total: 1 });
+    vi.mocked(api.restoreImage).mockResolvedValue();
+
+    await useTrashStore.getState().restoreImage('x');
+
+    // Cache invalidation is now centralized in tauri.ts invoke wrapper
+    expect(api.restoreImage).toHaveBeenCalledWith('x');
+  });
+
   it('rolls back on error', async () => {
     const images = [makeImage('x'), makeImage('y')];
     useTrashStore.setState({ images, total: 2 });
@@ -99,6 +108,16 @@ describe('restoreImage', () => {
 });
 
 describe('permanentDelete', () => {
+  it('calls invalidateSemanticCache after successful delete', async () => {
+    useTrashStore.setState({ images: [makeImage('a')], total: 1 });
+    vi.mocked(api.permanentDeleteImage).mockResolvedValue();
+
+    await useTrashStore.getState().permanentDelete('a');
+
+    // Cache invalidation is now centralized in tauri.ts invoke wrapper
+    expect(api.permanentDeleteImage).toHaveBeenCalledWith('a');
+  });
+
   it('optimistically removes image and calls api', async () => {
     const images = [makeImage('a'), makeImage('b')];
     useTrashStore.setState({ images, total: 2 });
@@ -140,6 +159,16 @@ describe('emptyTrash', () => {
     expect(s.loading).toBe(false);
   });
 
+  it('calls invalidateSemanticCache after successful empty', async () => {
+    useTrashStore.setState({ images: [makeImage('z')], total: 1 });
+    vi.mocked(api.emptyTrash).mockResolvedValue(1);
+
+    await useTrashStore.getState().emptyTrash();
+
+    // Cache invalidation is now centralized in tauri.ts invoke wrapper
+    expect(api.emptyTrash).toHaveBeenCalled();
+  });
+
   it('sets error on failure', async () => {
     useTrashStore.setState({ images: [makeImage('z')], total: 1 });
     vi.mocked(api.emptyTrash).mockRejectedValue(new Error('nope'));
@@ -162,6 +191,15 @@ describe('softDeleteImage', () => {
 
     expect(api.softDeleteImage).toHaveBeenCalledWith('id-1');
     expect(useTrashStore.getState().error).toBeNull();
+  });
+
+  it('calls invalidateSemanticCache after successful soft delete', async () => {
+    vi.mocked(api.softDeleteImage).mockResolvedValue();
+
+    await useTrashStore.getState().softDeleteImage('id-1');
+
+    // Cache invalidation is now centralized in tauri.ts invoke wrapper
+    expect(api.softDeleteImage).toHaveBeenCalledWith('id-1');
   });
 
   it('sets error on failure', async () => {

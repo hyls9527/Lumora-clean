@@ -82,3 +82,24 @@ pub struct ExportResult {
     pub failed: u32,
     pub dest_dir: String,
 }
+
+/// Map a SQLite row to an `ImageRecord`.
+/// Shared by images, trash, dashboard, and export commands.
+pub fn row_to_record(row: &rusqlite::Row<'_>) -> Result<ImageRecord, rusqlite::Error> {
+    Ok(ImageRecord {
+        id: row.get("id")?,
+        file_path: row.get("file_path")?,
+        file_hash: row.get("file_hash")?,
+        file_size_kb: row.get("file_size_kb")?,
+        width: row.get("width")?,
+        height: row.get("height")?,
+        format: row.get("format")?,
+        created_at: row.get("created_at")?,
+        imported_at: row.get("imported_at")?,
+        deleted: row.get::<_, i32>("deleted")? != 0,
+        rating: row.get("rating")?,
+        favorite: row.get::<_, i32>("favorite")? != 0,
+        metadata_json: row.get("metadata_json")?,
+        deleted_at: row.get("deleted_at").ok(),
+    })
+}

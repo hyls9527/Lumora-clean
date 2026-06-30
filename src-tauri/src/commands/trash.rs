@@ -5,7 +5,7 @@ use crate::error::{AppError, AppResult};
 use crate::db::DbHandle;
 use crate::schema::types::PaginatedResult;
 
-use super::images::row_to_record;
+use crate::schema::types::row_to_record;
 
 /// Soft-delete: set deleted=1 and record the deletion timestamp.
 #[tauri::command]
@@ -51,6 +51,16 @@ pub fn permanent_delete_image(db: tauri::State<'_, DbHandle>, id: String) -> App
 fn permanent_delete_tx(tx: &rusqlite::Transaction<'_>, id: &str) -> Result<(), AppError> {
     tx.execute("DELETE FROM image_tags WHERE image_id = ?1", params![id])?;
     tx.execute("DELETE FROM analysis_history WHERE image_id = ?1", params![id])?;
+    // vec0 is a virtual table loaded via sqlite-vec extension.
+    // Assert it exists at dev-time; in production the extension is always loaded.
+    debug_assert!(
+        tx.query_row(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='vec_embeddings'",
+            [],
+            |r| r.get::<_, i64>(0),
+        ).unwrap_or(0) > 0,
+        "vec_embeddings table missing — sqlite-vec extension not loaded"
+    );
     let _ = tx.execute("DELETE FROM vec_embeddings WHERE image_id = ?1", params![id]);
     tx.execute("DELETE FROM embeddings WHERE image_id = ?1", params![id])?;
     let changed = tx.execute("DELETE FROM images WHERE id = ?1", params![id])?;

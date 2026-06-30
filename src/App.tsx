@@ -7,6 +7,7 @@ import { useSettingsStore } from './stores/settingsStore';
 import { useCommandStore } from './stores/commandStore';
 import { useDragDrop } from './hooks/useDragDrop';
 import { useTranslation } from './lib/i18n';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import type { Command } from './stores/commandStore';
 
 const ImportPage = lazy(() => import('./features/import/ImportPage'));
@@ -75,15 +76,15 @@ function App() {
 
   const renderPage = () => {
     switch (route) {
-      case '/trash': return <Suspense fallback={<Loading />}><TrashPage /></Suspense>;
-      case '/dashboard': return <Suspense fallback={<Loading />}><DashboardPage /></Suspense>;
-      case '/gallery': return <GalleryPage />;
-      case '/import': return <Suspense fallback={<Loading />}><ImportPage /></Suspense>;
-      case '/search': return <Suspense fallback={<Loading />}><SearchPage /></Suspense>;
-      case '/tags': return <Suspense fallback={<Loading />}><TagManager /></Suspense>;
-      case '/export': return <Suspense fallback={<Loading />}><ExportPage /></Suspense>;
-      case '/favorites': return <Suspense fallback={<Loading />}><FavoritesPage /></Suspense>;
-      case '/settings': return <Suspense fallback={<Loading />}><SettingsPage /></Suspense>;
+      case '/trash': return <ErrorBoundary key="trash"><Suspense fallback={<Loading />}><TrashPage /></Suspense></ErrorBoundary>;
+      case '/dashboard': return <ErrorBoundary key="dashboard"><Suspense fallback={<Loading />}><DashboardPage /></Suspense></ErrorBoundary>;
+      case '/gallery': return <ErrorBoundary key="gallery"><GalleryPage /></ErrorBoundary>;
+      case '/import': return <ErrorBoundary key="import"><Suspense fallback={<Loading />}><ImportPage /></Suspense></ErrorBoundary>;
+      case '/search': return <ErrorBoundary key="search"><Suspense fallback={<Loading />}><SearchPage /></Suspense></ErrorBoundary>;
+      case '/tags': return <ErrorBoundary key="tags"><Suspense fallback={<Loading />}><TagManager /></Suspense></ErrorBoundary>;
+      case '/export': return <ErrorBoundary key="export"><Suspense fallback={<Loading />}><ExportPage /></Suspense></ErrorBoundary>;
+      case '/favorites': return <ErrorBoundary key="favorites"><Suspense fallback={<Loading />}><FavoritesPage /></Suspense></ErrorBoundary>;
+      case '/settings': return <ErrorBoundary key="settings"><Suspense fallback={<Loading />}><SettingsPage /></Suspense></ErrorBoundary>;
       default: return <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',color:'#6b5d48',fontFamily:'var(--font-display)',fontSize:14}}>页面开发中…</div>;
     }
   };

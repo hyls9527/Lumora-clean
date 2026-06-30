@@ -5,8 +5,8 @@ use rusqlite::params;
 
 use crate::error::{AppError, AppResult};
 
-use crate::commands::images::row_to_record;
 use crate::db::DbHandle;
+use crate::schema::types::row_to_record;
 use crate::schema::types::ExportResult;
 
 /// Export images to a destination folder with optional format conversion and renaming.

@@ -3,7 +3,7 @@ import {
   getDashboardStats,
   type DashboardStats,
 } from '../../lib/api/images';
-import type { ImageRecord } from '../../stores/imageStore';
+import type { ImageRecord } from '../../types/image';
 import { useEmbeddingStore } from '../../stores/embeddingStore';
 import { useTranslation } from '../../lib/i18n';
 

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useImageStore, type ImageRecord } from '../../stores/imageStore';
+import { useImageStore } from '../../stores/imageStore';
+import type { ImageRecord } from '../../types/image';
 import { ImageCard } from '../../components/ui/ImageCard';
 import { DetailModal } from '../../components/ui/DetailModal';
 
