@@ -78,6 +78,8 @@ pub fn run() {
             commands::ai::analyze_image_cmd,
             commands::ai::get_analysis_result_cmd,
             commands::ai::get_analysis_history_cmd,
+            commands::clip::clip_embed_image_cmd,
+            commands::clip::clip_embed_text_cmd,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
