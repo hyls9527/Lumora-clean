@@ -64,7 +64,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Generate latest.json with local signing
+      - name: Install minisign
+        run: sudo apt-get update && sudo apt-get install -y minisign
+
+      - name: Sign and generate latest.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -76,11 +79,7 @@ jobs:
           REPO="${{ github.repository }}"
           DIR=$(mktemp -d)
 
-          # Install minisign (lightweight, no Rust compile needed)
-          curl -sL https://github.com/jedisct1/minisign/releases/download/0.12/minisign-0.12-linux.tar.gz | tar xz -C "$DIR"
-          MINISIGN="$DIR/minisign-0.12-linux/x86_64/minisign"
-
-          # Save signing key
+          # Save key
           echo "$TAURI_SIGNING_PRIVATE_KEY" > "$DIR/key"
           chmod 600 "$DIR/key"
 
@@ -92,17 +91,19 @@ jobs:
             echo "Downloading $NSIS_EXE..."
             gh release download "$TAG" -R "$REPO" -p "$NSIS_EXE" -D "$DIR"
             echo "Signing..."
-            echo "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" | "$MINISIGN" -S -s "$DIR/key" -m "$DIR/$NSIS_EXE" -x "$DIR/$NSIS_EXE.sig" 2>&1
-            if [ -f "$DIR/$NSIS_EXE.sig" ]; then
+            echo "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" | minisign -S -s "$DIR/key" -m "$DIR/$NSIS_EXE" 2>&1
+            # minisign creates .minisig by default, rename to .sig for Tauri
+            if [ -f "$DIR/$NSIS_EXE.minisig" ]; then
+              mv "$DIR/$NSIS_EXE.minisig" "$DIR/$NSIS_EXE.sig"
               WIN_SIG=$(cat "$DIR/$NSIS_EXE.sig" | tr -d '\r\n')
               WIN_URL="https://github.com/$REPO/releases/download/$TAG/$NSIS_EXE"
               PLATFORMS="\"windows-x86_64\":{\"signature\":\"$WIN_SIG\",\"url\":\"$WIN_URL\"}"
               echo "Windows: signed ✓"
             else
-              echo "Windows: signing failed"
+              echo "Windows: signing FAILED"
             fi
           else
-            echo "Windows: NSIS exe not found in release"
+            echo "Windows: NSIS exe not found"
           fi
 
           # --- macOS: sign app.tar.gz ---
@@ -111,18 +112,19 @@ jobs:
             echo "Downloading $MAC_TAR..."
             gh release download "$TAG" -R "$REPO" -p "$MAC_TAR" -D "$DIR"
             echo "Signing..."
-            echo "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" | "$MINISIGN" -S -s "$DIR/key" -m "$DIR/$MAC_TAR" -x "$DIR/$MAC_TAR.sig" 2>&1
-            if [ -f "$DIR/$MAC_TAR.sig" ]; then
+            echo "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" | minisign -S -s "$DIR/key" -m "$DIR/$MAC_TAR" 2>&1
+            if [ -f "$DIR/$MAC_TAR.minisig" ]; then
+              mv "$DIR/$MAC_TAR.minisig" "$DIR/$MAC_TAR.sig"
               MAC_SIG=$(cat "$DIR/$MAC_TAR.sig" | tr -d '\r\n')
               MAC_URL="https://github.com/$REPO/releases/download/$TAG/$MAC_TAR"
               if [ -n "$PLATFORMS" ]; then PLATFORMS="$PLATFORMS,"; fi
               PLATFORMS="$PLATFORMS\"darwin-aarch64\":{\"signature\":\"$MAC_SIG\",\"url\":\"$MAC_URL\"}"
               echo "macOS: signed ✓"
             else
-              echo "macOS: signing failed"
+              echo "macOS: signing FAILED"
             fi
           else
-            echo "macOS: app.tar.gz not found in release"
+            echo "macOS: app.tar.gz not found"
           fi
 
           # --- Generate and upload latest.json ---
