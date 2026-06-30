@@ -31,5 +31,5 @@ sqlite-vec = "0.1"
 uuid = { version = "1", features = ["v4"] }
 chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
 image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "avif", "bmp", "gif", "tiff"] }
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.13", features = ["json"] }
 base64 = "0.22"
