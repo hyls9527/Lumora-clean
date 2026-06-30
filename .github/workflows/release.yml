@@ -60,70 +60,106 @@ jobs:
           prerelease: false
           updaterJsonPreferNsis: true
 
-      - name: Upload updater artifacts
-        if: matrix.os == 'windows-latest' || matrix.os == 'macos-latest'
+      - name: Upload NSIS updater artifacts
+        if: matrix.os == 'windows-latest'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           TAG="${{ github.ref_name }}"
+          BUNDLE_DIR="src-tauri/target/release/bundle/nsis"
+          NSIS_ZIP=$(find "$BUNDLE_DIR" -name "*.nsis.zip" 2>/dev/null | head -1)
+          NSIS_SIG=$(find "$BUNDLE_DIR" -name "*.nsis.zip.sig" 2>/dev/null | head -1)
+
+          if [ -n "$NSIS_ZIP" ] && [ -n "$NSIS_SIG" ]; then
+            echo "Uploading NSIS zip + sig..."
+            gh release upload "$TAG" "$NSIS_ZIP" "$NSIS_SIG" --clobber -R ${{ github.repository }}
+            echo "Done"
+          else
+            echo "WARNING: NSIS artifacts not found"
+            exit 1
+          fi
+
+      - name: Upload macOS updater artifacts
+        if: matrix.os == 'macos-latest'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          TAG="${{ github.ref_name }}"
+          BUNDLE_DIR="src-tauri/target/release/bundle/macos"
+          APP_TAR=$(find "$BUNDLE_DIR" -name "*.app.tar.gz" 2>/dev/null | head -1)
+          APP_SIG=$(find "$BUNDLE_DIR" -name "*.app.tar.gz.sig" 2>/dev/null | head -1)
+
+          if [ -n "$APP_TAR" ] && [ -n "$APP_SIG" ]; then
+            echo "Uploading macOS updater tar + sig..."
+            gh release upload "$TAG" "$APP_TAR" "$APP_SIG" --clobber -R ${{ github.repository }}
+            echo "Done"
+          else
+            echo "WARNING: macOS updater artifacts not found"
+            exit 1
+          fi
+
+  updater-json:
+    name: Generate updater JSON
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate latest.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.ref_name }}"
           VERSION="${TAG#v}"
           PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          REPO="${{ github.repository }}"
+          TMPDIR=$(mktemp -d)
 
-          # Collect platform entries for latest.json
-          declare -A PLATFORMS
+          # Download Windows sig
+          NSIS_SIG_URL="https://github.com/$REPO/releases/download/$TAG/"
+          # Find the NSIS sig filename from release assets
+          NSIS_SIG_NAME=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | endswith(".nsis.zip.sig")) | .name' 2>/dev/null | head -1)
+          NSIS_ZIP_NAME=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | endswith(".nsis.zip")) | .name' 2>/dev/null | head -1)
+          APP_SIG_NAME=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | endswith(".app.tar.gz.sig")) | .name' 2>/dev/null | head -1)
+          APP_TAR_NAME=$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[] | select(.name | endswith(".app.tar.gz")) | .name' 2>/dev/null | head -1)
 
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            BUNDLE_DIR="src-tauri/target/release/bundle/nsis"
-            NSIS_ZIP=$(find "$BUNDLE_DIR" -name "*.nsis.zip" 2>/dev/null | head -1)
-            NSIS_SIG=$(find "$BUNDLE_DIR" -name "*.nsis.zip.sig" 2>/dev/null | head -1)
+          PLATFORMS=""
 
-            if [ -n "$NSIS_ZIP" ] && [ -n "$NSIS_SIG" ]; then
-              echo "Uploading Windows updater artifacts..."
-              gh release upload "$TAG" "$NSIS_ZIP" "$NSIS_SIG" --clobber -R ${{ github.repository }}
-
-              NSIS_URL="https://github.com/${{ github.repository }}/releases/download/$TAG/$(basename "$NSIS_ZIP")"
-              SIG_CONTENT=$(cat "$NSIS_SIG" | tr -d '\r\n')
-              PLATFORMS["windows-x86_64"]="{\"signature\": \"$SIG_CONTENT\", \"url\": \"$NSIS_URL\"}"
-            else
-              echo "WARNING: NSIS artifacts not found"
-            fi
+          # Windows
+          if [ -n "$NSIS_SIG_NAME" ] && [ -n "$NSIS_ZIP_NAME" ]; then
+            gh release download "$TAG" -R "$REPO" -p "$NSIS_SIG_NAME" -D "$TMPDIR"
+            WIN_SIG=$(cat "$TMPDIR/$NSIS_SIG_NAME" | tr -d '\r\n')
+            WIN_URL="https://github.com/$REPO/releases/download/$TAG/$NSIS_ZIP_NAME"
+            PLATFORMS="\"windows-x86_64\":{\"signature\":\"$WIN_SIG\",\"url\":\"$WIN_URL\"}"
+            echo "Windows: OK"
+          else
+            echo "Windows: sig=$NSIS_SIG_NAME zip=$NSIS_ZIP_NAME — SKIPPED"
           fi
 
-          if [ "${{ matrix.os }}" = "macos-latest" ]; then
-            BUNDLE_DIR="src-tauri/target/release/bundle/macos"
-            APP_TAR=$(find "$BUNDLE_DIR" -name "*.app.tar.gz" 2>/dev/null | head -1)
-            APP_SIG=$(find "$BUNDLE_DIR" -name "*.app.tar.gz.sig" 2>/dev/null | head -1)
-            DMG=$(find "$BUNDLE_DIR" -name "*.dmg" 2>/dev/null | head -1)
-
-            if [ -n "$APP_TAR" ] && [ -n "$APP_SIG" ]; then
-              echo "Uploading macOS updater artifacts..."
-              gh release upload "$TAG" "$APP_TAR" "$APP_SIG" --clobber -R ${{ github.repository }}
-
-              TAR_URL="https://github.com/${{ github.repository }}/releases/download/$TAG/$(basename "$APP_TAR")"
-              SIG_CONTENT=$(cat "$APP_SIG" | tr -d '\r\n')
-              PLATFORMS["darwin-aarch64"]="{\"signature\": \"$SIG_CONTENT\", \"url\": \"$TAR_URL\"}"
-            else
-              echo "WARNING: macOS updater artifacts not found"
-            fi
+          # macOS
+          if [ -n "$APP_SIG_NAME" ] && [ -n "$APP_TAR_NAME" ]; then
+            gh release download "$TAG" -R "$REPO" -p "$APP_SIG_NAME" -D "$TMPDIR"
+            MAC_SIG=$(cat "$TMPDIR/$APP_SIG_NAME" | tr -d '\r\n')
+            MAC_URL="https://github.com/$REPO/releases/download/$TAG/$APP_TAR_NAME"
+            if [ -n "$PLATFORMS" ]; then PLATFORMS="$PLATFORMS,"; fi
+            PLATFORMS="$PLATFORMS\"darwin-aarch64\":{\"signature\":\"$MAC_SIG\",\"url\":\"$MAC_URL\"}"
+            echo "macOS: OK"
+          else
+            echo "macOS: sig=$APP_SIG_NAME tar=$APP_TAR_NAME — SKIPPED"
           fi
 
-          # Build latest.json if we have any platform entries
-          if [ ${#PLATFORMS[@]} -gt 0 ]; then
-            PLATFORM_JSON=""
-            for key in "${!PLATFORMS[@]}"; do
-              if [ -n "$PLATFORM_JSON" ]; then PLATFORM_JSON="$PLATFORM_JSON,"; fi
-              PLATFORM_JSON="$PLATFORM_JSON\n    \"$key\": ${PLATFORMS[$key]}"
-            done
-
-            printf '{\n  "version": "%s",\n  "notes": "",\n  "pub_date": "%s",\n  "platforms": {%s\n  }\n}\n' \
-              "$VERSION" "$PUB_DATE" "$PLATFORM_JSON" > latest.json
+          if [ -n "$PLATFORMS" ]; then
+            printf '{"version":"%s","notes":"","pub_date":"%s","platforms":{%s}}' \
+              "$VERSION" "$PUB_DATE" "$PLATFORMS" > latest.json
 
             echo "Generated latest.json:"
-            cat latest.json
+            cat latest.json | python3 -m json.tool 2>/dev/null || cat latest.json
 
-            gh release upload "$TAG" latest.json --clobber -R ${{ github.repository }}
+            gh release upload "$TAG" latest.json --clobber -R "$REPO"
             echo "Uploaded latest.json"
           else
-            echo "No updater artifacts found, skipping latest.json"
+            echo "No updater platforms found!"
+            exit 1
           fi
