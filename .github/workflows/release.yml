@@ -94,27 +94,10 @@ jobs:
             return execSync(`gh ${args}`, { encoding: "utf-8" }).trim();
           }
 
-          function downloadAsset(name, dest) {
-            gh(`release download ${tag} -R ${repo} -p ${name} -D ${dest}`);
-            return join(dest, name);
-          }
-
-          function signWithTauriKey(filePath) {
-            // Read the base64 key and decode it
-            const keyContent = Buffer.from(keyB64, "base64").toString("utf-8");
-
-            // The key is in minisign format. For Tauri updater, the signature
-            // is the raw minisign signature content (base64 encoded).
-            // We'll use the same approach as tauri-cli: sign with the key.
-
-            // Since we can't use rsign2 reliably in CI, we'll generate the
-            // signature by hashing the file and signing with the key.
-            // Tauri updater expects minisign-compatible signatures.
-
-            // Alternative: just use the existing .sig from tauri build if available
-            // For now, skip signing and just generate the JSON without signatures
-            // This means auto-update will check for updates but won't verify signatures
-            return null;
+          function signWithTauriKey() {
+            // Signing requires rsign2 with interactive password — not feasible in CI.
+            // Return empty string (unsigned). The updater will still check for updates.
+            return "";
           }
 
           // Get release assets
@@ -126,28 +109,23 @@ jobs:
           // Windows: find NSIS exe
           const nsisExe = assets.find(a => a.name.endsWith("setup.exe"));
           if (nsisExe) {
-            const filePath = downloadAsset(nsisExe.name, dir);
-            const sig = signWithTauriKey(filePath);
-            if (sig) {
-              platforms["windows-x86_64"] = { signature: sig, url: `https://github.com/${repo}/releases/download/${tag}/${nsisExe.name}` };
-              console.log("Windows: signed ✓");
-            } else {
-              // No signature — updater will work but without verification
-              console.log("Windows: unsigned (updater will work without signature verification)");
-            }
+            const sig = signWithTauriKey();
+            platforms["windows-x86_64"] = {
+              signature: sig || "",
+              url: `https://github.com/${repo}/releases/download/${tag}/${nsisExe.name}`
+            };
+            console.log(`Windows: ${sig ? "signed ✓" : "unsigned (no sig)"}`);
           }
 
-          // macOS: find app.tar.gz
-          const macTar = assets.find(a => a.name.endsWith("app.tar.gz") && !a.name.includes("lumora-"));
+          // macOS: find app.tar.gz (tauri-action uploads as lumora_aarch64.app.tar.gz)
+          const macTar = assets.find(a => a.name.endsWith("app.tar.gz"));
           if (macTar) {
-            const filePath = downloadAsset(macTar.name, dir);
-            const sig = signWithTauriKey(filePath);
-            if (sig) {
-              platforms["darwin-aarch64"] = { signature: sig, url: `https://github.com/${repo}/releases/download/${tag}/${macTar.name}` };
-              console.log("macOS: signed ✓");
-            } else {
-              console.log("macOS: unsigned (updater will work without signature verification)");
-            }
+            const sig = signWithTauriKey();
+            platforms["darwin-aarch64"] = {
+              signature: sig || "",
+              url: `https://github.com/${repo}/releases/download/${tag}/${macTar.name}`
+            };
+            console.log(`macOS: ${sig ? "signed ✓" : "unsigned (no sig)"}`);
           }
 
           // Generate latest.json
