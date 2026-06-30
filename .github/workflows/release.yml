@@ -46,6 +46,7 @@ jobs:
         run: npm run build
 
       - name: Build Tauri
+        id: tauri
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -58,3 +59,71 @@ jobs:
           releaseDraft: true
           prerelease: false
           updaterJsonPreferNsis: true
+
+      - name: Upload updater artifacts
+        if: matrix.os == 'windows-latest' || matrix.os == 'macos-latest'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          # Collect platform entries for latest.json
+          declare -A PLATFORMS
+
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            BUNDLE_DIR="src-tauri/target/release/bundle/nsis"
+            NSIS_ZIP=$(find "$BUNDLE_DIR" -name "*.nsis.zip" 2>/dev/null | head -1)
+            NSIS_SIG=$(find "$BUNDLE_DIR" -name "*.nsis.zip.sig" 2>/dev/null | head -1)
+
+            if [ -n "$NSIS_ZIP" ] && [ -n "$NSIS_SIG" ]; then
+              echo "Uploading Windows updater artifacts..."
+              gh release upload "$TAG" "$NSIS_ZIP" "$NSIS_SIG" --clobber -R ${{ github.repository }}
+
+              NSIS_URL="https://github.com/${{ github.repository }}/releases/download/$TAG/$(basename "$NSIS_ZIP")"
+              SIG_CONTENT=$(cat "$NSIS_SIG" | tr -d '\r\n')
+              PLATFORMS["windows-x86_64"]="{\"signature\": \"$SIG_CONTENT\", \"url\": \"$NSIS_URL\"}"
+            else
+              echo "WARNING: NSIS artifacts not found"
+            fi
+          fi
+
+          if [ "${{ matrix.os }}" = "macos-latest" ]; then
+            BUNDLE_DIR="src-tauri/target/release/bundle/macos"
+            APP_TAR=$(find "$BUNDLE_DIR" -name "*.app.tar.gz" 2>/dev/null | head -1)
+            APP_SIG=$(find "$BUNDLE_DIR" -name "*.app.tar.gz.sig" 2>/dev/null | head -1)
+            DMG=$(find "$BUNDLE_DIR" -name "*.dmg" 2>/dev/null | head -1)
+
+            if [ -n "$APP_TAR" ] && [ -n "$APP_SIG" ]; then
+              echo "Uploading macOS updater artifacts..."
+              gh release upload "$TAG" "$APP_TAR" "$APP_SIG" --clobber -R ${{ github.repository }}
+
+              TAR_URL="https://github.com/${{ github.repository }}/releases/download/$TAG/$(basename "$APP_TAR")"
+              SIG_CONTENT=$(cat "$APP_SIG" | tr -d '\r\n')
+              PLATFORMS["darwin-aarch64"]="{\"signature\": \"$SIG_CONTENT\", \"url\": \"$TAR_URL\"}"
+            else
+              echo "WARNING: macOS updater artifacts not found"
+            fi
+          fi
+
+          # Build latest.json if we have any platform entries
+          if [ ${#PLATFORMS[@]} -gt 0 ]; then
+            PLATFORM_JSON=""
+            for key in "${!PLATFORMS[@]}"; do
+              if [ -n "$PLATFORM_JSON" ]; then PLATFORM_JSON="$PLATFORM_JSON,"; fi
+              PLATFORM_JSON="$PLATFORM_JSON\n    \"$key\": ${PLATFORMS[$key]}"
+            done
+
+            printf '{\n  "version": "%s",\n  "notes": "",\n  "pub_date": "%s",\n  "platforms": {%s\n  }\n}\n' \
+              "$VERSION" "$PUB_DATE" "$PLATFORM_JSON" > latest.json
+
+            echo "Generated latest.json:"
+            cat latest.json
+
+            gh release upload "$TAG" latest.json --clobber -R ${{ github.repository }}
+            echo "Uploaded latest.json"
+          else
+            echo "No updater artifacts found, skipping latest.json"
+          fi
