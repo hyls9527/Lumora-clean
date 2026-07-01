@@ -115,3 +115,16 @@ pub const V5_CREATE_ANALYSIS_HISTORY: &str = "CREATE TABLE IF NOT EXISTS analysi
 
 pub const V5_INDEX_ANALYSIS_IMAGE: &str =
     "CREATE INDEX IF NOT EXISTS idx_analysis_history_image ON analysis_history(image_id);";
+
+// ---------------------------------------------------------------------------
+// V6 — Variant groups (images sharing the same SD prompt)
+// ---------------------------------------------------------------------------
+
+pub const V6_CREATE_VARIANT_GROUPS: &str = "CREATE TABLE IF NOT EXISTS variant_groups (
+    id         TEXT PRIMARY KEY,
+    prompt     TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);";
+
+pub const V6_ADD_VARIANT_GROUP_ID: &str =
+    "ALTER TABLE images ADD COLUMN variant_group_id TEXT REFERENCES variant_groups(id);";

@@ -19,6 +19,8 @@ pub struct ImageRecord {
     pub metadata_json: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub deleted_at: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub variant_group_id: Option<String>,
 }
 
 /// Paginated wrapper returned by list commands.
@@ -101,5 +103,6 @@ pub fn row_to_record(row: &rusqlite::Row<'_>) -> Result<ImageRecord, rusqlite::E
         favorite: row.get::<_, i32>("favorite")? != 0,
         metadata_json: row.get("metadata_json")?,
         deleted_at: row.get("deleted_at").ok(),
+        variant_group_id: row.get("variant_group_id").ok(),
     })
 }

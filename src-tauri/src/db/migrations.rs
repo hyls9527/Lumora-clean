@@ -3,7 +3,7 @@ use rusqlite::Connection;
 use super::schema;
 
 /// Current schema version — bump when adding migrations.
-pub const SCHEMA_VERSION: i64 = 5;
+pub const SCHEMA_VERSION: i64 = 6;
 
 /// Run all pending migrations inside a single transaction.
 pub fn run_migrations(conn: &Connection) -> Result<(), rusqlite::Error> {
@@ -51,6 +51,7 @@ fn apply_migration(conn: &Connection, version: i64) -> Result<(), rusqlite::Erro
         3 => apply_v3(conn),
         4 => apply_v4(conn),
         5 => apply_v5(conn),
+        6 => apply_v6(conn),
         _ => Err(rusqlite::Error::InvalidQuery),
     }
 }
@@ -100,6 +101,19 @@ fn apply_v4(conn: &Connection) -> Result<(), rusqlite::Error> {
 fn apply_v5(conn: &Connection) -> Result<(), rusqlite::Error> {
     conn.execute_batch(schema::V5_CREATE_ANALYSIS_HISTORY)?;
     conn.execute_batch(schema::V5_INDEX_ANALYSIS_IMAGE)?;
+    Ok(())
+}
+
+fn apply_v6(conn: &Connection) -> Result<(), rusqlite::Error> {
+    conn.execute_batch(schema::V6_CREATE_VARIANT_GROUPS)?;
+    // ALTER TABLE ADD COLUMN may fail if the column already exists after
+    // a downgrade+re-upgrade cycle. Ignore "duplicate column" like v3.
+    match conn.execute_batch(schema::V6_ADD_VARIANT_GROUP_ID) {
+        Ok(()) => {}
+        Err(rusqlite::Error::SqliteFailure(e, Some(msg)))
+            if e.code == rusqlite::ErrorCode::Unknown && msg.contains("duplicate column") => {}
+        Err(e) => return Err(e),
+    }
     Ok(())
 }
 
@@ -154,6 +168,11 @@ fn revert_migration(conn: &Connection, version: i64) -> Result<(), rusqlite::Err
             conn.execute_batch("DROP TABLE IF EXISTS analysis_history;")?;
             Ok(())
         }
+        6 => {
+            conn.execute_batch("DROP TABLE IF EXISTS variant_groups;")?;
+            // SQLite cannot drop the variant_group_id column — no-op.
+            Ok(())
+        }
         _ => Err(rusqlite::Error::InvalidQuery),
     }
 }
@@ -167,7 +186,7 @@ mod tests {
         let conn = Connection::open_in_memory().unwrap();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
-        assert_eq!(v, 5);
+        assert_eq!(v, 6);
     }
 
     #[test]
@@ -176,7 +195,7 @@ mod tests {
         run_migrations(&conn).unwrap();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
-        assert_eq!(v, 5);
+        assert_eq!(v, 6);
     }
 
     #[test]
@@ -194,15 +213,19 @@ mod tests {
         let conn = Connection::open_in_memory().unwrap();
         // Migrate all the way up.
         run_migrations(&conn).unwrap();
-        assert_eq!(current_version(&conn).unwrap(), 5);
+        assert_eq!(current_version(&conn).unwrap(), 6);
 
         // Downgrade back to v1.
         downgrade_to(&conn, 1).unwrap();
         assert_eq!(current_version(&conn).unwrap(), 1);
 
-        // v5 tables should be gone.
         let exists =
             |sql: &str| -> bool { conn.query_row(sql, [], |r| r.get::<_, i64>(0)).unwrap() > 0 };
+        // v6 tables should be gone.
+        assert!(!exists(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='variant_groups'"
+        ));
+        // v5 tables should be gone.
         // analysis_history (v5) dropped
         assert!(!exists(
             "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='analysis_history'"
@@ -231,6 +254,6 @@ mod tests {
 
         // Verify we can re-migrate back up.
         run_migrations(&conn).unwrap();
-        assert_eq!(current_version(&conn).unwrap(), 5);
+        assert_eq!(current_version(&conn).unwrap(), 6);
     }
 }

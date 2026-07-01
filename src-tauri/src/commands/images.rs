@@ -136,6 +136,22 @@ pub fn rebuild_fts_index(db: tauri::State<'_, DbHandle>) -> AppResult<()> {
 // Helpers (pure-ish domain helpers + thin DB adapters)
 // ---------------------------------------------------------------------------
 
+/// Get all images in a variant group (images sharing the same prompt).
+#[tauri::command]
+pub fn get_variant_group_images(
+    db: tauri::State<'_, DbHandle>,
+    variant_group_id: String,
+) -> AppResult<Vec<ImageRecord>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let mut stmt = conn.prepare(
+        "SELECT * FROM images WHERE variant_group_id = ?1 AND deleted = 0 ORDER BY created_at",
+    )?;
+    let items = stmt
+        .query_map(params![variant_group_id], row_to_record)?
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(items)
+}
+
 /// Escape FTS5 special characters so user input doesn't break MATCH queries.
 fn escape_fts5(query: &str) -> String {
     let mut escaped = String::with_capacity(query.len());
@@ -322,6 +338,26 @@ fn probe_gif(path: &str) -> (Option<i32>, Option<i32>) {
     (Some(w), Some(h))
 }
 
+/// Find an existing variant group for the given prompt, or create a new one.
+fn find_or_create_variant_group(
+    conn: &rusqlite::Connection,
+    prompt: &str,
+) -> Result<String, rusqlite::Error> {
+    if let Ok(group_id) = conn.query_row(
+        "SELECT id FROM variant_groups WHERE prompt = ?1",
+        params![prompt],
+        |r| r.get::<_, String>(0),
+    ) {
+        return Ok(group_id);
+    }
+    let group_id = Uuid::new_v4().to_string();
+    conn.execute(
+        "INSERT INTO variant_groups (id, prompt) VALUES (?1, ?2)",
+        params![group_id, prompt],
+    )?;
+    Ok(group_id)
+}
+
 fn insert_image(conn: &rusqlite::Connection, entry: &ImportEntry) -> Result<bool, rusqlite::Error> {
     let changed = conn.execute(
         "INSERT OR IGNORE INTO images
@@ -339,6 +375,23 @@ fn insert_image(conn: &rusqlite::Connection, entry: &ImportEntry) -> Result<bool
             entry.metadata_json,
         ],
     )?;
+    if changed > 0 {
+        // If metadata contains a prompt, assign a variant group.
+        if let Some(ref json) = entry.metadata_json {
+            if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(json) {
+                if let Some(prompt) = parsed.get("prompt").and_then(|v| v.as_str()) {
+                    if !prompt.is_empty() {
+                        if let Ok(group_id) = find_or_create_variant_group(conn, prompt) {
+                            let _ = conn.execute(
+                                "UPDATE images SET variant_group_id = ?1 WHERE id = ?2",
+                                params![group_id, entry.id],
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
     Ok(changed > 0)
 }
 
@@ -643,5 +696,157 @@ mod tests {
         ).unwrap();
         // Rebuild should not error
         conn.execute("INSERT INTO images_fts(images_fts) VALUES('rebuild')", []).unwrap();
+    }
+
+    #[test]
+    fn variant_groups_created_for_same_prompt() {
+        use crate::db::migrations::run_migrations;
+        use rusqlite::Connection;
+
+        let conn = Connection::open_in_memory().unwrap();
+        run_migrations(&conn).unwrap();
+        let tx = conn.unchecked_transaction().unwrap();
+
+        // Insert two images with same prompt but different seeds
+        let e1 = ImportEntry {
+            id: "v1".into(),
+            file_path: "/a.png".into(),
+            file_hash: "h1".into(),
+            file_size_kb: 100,
+            width: Some(512),
+            height: Some(512),
+            format: "png".into(),
+            created_at: "2024-01-01".into(),
+            metadata_json: Some(
+                r#"{"prompt":"a cat","seed":1,"source":"a1111"}"#.into(),
+            ),
+        };
+        let e2 = ImportEntry {
+            id: "v2".into(),
+            file_path: "/b.png".into(),
+            file_hash: "h2".into(),
+            file_size_kb: 100,
+            width: Some(512),
+            height: Some(512),
+            format: "png".into(),
+            created_at: "2024-01-01".into(),
+            metadata_json: Some(
+                r#"{"prompt":"a cat","seed":2,"source":"a1111"}"#.into(),
+            ),
+        };
+
+        insert_image(&tx, &e1).unwrap();
+        insert_image(&tx, &e2).unwrap();
+        tx.commit().unwrap();
+
+        // Both should have the same variant_group_id
+        let vg1: Option<String> = conn
+            .query_row(
+                "SELECT variant_group_id FROM images WHERE id='v1'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let vg2: Option<String> = conn
+            .query_row(
+                "SELECT variant_group_id FROM images WHERE id='v2'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+
+        assert!(vg1.is_some());
+        assert_eq!(vg1, vg2);
+    }
+
+    #[test]
+    fn different_prompts_get_different_variant_groups() {
+        use crate::db::migrations::run_migrations;
+        use rusqlite::Connection;
+
+        let conn = Connection::open_in_memory().unwrap();
+        run_migrations(&conn).unwrap();
+        let tx = conn.unchecked_transaction().unwrap();
+
+        let e1 = ImportEntry {
+            id: "d1".into(),
+            file_path: "/d1.png".into(),
+            file_hash: "dh1".into(),
+            file_size_kb: 100,
+            width: Some(512),
+            height: Some(512),
+            format: "png".into(),
+            created_at: "2024-01-01".into(),
+            metadata_json: Some(r#"{"prompt":"a dog","seed":1}"#.into()),
+        };
+        let e2 = ImportEntry {
+            id: "d2".into(),
+            file_path: "/d2.png".into(),
+            file_hash: "dh2".into(),
+            file_size_kb: 100,
+            width: Some(512),
+            height: Some(512),
+            format: "png".into(),
+            created_at: "2024-01-01".into(),
+            metadata_json: Some(r#"{"prompt":"a cat","seed":1}"#.into()),
+        };
+
+        insert_image(&tx, &e1).unwrap();
+        insert_image(&tx, &e2).unwrap();
+        tx.commit().unwrap();
+
+        let vg1: Option<String> = conn
+            .query_row(
+                "SELECT variant_group_id FROM images WHERE id='d1'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let vg2: Option<String> = conn
+            .query_row(
+                "SELECT variant_group_id FROM images WHERE id='d2'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+
+        assert!(vg1.is_some());
+        assert!(vg2.is_some());
+        assert_ne!(vg1, vg2);
+    }
+
+    #[test]
+    fn no_prompt_means_no_variant_group() {
+        use crate::db::migrations::run_migrations;
+        use rusqlite::Connection;
+
+        let conn = Connection::open_in_memory().unwrap();
+        run_migrations(&conn).unwrap();
+        let tx = conn.unchecked_transaction().unwrap();
+
+        let e1 = ImportEntry {
+            id: "np1".into(),
+            file_path: "/np1.png".into(),
+            file_hash: "nh1".into(),
+            file_size_kb: 100,
+            width: Some(512),
+            height: Some(512),
+            format: "png".into(),
+            created_at: "2024-01-01".into(),
+            metadata_json: None,
+        };
+
+        insert_image(&tx, &e1).unwrap();
+        tx.commit().unwrap();
+
+        let vg: Option<String> = conn
+            .query_row(
+                "SELECT variant_group_id FROM images WHERE id='np1'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+
+        assert!(vg.is_none());
     }
 }

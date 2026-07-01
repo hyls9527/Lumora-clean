@@ -50,6 +50,7 @@ pub fn run() {
             commands::images::update_rating,
             commands::images::toggle_favorite,
             commands::images::rebuild_fts_index,
+            commands::images::get_variant_group_images,
             commands::tags::create_tag,
             commands::tags::list_tags,
             commands::tags::delete_tag,

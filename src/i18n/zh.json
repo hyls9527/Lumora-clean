@@ -285,5 +285,28 @@
     "applyAllTags": "应用所有标签",
     "applyingTags": "正在应用…",
     "tagsApplied": "已应用 {count} 个标签"
+  },
+  "smartCollections": {
+    "title": "智能收藏",
+    "add": "新建收藏",
+    "name": "收藏名称",
+    "rules": "筛选规则",
+    "addRule": "添加规则",
+    "remove": "删除",
+    "empty": "暂无智能收藏",
+    "fields": {
+      "model": "模型",
+      "prompt": "Prompt",
+      "rating": "评分",
+      "format": "格式",
+      "tag": "标签"
+    },
+    "ops": {
+      "equals": "等于",
+      "contains": "包含",
+      "gte": "大于等于",
+      "lte": "小于等于",
+      "in": "属于"
+    }
   }
 }

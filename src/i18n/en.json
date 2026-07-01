@@ -285,5 +285,28 @@
     "applyAllTags": "Apply All Tags",
     "applyingTags": "Applying…",
     "tagsApplied": "Applied {count} tags"
+  },
+  "smartCollections": {
+    "title": "Smart Collections",
+    "add": "New Collection",
+    "name": "Collection Name",
+    "rules": "Filter Rules",
+    "addRule": "Add Rule",
+    "remove": "Delete",
+    "empty": "No smart collections yet",
+    "fields": {
+      "model": "Model",
+      "prompt": "Prompt",
+      "rating": "Rating",
+      "format": "Format",
+      "tag": "Tag"
+    },
+    "ops": {
+      "equals": "Equals",
+      "contains": "Contains",
+      "gte": "Greater or equal",
+      "lte": "Less or equal",
+      "in": "In"
+    }
   }
 }
