@@ -32,6 +32,8 @@ function mockResponse(cmd: string): unknown {
     return null;
   if (cmd === 'get_analysis_history_cmd')
     return [];
+  if (cmd === 'get_ollama_host')
+    return 'http://localhost:11434';
   return null;
 }
 

@@ -1,13 +1,13 @@
 /**
  * Ollama availability detection hook.
- * Pings localhost:11434/api/tags every 60s.
- * Works in both browser and Tauri modes (direct HTTP, no invoke needed).
+ * Reads OLLAMA_HOST from Rust backend (single config source).
+ * Pings /api/tags every 60s via direct HTTP.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { invoke } from '../lib/tauri';
 
-const OLLAMA_BASE = import.meta.env.VITE_OLLAMA_HOST || 'http://localhost:11434';
-const OLLAMA_URL = `${OLLAMA_BASE}/api/tags`;
+const DEFAULT_HOST = 'http://localhost:11434';
 const POLL_INTERVAL_MS = 60_000; // 60 seconds
 const TIMEOUT_MS = 5_000; // 5 seconds
 
@@ -20,16 +20,30 @@ interface OllamaStatus {
 
 export function useOllamaStatus(options?: { enabled?: boolean }): OllamaStatus {
   const enabled = options?.enabled ?? true;
-  const [available, setAvailable] = useState<boolean>(false); // Fix #5: start false
-  const [checking, setChecking] = useState(enabled); // start checking only when enabled
+  const [available, setAvailable] = useState<boolean>(false);
+  const [checking, setChecking] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const mountedRef = useRef(true);
-  const controllerRef = useRef<AbortController | null>(null); // Fix #1: track controller
+  const controllerRef = useRef<AbortController | null>(null);
+  const hostRef = useRef<string>(DEFAULT_HOST);
+
+  // Fetch Ollama host from Rust backend once on mount
+  useEffect(() => {
+    invoke<string>('get_ollama_host')
+      .then((host) => {
+        if (mountedRef.current) {
+          hostRef.current = host || DEFAULT_HOST;
+        }
+      })
+      .catch(() => {
+        // Browser mode or invoke failed — use default
+        hostRef.current = DEFAULT_HOST;
+      });
+  }, []);
 
   const check = useCallback(async () => {
     if (!mountedRef.current) return;
 
-    // Abort any in-flight request (Fix #1)
     if (controllerRef.current) {
       controllerRef.current.abort();
     }
@@ -40,8 +54,9 @@ export function useOllamaStatus(options?: { enabled?: boolean }): OllamaStatus {
     setChecking(true);
     try {
       const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+      const url = `${hostRef.current}/api/tags`;
 
-      const resp = await fetch(OLLAMA_URL, {
+      const resp = await fetch(url, {
         method: 'GET',
         signal: controller.signal,
       });
@@ -58,9 +73,7 @@ export function useOllamaStatus(options?: { enabled?: boolean }): OllamaStatus {
       }
     } catch (err) {
       if (!mountedRef.current) return;
-      // Ignore aborted requests from previous check
       if (err instanceof DOMException && err.name === 'AbortError') {
-        // Only show timeout error if this controller wasn't replaced
         if (controllerRef.current === controller) {
           setAvailable(false);
           setError('Ollama 连接超时');
@@ -91,7 +104,6 @@ export function useOllamaStatus(options?: { enabled?: boolean }): OllamaStatus {
     return () => {
       mountedRef.current = false;
       clearInterval(interval);
-      // Fix #1: abort in-flight request on unmount
       if (controllerRef.current) {
         controllerRef.current.abort();
       }
