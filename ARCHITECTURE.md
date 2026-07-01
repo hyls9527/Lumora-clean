@@ -67,7 +67,7 @@ Lumora 是一个 Tauri 2 桌面应用，采用前后端分离架构：
 
 ## 数据模型
 
-### SQLite Schema (v5)
+### SQLite Schema (v6)
 
 ```sql
 -- v1: 图片表
@@ -124,6 +124,16 @@ CREATE TABLE analysis_history (
     analyzed_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- v6: 变体组（同 prompt 不同 seed 的图片）
+CREATE TABLE IF NOT EXISTS variant_groups (
+    id         TEXT PRIMARY KEY,
+    prompt     TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- images 表新增列（v6 migration）
+-- ALTER TABLE images ADD COLUMN variant_group_id TEXT REFERENCES variant_groups(id);
+
 -- FTS5 全文搜索
 CREATE VIRTUAL TABLE images_fts USING fts5(
     file_path,
@@ -144,6 +154,7 @@ CREATE VIRTUAL TABLE images_fts USING fts5(
 | `search_images` | `{ query: string }` | `TauriImageRecord[]` | FTS5 全文搜索 |
 | `update_rating` | `{ id: string, rating: number }` | `void` | 更新评分 |
 | `toggle_favorite` | `{ id: string }` | `void` | 切换收藏 |
+| `get_variant_group_images` | `{ variantGroupId: string }` | `TauriImageRecord[]` | 获取变体组图片 |
 
 ### 标签
 
