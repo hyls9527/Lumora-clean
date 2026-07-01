@@ -234,7 +234,7 @@ pub async fn analyze_image_cmd(
     let result = call_ollama_analyze(&cfg, &image_path, &model_name).await?;
 
     // Store the result in the database
-    let conn = db.conn().lock().map_err(|e| e.to_string())?;
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     store_analysis(&conn, &image_id, &result).map_err(|e| e.to_string())?;
 
     Ok(result)
@@ -245,7 +245,7 @@ pub async fn get_analysis_result_cmd(
     db: tauri::State<'_, DbHandle>,
     image_id: String,
 ) -> AppResult<Option<AnalysisResult>> {
-    let conn = db.conn().lock().map_err(|e| AppError::External(e.to_string()))?;
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     Ok(get_latest_analysis(&conn, &image_id)?)
 }
 
@@ -254,7 +254,7 @@ pub async fn get_analysis_history_cmd(
     db: tauri::State<'_, DbHandle>,
     image_id: String,
 ) -> AppResult<Vec<AnalysisHistoryItem>> {
-    let conn = db.conn().lock().map_err(|e| AppError::External(e.to_string()))?;
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     Ok(get_analysis_history_db(&conn, &image_id)?)
 }
 

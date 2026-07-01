@@ -48,10 +48,10 @@ pub fn list_tags(db: tauri::State<'_, DbHandle>) -> AppResult<Vec<Tag>> {
 #[tauri::command]
 pub fn delete_tag(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<()> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-    conn.execute("DELETE FROM image_tags WHERE tag_id = ?1", params![id])
-        ?;
-    conn.execute("DELETE FROM tags WHERE id = ?1", params![id])
-        ?;
+    let tx = conn.unchecked_transaction()?;
+    tx.execute("DELETE FROM image_tags WHERE tag_id = ?1", params![id])?;
+    tx.execute("DELETE FROM tags WHERE id = ?1", params![id])?;
+    tx.commit()?;
     Ok(())
 }
 

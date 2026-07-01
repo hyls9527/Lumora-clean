@@ -216,10 +216,13 @@ CREATE VIRTUAL TABLE images_fts USING fts5(
     └── accessibility.test.ts      (12 tests)
 
 Rust 测试 (cargo test --lib)
-├── commands::images::tests       (5 tests)
+├── commands::images::tests       (10 tests)
 ├── commands::embeddings::tests   (6 tests)
 ├── commands::ai::tests           (4 tests)
-└── db::migrations::tests         (3 tests)
+├── commands::tags::tests         (4 tests)
+├── commands::trash::tests        (3 tests)
+├── commands::clip::tests         (1 test)
+└── db::migrations::tests         (4 tests)
 ```
 
 ## 构建产物

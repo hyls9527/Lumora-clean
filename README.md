@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/hyls9527/Lumora-clean/actions/workflows/ci.yml/badge.svg)](https://github.com/hyls9527/Lumora-clean/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.3.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.3.1-blue)](CHANGELOG.md)
 
 > AI 创作者的图片管理器 · 古卷·灯火设计语言
 
@@ -62,17 +62,17 @@ Lumora-clean/
 ## 测试
 
 ```bash
-# 前端测试（159 个）
+# 前端测试（196 个）
 npx vitest run
 
-# Rust 测试（18 个）
+# Rust 测试（32 个）
 cd src-tauri && cargo test --lib
 
 # TypeScript 类型检查
 npx tsc --noEmit
 ```
 
-**当前状态：177 测试全绿（18 Rust + 159 TypeScript）**
+**当前状态：228 测试全绿（32 Rust + 196 TypeScript）**
 
 ## 开发
 

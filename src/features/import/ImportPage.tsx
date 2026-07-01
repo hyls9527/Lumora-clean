@@ -168,22 +168,16 @@ export function ImportPage() {
           }}
         >
           <StatCard
-            dotColor="#4a7a3a"
-            title="ComfyUI"
-            status="已连接"
-            detail="今日导入 12 张"
-          />
-          <StatCard
             dotColor="#a09480"
             title="手动导入"
             status="就绪"
-            detail="今日导入 3 张"
+            detail={recentImports.length > 0 ? `最近导入 ${recentImports.length} 张` : '选择文件夹开始导入'}
           />
           <StatCard
-            dotColor="#7a5c12"
-            title="导入队列"
-            status="2 张待处理"
-            detail="预计 10 秒完成"
+            dotColor="#a09480"
+            title="ComfyUI"
+            status="未连接"
+            detail="即将推出"
           />
         </section>
 
