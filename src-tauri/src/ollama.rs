@@ -24,3 +24,9 @@ impl OllamaConfig {
         format!("{}{}", self.host, path)
     }
 }
+
+/// Tauri command: return the Ollama host URL to the frontend.
+#[tauri::command]
+pub fn get_ollama_host(config: tauri::State<'_, OllamaConfig>) -> String {
+    config.host().to_string()
+}
