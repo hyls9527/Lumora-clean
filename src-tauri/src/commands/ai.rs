@@ -1,6 +1,8 @@
+use rusqlite::params;
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use tauri::command;
+use uuid::Uuid;
 
 use crate::db::DbHandle;
 use crate::error::{AppError, AppResult};
@@ -156,6 +158,34 @@ pub fn store_analysis(
     Ok(id)
 }
 
+/// Auto-create tags from AI analysis and associate them with the image.
+fn auto_tag_from_analysis(
+    conn: &Connection,
+    image_id: &str,
+    tags: &[AnalysisTag],
+) -> Result<(), rusqlite::Error> {
+    for tag in tags {
+        let tag_id = Uuid::new_v4().to_string();
+        // Ensure tag exists (INSERT OR IGNORE for name uniqueness)
+        conn.execute(
+            "INSERT OR IGNORE INTO tags (id, name) VALUES (?1, ?2)",
+            params![tag_id, tag.name.to_lowercase().trim()],
+        )?;
+        // Get the tag id (either newly created or existing)
+        let existing_id: String = conn.query_row(
+            "SELECT id FROM tags WHERE name = ?1",
+            params![tag.name.to_lowercase().trim()],
+            |r| r.get(0),
+        )?;
+        // Associate tag with image (INSERT OR IGNORE for idempotency)
+        conn.execute(
+            "INSERT OR IGNORE INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
+            params![image_id, existing_id],
+        )?;
+    }
+    Ok(())
+}
+
 /// Get the most recent analysis result for an image.
 pub fn get_latest_analysis(
     conn: &Connection,
@@ -237,6 +267,10 @@ pub async fn analyze_image_cmd(
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     store_analysis(&conn, &image_id, &result).map_err(|e| e.to_string())?;
 
+    // Auto-create tags from AI analysis
+    auto_tag_from_analysis(&conn, &image_id, &result.tags)
+        .map_err(|e| format!("Failed to auto-tag: {}", e))?;
+
     Ok(result)
 }
 
@@ -256,6 +290,25 @@ pub async fn get_analysis_history_cmd(
 ) -> AppResult<Vec<AnalysisHistoryItem>> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     Ok(get_analysis_history_db(&conn, &image_id)?)
+}
+
+/// Apply AI tags from the latest analysis to an image.
+/// Re-reads the latest analysis and creates/associates tags.
+#[command]
+pub async fn apply_ai_tags_cmd(
+    db: tauri::State<'_, DbHandle>,
+    image_id: String,
+) -> AppResult<Vec<String>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let analysis = get_latest_analysis(&conn, &image_id)?;
+    match analysis {
+        Some(result) => {
+            let tag_names: Vec<String> = result.tags.iter().map(|t| t.name.clone()).collect();
+            auto_tag_from_analysis(&conn, &image_id, &result.tags)?;
+            Ok(tag_names)
+        }
+        None => Err(AppError::NotFound("No analysis found for this image".into())),
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -365,5 +418,70 @@ mod tests {
         assert_eq!(encode(b"hello"), "aGVsbG8=");
         assert_eq!(encode(b"world"), "d29ybGQ=");
         assert_eq!(encode(b""), "");
+    }
+
+    #[test]
+    fn auto_tag_creates_and_associates_tags() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+
+        // Insert an image
+        conn.execute(
+            "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+             VALUES ('tag-img', '/test.png', 'hash1', 100, 'png', '2025-01-01')",
+            [],
+        )
+        .unwrap();
+
+        let tags = vec![
+            AnalysisTag { name: "Nature".to_string(), confidence: 0.9 },
+            AnalysisTag { name: "Landscape".to_string(), confidence: 0.8 },
+        ];
+
+        auto_tag_from_analysis(&conn, "tag-img", &tags).unwrap();
+
+        // Verify tags were created (lowercased)
+        let tag_count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM tags WHERE name IN ('nature', 'landscape')", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(tag_count, 2);
+
+        // Verify associations
+        let assoc_count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'tag-img'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(assoc_count, 2);
+    }
+
+    #[test]
+    fn auto_tag_idempotent_on_duplicate_call() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+
+        conn.execute(
+            "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+             VALUES ('tag-img2', '/test2.png', 'hash2', 100, 'png', '2025-01-01')",
+            [],
+        )
+        .unwrap();
+
+        let tags = vec![
+            AnalysisTag { name: "cat".to_string(), confidence: 0.95 },
+        ];
+
+        // Call twice
+        auto_tag_from_analysis(&conn, "tag-img2", &tags).unwrap();
+        auto_tag_from_analysis(&conn, "tag-img2", &tags).unwrap();
+
+        // Should still be 1 tag and 1 association (idempotent)
+        let tag_count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM tags WHERE name = 'cat'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(tag_count, 1);
+
+        let assoc_count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'tag-img2'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(assoc_count, 1);
     }
 }

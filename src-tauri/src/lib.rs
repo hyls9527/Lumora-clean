@@ -81,6 +81,7 @@ pub fn run() {
             commands::ai::analyze_image_cmd,
             commands::ai::get_analysis_result_cmd,
             commands::ai::get_analysis_history_cmd,
+            commands::ai::apply_ai_tags_cmd,
             commands::clip::clip_embed_image_cmd,
             commands::clip::clip_embed_text_cmd,
             ollama::get_ollama_host,
