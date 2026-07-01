@@ -47,6 +47,7 @@ pub fn run() {
             commands::images::import_images,
             commands::images::list_images,
             commands::images::search_images,
+            commands::images::search_images_advanced,
             commands::images::update_rating,
             commands::images::toggle_favorite,
             commands::images::rebuild_fts_index,

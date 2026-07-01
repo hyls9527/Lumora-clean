@@ -14,6 +14,15 @@ const filterOptions = [
   { key: '70', label: '70%以上' },
 ];
 
+const searchFieldOptions = [
+  { key: 'all', label: '全部字段' },
+  { key: 'prompt', label: 'Prompt' },
+  { key: 'negative_prompt', label: 'Negative Prompt' },
+  { key: 'seed', label: 'Seed' },
+  { key: 'model', label: 'Model' },
+  { key: 'sampler', label: 'Sampler' },
+];
+
 const searchHistory = [
   '月光下的森林',
   '东方女性角色',
@@ -27,6 +36,7 @@ export function SearchPage() {
   const {
     filters,
     setSearchQuery,
+    setSearchField,
     getSearchResults,
     searchImages: searchImagesApi,
     loading,
@@ -96,7 +106,32 @@ export function SearchPage() {
           <SemanticSearchBar />
         ) : (
           <section aria-label={t('searchQuery')} style={{ marginBottom: 24 }}>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 0 }}>
+              <select
+                value={filters.searchField}
+                onChange={(e) => setSearchField(e.target.value)}
+                aria-label="搜索字段"
+                style={{
+                  padding: '14px 12px',
+                  fontSize: 13,
+                  fontFamily: 'var(--font-body)',
+                  color: '#2a2118',
+                  background: 'var(--color-surface)',
+                  border: '1px solid rgba(139, 115, 75, 0.10)',
+                  borderRadius: 4,
+                  cursor: 'pointer',
+                  transition: 'border-color 200ms',
+                  minWidth: 130,
+                  outline: 'none',
+                }}
+              >
+                {searchFieldOptions.map((f) => (
+                  <option key={f.key} value={f.key}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: 1 }}>
               <input
                 type="text"
                 value={inputValue}
@@ -175,6 +210,7 @@ export function SearchPage() {
                   {t('search')}
                 </button>
               </div>
+            </div>
             </div>
           </section>
         )}

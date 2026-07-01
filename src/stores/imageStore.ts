@@ -11,6 +11,7 @@ interface FilterState {
   sortBy: 'time' | 'rating' | 'model' | 'size';
   modelFilter: string;
   searchQuery: string;
+  searchField: string;  // 'all' | 'prompt' | 'seed' | 'model' | 'negative_prompt' | 'sampler'
   searchMode: 'text' | 'image';
   similarityThreshold: number;
 }
@@ -37,6 +38,7 @@ interface ImageStore {
   setSortBy: (sortBy: 'time' | 'rating' | 'model' | 'size') => void;
   setModelFilter: (filter: string) => void;
   setSearchQuery: (query: string) => void;
+  setSearchField: (field: string) => void;
   setSearchMode: (mode: 'text' | 'image') => void;
   setSimilarityThreshold: (threshold: number) => void;
   toggleFavorite: (id: string) => void;
@@ -66,6 +68,7 @@ export const useImageStore = create<ImageStore>((set, get) => ({
     sortBy: 'time',
     modelFilter: 'all',
     searchQuery: '',
+    searchField: 'all',
     searchMode: 'text',
     similarityThreshold: 70,
   },
@@ -127,9 +130,10 @@ export const useImageStore = create<ImageStore>((set, get) => ({
       set({ images: [], loading: false, error: null });
       return;
     }
+    const { filters } = get();
     set({ loading: true, error: null });
     try {
-      const results = await api.searchImages(query);
+      const results = await api.searchImagesAdvanced(query, filters.searchField);
       set({ images: results, loading: false });
     } catch (err) {
       set({
@@ -183,6 +187,9 @@ export const useImageStore = create<ImageStore>((set, get) => ({
 
   setSearchQuery: (searchQuery) =>
     set((s) => ({ filters: { ...s.filters, searchQuery } })),
+
+  setSearchField: (searchField) =>
+    set((s) => ({ filters: { ...s.filters, searchField } })),
 
   setSearchMode: (searchMode) =>
     set((s) => ({ filters: { ...s.filters, searchMode } })),

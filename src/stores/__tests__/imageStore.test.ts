@@ -44,6 +44,7 @@ beforeEach(() => {
       sortBy: 'time',
       modelFilter: 'all',
       searchQuery: '',
+      searchField: 'all',
       searchMode: 'text',
       similarityThreshold: 70,
     },

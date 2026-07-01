@@ -98,6 +98,17 @@ export async function searchImages(query: string): Promise<ImageRecord[]> {
   return raw.map(toImageRecord);
 }
 
+export async function searchImagesAdvanced(
+  query: string,
+  field?: string,
+): Promise<ImageRecord[]> {
+  const raw = await invoke<TauriImageRecord[]>('search_images_advanced', {
+    query,
+    field: field || undefined,
+  });
+  return raw.map(toImageRecord);
+}
+
 export async function updateRating(
   id: string,
   rating: number,
