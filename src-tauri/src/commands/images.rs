@@ -8,6 +8,7 @@ use crate::error::{AppError, AppResult};
 use uuid::Uuid;
 
 use crate::db::DbHandle;
+use crate::metadata;
 use crate::schema::types::{row_to_record, ImageRecord, PaginatedResult};
 
 /// Known image extensions we accept during import.
@@ -173,6 +174,10 @@ fn scan_folder(root: &str) -> std::io::Result<Vec<ImportEntry>> {
         let meta = fs::metadata(&entry)?;
         let (w, h) = probe_dimensions(&entry, &ext);
         let hash = file_hash(&entry, meta.len());
+        let meta_json = metadata::probe_metadata(
+            std::path::Path::new(&entry),
+            &ext,
+        );
         let created = chrono::DateTime::<chrono::Utc>::from(
             meta.modified().unwrap_or(meta.created().unwrap()),
         )
@@ -186,7 +191,7 @@ fn scan_folder(root: &str) -> std::io::Result<Vec<ImportEntry>> {
             height: h,
             format: ext,
             created_at: created,
-            metadata_json: None,
+            metadata_json: meta_json,
         });
     }
     Ok(entries)

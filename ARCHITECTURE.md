@@ -222,7 +222,10 @@ Rust 测试 (cargo test --lib)
 ├── commands::tags::tests         (4 tests)
 ├── commands::trash::tests        (3 tests)
 ├── commands::clip::tests         (1 test)
-└── db::migrations::tests         (4 tests)
+├── db::migrations::tests         (4 tests)
+├── metadata::mod::tests          (4 tests)
+├── metadata::png::tests          (2 tests)
+└── metadata::sd::tests           (6 tests)
 ```
 
 ## 构建产物
