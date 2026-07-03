@@ -52,15 +52,23 @@ export const useAiAnalysisStore = create<AiAnalysisState>((set, get) => ({
   },
 
   loadResult: async (imageId: string) => {
-    const result = await aiApi.getAnalysisResult(imageId);
-    if (result) {
-      set((s) => ({ results: { ...s.results, [imageId]: result } }));
+    try {
+      const result = await aiApi.getAnalysisResult(imageId);
+      if (result) {
+        set((s) => ({ results: { ...s.results, [imageId]: result } }));
+      }
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '加载分析结果失败' });
     }
   },
 
   loadHistory: async (imageId: string) => {
-    const items = await aiApi.getAnalysisHistory(imageId);
-    set((s) => ({ history: { ...s.history, [imageId]: items } }));
+    try {
+      const items = await aiApi.getAnalysisHistory(imageId);
+      set((s) => ({ history: { ...s.history, [imageId]: items } }));
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '加载分析历史失败' });
+    }
   },
 
   acceptTag: (imageId: string, tagName: string) => {

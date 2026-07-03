@@ -122,7 +122,7 @@ export function TrashPage() {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: loading ? '#a09480' : '#a09480',
+              background: loading ? '#d4a574' : '#a09480',
             }}
           />
           <span style={{ fontSize: 10, color: '#a09480', fontFamily: 'var(--font-body)' }}>

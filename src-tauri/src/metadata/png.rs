@@ -6,15 +6,9 @@ use std::path::Path;
 /// PNG tEXt chunks appear after IHDR and before IDAT, so 64KB is generous.
 const MAX_READ: usize = 65_536;
 
-/// Read all tEXt and iTXt chunks from a PNG file.
+/// Read all tEXt and iTXt chunks from a PNG byte buffer (already loaded).
 /// Returns a Vec of (keyword, text_value) pairs.
-pub fn read_text_chunks(path: &Path) -> Option<Vec<(String, String)>> {
-    let mut buf = vec![0u8; MAX_READ];
-    let file = File::open(path).ok()?;
-    let mut reader = std::io::BufReader::new(file);
-    let n = reader.read(&mut buf).ok()?;
-    buf.truncate(n);
-
+pub fn read_text_chunks_from_bytes(buf: &[u8]) -> Option<Vec<(String, String)>> {
     if buf.len() < 8 || &buf[..8] != b"\x89PNG\r\n\x1a\n" {
         return None;
     }
@@ -57,6 +51,17 @@ pub fn read_text_chunks(path: &Path) -> Option<Vec<(String, String)>> {
     } else {
         Some(chunks)
     }
+}
+
+/// Read all tEXt and iTXt chunks from a PNG file.
+/// Returns a Vec of (keyword, text_value) pairs.
+pub fn read_text_chunks(path: &Path) -> Option<Vec<(String, String)>> {
+    let mut buf = vec![0u8; MAX_READ];
+    let file = File::open(path).ok()?;
+    let mut reader = std::io::BufReader::new(file);
+    let n = reader.read(&mut buf).ok()?;
+    buf.truncate(n);
+    read_text_chunks_from_bytes(&buf)
 }
 
 /// Parse a tEXt chunk: keyword (null-terminated) + raw text (Latin-1).

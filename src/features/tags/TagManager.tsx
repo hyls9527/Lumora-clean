@@ -55,7 +55,8 @@ export function TagManager() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(`确定要删除标签"${name}"吗？关联的图片将失去此标签。`)) return;
     try {
       await invoke('delete_tag', { id });
       setError(null);
@@ -282,11 +283,13 @@ export function TagManager() {
                     <button
                       key={c}
                       type="button"
-                      onClick={() => {
-                        invoke('create_tag', {
-                          name: tag.name,
-                          color: c,
-                        }).catch(() => {});
+                      onClick={async () => {
+                        try {
+                          await invoke('update_tag', {
+                            id: tag.id,
+                            color: c,
+                          });
+                        } catch {}
                         setEditingId(null);
                         loadTags();
                       }}
@@ -342,7 +345,7 @@ export function TagManager() {
               {/* Delete */}
               <button
                 type="button"
-                onClick={() => handleDelete(tag.id)}
+                onClick={() => handleDelete(tag.id, tag.name)}
                 style={{
                   background: 'none',
                   border: 'none',

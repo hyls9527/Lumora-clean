@@ -89,11 +89,21 @@ fn build_filename(
         .next()
         .unwrap_or(&record.created_at);
 
-    tpl.replace("{name}", &stem)
-        .replace("{id}", &record.id)
-        .replace("{date}", date)
-        .replace("{rating}", &record.rating.to_string())
-        .replace("{tags}", &tags.join(","))
+    sanitize_filename(
+        &tpl.replace("{name}", &stem)
+            .replace("{id}", &record.id)
+            .replace("{date}", date)
+            .replace("{rating}", &record.rating.to_string())
+            .replace("{tags}", &tags.join(",")),
+    )
+}
+
+/// Strip path separators and traversal sequences from template-generated filenames.
+fn sanitize_filename(name: &str) -> String {
+    name.replace('/', "_")
+        .replace('\\', "_")
+        .replace("..", "_")
+        .replace('\0', "")
 }
 
 fn resolve_extension<'a>(original_format: &'a str, target_format: &str) -> &'a str {

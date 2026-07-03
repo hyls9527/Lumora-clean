@@ -13,6 +13,16 @@ pub fn probe_metadata(path: &Path, ext: &str) -> Option<String> {
     sd::parse_metadata(&chunks)
 }
 
+/// Probe PNG metadata from an already-loaded byte buffer.
+/// Avoids a second file read when combined with probe_dimensions.
+pub fn probe_metadata_from_bytes(buf: &[u8], ext: &str) -> Option<String> {
+    if ext != "png" {
+        return None;
+    }
+    let chunks = png::read_text_chunks_from_bytes(buf)?;
+    sd::parse_metadata(&chunks)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

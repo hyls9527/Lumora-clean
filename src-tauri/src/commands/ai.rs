@@ -260,6 +260,21 @@ pub async fn analyze_image_cmd(
 ) -> AppResult<AnalysisResult> {
     let model_name = model.unwrap_or_else(|| "llava:latest".to_string());
 
+    // Validate that image_path belongs to image_id (prevents arbitrary file read)
+    {
+        let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+        let stored_path: String = conn
+            .query_row(
+                "SELECT file_path FROM images WHERE id = ?1",
+                rusqlite::params![image_id],
+                |row| row.get(0),
+            )
+            .map_err(|_| AppError::NotFound("Image not found".into()))?;
+        if stored_path != image_path {
+            return Err(AppError::InvalidInput("Path does not match image ID".into()));
+        }
+    }
+
     // Call Ollama to analyze the image
     let result = call_ollama_analyze(&cfg, &image_path, &model_name).await?;
 

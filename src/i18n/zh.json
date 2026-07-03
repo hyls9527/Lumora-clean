@@ -27,7 +27,9 @@
     "delete": "删除",
     "manualImport": "手动导入",
     "themeToggle": "切换暗色",
-    "searchShortcut": "搜索 ⌘K"
+    "searchShortcut": "搜索 ⌘K",
+    "loading": "加载中…",
+    "pageNotFound": "页面开发中…"
   },
   "gallery": {
     "title": "创作者图库",

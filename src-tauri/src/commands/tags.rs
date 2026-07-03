@@ -55,6 +55,44 @@ pub fn delete_tag(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<()> {
     Ok(())
 }
 
+/// Update an existing tag's name and/or color.
+#[tauri::command]
+pub fn update_tag(
+    db: tauri::State<'_, DbHandle>,
+    id: String,
+    name: Option<String>,
+    color: Option<String>,
+) -> AppResult<()> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    match (name, color) {
+        (Some(n), Some(c)) => {
+            let trimmed = n.trim();
+            if trimmed.is_empty() {
+                return Err(AppError::InvalidInput("Tag name cannot be empty".into()));
+            }
+            conn.execute(
+                "UPDATE tags SET name = ?1, color = ?2 WHERE id = ?3",
+                params![trimmed, c, id],
+            )?;
+        }
+        (None, Some(c)) => {
+            conn.execute("UPDATE tags SET color = ?1 WHERE id = ?2", params![c, id])?;
+        }
+        (Some(n), None) => {
+            let trimmed = n.trim();
+            if trimmed.is_empty() {
+                return Err(AppError::InvalidInput("Tag name cannot be empty".into()));
+            }
+            conn.execute(
+                "UPDATE tags SET name = ?1 WHERE id = ?2",
+                params![trimmed, id],
+            )?;
+        }
+        (None, None) => {}
+    }
+    Ok(())
+}
+
 /// Associate a tag with an image.
 #[tauri::command]
 pub fn add_tag_to_image(

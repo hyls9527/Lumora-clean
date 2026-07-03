@@ -27,7 +27,9 @@
     "delete": "Delete",
     "manualImport": "Manual Import",
     "themeToggle": "Toggle Dark",
-    "searchShortcut": "Search ⌘K"
+    "searchShortcut": "Search ⌘K",
+    "loading": "Loading…",
+    "pageNotFound": "Page under development…"
   },
   "gallery": {
     "title": "Creator Gallery",

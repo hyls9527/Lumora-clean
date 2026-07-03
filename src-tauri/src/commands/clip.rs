@@ -1,6 +1,7 @@
 use crate::error::{AppError, AppResult};
 use std::process::Command;
 use serde::{Deserialize, Serialize};
+use rusqlite;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ClipEmbeddingResponse {
@@ -91,7 +92,26 @@ mod tests {
 
 /// Generate image embedding using CLIP sidecar.
 #[tauri::command]
-pub async fn clip_embed_image_cmd(image_path: String) -> AppResult<Vec<f64>> {
+pub async fn clip_embed_image_cmd(
+    db: tauri::State<'_, crate::db::DbHandle>,
+    image_path: String,
+) -> AppResult<Vec<f64>> {
+    // Validate that image_path exists in the database (prevents arbitrary file read)
+    {
+        let conn = db.conn().lock().map_err(|_| crate::error::AppError::Lock)?;
+        let exists: bool = conn
+            .query_row(
+                "SELECT 1 FROM images WHERE file_path = ?1",
+                rusqlite::params![image_path],
+                |_| Ok(true),
+            )
+            .unwrap_or(false);
+        if !exists {
+            return Err(crate::error::AppError::NotFound(
+                "Image path not in database".into(),
+            ));
+        }
+    }
     clip_embed_image(&image_path)
 }
 
