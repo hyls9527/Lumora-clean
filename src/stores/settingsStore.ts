@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { invoke } from '../lib/tauri';
+import { notifyLanguageChanged } from '../lib/i18n';
 
 export type Language = 'zh' | 'en';
 export type Theme = 'light' | 'dark';
@@ -8,6 +9,7 @@ interface SettingsState {
   language: Language;
   theme: Theme;
   _hydrated: boolean;
+  error: string | null;
   // Actions
   setLanguage: (lang: Language) => void;
   setTheme: (theme: Theme) => void;
@@ -18,11 +20,14 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   language: 'zh',
   theme: 'light',
   _hydrated: false,
+  error: null,
 
   setLanguage: (language) => {
     set({ language });
+    localStorage.setItem('lumora-lang', language);
     void invoke('set_setting', { key: 'language', value: language });
     document.documentElement.setAttribute('lang', language);
+    notifyLanguageChanged();
   },
 
   setTheme: (theme) => {
@@ -42,11 +47,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       ]);
       const language: Language = langRaw === 'en' ? 'en' : 'zh';
       const theme: Theme = themeRaw === 'dark' ? 'dark' : 'light';
+      localStorage.setItem('lumora-lang', language);
       set({ language, theme, _hydrated: true });
       document.documentElement.setAttribute('lang', language);
       document.documentElement.setAttribute('data-theme', theme);
-    } catch {
-      set({ _hydrated: true });
+    } catch (err) {
+      set({ _hydrated: true, error: err instanceof Error ? err.message : '设置加载失败' });
     }
   },
 }));

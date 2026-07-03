@@ -117,6 +117,15 @@ describe('fetchSuggestions', () => {
 
     expect(useSemanticSearchStore.getState().showSuggestions).toBe(false);
   });
+
+  it('sets error on failure', async () => {
+    mockSuggestions.mockRejectedValue(new Error('suggestions failed'));
+
+    await useSemanticSearchStore.getState().fetchSuggestions('test');
+
+    expect(useSemanticSearchStore.getState().error).toBe('suggestions failed');
+    expect(useSemanticSearchStore.getState().suggestionsLoading).toBe(false);
+  });
 });
 
 describe('clearSuggestions', () => {

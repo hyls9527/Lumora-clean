@@ -24,6 +24,7 @@ beforeEach(() => {
   useSmartCollectionStore.setState({
     collections: [],
     loading: false,
+    error: null,
   });
 });
 
@@ -54,6 +55,15 @@ describe('load', () => {
 
     await useSmartCollectionStore.getState().load();
 
+    expect(useSmartCollectionStore.getState().loading).toBe(false);
+  });
+
+  it('sets error message on failure', async () => {
+    mockInvoke.mockRejectedValue(new Error('load failed'));
+
+    await useSmartCollectionStore.getState().load();
+
+    expect(useSmartCollectionStore.getState().error).toBe('load failed');
     expect(useSmartCollectionStore.getState().loading).toBe(false);
   });
 });

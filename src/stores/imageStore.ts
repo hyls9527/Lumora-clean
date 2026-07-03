@@ -166,7 +166,12 @@ export const useImageStore = create<ImageStore>((set, get) => ({
     format: string,
     renameTemplate?: string,
   ) => {
-    return api.exportImages(ids, destDir, format, renameTemplate);
+    try {
+      return await api.exportImages(ids, destDir, format, renameTemplate);
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '导出失败' });
+      throw err;
+    }
   },
 
   // ---------------------------------------------------------------------------
@@ -204,12 +209,13 @@ export const useImageStore = create<ImageStore>((set, get) => ({
         img.id === id ? { ...img, favorite: !img.favorite } : img,
       ),
     }));
-    api.toggleFavorite(id).catch(() => {
+    api.toggleFavorite(id).catch((err) => {
       if (seq === _favSeq) {
         set((s) => ({
           images: s.images.map((img) =>
             img.id === id ? { ...img, favorite: !img.favorite } : img,
           ),
+          error: err instanceof Error ? err.message : '收藏操作失败',
         }));
       }
     });
@@ -223,12 +229,13 @@ export const useImageStore = create<ImageStore>((set, get) => ({
         img.id === id ? { ...img, rating } : img,
       ),
     }));
-    api.updateRating(id, rating).catch(() => {
+    api.updateRating(id, rating).catch((err) => {
       if (prev !== undefined && seq === _ratingSeq) {
         set((s) => ({
           images: s.images.map((img) =>
             img.id === id ? { ...img, rating: prev } : img,
           ),
+          error: err instanceof Error ? err.message : '评分操作失败',
         }));
       }
     });
@@ -255,8 +262,8 @@ export const useImageStore = create<ImageStore>((set, get) => ({
       set((s) => ({
         imageTags: { ...s.imageTags, [imageId]: tags.map((t) => t.name) },
       }));
-    } catch {
-      // silent
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '获取标签失败' });
     }
   },
 
@@ -268,8 +275,8 @@ export const useImageStore = create<ImageStore>((set, get) => ({
       set((s) => ({
         imageTags: { ...s.imageTags, [imageId]: tags.map((t) => t.name) },
       }));
-    } catch {
-      // silent
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '添加标签失败' });
     }
   },
 
@@ -280,8 +287,8 @@ export const useImageStore = create<ImageStore>((set, get) => ({
       set((s) => ({
         imageTags: { ...s.imageTags, [imageId]: tags.map((t) => t.name) },
       }));
-    } catch {
-      // silent
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '移除标签失败' });
     }
   },
 

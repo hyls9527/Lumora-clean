@@ -1,354 +1,214 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useImageStore } from '../imageStore';
-import type { ImageRecord } from '../../types/image';
 
 vi.mock('../../lib/api/images', () => ({
-  toggleFavorite: vi.fn().mockResolvedValue(undefined),
-  updateRating: vi.fn().mockResolvedValue(undefined),
   listImages: vi.fn(),
-  searchImages: vi.fn(),
+  searchImagesAdvanced: vi.fn(),
   importImages: vi.fn(),
   exportImages: vi.fn(),
+  toggleFavorite: vi.fn(),
+  updateRating: vi.fn(),
   getImageTags: vi.fn(),
   addTagToImage: vi.fn(),
   removeTagFromImage: vi.fn(),
 }));
 
+import { useImageStore } from '../imageStore';
 import * as api from '../../lib/api/images';
 
-function makeImage(overrides: Partial<ImageRecord> = {}): ImageRecord {
-  return {
-    id: '1',
-    filePath: '/img/test.png',
-    fileName: 'test.png',
-    fileSizeKb: 100,
-    width: 512,
-    height: 512,
-    format: 'png',
-    createdAt: '2026-01-01T00:00:00Z',
-    rating: 0,
-    favorite: false,
-    model: 'flux',
-    prompt: 'a cat',
-    tags: ['animal'],
-    ...overrides,
-  };
-}
+const mockImage = {
+  id: '1',
+  filePath: '/a.png',
+  fileName: 'a.png',
+  fileSizeKb: 100,
+  width: 100,
+  height: 100,
+  format: 'png' as const,
+  createdAt: '2024-01-01',
+  rating: 0,
+  favorite: false,
+  model: '',
+  prompt: '',
+  tags: [],
+};
 
 beforeEach(() => {
+  vi.clearAllMocks();
   useImageStore.setState({
     images: [],
-    filters: {
-      mode: 'creator',
-      view: 'grid',
-      sortBy: 'time',
-      modelFilter: 'all',
-      searchQuery: '',
-      searchField: 'all',
-      searchMode: 'text',
-      similarityThreshold: 70,
-    },
-    selectedIds: new Set<string>(),
     loading: false,
     error: null,
     page: 1,
     total: 0,
     perPage: 40,
+    selectedIds: new Set(),
     imageTags: {},
   });
-  vi.clearAllMocks();
 });
 
-// ---------------------------------------------------------------------------
-// toggleFavorite
-// ---------------------------------------------------------------------------
-describe('toggleFavorite', () => {
-  it('flips favorite from false to true', () => {
-    useImageStore.setState({ images: [makeImage({ id: 'a', favorite: false })] });
-    useImageStore.getState().toggleFavorite('a');
+describe('fetchImages', () => {
+  it('loads images and sets pagination', async () => {
+    vi.mocked(api.listImages).mockResolvedValue({ items: [mockImage], total: 1 });
+    await useImageStore.getState().fetchImages();
+    const state = useImageStore.getState();
+    expect(state.images).toHaveLength(1);
+    expect(state.total).toBe(1);
+    expect(state.loading).toBe(false);
+    expect(state.error).toBeNull();
+  });
+
+  it('sets error on failure', async () => {
+    vi.mocked(api.listImages).mockRejectedValue(new Error('network fail'));
+    await useImageStore.getState().fetchImages();
+    const state = useImageStore.getState();
+    expect(state.error).toBe('network fail');
+    expect(state.loading).toBe(false);
+    expect(state.images).toHaveLength(0);
+  });
+
+  it('appends images on loadMore', async () => {
+    useImageStore.setState({ images: [mockImage], page: 1, total: 2, loading: false });
+    const secondImage = { ...mockImage, id: '2' };
+    vi.mocked(api.listImages).mockResolvedValue({ items: [secondImage], total: 2 });
+    await useImageStore.getState().loadMore();
+    const state = useImageStore.getState();
+    expect(state.images).toHaveLength(2);
+    expect(state.page).toBe(2);
+  });
+});
+
+describe('searchImages', () => {
+  it('calls searchImagesAdvanced with current filter field', async () => {
+    useImageStore.setState({ filters: { ...useImageStore.getState().filters, searchField: 'prompt' } });
+    vi.mocked(api.searchImagesAdvanced).mockResolvedValue([mockImage]);
+    await useImageStore.getState().searchImages('cat');
+    expect(api.searchImagesAdvanced).toHaveBeenCalledWith('cat', 'prompt');
+    expect(useImageStore.getState().images).toHaveLength(1);
+  });
+
+  it('clears results on empty query', async () => {
+    await useImageStore.getState().searchImages('  ');
+    expect(useImageStore.getState().images).toHaveLength(0);
+    expect(api.searchImagesAdvanced).not.toHaveBeenCalled();
+  });
+});
+
+describe('toggleFavorite (optimistic)', () => {
+  it('toggles immediately, then calls API', () => {
+    useImageStore.setState({ images: [{ ...mockImage, favorite: false }] });
+    vi.mocked(api.toggleFavorite).mockResolvedValue(undefined);
+    useImageStore.getState().toggleFavorite('1');
     expect(useImageStore.getState().images[0].favorite).toBe(true);
+    expect(api.toggleFavorite).toHaveBeenCalledWith('1');
   });
 
-  it('flips favorite from true to false', () => {
-    useImageStore.setState({ images: [makeImage({ id: 'a', favorite: true })] });
-    useImageStore.getState().toggleFavorite('a');
-    expect(useImageStore.getState().images[0].favorite).toBe(false);
-  });
-
-  it('calls api.toggleFavorite with the id', () => {
-    useImageStore.setState({ images: [makeImage({ id: 'a' })] });
-    useImageStore.getState().toggleFavorite('a');
-    expect(api.toggleFavorite).toHaveBeenCalledWith('a');
-  });
-});
-
-// ---------------------------------------------------------------------------
-// setRating
-// ---------------------------------------------------------------------------
-describe('setRating', () => {
-  it('sets rating optimistically', () => {
-    useImageStore.setState({ images: [makeImage({ id: 'a', rating: 0 })] });
-    useImageStore.getState().setRating('a', 4);
-    expect(useImageStore.getState().images[0].rating).toBe(4);
-  });
-
-  it('calls api.updateRating with id and rating', () => {
-    useImageStore.setState({ images: [makeImage({ id: 'a' })] });
-    useImageStore.getState().setRating('a', 3);
-    expect(api.updateRating).toHaveBeenCalledWith('a', 3);
-  });
-
-  it('does not change other images', () => {
-    useImageStore.setState({
-      images: [makeImage({ id: 'a', rating: 1 }), makeImage({ id: 'b', rating: 2 })],
+  it('rolls back on API failure', async () => {
+    useImageStore.setState({ images: [{ ...mockImage, favorite: false }] });
+    vi.mocked(api.toggleFavorite).mockRejectedValue(new Error('network'));
+    useImageStore.getState().toggleFavorite('1');
+    // Immediate optimistic update
+    expect(useImageStore.getState().images[0].favorite).toBe(true);
+    // Wait for rollback
+    await vi.waitFor(() => {
+      expect(useImageStore.getState().images[0].favorite).toBe(false);
     });
-    useImageStore.getState().setRating('a', 5);
-    expect(useImageStore.getState().images[1].rating).toBe(2);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// toggleSelect
-// ---------------------------------------------------------------------------
-describe('toggleSelect', () => {
-  it('adds id when not selected', () => {
-    useImageStore.setState({ selectedIds: new Set() });
-    useImageStore.getState().toggleSelect('a');
-    expect(useImageStore.getState().selectedIds.has('a')).toBe(true);
   });
 
-  it('removes id when already selected', () => {
-    useImageStore.setState({ selectedIds: new Set(['a']) });
-    useImageStore.getState().toggleSelect('a');
-    expect(useImageStore.getState().selectedIds.has('a')).toBe(false);
-  });
-
-  it('can select multiple ids independently', () => {
-    useImageStore.setState({ selectedIds: new Set() });
-    useImageStore.getState().toggleSelect('a');
-    useImageStore.getState().toggleSelect('b');
-    const sel = useImageStore.getState().selectedIds;
-    expect(sel.has('a')).toBe(true);
-    expect(sel.has('b')).toBe(true);
-    expect(sel.size).toBe(2);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// selectAll
-// ---------------------------------------------------------------------------
-describe('selectAll', () => {
-  it('selects all image ids', () => {
-    useImageStore.setState({
-      images: [makeImage({ id: 'a' }), makeImage({ id: 'b' }), makeImage({ id: 'c' })],
+  it('sets error on API failure after rollback', async () => {
+    useImageStore.setState({ images: [{ ...mockImage, favorite: false }], error: null });
+    vi.mocked(api.toggleFavorite).mockRejectedValue(new Error('fav network error'));
+    useImageStore.getState().toggleFavorite('1');
+    await vi.waitFor(() => {
+      expect(useImageStore.getState().images[0].favorite).toBe(false);
+      expect(useImageStore.getState().error).toBe('fav network error');
     });
-    useImageStore.getState().selectAll();
-    const sel = useImageStore.getState().selectedIds;
-    expect(sel.size).toBe(3);
-    expect(sel.has('a')).toBe(true);
-    expect(sel.has('b')).toBe(true);
-    expect(sel.has('c')).toBe(true);
-  });
-
-  it('produces empty set when no images', () => {
-    useImageStore.setState({ images: [] });
-    useImageStore.getState().selectAll();
-    expect(useImageStore.getState().selectedIds.size).toBe(0);
-  });
-
-  it('replaces previous selection', () => {
-    useImageStore.setState({
-      images: [makeImage({ id: 'a' })],
-      selectedIds: new Set(['old']),
-    });
-    useImageStore.getState().selectAll();
-    expect(useImageStore.getState().selectedIds.has('old')).toBe(false);
-    expect(useImageStore.getState().selectedIds.has('a')).toBe(true);
   });
 });
 
-// ---------------------------------------------------------------------------
-// clearSelection
-// ---------------------------------------------------------------------------
-describe('clearSelection', () => {
-  it('empties the set', () => {
-    useImageStore.setState({ selectedIds: new Set(['a', 'b']) });
-    useImageStore.getState().clearSelection();
-    expect(useImageStore.getState().selectedIds.size).toBe(0);
+describe('setRating (optimistic)', () => {
+  it('updates immediately, then calls API', () => {
+    useImageStore.setState({ images: [{ ...mockImage, rating: 3 }] });
+    vi.mocked(api.updateRating).mockResolvedValue(undefined);
+    useImageStore.getState().setRating('1', 5);
+    expect(useImageStore.getState().images[0].rating).toBe(5);
+    expect(api.updateRating).toHaveBeenCalledWith('1', 5);
   });
 
-  it('is safe on already empty set', () => {
-    useImageStore.setState({ selectedIds: new Set() });
+  it('rolls back on API failure', async () => {
+    useImageStore.setState({ images: [{ ...mockImage, rating: 3 }] });
+    vi.mocked(api.updateRating).mockRejectedValue(new Error('network'));
+    useImageStore.getState().setRating('1', 5);
+    expect(useImageStore.getState().images[0].rating).toBe(5);
+    await vi.waitFor(() => {
+      expect(useImageStore.getState().images[0].rating).toBe(3);
+    });
+  });
+
+  it('sets error on API failure after rollback', async () => {
+    useImageStore.setState({ images: [{ ...mockImage, rating: 3 }], error: null });
+    vi.mocked(api.updateRating).mockRejectedValue(new Error('rating network error'));
+    useImageStore.getState().setRating('1', 5);
+    await vi.waitFor(() => {
+      expect(useImageStore.getState().images[0].rating).toBe(3);
+      expect(useImageStore.getState().error).toBe('rating network error');
+    });
+  });
+});
+
+describe('selection', () => {
+  it('toggleSelect adds and removes ids', () => {
+    useImageStore.setState({ images: [mockImage] });
+    useImageStore.getState().toggleSelect('1');
+    expect(useImageStore.getState().selectedIds.has('1')).toBe(true);
+    useImageStore.getState().toggleSelect('1');
+    expect(useImageStore.getState().selectedIds.has('1')).toBe(false);
+  });
+
+  it('selectAll selects all images', () => {
+    useImageStore.setState({ images: [mockImage, { ...mockImage, id: '2' }] });
+    useImageStore.getState().selectAll();
+    expect(useImageStore.getState().selectedIds.size).toBe(2);
+  });
+
+  it('clearSelection empties the set', () => {
+    useImageStore.setState({ selectedIds: new Set(['1', '2']) });
     useImageStore.getState().clearSelection();
     expect(useImageStore.getState().selectedIds.size).toBe(0);
   });
 });
 
-// ---------------------------------------------------------------------------
-// setMode / setView / setSortBy / setModelFilter / setSearchQuery
-// ---------------------------------------------------------------------------
-describe('filter setters', () => {
-  it('setMode updates filters.mode', () => {
-    useImageStore.getState().setMode('normal');
-    expect(useImageStore.getState().filters.mode).toBe('normal');
+describe('tag operations error handling', () => {
+  it('fetchImageTags sets error on failure', async () => {
+    vi.mocked(api.getImageTags).mockRejectedValue(new Error('tag fetch failed'));
+    await useImageStore.getState().fetchImageTags('img-1');
+    expect(useImageStore.getState().error).toBe('tag fetch failed');
   });
 
-  it('setView updates filters.view', () => {
+  it('addTagToImage sets error on failure', async () => {
+    vi.mocked(api.addTagToImage).mockRejectedValue(new Error('add tag failed'));
+    await useImageStore.getState().addTagToImage('img-1', 'tag-1');
+    expect(useImageStore.getState().error).toBe('add tag failed');
+  });
+
+  it('removeTagFromImage sets error on failure', async () => {
+    vi.mocked(api.removeTagFromImage).mockRejectedValue(new Error('remove tag failed'));
+    await useImageStore.getState().removeTagFromImage('img-1', 'tag-1');
+    expect(useImageStore.getState().error).toBe('remove tag failed');
+  });
+});
+
+describe('filters', () => {
+  it('setView updates view filter', () => {
     useImageStore.getState().setView('list');
     expect(useImageStore.getState().filters.view).toBe('list');
   });
 
-  it('setSortBy updates filters.sortBy', () => {
+  it('setSortBy updates sort filter', () => {
     useImageStore.getState().setSortBy('rating');
     expect(useImageStore.getState().filters.sortBy).toBe('rating');
   });
 
-  it('setModelFilter updates filters.modelFilter', () => {
-    useImageStore.getState().setModelFilter('dall-e');
-    expect(useImageStore.getState().filters.modelFilter).toBe('dall-e');
-  });
-
-  it('setSearchQuery updates filters.searchQuery', () => {
-    useImageStore.getState().setSearchQuery('hello');
-    expect(useImageStore.getState().filters.searchQuery).toBe('hello');
-  });
-
-  it('each setter only changes its own field', () => {
-    useImageStore.getState().setMode('normal');
-    useImageStore.getState().setView('list');
-    useImageStore.getState().setSortBy('size');
-    const f = useImageStore.getState().filters;
-    expect(f.mode).toBe('normal');
-    expect(f.view).toBe('list');
-    expect(f.sortBy).toBe('size');
-    // others unchanged
-    expect(f.modelFilter).toBe('all');
-    expect(f.searchQuery).toBe('');
-  });
-});
-
-// ---------------------------------------------------------------------------
-// getFilteredImages
-// ---------------------------------------------------------------------------
-describe('getFilteredImages', () => {
-  it('returns all images when modelFilter is "all"', () => {
-    useImageStore.setState({
-      images: [makeImage({ id: 'a', model: 'flux' }), makeImage({ id: 'b', model: 'dall-e' })],
-    });
-    expect(useImageStore.getState().getFilteredImages()).toHaveLength(2);
-  });
-
-  it('filters by modelFilter case-insensitively', () => {
-    useImageStore.setState({
-      images: [
-        makeImage({ id: 'a', model: 'Flux' }),
-        makeImage({ id: 'b', model: 'dall-e' }),
-      ],
-      filters: { ...useImageStore.getState().filters, modelFilter: 'flux' },
-    });
-    const result = useImageStore.getState().getFilteredImages();
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe('a');
-  });
-
-  it('sorts by rating descending', () => {
-    useImageStore.setState({
-      images: [
-        makeImage({ id: 'a', rating: 1, createdAt: '2026-01-01' }),
-        makeImage({ id: 'b', rating: 5, createdAt: '2026-01-02' }),
-      ],
-      filters: { ...useImageStore.getState().filters, sortBy: 'rating' },
-    });
-    const result = useImageStore.getState().getFilteredImages();
-    expect(result[0].id).toBe('b');
-    expect(result[1].id).toBe('a');
-  });
-
-  it('sorts by time descending (lexicographic)', () => {
-    useImageStore.setState({
-      images: [
-        makeImage({ id: 'a', createdAt: '2026-01-01' }),
-        makeImage({ id: 'b', createdAt: '2026-06-01' }),
-      ],
-      filters: { ...useImageStore.getState().filters, sortBy: 'time' },
-    });
-    const result = useImageStore.getState().getFilteredImages();
-    expect(result[0].id).toBe('b');
-  });
-
-  it('sorts by model alphabetically', () => {
-    useImageStore.setState({
-      images: [
-        makeImage({ id: 'a', model: 'flux' }),
-        makeImage({ id: 'b', model: 'dall-e' }),
-      ],
-      filters: { ...useImageStore.getState().filters, sortBy: 'model' },
-    });
-    const result = useImageStore.getState().getFilteredImages();
-    expect(result[0].model).toBe('dall-e');
-  });
-
-  it('sorts by size descending', () => {
-    useImageStore.setState({
-      images: [
-        makeImage({ id: 'a', fileSizeKb: 10 }),
-        makeImage({ id: 'b', fileSizeKb: 999 }),
-      ],
-      filters: { ...useImageStore.getState().filters, sortBy: 'size' },
-    });
-    const result = useImageStore.getState().getFilteredImages();
-    expect(result[0].id).toBe('b');
-  });
-});
-
-// ---------------------------------------------------------------------------
-// getSearchResults
-// ---------------------------------------------------------------------------
-describe('getSearchResults', () => {
-  it('returns empty when searchQuery is blank', () => {
-    useImageStore.setState({
-      images: [makeImage({ id: 'a', prompt: 'cat' })],
-      filters: { ...useImageStore.getState().filters, searchQuery: '' },
-    });
-    expect(useImageStore.getState().getSearchResults()).toEqual([]);
-  });
-
-  it('matches prompt case-insensitively', () => {
-    useImageStore.setState({
-      images: [
-        makeImage({ id: 'a', prompt: 'A Beautiful Cat', tags: [] }),
-        makeImage({ id: 'b', prompt: 'a dog', tags: [] }),
-      ],
-      filters: { ...useImageStore.getState().filters, searchQuery: 'cat' },
-    });
-    const result = useImageStore.getState().getSearchResults();
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe('a');
-  });
-
-  it('matches tags case-insensitively', () => {
-    useImageStore.setState({
-      images: [
-        makeImage({ id: 'a', prompt: '', tags: ['Nature'] }),
-        makeImage({ id: 'b', prompt: '', tags: ['city'] }),
-      ],
-      filters: { ...useImageStore.getState().filters, searchQuery: 'nature' },
-    });
-    const result = useImageStore.getState().getSearchResults();
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe('a');
-  });
-
-  it('sorts by similarity descending', () => {
-    useImageStore.setState({
-      images: [
-        makeImage({ id: 'a', prompt: 'cat', similarity: 60 }),
-        makeImage({ id: 'b', prompt: 'cat', similarity: 95 }),
-      ],
-      filters: { ...useImageStore.getState().filters, searchQuery: 'cat' },
-    });
-    const result = useImageStore.getState().getSearchResults();
-    expect(result[0].id).toBe('b');
-    expect(result[1].id).toBe('a');
+  it('setModelFilter updates model filter', () => {
+    useImageStore.getState().setModelFilter('SDXL');
+    expect(useImageStore.getState().filters.modelFilter).toBe('SDXL');
   });
 });

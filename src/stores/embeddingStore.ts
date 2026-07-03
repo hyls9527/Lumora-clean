@@ -16,6 +16,8 @@ interface EmbeddingStore {
   statsLoading: boolean;
   /** Generating flag */
   generating: boolean;
+  /** Error message */
+  error: string | null;
   // Actions
   fetchStatus: (imageId: string) => Promise<void>;
   fetchStatuses: (imageIds: string[]) => Promise<void>;
@@ -28,28 +30,37 @@ export const useEmbeddingStore = create<EmbeddingStore>((set, get) => ({
   stats: null,
   statsLoading: false,
   generating: false,
+  error: null,
 
   fetchStatus: async (imageId: string) => {
-    const info = await getEmbeddingStatus(imageId);
-    set((s) => ({ statusMap: { ...s.statusMap, [imageId]: info } }));
+    try {
+      const info = await getEmbeddingStatus(imageId);
+      set((s) => ({ statusMap: { ...s.statusMap, [imageId]: info } }));
+    } catch {
+      // Individual status fetch is non-critical, silent
+    }
   },
 
   fetchStatuses: async (imageIds: string[]) => {
     if (imageIds.length === 0) return;
     const BATCH = 10;
-    const results: EmbeddingInfo[] = [];
-    for (let i = 0; i < imageIds.length; i += BATCH) {
-      const batch = imageIds.slice(i, i + BATCH);
-      const batchResults = await Promise.all(batch.map(getEmbeddingStatus));
-      results.push(...batchResults);
-    }
-    set((s) => {
-      const next = { ...s.statusMap };
-      imageIds.forEach((id, i) => {
-        next[id] = results[i];
+    try {
+      const results: EmbeddingInfo[] = [];
+      for (let i = 0; i < imageIds.length; i += BATCH) {
+        const batch = imageIds.slice(i, i + BATCH);
+        const batchResults = await Promise.all(batch.map(getEmbeddingStatus));
+        results.push(...batchResults);
+      }
+      set((s) => {
+        const next = { ...s.statusMap };
+        imageIds.forEach((id, i) => {
+          next[id] = results[i];
+        });
+        return { statusMap: next };
       });
-      return { statusMap: next };
-    });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '获取嵌入状态失败' });
+    }
   },
 
   fetchStats: async () => {
@@ -57,8 +68,8 @@ export const useEmbeddingStore = create<EmbeddingStore>((set, get) => ({
     try {
       const stats = await getEmbeddingStats();
       set({ stats, statsLoading: false });
-    } catch {
-      set({ statsLoading: false });
+    } catch (err) {
+      set({ statsLoading: false, error: err instanceof Error ? err.message : '获取统计失败' });
     }
   },
 
@@ -71,9 +82,9 @@ export const useEmbeddingStore = create<EmbeddingStore>((set, get) => ({
       await get().fetchStatuses(images.map((img) => img.id));
       // Refresh global stats
       await get().fetchStats();
-    } catch {
+    } catch (err) {
       // restore stats on error
-      set({ stats: prevStats });
+      set({ stats: prevStats, error: err instanceof Error ? err.message : '生成嵌入失败' });
     } finally {
       set({ generating: false });
     }

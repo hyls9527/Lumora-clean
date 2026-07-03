@@ -17,6 +17,7 @@ export interface SmartCollection {
 interface SmartCollectionState {
   collections: SmartCollection[];
   loading: boolean;
+  error: string | null;
   load: () => Promise<void>;
   addCollection: (name: string, rules: SmartCollectionRule[], logic: 'AND' | 'OR') => Promise<void>;
   removeCollection: (id: string) => Promise<void>;
@@ -26,6 +27,7 @@ interface SmartCollectionState {
 export const useSmartCollectionStore = create<SmartCollectionState>((set, get) => ({
   collections: [],
   loading: false,
+  error: null,
 
   load: async () => {
     set({ loading: true });
@@ -37,8 +39,8 @@ export const useSmartCollectionStore = create<SmartCollectionState>((set, get) =
       } else {
         set({ collections: [], loading: false });
       }
-    } catch {
-      set({ loading: false });
+    } catch (err) {
+      set({ loading: false, error: err instanceof Error ? err.message : '加载智能集合失败' });
     }
   },
 

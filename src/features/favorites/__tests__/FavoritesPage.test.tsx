@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import { FavoritesPage } from '../FavoritesPage';
-import { useImageStore } from '../../../stores/imageStore';
+
+// Mock the API layer
+vi.mock('../../../lib/api/images', () => ({
+  listFavorites: vi.fn(),
+}));
 
 // Mock child components
 vi.mock('../../../components/ui/ImageCard', () => ({
@@ -14,6 +18,17 @@ vi.mock('../../../components/ui/DetailModal', () => ({
   DetailModal: () => null,
 }));
 
+vi.mock('../../../components/ui/ErrorState', () => ({
+  ErrorState: ({ message, onRetry }: { message: string; onRetry?: () => void }) => (
+    <div data-testid="error-state">
+      <span>{message}</span>
+      {onRetry && <button onClick={onRetry}>重试</button>}
+    </div>
+  ),
+}));
+
+import * as api from '../../../lib/api/images';
+
 const baseImage = {
   filePath: '/test.png', fileSizeKb: 100, width: 512, height: 512,
   format: 'png' as const, createdAt: '2025-01-01', model: 'SDXL', prompt: 'test', tags: [],
@@ -24,59 +39,61 @@ afterEach(() => {
 });
 
 describe('FavoritesPage', () => {
-  it('renders only favorite images', () => {
-    useImageStore.setState({
-      images: [
-        { ...baseImage, id: 'img-1', fileName: 'fav1.png', rating: 5, favorite: true },
-        { ...baseImage, id: 'img-2', fileName: 'notfav.png', rating: 3, favorite: false },
-        { ...baseImage, id: 'img-3', fileName: 'fav2.png', rating: 4, favorite: true },
-      ],
-      loading: false, error: null, fetchImages: vi.fn(),
-    } as any);
-
+  it('calls listFavorites API on mount instead of iterating all pages', async () => {
+    vi.mocked(api.listFavorites).mockResolvedValue([]);
     render(<FavoritesPage />);
-
-    expect(screen.getByTestId('card-img-1')).toBeTruthy();
-    expect(screen.queryByTestId('card-img-2')).toBeNull();
-    expect(screen.getByTestId('card-img-3')).toBeTruthy();
+    await waitFor(() => {
+      expect(api.listFavorites).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('shows empty state when no favorites', () => {
-    useImageStore.setState({
-      images: [
-        { ...baseImage, id: 'img-1', fileName: 'a.png', rating: 0, favorite: false },
-      ],
-      loading: false, error: null, fetchImages: vi.fn(),
-    } as any);
+  it('renders only favorite images from API', async () => {
+    const mockFavs = [
+      { ...baseImage, id: 'img-1', fileName: 'fav1.png', rating: 5, favorite: true },
+      { ...baseImage, id: 'img-3', fileName: 'fav2.png', rating: 4, favorite: true },
+    ];
+    vi.mocked(api.listFavorites).mockResolvedValue(mockFavs);
 
     render(<FavoritesPage />);
 
-    expect(screen.getByText('暂无收藏图片')).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId('card-img-1')).toBeTruthy();
+      expect(screen.getByTestId('card-img-3')).toBeTruthy();
+    });
   });
 
-  it('shows correct count in bottom bar', () => {
-    useImageStore.setState({
-      images: [
-        { ...baseImage, id: 'img-1', fileName: 'a.png', rating: 5, favorite: true },
-        { ...baseImage, id: 'img-2', fileName: 'b.png', rating: 3, favorite: false },
-        { ...baseImage, id: 'img-3', fileName: 'c.png', rating: 4, favorite: true },
-      ],
-      loading: false, error: null, fetchImages: vi.fn(),
-    } as any);
+  it('shows empty state when no favorites', async () => {
+    vi.mocked(api.listFavorites).mockResolvedValue([]);
 
     render(<FavoritesPage />);
 
-    expect(screen.getByText('2 张收藏')).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText('暂无收藏图片')).toBeTruthy();
+    });
   });
 
-  it('calls fetchImages on mount', () => {
-    const mockFetch = vi.fn();
-    useImageStore.setState({
-      images: [], loading: false, error: null, fetchImages: mockFetch,
-    } as any);
+  it('shows correct count in bottom bar', async () => {
+    const mockFavs = [
+      { ...baseImage, id: 'img-1', fileName: 'a.png', rating: 5, favorite: true },
+      { ...baseImage, id: 'img-3', fileName: 'c.png', rating: 4, favorite: true },
+    ];
+    vi.mocked(api.listFavorites).mockResolvedValue(mockFavs);
 
     render(<FavoritesPage />);
 
-    expect(mockFetch).toHaveBeenCalledWith(1);
+    await waitFor(() => {
+      expect(screen.getByText('2 张收藏')).toBeTruthy();
+    });
+  });
+
+  it('shows error state on API failure', async () => {
+    vi.mocked(api.listFavorites).mockRejectedValue(new Error('network error'));
+
+    render(<FavoritesPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('error-state')).toBeTruthy();
+      expect(screen.getByText('network error')).toBeTruthy();
+    });
   });
 });

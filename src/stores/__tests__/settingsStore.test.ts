@@ -14,6 +14,11 @@ vi.mock('../../lib/tauri', () => ({
   isTauriAvailable: false,
 }));
 
+// Mock i18n — settingsStore imports notifyLanguageChanged from it
+vi.mock('../../lib/i18n', () => ({
+  notifyLanguageChanged: vi.fn(),
+}));
+
 import { useSettingsStore } from '../settingsStore';
 import * as tauri from '../../lib/tauri';
 
@@ -26,6 +31,7 @@ beforeEach(() => {
     language: 'zh',
     theme: 'light',
     _hydrated: false,
+    error: null,
   });
 });
 
@@ -46,6 +52,11 @@ describe('setLanguage', () => {
   it('sets document.documentElement lang attribute', () => {
     useSettingsStore.getState().setLanguage('en');
     expect(document.documentElement.getAttribute('lang')).toBe('en');
+  });
+
+  it('writes language to localStorage', () => {
+    useSettingsStore.getState().setLanguage('en');
+    expect(localStorage.getItem('lumora-lang')).toBe('en');
   });
 });
 
@@ -117,6 +128,15 @@ describe('hydrate', () => {
     expect(useSettingsStore.getState().theme).toBe('light');
   });
 
+  it('writes language to localStorage after hydrate', async () => {
+    mockInvoke.mockImplementation((_cmd: string, args?: Record<string, unknown>) => {
+      if ((args as Record<string, unknown>)?.key === 'language') return Promise.resolve('en');
+      return Promise.resolve(null);
+    });
+    await useSettingsStore.getState().hydrate();
+    expect(localStorage.getItem('lumora-lang')).toBe('en');
+  });
+
   it('skips hydration if already hydrated', async () => {
     useSettingsStore.setState({ _hydrated: true });
     await useSettingsStore.getState().hydrate();
@@ -126,6 +146,13 @@ describe('hydrate', () => {
   it('sets _hydrated on invoke error', async () => {
     mockInvoke.mockRejectedValue(new Error('backend unavailable'));
     await useSettingsStore.getState().hydrate();
+    expect(useSettingsStore.getState()._hydrated).toBe(true);
+  });
+
+  it('sets error on invoke failure', async () => {
+    mockInvoke.mockRejectedValue(new Error('hydrate failed'));
+    await useSettingsStore.getState().hydrate();
+    expect(useSettingsStore.getState().error).toBe('hydrate failed');
     expect(useSettingsStore.getState()._hydrated).toBe(true);
   });
 });

@@ -152,7 +152,8 @@ pub fn search_images_advanced(
         _ => return Ok(vec![]),
     };
 
-    let pattern = format!("%{}%", query);
+    let escaped = query.replace('\\', "\\\\").replace('%', "\\%").replace('_', "\\_");
+    let pattern = format!("%{}%", escaped);
     let mut stmt = conn.prepare(
         "SELECT * FROM images
          WHERE json_extract(metadata_json, ?1) LIKE ?2 AND deleted = 0
@@ -191,6 +192,19 @@ pub fn toggle_favorite(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<
     )
     ?;
     Ok(())
+}
+
+/// List all favorited (non-deleted) images, ordered by imported_at DESC.
+#[tauri::command]
+pub fn list_favorites(db: tauri::State<'_, DbHandle>) -> AppResult<Vec<ImageRecord>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let mut stmt = conn.prepare(
+        "SELECT * FROM images WHERE favorite = 1 AND deleted = 0 ORDER BY imported_at DESC",
+    )?;
+    let items = stmt
+        .query_map([], row_to_record)?
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(items)
 }
 
 /// Rebuild FTS5 index from current images table data.
@@ -257,12 +271,27 @@ fn scan_folder(root: &str) -> std::io::Result<Vec<ImportEntry>> {
             continue;
         }
         let meta = fs::metadata(&entry)?;
-        let (w, h) = probe_dimensions(&entry, &ext);
         let hash = file_hash(&entry, meta.len());
-        let meta_json = metadata::probe_metadata(
-            std::path::Path::new(&entry),
-            &ext,
-        );
+
+        // Single buffer read for both dimensions and metadata (P1 optimization)
+        let (w, h, meta_json) = if ext == "gif" {
+            let (w, h) = probe_gif(&entry);
+            (w, h, None)
+        } else {
+            let mut buf = vec![0u8; 65536];
+            let n = std::fs::File::open(&entry)
+                .and_then(|f| {
+                    use std::io::Read;
+                    let mut r = std::io::BufReader::new(f);
+                    r.read(&mut buf)
+                })
+                .unwrap_or(0);
+            buf.truncate(n);
+            let (w, h) = probe_dimensions_from_bytes(&buf, &ext);
+            let meta_json = metadata::probe_metadata_from_bytes(&buf, &ext);
+            (w, h, meta_json)
+        };
+
         let created = chrono::DateTime::<chrono::Utc>::from(
             meta.modified().unwrap_or(meta.created().unwrap()),
         )
@@ -323,11 +352,18 @@ fn probe_dimensions(path: &str, ext: &str) -> (Option<i32>, Option<i32>) {
     let mut reader = std::io::BufReader::new(file);
     let n = reader.read(&mut buf).unwrap_or(0);
     buf.truncate(n);
-    let bytes = if buf.len() > 32 { buf } else { return (None, None) };
+    probe_dimensions_from_bytes(&buf, ext)
+}
+
+/// Extract dimensions from an already-loaded byte buffer.
+pub fn probe_dimensions_from_bytes(bytes: &[u8], ext: &str) -> (Option<i32>, Option<i32>) {
+    if bytes.len() < 32 {
+        return (None, None);
+    }
     match ext {
-        "png" => probe_png(&bytes),
-        "jpg" | "jpeg" => probe_jpeg(&bytes),
-        "webp" => probe_webp(&bytes),
+        "png" => probe_png(bytes),
+        "jpg" | "jpeg" => probe_jpeg(bytes),
+        "webp" => probe_webp(bytes),
         _ => (None, None),
     }
 }
@@ -1025,5 +1061,53 @@ mod tests {
         // Non-numeric seed query should return empty
         let seed_val: Result<i64, _> = "not-a-number".trim().parse();
         assert!(seed_val.is_err());
+    }
+
+    #[test]
+    fn list_favorites_returns_only_favorited_images() {
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        conn.execute(
+            "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at,imported_at,favorite)
+             VALUES ('lf1','/lf1.png','h',1,'png','2025-01-01','2025-01-01T00:00:00Z',1)",
+            [],
+        ).unwrap();
+        conn.execute(
+            "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at,imported_at,favorite)
+             VALUES ('lf2','/lf2.png','h',1,'png','2025-01-02','2025-01-02T00:00:00Z',1)",
+            [],
+        ).unwrap();
+        conn.execute(
+            "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at,imported_at,favorite)
+             VALUES ('lf3','/lf3.png','h',1,'png','2025-01-03','2025-01-03T00:00:00Z',0)",
+            [],
+        ).unwrap();
+
+        let mut stmt = conn
+            .prepare("SELECT * FROM images WHERE favorite = 1 AND deleted = 0 ORDER BY imported_at DESC")
+            .unwrap();
+        let items: Vec<crate::schema::types::ImageRecord> = stmt
+            .query_map([], crate::schema::types::row_to_record)
+            .unwrap()
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap();
+        assert_eq!(items.len(), 2);
+        assert_eq!(items[0].id, "lf2");
+        assert_eq!(items[1].id, "lf1");
+    }
+
+    #[test]
+    fn list_favorites_excludes_deleted() {
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        conn.execute(
+            "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at,favorite,deleted)
+             VALUES ('lfd1','/lfd1.png','h',1,'png','2025-01-01',1,1)",
+            [],
+        ).unwrap();
+        let count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM images WHERE favorite = 1 AND deleted = 0", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, 0);
     }
 }

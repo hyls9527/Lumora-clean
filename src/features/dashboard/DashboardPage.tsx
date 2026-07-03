@@ -6,14 +6,7 @@ import {
 import type { ImageRecord } from '../../types/image';
 import { useEmbeddingStore } from '../../stores/embeddingStore';
 import { useTranslation } from '../../lib/i18n';
-
-/** Format bytes to human-readable string */
-function formatSize(kb: number): string {
-  if (kb < 1024) return `${kb} KB`;
-  const mb = kb / 1024;
-  if (mb < 1024) return `${mb.toFixed(1)} MB`;
-  return `${(mb / 1024).toFixed(2)} GB`;
-}
+import { formatFileSize } from '../../lib/format';
 
 /** Convert TauriImageRecord → ImageRecord for display */
 function toImageRecord(raw: {
@@ -306,7 +299,7 @@ export function DashboardPage() {
               />
               <DotRow
                 label={t('dashboard.storage')}
-                value={formatSize(stats.totalSizeKb)}
+                value={formatFileSize(stats.totalSizeKb)}
               />
             </div>
           </section>
@@ -535,7 +528,7 @@ export function DashboardPage() {
                           marginTop: 2,
                         }}
                       >
-                        {img.width}×{img.height} · {formatSize(img.fileSizeKb)}
+                        {img.width}×{img.height} · {formatFileSize(img.fileSizeKb)}
                       </div>
                     </div>
                     <span
@@ -575,7 +568,7 @@ export function DashboardPage() {
           {stats
             ? t('dashboard.summary', {
                 count: stats.totalImages,
-                size: formatSize(stats.totalSizeKb),
+                size: formatFileSize(stats.totalSizeKb),
               })
             : ''}
         </span>

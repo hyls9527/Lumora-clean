@@ -69,8 +69,8 @@ export const useSemanticSearchStore = create<SemanticSearchState>((set, get) => 
     try {
       const suggestions = await getSearchSuggestions(query);
       set({ suggestions, suggestionsLoading: false, showSuggestions: suggestions.length > 0 });
-    } catch {
-      set({ suggestionsLoading: false });
+    } catch (err) {
+      set({ suggestionsLoading: false, error: err instanceof Error ? err.message : '获取建议失败' });
     }
   },
 

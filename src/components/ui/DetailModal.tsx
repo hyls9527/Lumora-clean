@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import type { ImageRecord } from '../../types/image';
 import { Rating } from './Rating';
 import { TagBadge } from './TagBadge';
+import { formatDate, formatFileSize } from '../../lib/format';
 
 interface DetailModalProps {
   image: ImageRecord | null;
@@ -10,21 +11,6 @@ interface DetailModalProps {
   onNext?: () => void;
   onToggleFavorite?: (id: string) => void;
   onSetRating?: (id: string, rating: number) => void;
-}
-
-function formatFileSize(kb: number): string {
-  if (kb < 1024) return `${kb} KB`;
-  return `${(kb / 1024).toFixed(1)} MB`;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 }
 
 const overlayStyle: React.CSSProperties = {

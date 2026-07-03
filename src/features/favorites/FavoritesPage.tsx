@@ -1,36 +1,58 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useImageStore } from '../../stores/imageStore';
 import type { ImageRecord } from '../../types/image';
 import { ImageCard } from '../../components/ui/ImageCard';
 import { DetailModal } from '../../components/ui/DetailModal';
+import { listFavorites } from '../../lib/api/images';
+import { ErrorState } from '../../components/ui/ErrorState';
 
 export function FavoritesPage() {
-  const images = useImageStore((s) => s.images);
-  const fetchImages = useImageStore((s) => s.fetchImages);
   const toggleFavorite = useImageStore((s) => s.toggleFavorite);
   const setRating = useImageStore((s) => s.setRating);
 
+  const [favorites, setFavorites] = useState<ImageRecord[]>([]);
   const [detailImage, setDetailImage] = useState<ImageRecord | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fix #6: memoize filtered favorites
-  const favorites = useMemo(() => images.filter((img) => img.favorite), [images]);
+  const loadFavorites = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const items = await listFavorites();
+      setFavorites(items);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '加载收藏失败');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    fetchImages(1);
-  }, [fetchImages]);
+    void loadFavorites();
+  }, [loadFavorites]);
 
-  // Fix #2: close modal if current image is no longer in favorites
+  // Close modal if current image is no longer in favorites
   useEffect(() => {
     if (detailImage && !favorites.find((f) => f.id === detailImage.id)) {
       setDetailImage(null);
     }
   }, [favorites, detailImage]);
 
+  const handleToggleFavorite = useCallback(
+    (id: string) => {
+      toggleFavorite(id);
+      // Refresh favorites list after toggle
+      setTimeout(() => { void loadFavorites(); }, 100);
+    },
+    [toggleFavorite, loadFavorites],
+  );
+
   const handleDetailPrev = useCallback(() => {
     setDetailImage((prev: ImageRecord | null) => {
       if (!prev) return prev;
       const idx = favorites.findIndex((i) => i.id === prev.id);
-      if (idx < 0) return null; // Fix #2: not found → close
+      if (idx < 0) return null;
       const nextIdx = Math.max(0, idx - 1);
       return favorites[nextIdx] ?? null;
     });
@@ -40,7 +62,7 @@ export function FavoritesPage() {
     setDetailImage((prev: ImageRecord | null) => {
       if (!prev) return prev;
       const idx = favorites.findIndex((i) => i.id === prev.id);
-      if (idx < 0) return null; // Fix #2: not found → close
+      if (idx < 0) return null;
       const nextIdx = Math.min(favorites.length - 1, idx + 1);
       return favorites[nextIdx] ?? null;
     });
@@ -70,7 +92,23 @@ export function FavoritesPage() {
       </div>
 
       {/* Content */}
-      {favorites.length === 0 ? (
+      {error ? (
+        <ErrorState message={error} onRetry={loadFavorites} />
+      ) : loading ? (
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#a09480',
+            fontFamily: 'var(--font-body)',
+            fontSize: 13,
+          }}
+        >
+          加载中…
+        </div>
+      ) : favorites.length === 0 ? (
         <div
           style={{
             flex: 1,
@@ -127,7 +165,7 @@ export function FavoritesPage() {
         onClose={() => setDetailImage(null)}
         onPrev={handleDetailPrev}
         onNext={handleDetailNext}
-        onToggleFavorite={toggleFavorite}
+        onToggleFavorite={handleToggleFavorite}
         onSetRating={setRating}
       />
     </div>

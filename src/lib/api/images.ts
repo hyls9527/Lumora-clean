@@ -46,7 +46,7 @@ function parseMetadata(json: string | null): {
 }
 
 /** 将 Tauri 记录转换为前端 ImageRecord */
-function toImageRecord(raw: TauriImageRecord): ImageRecord {
+export function toImageRecord(raw: TauriImageRecord): ImageRecord {
   const { model, prompt, tags } = parseMetadata(raw.metadataJson);
   return {
     id: raw.id,
@@ -118,6 +118,11 @@ export async function updateRating(
 
 export async function toggleFavorite(id: string): Promise<void> {
   await invoke('toggle_favorite', { id });
+}
+
+export async function listFavorites(): Promise<ImageRecord[]> {
+  const raw = await invoke<TauriImageRecord[]>('list_favorites');
+  return raw.map(toImageRecord);
 }
 
 // ---------------------------------------------------------------------------

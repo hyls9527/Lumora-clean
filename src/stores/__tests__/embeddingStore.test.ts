@@ -109,4 +109,25 @@ describe('generate', () => {
     expect(mockGetStatus).toHaveBeenCalledTimes(2);
     expect(mockGetStats).toHaveBeenCalled();
   });
+
+  it('sets error on failure', async () => {
+    mockGenerate.mockRejectedValue(new Error('generate failed'));
+    const testImages: ImageRecord[] = [
+      { id: 'img-1', prompt: 'a cat', fileName: 'cat.png', filePath: '/cat.png', fileSizeKb: 100, width: 512, height: 512, format: 'png', createdAt: '2025-01-01', rating: 0, favorite: false, model: '', tags: [] },
+    ];
+    await useEmbeddingStore.getState().generate(testImages);
+
+    expect(useEmbeddingStore.getState().error).toBe('generate failed');
+    expect(useEmbeddingStore.getState().generating).toBe(false);
+  });
+});
+
+describe('fetchStats error handling', () => {
+  it('sets error on failure', async () => {
+    mockGetStats.mockRejectedValue(new Error('stats failed'));
+    await useEmbeddingStore.getState().fetchStats();
+
+    expect(useEmbeddingStore.getState().error).toBe('stats failed');
+    expect(useEmbeddingStore.getState().statsLoading).toBe(false);
+  });
 });
