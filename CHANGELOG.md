@@ -1,5 +1,43 @@
 # CHANGELOG
 
+## v0.3.2 — 2026-07-03
+
+### 🐛 Bug 修复
+
+- **消灭静默吞错** — 修复 10+ 个空 `catch {}` 块，所有 store 操作失败现在正确设置 `error` 状态
+- **FavoritesPage O(n)→O(1)** — 新增 `list_favorites` 后端命令，收藏页不再遍历全部数据
+- **乐观更新错误反馈** — `toggleFavorite`/`setRating` 失败后 rollback 并设置 error 状态
+
+### 🏗️ 内部改进
+
+- **TDD 驱动** — 先写 24 个失败测试，再修复代码，全部 284 测试通过
+- **共享 format 工具** — 新建 `src/lib/format.ts`，消除 `formatDate`/`formatFileSize` 跨文件重复
+- **smartCollectionStore** — 接口新增 `error` 字段
+- **settingsStore** — 接口新增 `error` 字段
+- **Rust: `list_favorites` 命令** — `SELECT * FROM images WHERE favorite = 1 AND deleted = 0 ORDER BY imported_at DESC`
+
+### 🧪 测试
+
+- **TypeScript**: 229 测试全绿 (+22 新增)
+- **Rust**: 55 测试全绿 (+2 新增)
+- 新增: tag 操作错误处理 (3), 乐观更新错误反馈 (2), fetchStats/generate 错误 (2)
+- 新增: smartCollection/semanticSearch/settings 错误处理 (3)
+- 新增: FavoritesPage 重写 (5), format 工具 (7)
+- 新增 Rust: list_favorites 查询 (2)
+
+### 📦 改动文件
+
+- `src/stores/imageStore.ts` — 3 个标签操作 + 2 个乐观更新的 catch 块
+- `src/stores/embeddingStore.ts` — fetchStats/generate 错误处理
+- `src/stores/smartCollectionStore.ts` — 新增 error 字段
+- `src/stores/semanticSearchStore.ts` — fetchSuggestions 错误处理
+- `src/stores/settingsStore.ts` — 新增 error 字段
+- `src/features/favorites/FavoritesPage.tsx` — 完全重写
+- `src/lib/format.ts` — 新建共享工具模块
+- `src-tauri/src/commands/images.rs` — 新增 list_favorites 命令
+
+---
+
 ## v0.3.1 — 2026-06-29
 
 ### ⚡ 性能优化
