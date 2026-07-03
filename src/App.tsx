@@ -6,7 +6,7 @@ import { GalleryPage } from './features/gallery/GalleryPage';
 import { useSettingsStore } from './stores/settingsStore';
 import { useCommandStore } from './stores/commandStore';
 import { useDragDrop } from './hooks/useDragDrop';
-import { useTranslation } from './lib/i18n';
+import { useTranslation, t } from './lib/i18n';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import type { Command } from './stores/commandStore';
 
@@ -85,7 +85,7 @@ function App() {
       case '/export': return <ErrorBoundary key="export"><Suspense fallback={<Loading />}><ExportPage /></Suspense></ErrorBoundary>;
       case '/favorites': return <ErrorBoundary key="favorites"><Suspense fallback={<Loading />}><FavoritesPage /></Suspense></ErrorBoundary>;
       case '/settings': return <ErrorBoundary key="settings"><Suspense fallback={<Loading />}><SettingsPage /></Suspense></ErrorBoundary>;
-      default: return <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',color:'#6b5d48',fontFamily:'var(--font-display)',fontSize:14}}>页面开发中…</div>;
+      default: return <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',color:'#6b5d48',fontFamily:'var(--font-display)',fontSize:14}}>{t('common.pageNotFound')}</div>;
     }
   };
 
@@ -100,7 +100,7 @@ function App() {
 }
 
 function Loading() {
-  return <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',color:'#a09480',fontFamily:'var(--font-body)',fontSize:13}}>加载中…</div>;
+  return <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',color:'#a09480',fontFamily:'var(--font-body)',fontSize:13}}>{t('common.loading')}</div>;
 }
 
 export default App;

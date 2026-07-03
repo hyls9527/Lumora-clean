@@ -368,7 +368,13 @@ export function GalleryPage() {
       {loading ? (
         <GridSkeleton count={8} />
       ) : !error ? (
-        <>
+        images.length === 0 ? (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#a09480', gap: 8 }}>
+            <span style={{ fontSize: 48 }}>📷</span>
+            <span style={{ fontSize: 13, fontFamily: 'var(--font-body)' }}>还没有图片，去导入一些吧！</span>
+          </div>
+        ) : (
+          <>
           {/* Image Grid (Masonry via CSS columns) */}
           <InfiniteScroll
             onLoadMore={loadMore}
@@ -438,7 +444,8 @@ export function GalleryPage() {
               ))}
             </div>
           )}
-        </>
+          </>
+        )
       ) : null}
 
       {/* Bottom bar */}
