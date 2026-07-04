@@ -63,13 +63,94 @@ jobs:
           releaseName: Lumora ${{ github.ref_name }}
           releaseBody: |
             ## Lumora ${{ github.ref_name }}
-            
+
             ### 下载
             - **Windows**: 下载 `lumora_*_x64-setup.exe` 安装
             - **macOS**: 下载 `.dmg` 文件安装
             - **Linux**: 下载 `.AppImage` 或 `.deb` 文件
-            
+
             ### 自动更新
             已安装用户会在侧边栏收到更新提示。
           releaseDraft: true
           prerelease: false
+
+  updater-json:
+    name: Generate updater JSON
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate latest.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node --input-type=module <<'NODESCRIPT'
+          import { execSync } from "child_process";
+          import { readFileSync, writeFileSync, mkdtempSync } from "fs";
+          import { join } from "path";
+          import { tmpdir } from "os";
+
+          const tag = "${{ github.ref_name }}";
+          const version = tag.replace(/^v/, "");
+          const repo = "${{ github.repository }}";
+          const dir = mkdtempSync(join(tmpdir(), "updater-"));
+
+          function gh(args) {
+            return execSync(`gh ${args}`, { encoding: "utf-8" }).trim();
+          }
+
+          const assetsJson = gh(`release view ${tag} -R ${repo} --json assets`);
+          const assets = JSON.parse(assetsJson).assets;
+          const platforms = {};
+
+          // Windows: NSIS exe
+          const nsisExe = assets.find(a => a.name.endsWith("setup.exe"));
+          if (nsisExe) {
+            platforms["windows-x86_64"] = {
+              signature: "",
+              url: `https://github.com/${repo}/releases/download/${tag}/${nsisExe.name}`
+            };
+          }
+
+          // macOS: app.tar.gz
+          const macTar = assets.find(a => a.name.endsWith("app.tar.gz"));
+          if (macTar) {
+            platforms["darwin-aarch64"] = {
+              signature: "",
+              url: `https://github.com/${repo}/releases/download/${tag}/${macTar.name}`
+            };
+          }
+
+          // Linux: AppImage
+          const appImage = assets.find(a => a.name.endsWith(".AppImage"));
+          if (appImage) {
+            platforms["linux-x86_64"] = {
+              signature: "",
+              url: `https://github.com/${repo}/releases/download/${tag}/${appImage.name}`
+            };
+          }
+
+          const latestJson = {
+            version,
+            notes: "",
+            pub_date: new Date().toISOString(),
+            platforms
+          };
+
+          if (Object.keys(platforms).length === 0) {
+            console.log("ERROR: No platforms found!");
+            process.exit(1);
+          }
+
+          const outputPath = join(dir, "latest.json");
+          writeFileSync(outputPath, JSON.stringify(latestJson, null, 2));
+          console.log(JSON.stringify(latestJson, null, 2));
+
+          gh(`release upload ${tag} ${outputPath} --clobber -R ${repo}`);
+          console.log("Uploaded latest.json ✓");
+          NODESCRIPT
