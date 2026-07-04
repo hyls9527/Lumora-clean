@@ -41,7 +41,8 @@
     "updater": {
       "endpoints": [
         "https://github.com/hyls9527/Lumora-clean/releases/latest/download/latest.json"
-      ]
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEVFQThGQ0E1NjlENzU2QjIKUldTeVZ0ZHBwZnlvN2hhN254bVJwcnJUVlViQ2VEZWl3dTMwbkJzM2kxaFZTOFVDODFxOTdlbE8K"
     }
   }
 }
