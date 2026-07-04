@@ -85,6 +85,16 @@ pub struct ExportResult {
     pub dest_dir: String,
 }
 
+/// Result returned by import_images command.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ImportResult {
+    pub items: Vec<ImageRecord>,
+    pub imported: u32,
+    pub skipped: u32,
+    pub total_scanned: u32,
+}
+
 /// Map a SQLite row to an `ImageRecord`.
 /// Shared by images, trash, dashboard, and export commands.
 pub fn row_to_record(row: &rusqlite::Row<'_>) -> Result<ImageRecord, rusqlite::Error> {

@@ -30,7 +30,7 @@ interface ImageStore {
   fetchImages: (page?: number) => Promise<void>;
   loadMore: () => Promise<void>;
   searchImages: (query: string) => Promise<void>;
-  importImages: (folderPath: string) => Promise<void>;
+  importImages: (folderPath: string) => Promise<api.ImportResult>;
   exportImages: (ids: string[], destDir: string, format: string, renameTemplate?: string) => Promise<ExportResult>;
   // Sync actions
   setMode: (mode: 'creator' | 'normal') => void;
@@ -146,17 +146,19 @@ export const useImageStore = create<ImageStore>((set, get) => ({
   importImages: async (folderPath: string) => {
     set({ loading: true, error: null });
     try {
-      const imported = await api.importImages(folderPath);
+      const result = await api.importImages(folderPath);
       set((s) => ({
-        images: [...imported, ...s.images],
-        total: s.total + imported.length,
+        images: [...result.items, ...s.images],
+        total: s.total + result.imported,
         loading: false,
       }));
+      return result;
     } catch (err) {
       set({
         loading: false,
         error: err instanceof Error ? err.message : '导入失败',
       });
+      throw err;
     }
   },
 

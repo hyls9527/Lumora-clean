@@ -33,6 +33,13 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      - name: Rust cache
+        uses: actions/cache@v4
+        with:
+          path: src-tauri/target
+          key: ${{ runner.os }}-cargo-release-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-release-
+
       - name: Install dependencies (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -46,7 +53,7 @@ jobs:
         run: npm run build
 
       - name: Build Tauri
-        uses: tauri-apps/tauri-action@v1
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -54,98 +61,15 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Lumora ${{ github.ref_name }}
-          releaseBody: 'See the assets below to download and install.'
+          releaseBody: |
+            ## Lumora ${{ github.ref_name }}
+            
+            ### 下载
+            - **Windows**: 下载 `lumora_*_x64-setup.exe` 安装
+            - **macOS**: 下载 `.dmg` 文件安装
+            - **Linux**: 下载 `.AppImage` 或 `.deb` 文件
+            
+            ### 自动更新
+            已安装用户会在侧边栏收到更新提示。
           releaseDraft: true
           prerelease: false
-          updaterJsonPreferNsis: true
-
-  updater-json:
-    name: Generate updater JSON
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Sign and generate latest.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: |
-          node --input-type=module <<'NODESCRIPT'
-          import { execSync } from "child_process";
-          import { readFileSync, writeFileSync, mkdtempSync } from "fs";
-          import { join } from "path";
-          import { tmpdir } from "os";
-          import { createHash, createSign } from "crypto";
-
-          const tag = process.env.TAG || "${{ github.ref_name }}";
-          const version = tag.replace(/^v/, "");
-          const repo = process.env.REPO || "${{ github.repository }}";
-          const dir = mkdtempSync(join(tmpdir(), "updater-"));
-          const keyB64 = process.env.TAURI_SIGNING_PRIVATE_KEY;
-          const password = process.env.TAURI_SIGNING_PRIVATE_KEY_PASSWORD;
-
-          function gh(args) {
-            return execSync(`gh ${args}`, { encoding: "utf-8" }).trim();
-          }
-
-          function signWithTauriKey() {
-            // Signing requires rsign2 with interactive password — not feasible in CI.
-            // Return empty string (unsigned). The updater will still check for updates.
-            return "";
-          }
-
-          // Get release assets
-          const assetsJson = gh(`release view ${tag} -R ${repo} --json assets`);
-          const assets = JSON.parse(assetsJson).assets;
-
-          const platforms = {};
-
-          // Windows: find NSIS exe
-          const nsisExe = assets.find(a => a.name.endsWith("setup.exe"));
-          if (nsisExe) {
-            const sig = signWithTauriKey();
-            platforms["windows-x86_64"] = {
-              signature: sig || "",
-              url: `https://github.com/${repo}/releases/download/${tag}/${nsisExe.name}`
-            };
-            console.log(`Windows: ${sig ? "signed ✓" : "unsigned (no sig)"}`);
-          }
-
-          // macOS: find app.tar.gz (tauri-action uploads as lumora_aarch64.app.tar.gz)
-          const macTar = assets.find(a => a.name.endsWith("app.tar.gz"));
-          if (macTar) {
-            const sig = signWithTauriKey();
-            platforms["darwin-aarch64"] = {
-              signature: sig || "",
-              url: `https://github.com/${repo}/releases/download/${tag}/${macTar.name}`
-            };
-            console.log(`macOS: ${sig ? "signed ✓" : "unsigned (no sig)"}`);
-          }
-
-          // Generate latest.json
-          const latestJson = {
-            version,
-            notes: "",
-            pub_date: new Date().toISOString(),
-            platforms
-          };
-
-          if (Object.keys(platforms).length === 0) {
-            console.log("ERROR: No platforms found!");
-            process.exit(1);
-          }
-
-          const outputPath = join(dir, "latest.json");
-          writeFileSync(outputPath, JSON.stringify(latestJson, null, 2));
-          console.log("Generated latest.json:");
-          console.log(JSON.stringify(latestJson, null, 2));
-
-          gh(`release upload ${tag} ${outputPath} --clobber -R ${repo}`);
-          console.log("Uploaded latest.json ✓");
-          NODESCRIPT

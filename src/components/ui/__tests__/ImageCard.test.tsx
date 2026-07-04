@@ -2,6 +2,11 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import { ImageCard } from '../ImageCard';
 
+// Mock the tauri lib (convertFileSrc)
+vi.mock('../../../lib/tauri', () => ({
+  convertFileSrc: vi.fn((path: string) => Promise.resolve(`asset://localhost/${encodeURIComponent(path)}`)),
+}));
+
 // Mock the stores
 vi.mock('../../../stores/imageStore', () => ({
   useImageStore: vi.fn((selector) => {
@@ -117,5 +122,22 @@ describe('ImageCard', () => {
 
     const card = container.firstChild as HTMLElement;
     expect(card.style.border).toContain('rgb(122, 92, 18)');
+  });
+
+  it('renders an img element with asset protocol src', async () => {
+    render(<ImageCard image={MOCK_IMAGE} />);
+
+    // Wait for async convertFileSrc to resolve
+    const img = await screen.findByRole('img');
+    expect(img).toBeDefined();
+    expect(img.getAttribute('src')).toContain('asset://localhost');
+    expect(img.getAttribute('src')).toContain(encodeURIComponent('/test/image.png'));
+  });
+
+  it('renders img with alt text from fileName', async () => {
+    render(<ImageCard image={MOCK_IMAGE} />);
+
+    const img = await screen.findByRole('img');
+    expect(img.getAttribute('alt')).toBe('image.png');
   });
 });

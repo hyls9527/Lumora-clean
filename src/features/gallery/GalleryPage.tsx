@@ -8,6 +8,7 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { LazyLoad } from '../../components/ui/LazyLoad';
 import { InfiniteScroll } from '../../components/ui/InfiniteScroll';
 import { useKeyboardNav } from '../../hooks/useKeyboardNav';
+import { batchSoftDelete } from '../../lib/api/images';
 
 const sortOptions = [
   { key: 'time' as const, label: '生成时间 ↓' },
@@ -131,6 +132,8 @@ export function GalleryPage() {
   } = useImageStore();
   const softDelete = useTrashStore((s) => s.softDeleteImage);
 
+  const [batchDeleting, setBatchDeleting] = useState(false);
+
   const images = getFilteredImages();
   const totalPages = Math.max(1, Math.ceil(total / perPage));
 
@@ -208,6 +211,20 @@ export function GalleryPage() {
     },
     [focusedIndex, images, setRating],
   );
+
+  const handleBatchDelete = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+    setBatchDeleting(true);
+    try {
+      await batchSoftDelete([...selectedIds]);
+      clearSelection();
+      await fetchImages(page);
+    } catch {
+      // error handled by store
+    } finally {
+      setBatchDeleting(false);
+    }
+  }, [selectedIds, clearSelection, fetchImages, page]);
 
   const handleDetailPrev = useCallback(() => {
     setDetailImage((prev) => {
@@ -459,13 +476,55 @@ export function GalleryPage() {
           marginTop: 'auto',
         }}
       >
-        <span
-          style={{ fontSize: 11, color: '#6b5d48', fontFamily: 'var(--font-body)' }}
-        >
-          {selectedIds.size > 0
-            ? `已选 ${selectedIds.size} 张`
-            : `${images.length} 张作品`}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span
+            style={{ fontSize: 11, color: '#6b5d48', fontFamily: 'var(--font-body)' }}
+          >
+            {selectedIds.size > 0
+              ? `已选 ${selectedIds.size} 张`
+              : `${images.length} 张作品`}
+          </span>
+          {selectedIds.size > 0 && (
+            <>
+              <button
+                type="button"
+                onClick={handleBatchDelete}
+                disabled={batchDeleting}
+                style={{
+                  fontSize: 11,
+                  fontFamily: 'var(--font-display)',
+                  color: '#b33a3a',
+                  background: 'none',
+                  border: '1px solid rgba(179, 58, 58, 0.2)',
+                  padding: '4px 12px',
+                  borderRadius: 4,
+                  cursor: batchDeleting ? 'not-allowed' : 'pointer',
+                  opacity: batchDeleting ? 0.5 : 1,
+                  transition: 'background 200ms',
+                }}
+              >
+                {batchDeleting ? '删除中…' : '批量删除'}
+              </button>
+              <button
+                type="button"
+                onClick={clearSelection}
+                style={{
+                  fontSize: 11,
+                  fontFamily: 'var(--font-display)',
+                  color: '#6b5d48',
+                  background: 'none',
+                  border: '1px solid rgba(139, 115, 75, 0.10)',
+                  padding: '4px 12px',
+                  borderRadius: 4,
+                  cursor: 'pointer',
+                  transition: 'background 200ms',
+                }}
+              >
+                取消选择
+              </button>
+            </>
+          )}
+        </div>
         <span
           style={{ fontSize: 11, color: '#6b5d48', fontFamily: 'var(--font-body)' }}
         >

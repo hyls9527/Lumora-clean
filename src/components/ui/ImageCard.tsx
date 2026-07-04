@@ -1,4 +1,4 @@
-import { useEffect, memo } from 'react';
+import { useEffect, memo, useState } from 'react';
 import { useImageStore } from '../../stores/imageStore';
 import type { ImageRecord } from '../../types/image';
 import { useTrashStore } from '../../stores/trashStore';
@@ -7,6 +7,7 @@ import { Rating } from './Rating';
 import { TagBadge } from './TagBadge';
 import { SimilarityBadge } from './SimilarityBadge';
 import { EmbeddingBadge } from './EmbeddingBadge';
+import { convertFileSrc } from '../../lib/tauri';
 
 interface ImageCardProps {
   image: ImageRecord;
@@ -24,9 +25,15 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
   const embeddingStatus = useEmbeddingStore((s) => s.statusMap[image.id]);
   const fetchStatus = useEmbeddingStore((s) => s.fetchStatus);
 
+  const [imgSrc, setImgSrc] = useState<string | null>(null);
+
   useEffect(() => {
     if (!embeddingStatus) fetchStatus(image.id);
   }, [image.id, embeddingStatus, fetchStatus]);
+
+  useEffect(() => {
+    convertFileSrc(image.filePath).then(setImgSrc).catch(() => setImgSrc(null));
+  }, [image.filePath]);
 
   return (
     <div
@@ -69,7 +76,7 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
         }
       }}
     >
-      {/* Placeholder image area */}
+      {/* Image preview area */}
       <div
         style={{
           position: 'relative',
@@ -79,13 +86,32 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '11px',
-          color: '#a09480',
-          fontFamily: 'var(--font-body)',
           borderRadius: '2px 2px 0 0',
+          overflow: 'hidden',
         }}
       >
-        {image.width}×{image.height}
+        {imgSrc ? (
+          <img
+            src={imgSrc}
+            alt={image.fileName}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+            loading="lazy"
+          />
+        ) : (
+          <span
+            style={{
+              fontSize: '11px',
+              color: '#a09480',
+              fontFamily: 'var(--font-body)',
+            }}
+          >
+            {image.width}×{image.height}
+          </span>
+        )}
         {showSimilarity && image.similarity != null && (
           <div style={{ position: 'absolute', top: 8, right: 8 }}>
             <SimilarityBadge value={image.similarity} />

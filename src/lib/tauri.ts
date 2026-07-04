@@ -18,8 +18,10 @@ const WRITE_COMMANDS = new Set([
 ]);
 
 function mockResponse(cmd: string): unknown {
-  if (['list_images', 'list_trash', 'import_images'].includes(cmd))
+  if (['list_images', 'list_trash'].includes(cmd))
     return { items: [], total: 0, page: 1, perPage: 40 };
+  if (cmd === 'import_images')
+    return { items: [], imported: 0, skipped: 0, totalScanned: 0 };
   if (['list_tags', 'search_images', 'get_image_tags'].includes(cmd))
     return [];
   if (cmd === 'get_dashboard_stats')
@@ -34,6 +36,8 @@ function mockResponse(cmd: string): unknown {
     return [];
   if (cmd === 'get_ollama_host')
     return 'http://localhost:11434';
+  if (cmd === 'check_ollama_status')
+    return [false, 'Ollama 未运行'];
   return null;
 }
 
@@ -115,3 +119,14 @@ export async function invoke<T = unknown>(cmd: string, args?: Record<string, unk
 }
 
 export { isTauri as isTauriAvailable };
+
+/** Convert a local file path to a loadable URL via Tauri's asset protocol. */
+export async function convertFileSrc(filePath: string): Promise<string> {
+  if (!isTauri) return filePath;
+  try {
+    const mod = await import(/* @vite-ignore */ '@tauri-apps/api/core');
+    return mod.convertFileSrc(filePath);
+  } catch {
+    return filePath;
+  }
+}

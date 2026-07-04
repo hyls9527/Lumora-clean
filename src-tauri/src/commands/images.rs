@@ -9,7 +9,7 @@ use uuid::Uuid;
 
 use crate::db::DbHandle;
 use crate::metadata;
-use crate::schema::types::{row_to_record, ImageRecord, PaginatedResult};
+use crate::schema::types::{row_to_record, ImageRecord, ImportResult, PaginatedResult};
 
 /// Known image extensions we accept during import.
 const IMAGE_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "webp", "avif", "bmp", "gif", "tiff"];
@@ -23,18 +23,27 @@ const IMAGE_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "webp", "avif", "bmp",
 pub fn import_images(
     db: tauri::State<'_, DbHandle>,
     path: String,
-) -> AppResult<Vec<ImageRecord>> {
+) -> AppResult<ImportResult> {
     let entries = scan_folder(&path)?;
+    let total_scanned = entries.len() as u32;
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let tx = conn.unchecked_transaction()?;
     let mut imported = Vec::with_capacity(entries.len());
+    let mut skipped: u32 = 0;
     for entry in &entries {
         if insert_image(&tx, entry)? {
             imported.push(load_record(&tx, &entry.id)?);
+        } else {
+            skipped += 1;
         }
     }
     tx.commit()?;
-    Ok(imported)
+    Ok(ImportResult {
+        imported: imported.len() as u32,
+        skipped,
+        total_scanned,
+        items: imported,
+    })
 }
 
 /// Paginated listing of non-deleted images, ordered by imported_at DESC.

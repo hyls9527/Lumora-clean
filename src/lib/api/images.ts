@@ -70,13 +70,30 @@ export function toImageRecord(raw: TauriImageRecord): ImageRecord {
 // API functions
 // ---------------------------------------------------------------------------
 
+export interface ImportResult {
+  items: ImageRecord[];
+  imported: number;
+  skipped: number;
+  totalScanned: number;
+}
+
 export async function importImages(
   folderPath: string,
-): Promise<ImageRecord[]> {
-  const raw = await invoke<TauriImageRecord[]>('import_images', {
+): Promise<ImportResult> {
+  const raw = await invoke<{
+    items: TauriImageRecord[];
+    imported: number;
+    skipped: number;
+    totalScanned: number;
+  }>('import_images', {
     path: folderPath,
   });
-  return raw.map(toImageRecord);
+  return {
+    items: raw.items.map(toImageRecord),
+    imported: raw.imported,
+    skipped: raw.skipped,
+    totalScanned: raw.totalScanned,
+  };
 }
 
 export async function listImages(
@@ -201,6 +218,10 @@ export async function listTrash(
 
 export async function emptyTrash(): Promise<number> {
   return await invoke<number>('empty_trash');
+}
+
+export async function batchSoftDelete(ids: string[]): Promise<number> {
+  return await invoke<number>('batch_soft_delete', { ids });
 }
 
 // ---------------------------------------------------------------------------

@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock tauri — must match the import path used by images.ts (from api/__tests__ → lib/tauri)
+// Mock the tauri module BEFORE importing anything that uses it
+const mockInvoke = vi.fn();
 vi.mock('../../tauri', () => ({
-  invoke: vi.fn(),
-  isTauriAvailable: false,
+  invoke: (...args: unknown[]) => mockInvoke(...args),
+  isTauriAvailable: true,
 }));
 
 import {
@@ -17,40 +18,56 @@ import {
   permanentDeleteImage,
   listTrash,
   emptyTrash,
+  toImageRecord,
+  type TauriImageRecord,
 } from '../images';
-import * as tauri from '../../tauri';
-import type { TauriImageRecord } from '../images';
-
-const mockInvoke = vi.mocked(tauri.invoke);
 
 const SAMPLE_RAW: TauriImageRecord = {
   id: '1',
-  filePath: '/tmp/test.png',
+  filePath: '/photos/test.png',
   fileHash: 'abc123',
-  fileSizeKb: 100,
-  width: 800,
-  height: 600,
+  fileSizeKb: 1024,
+  width: 512,
+  height: 512,
   format: 'png',
-  createdAt: '2025-01-01',
-  importedAt: '2025-01-01',
+  createdAt: '2024-01-01T00:00:00Z',
+  importedAt: '2024-01-02T00:00:00Z',
   deleted: false,
   deletedAt: null,
-  rating: 5,
-  favorite: true,
-  metadataJson: JSON.stringify({ model: 'dall-e', prompt: 'a cat', tags: ['animal'] }),
+  rating: 3,
+  favorite: false,
+  metadataJson: '{"model":"dall-e","prompt":"a cat","tags":["animal"]}',
+};
+
+const SAMPLE_IMPORT_RESULT = {
+  items: [SAMPLE_RAW],
+  imported: 1,
+  skipped: 0,
+  totalScanned: 1,
 };
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  mockInvoke.mockReset();
+});
+
+describe('toImageRecord', () => {
+  it('maps snake_case Tauri fields to camelCase', () => {
+    const record = toImageRecord(SAMPLE_RAW);
+    expect(record.id).toBe('1');
+    expect(record.filePath).toBe('/photos/test.png');
+    expect(record.fileSizeKb).toBe(1024);
+    expect(record.format).toBe('png');
+  });
 });
 
 describe('API calls', () => {
   it('importImages → import_images', async () => {
-    mockInvoke.mockResolvedValue([SAMPLE_RAW]);
+    mockInvoke.mockResolvedValue(SAMPLE_IMPORT_RESULT);
     const result = await importImages('/photos');
     expect(mockInvoke).toHaveBeenCalledWith('import_images', { path: '/photos' });
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe('1');
+    expect(result.imported).toBe(1);
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].id).toBe('1');
   });
 
   it('listImages → list_images', async () => {
@@ -114,8 +131,9 @@ describe('API calls', () => {
 
 describe('toImageRecord transform', () => {
   it('extracts model/prompt/tags from metadataJson', async () => {
-    mockInvoke.mockResolvedValue([SAMPLE_RAW]);
-    const [record] = await importImages('/x');
+    mockInvoke.mockResolvedValue(SAMPLE_IMPORT_RESULT);
+    const result = await importImages('/x');
+    const record = result.items[0];
     expect(record.model).toBe('dall-e');
     expect(record.prompt).toBe('a cat');
     expect(record.tags).toEqual(['animal']);
@@ -123,8 +141,9 @@ describe('toImageRecord transform', () => {
 
   it('metadataJson null → empty model/prompt/tags', async () => {
     const raw: TauriImageRecord = { ...SAMPLE_RAW, metadataJson: null };
-    mockInvoke.mockResolvedValue([raw]);
-    const [record] = await importImages('/x');
+    mockInvoke.mockResolvedValue({ items: [raw], imported: 1, skipped: 0, totalScanned: 1 });
+    const result = await importImages('/x');
+    const record = result.items[0];
     expect(record.model).toBe('');
     expect(record.prompt).toBe('');
     expect(record.tags).toEqual([]);
@@ -132,23 +151,26 @@ describe('toImageRecord transform', () => {
 
   it('invalid metadataJson → empty model/prompt/tags', async () => {
     const raw: TauriImageRecord = { ...SAMPLE_RAW, metadataJson: 'not-json{' };
-    mockInvoke.mockResolvedValue([raw]);
-    const [record] = await importImages('/x');
+    mockInvoke.mockResolvedValue({ items: [raw], imported: 1, skipped: 0, totalScanned: 1 });
+    const result = await importImages('/x');
+    const record = result.items[0];
     expect(record.model).toBe('');
     expect(record.prompt).toBe('');
     expect(record.tags).toEqual([]);
   });
 
   it('extracts fileName from filePath', async () => {
-    mockInvoke.mockResolvedValue([SAMPLE_RAW]);
-    const [record] = await importImages('/x');
+    mockInvoke.mockResolvedValue(SAMPLE_IMPORT_RESULT);
+    const result = await importImages('/x');
+    const record = result.items[0];
     expect(record.fileName).toBe('test.png');
   });
 
   it('width/height default to 0 when null', async () => {
     const raw: TauriImageRecord = { ...SAMPLE_RAW, width: null, height: null };
-    mockInvoke.mockResolvedValue([raw]);
-    const [record] = await importImages('/x');
+    mockInvoke.mockResolvedValue({ items: [raw], imported: 1, skipped: 0, totalScanned: 1 });
+    const result = await importImages('/x');
+    const record = result.items[0];
     expect(record.width).toBe(0);
     expect(record.height).toBe(0);
   });

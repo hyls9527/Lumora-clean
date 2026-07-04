@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { ImageRecord } from '../../types/image';
 import { Rating } from './Rating';
 import { TagBadge } from './TagBadge';
 import { formatDate, formatFileSize } from '../../lib/format';
+import { convertFileSrc } from '../../lib/tauri';
 
 interface DetailModalProps {
   image: ImageRecord | null;
@@ -46,6 +47,7 @@ const previewAreaStyle: React.CSSProperties = {
   background: 'rgba(139, 115, 75, 0.06)',
   minHeight: 400,
   padding: 24,
+  overflow: 'hidden',
 };
 
 const metaPanelStyle: React.CSSProperties = {
@@ -101,6 +103,13 @@ export function DetailModal({
   onToggleFavorite,
   onSetRating,
 }: DetailModalProps) {
+  const [imgSrc, setImgSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!image) { setImgSrc(null); return; }
+    convertFileSrc(image.filePath).then(setImgSrc).catch(() => setImgSrc(null));
+  }, [image?.filePath]);
+
   useEffect(() => {
     if (!image) return;
     const handler = (e: KeyboardEvent) => {
@@ -150,23 +159,36 @@ export function DetailModal({
       <div style={panelStyle} onClick={(e) => e.stopPropagation()}>
         {/* Preview area */}
         <div style={previewAreaStyle}>
-          <div
-            style={{
-              width: '100%',
-              maxWidth: 600,
-              aspectRatio: `${image.width} / ${image.height}`,
-              background: 'rgba(139, 115, 75, 0.08)',
-              borderRadius: 2,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 13,
-              color: '#a09480',
-              fontFamily: 'var(--font-body)',
-            }}
-          >
-            {image.width} × {image.height}
-          </div>
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt={image.fileName}
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                objectFit: 'contain',
+                borderRadius: 2,
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: '100%',
+                maxWidth: 600,
+                aspectRatio: `${image.width} / ${image.height}`,
+                background: 'rgba(139, 115, 75, 0.08)',
+                borderRadius: 2,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 13,
+                color: '#a09480',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              {image.width} × {image.height}
+            </div>
+          )}
         </div>
 
         {/* Meta panel */}

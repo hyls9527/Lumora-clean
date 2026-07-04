@@ -9,6 +9,11 @@ export function ImportPage() {
   const [recentImports, setRecentImports] = useState<
     { name: string; status: 'done' | 'processing' }[]
   >([]);
+  const [importResult, setImportResult] = useState<{
+    imported: number;
+    skipped: number;
+    total: number;
+  } | null>(null);
 
   const { loading, error, importImages } = useImageStore();
 
@@ -16,8 +21,14 @@ export function ImportPage() {
     async (folderPath?: string) => {
       if (!folderPath) return;
       setRecentImports([]);
+      setImportResult(null);
       try {
-        await importImages(folderPath);
+        const result = await importImages(folderPath);
+        setImportResult({
+          imported: result.imported,
+          skipped: result.skipped,
+          total: result.totalScanned,
+        });
         setRecentImports((prev) => [
           { name: folderPath.split(/[/\\]/).pop() ?? folderPath, status: 'done' },
           ...prev.slice(0, 9),
@@ -153,6 +164,36 @@ export function ImportPage() {
               }}
             >
               正在导入，请稍候…
+            </span>
+          </div>
+        )}
+
+        {/* Import result feedback */}
+        {importResult && !loading && (
+          <div
+            style={{
+              marginBottom: 32,
+              padding: '12px 16px',
+              background: 'rgba(74, 122, 58, 0.06)',
+              border: '1px solid rgba(74, 122, 58, 0.15)',
+              borderRadius: 4,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              fontSize: 12,
+              fontFamily: 'var(--font-body)',
+              color: '#3b5635',
+            }}
+          >
+            <span>导入完成</span>
+            <span>新增 <strong>{importResult.imported}</strong> 张</span>
+            {importResult.skipped > 0 && (
+              <span style={{ color: '#87571e' }}>
+                跳过 <strong>{importResult.skipped}</strong> 张（已存在）
+              </span>
+            )}
+            <span style={{ color: '#a09480' }}>
+              共扫描 {importResult.total} 个文件
             </span>
           </div>
         )}
