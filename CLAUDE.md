@@ -1,108 +1,29 @@
 # CLAUDE.md — Lumora
 
-Vite + React 19 + TypeScript + Tailwind CSS v4 前端应用。
+Vite + React 19 + TypeScript + Tailwind CSS v4。
 
-Rule 1 – Think Before Coding
+**Rule 0 – Read ARCHITECTURE.md First**: Before reading ANY source file, read `ARCHITECTURE.md`. It has the full code map, data model, IPC contracts, and test structure. Only read source code when the architecture doc doesn't answer your question. Never read files speculatively — search first (`search_files`), then read only the exact file you need.
 
-Don’t assume. Don’t hide confusion. Surface tradeoffs.
+**Rule 1 – Think First**: State assumptions. If uncertain, ask. Surface tradeoffs; don't pick silently.
 
-Before implementing:
+**Rule 2 – Simplicity**: Minimum code. No speculative features, no "in case" flexibility, no error handling for impossible scenarios. 200 lines → 50 if possible.
 
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don’t pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what’s confusing. Ask.
+**Rule 3 – Surgical Changes**: Touch only what's needed. Don't improve adjacent code. Match existing style. Remove only orphans YOUR change created. Every line traces to the user's request.
 
-Rule 2 – Simplicity First
+**Rule 4 – Goal-Driven**: Define success criteria first. Plan → do → verify, step by step. No "I'll just keep trying."
 
-Minimum code that solves the problem. Nothing speculative.
+**Rule 5 – Script, Not Model**: For data processing, report generation, transforms — write a script. Don't make the model do it.
 
-- No features beyond what was asked.
-- No flexibility “in case we need it” that wasn’t requested.
-- No “cleaning up” adjacent code that wasn’t requested.
-- No error handling for impossible scenarios.
-- If you wrote 200 lines and it could be 50, rewrite it.
+**Rule 6 – Token Budgets**: Per-session: 30K tokens. Per-task: 4K tokens. Surface breach > silently overrun.
 
-Ask yourself “Would a junior engineer say this is overcomplicated?” If yes, simplify.
+**Rule 7 – Conflicts**: When two parts disagree, pick one explicitly. Don't average.
 
-Rule 3 – Surgical Changes
+**Rule 8 – Read Before Write**: Understand adjacent code before changing it. Correct in isolation ≠ correct in context.
 
-Touch only what you must. Clean up only your own mess.
+**Rule 9 – Tests**: Required but not the goal. A passing test that doesn't test the real requirement is worse than no test.
 
-When editing existing code:
+**Rule 10 – Checkpoints**: Long-running operations (multi-file refactors, migrations) need checkpoints.
 
-- Don’t “improve” adjacent code, comments, or formatting.
-- Don’t refactor things that aren’t broken.
-- Match existing style, even if you’d do it differently.
-- If you notice unrelated dead code, mention it - don’t delete it.
-- Don’t remove pre-existing debug code unless asked.
+**Rule 11 – Convention Over Novelty**: Match existing patterns. Introducing new patterns is the worst outcome.
 
-When your changes create orphans:
-
-- Remove imports/variables/functions that YOUR change made unused.
-
-The test: Every changed line should trace directly to the user’s request.
-
-Rule 4 – Goal-Driven Execution
-
-Define success criteria, then help yourself.
-
-- “Add validation” → What are the valid inputs, then what about those?
-- “Make it faster” → How was it slow before, and now make it faster?
-- “Fix the bug” → What’s the test that reproduces it, then make it pass?
-
-To reach a goal:
-
-1. Plan steps (write a plan)
-
-2. Do step 1 → verify
-
-3. Do step 2 → verify
-
-...
-
-Strong aversion to “I’ll just keep trying”. Weakly stated “I think I can” implies confusion. Clarify.
-
-Rule 5 – Don’t make the model do non-language work
-
-Regularity is critical; the model is not. If you need to process a dataset, generate a report, transform data, etc. — do not make the model do this work. Write a script.
-
-Rule 6 – Hard token budgets, no exceptions
-
-CLAUDE.md sets hard token budgets. If you pass that budget, you failed.
-
-Per-session budget: 30,000 tokens.
-
-Per-task budget: 4,000 tokens.
-
-If a task is approaching budget, summarize.
-
-Surfacing the breach > silently overrunning.
-
-Rule 7 – Surface conflicts, don’t average them
-
-When two parts of the codebase disagree, Claude has to pick one.
-
-Rule 8 – Read before you write
-
-Karpathy’s “Surgical Changes” tells Claude not to touch adjacent code. It doesn’t tell Claude to understand adjacent code. Without this, Claude will make changes that seem correct in isolation but are wrong in context.
-
-Karpathy
-
-Rule 9 – Tests are not optional, but they’re not the goal
-
-Karpathy’s third Chinese-Code function relies on success criteria. It’s easy to write a test that passes but doesn’t test the actual requirement. Tests pass sometimes while breaking everything else.
-
-Rule 10 – Long-running operations need checkpoints
-
-Karpathy’s template assumes one-run iterations. Real Claude Code work is multi-step — refactoring across 20 files, building a database migration, etc.
-
-Long-running operations need checkpoints.
-
-Rule 11 – Convention beats novelty
-
-In a codebase with established patterns, Claude likes to introduce its own. This is a problem. The introduction of new patterns is worse than any other possible outcome.
-
-Rule 12 – Fail visibly, not silently
-
-The most expensive Claude failures are the ones that look like success. A function “works” but returns wrong data. A migration “completed” but skipped 50 records. A tests “passes” but only because the assertion was wrong.
+**Rule 12 – Fail Visibly**: The most expensive failures look like success. A function that "works" but returns wrong data. A migration that "completed" but skipped records.
