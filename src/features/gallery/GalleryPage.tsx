@@ -11,6 +11,7 @@ import { LazyLoad } from '../../components/ui/LazyLoad';
 import { InfiniteScroll } from '../../components/ui/InfiniteScroll';
 import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 import { batchSoftDelete } from '../../lib/api/images';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 const sortOptions = [
   { key: 'time' as const, label: '生成时间 ↓' },
@@ -130,6 +131,7 @@ export function GalleryPage() {
   const { selectedIds, toggleSelect, clearSelection } = useSelection();
   const { toggleFavorite, setRating } = useImageActions();
   const softDelete = useTrashStore((s) => s.softDeleteImage);
+  const isMobile = useIsMobile();
 
   const [batchDeleting, setBatchDeleting] = useState(false);
 
@@ -278,7 +280,7 @@ export function GalleryPage() {
           position: 'sticky',
           top: 0,
           zIndex: 10,
-          padding: '14px 32px',
+          padding: '12px 16px',
           background: 'var(--color-bg)',
           borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
         }}
@@ -290,12 +292,14 @@ export function GalleryPage() {
             alignItems: 'center',
             justifyContent: 'space-between',
             marginBottom: 10,
+            flexWrap: 'wrap',
+            gap: '8px',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <h2
               style={{
-                fontSize: 20,
+                fontSize: isMobile ? 18 : 20,
                 fontWeight: 600,
                 fontFamily: 'var(--font-display)',
                 color: '#2a2118',
@@ -328,10 +332,10 @@ export function GalleryPage() {
             alignItems: 'center',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
-            gap: '10px 16px',
+            gap: '8px 12px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 16, flexWrap: 'wrap' }}>
             {sortOptions.map((opt) => (
               <SortButton
                 key={opt.key}
@@ -342,7 +346,7 @@ export function GalleryPage() {
               </SortButton>
             ))}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 12, flexWrap: 'wrap' }}>
             {modelFilters.map((m) => (
               <FilterButton
                 key={m}
@@ -359,7 +363,7 @@ export function GalleryPage() {
       {/* Status bar */}
       <div
         style={{
-          padding: '8px 32px',
+          padding: '8px 16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -478,7 +482,7 @@ export function GalleryPage() {
       {/* Bottom bar */}
       <div
         style={{
-          padding: '14px 32px',
+          padding: '12px 16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',

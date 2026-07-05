@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { invoke } from '../../lib/tauri';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 interface Tag {
   id: string;
@@ -27,6 +28,7 @@ export function TagManager() {
   const [newColor, setNewColor] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   const loadTags = useCallback(async () => {
     try {
@@ -78,17 +80,17 @@ export function TagManager() {
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        padding: '32px',
+        padding: isMobile ? '20px 16px' : '32px',
         fontFamily: 'var(--font-body)',
         color: 'var(--color-text)',
         overflow: 'auto',
       }}
     >
       {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
+      <div style={{ marginBottom: isMobile ? '16px' : '24px' }}>
         <h2
           style={{
-            fontSize: '20px',
+            fontSize: isMobile ? '18px' : '20px',
             fontWeight: 600,
             fontFamily: 'var(--font-display)',
             color: '#2a2118',
@@ -131,7 +133,8 @@ export function TagManager() {
           display: 'flex',
           gap: '8px',
           alignItems: 'center',
-          marginBottom: '24px',
+          marginBottom: isMobile ? '16px' : '24px',
+          flexWrap: 'wrap',
         }}
       >
         <input
@@ -142,9 +145,10 @@ export function TagManager() {
           placeholder="输入标签名称..."
           style={{
             flex: 1,
-            maxWidth: '240px',
-            padding: '8px 12px',
-            fontSize: '12px',
+            maxWidth: isMobile ? '100%' : '240px',
+            minWidth: isMobile ? '100%' : 'auto',
+            padding: '10px 12px',
+            fontSize: isMobile ? '14px' : '12px',
             fontFamily: 'var(--font-body)',
             border: '1px solid rgba(139, 115, 75, 0.15)',
             borderRadius: '2px',

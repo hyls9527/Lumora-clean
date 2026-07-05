@@ -4,6 +4,7 @@ import { Rating } from './Rating';
 import { TagBadge } from './TagBadge';
 import { formatDate, formatFileSize } from '../../lib/format';
 import { convertFileSrc } from '../../lib/tauri';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 interface DetailModalProps {
   image: ImageRecord | null;
@@ -39,6 +40,13 @@ const panelStyle: React.CSSProperties = {
   animation: 'slideUp 200ms ease-out',
 };
 
+// Mobile-friendly panel style: vertical layout for small screens
+const mobilePanelStyle: React.CSSProperties = {
+  ...panelStyle,
+  flexDirection: 'column',
+  maxHeight: '90vh',
+};
+
 const previewAreaStyle: React.CSSProperties = {
   flex: 1,
   display: 'flex',
@@ -50,6 +58,13 @@ const previewAreaStyle: React.CSSProperties = {
   overflow: 'hidden',
 };
 
+// Mobile preview area: reduced min height
+const mobilePreviewAreaStyle: React.CSSProperties = {
+  ...previewAreaStyle,
+  minHeight: 200,
+  padding: 16,
+};
+
 const metaPanelStyle: React.CSSProperties = {
   width: 300,
   padding: '24px 20px',
@@ -59,6 +74,15 @@ const metaPanelStyle: React.CSSProperties = {
   overflowY: 'auto',
   borderLeft: '1px solid rgba(139, 115, 75, 0.10)',
   background: 'var(--color-surface)',
+};
+
+// Mobile meta panel: full width, horizontal scroll
+const mobileMetaPanelStyle: React.CSSProperties = {
+  ...metaPanelStyle,
+  width: '100%',
+  maxHeight: '40vh',
+  borderLeft: 'none',
+  borderTop: '1px solid rgba(139, 115, 75, 0.10)',
 };
 
 const labelStyle: React.CSSProperties = {
@@ -104,6 +128,7 @@ export function DetailModal({
   onSetRating,
 }: DetailModalProps) {
   const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!image) { setImgSrc(null); return; }
@@ -156,9 +181,9 @@ export function DetailModal({
         </button>
       )}
 
-      <div style={panelStyle} onClick={(e) => e.stopPropagation()}>
+      <div style={isMobile ? mobilePanelStyle : panelStyle} onClick={(e) => e.stopPropagation()}>
         {/* Preview area */}
-        <div style={previewAreaStyle}>
+        <div style={isMobile ? mobilePreviewAreaStyle : previewAreaStyle}>
           {imgSrc ? (
             <img
               src={imgSrc}
@@ -192,7 +217,7 @@ export function DetailModal({
         </div>
 
         {/* Meta panel */}
-        <div style={metaPanelStyle}>
+        <div style={isMobile ? mobileMetaPanelStyle : metaPanelStyle}>
           {/* Close button */}
           <button
             type="button"

@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { useImageStore } from '../../stores/imageStore';
 import { ErrorState } from '../../components/ui/ErrorState';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 export function ImportPage() {
   const [dragOver, setDragOver] = useState(false);
@@ -14,6 +15,7 @@ export function ImportPage() {
     skipped: number;
     total: number;
   } | null>(null);
+  const isMobile = useIsMobile();
 
   const { loading, error, importImages } = useImageStore();
 
@@ -67,19 +69,21 @@ export function ImportPage() {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto' }}>
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: 32 }}>
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: isMobile ? 16 : 32 }}>
         {/* Page header */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: 40,
+            marginBottom: isMobile ? 24 : 40,
+            flexWrap: 'wrap',
+            gap: '12px',
           }}
         >
           <h2
             style={{
-              fontSize: 20,
+              fontSize: isMobile ? 18 : 20,
               fontWeight: 600,
               fontFamily: 'var(--font-display)',
               color: '#2a2118',
@@ -92,8 +96,8 @@ export function ImportPage() {
             type="button"
             onClick={handleBrowseFolder}
             style={{
-              padding: '8px 16px',
-              fontSize: 12,
+              padding: isMobile ? '10px 20px' : '8px 16px',
+              fontSize: isMobile ? 13 : 12,
               fontWeight: 500,
               letterSpacing: '0.05em',
               textTransform: 'uppercase' as const,
@@ -104,6 +108,7 @@ export function ImportPage() {
               borderRadius: 4,
               cursor: 'pointer',
               transition: 'background 200ms',
+              minHeight: '44px',
             }}
           >
             选择文件夹
@@ -123,28 +128,30 @@ export function ImportPage() {
             border: `2px dashed ${dragOver ? '#7a5c12' : 'rgba(139, 115, 75, 0.10)'}`,
             borderRadius: 4,
             background: dragOver ? 'rgba(122, 92, 18, 0.04)' : 'var(--color-surface)',
-            height: 140,
+            height: isMobile ? 120 : 140,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
             transition: 'border-color 200ms, background 200ms',
-            marginBottom: 32,
+            marginBottom: isMobile ? 24 : 32,
+            padding: '16px',
           }}
         >
           <p
             style={{
-              fontSize: 14,
+              fontSize: isMobile ? 13 : 14,
               fontFamily: 'var(--font-display)',
               color: '#6b5d48',
               marginBottom: 8,
+              textAlign: 'center',
             }}
           >
             拖拽文件夹到此处，或点击选择
           </p>
           <p
-            style={{ fontSize: 11, fontFamily: 'var(--font-body)', color: '#a09480' }}
+            style={{ fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-body)', color: '#a09480', textAlign: 'center' }}
           >
             支持 PNG、JPG、WEBP 格式
           </p>
@@ -203,7 +210,7 @@ export function ImportPage() {
           aria-label="导入状态概览"
           style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: 16,
             marginBottom: 48,
           }}

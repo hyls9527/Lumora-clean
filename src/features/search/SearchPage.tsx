@@ -6,6 +6,7 @@ import { SemanticSearchBar } from '../../components/ui/SemanticSearchBar';
 import { SimilarityBadge } from '../../components/ui/SimilarityBadge';
 import { useSemanticSearchStore } from '../../stores/semanticSearchStore';
 import { useTranslation } from '../../lib/i18n';
+import { useIsMobile, useMediaQuery } from '../../hooks/useMediaQuery';
 
 const filterOptions = [
   { key: 'all', label: '全部' },
@@ -46,6 +47,9 @@ export function SearchPage() {
   const { mode: searchMode } =
     useSemanticSearchStore();
 
+  const isMobile = useIsMobile();
+  const isTablet = useMediaQuery('(max-width: 1024px)');
+
   const [activeFilter, setActiveFilter] = useState('all');
   const [compareOpen, setCompareOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -72,12 +76,12 @@ export function SearchPage() {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto' }}>
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '48px 48px 64px' }}>
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: isMobile ? '24px 16px 40px' : '48px 48px 64px' }}>
         {/* Header */}
-        <header style={{ marginBottom: 32 }}>
+        <header style={{ marginBottom: isMobile ? 20 : 32 }}>
           <h2
             style={{
-              fontSize: 20,
+              fontSize: isMobile ? 18 : 20,
               fontWeight: 600,
               fontFamily: 'var(--font-display)',
               color: '#2a2118',
@@ -106,13 +110,13 @@ export function SearchPage() {
           <SemanticSearchBar />
         ) : (
           <section aria-label={t('searchQuery')} style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 0 }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 0, flexWrap: 'wrap' }}>
               <select
                 value={filters.searchField}
                 onChange={(e) => setSearchField(e.target.value)}
                 aria-label="搜索字段"
                 style={{
-                  padding: '14px 12px',
+                  padding: isMobile ? '12px 10px' : '14px 12px',
                   fontSize: 13,
                   fontFamily: 'var(--font-body)',
                   color: '#2a2118',
@@ -121,7 +125,7 @@ export function SearchPage() {
                   borderRadius: 4,
                   cursor: 'pointer',
                   transition: 'border-color 200ms',
-                  minWidth: 130,
+                  minWidth: isMobile ? 100 : 130,
                   outline: 'none',
                 }}
               >
@@ -141,8 +145,8 @@ export function SearchPage() {
                 aria-label={t('textDescription')}
                 style={{
                   width: '100%',
-                  padding: '14px 110px 14px 20px',
-                  fontSize: 15,
+                  padding: isMobile ? '12px 100px 12px 14px' : '14px 110px 14px 20px',
+                  fontSize: isMobile ? 14 : 15,
                   fontFamily: 'var(--font-body)',
                   color: '#2a2118',
                   background: 'var(--color-surface)',
@@ -311,8 +315,8 @@ export function SearchPage() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 16,
+                gridTemplateColumns: isMobile ? 'repeat(1, 1fr)' : isTablet ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+                gap: isMobile ? 12 : 16,
               }}
             >
               {filteredResults.map((img) => (

@@ -4,6 +4,7 @@ import { useOllamaStatus } from '../../hooks/useOllamaStatus';
 import { useSmartCollectionStore } from '../../stores/smartCollectionStore';
 import { useTranslation } from '../../lib/i18n';
 import { UpdateBanner } from './UpdateBanner';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 interface SidebarProps {
   activeRoute: string;
@@ -31,6 +32,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
   const { available, checking, error, recheck } = useOllamaStatus();
   const { collections, load } = useSmartCollectionStore();
   const { t } = useTranslation('smartCollections');
+  const isCollapsed = useIsMobile();
 
   useEffect(() => { void load(); }, [load]);
 
@@ -44,18 +46,21 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
         flexDirection: 'column',
         background: 'var(--color-bg)',
         borderRight: '1px solid rgba(139, 115, 75, 0.10)',
+        width: isCollapsed ? '56px' : undefined,
+        transition: 'width 200ms ease-out',
       }}
     >
       {/* Logo */}
-      <div style={{ padding: '32px 24px 24px' }}>
+      <div style={{ padding: isCollapsed ? '20px 16px 16px' : '32px 24px 24px' }}>
         <h1
           style={{
-            fontSize: 28,
+            fontSize: isCollapsed ? 20 : 28,
             fontWeight: 700,
             fontFamily: 'var(--font-display)',
             color: '#7a5c12',
             lineHeight: 1,
             margin: 0,
+            textAlign: 'center',
           }}
         >
           L
@@ -69,7 +74,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
           display: 'flex',
           flexDirection: 'column',
           gap: 4,
-          padding: '0 12px',
+          padding: isCollapsed ? '0 8px' : '0 12px',
         }}
         aria-label="主导航"
       >
@@ -80,6 +85,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
               key={item.key}
               active={isActive}
               onClick={() => onNavigate(item.key)}
+              collapsed={isCollapsed}
             >
               {item.label}
             </NavButton>
@@ -183,7 +189,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
       )}
 
       {/* Search button */}
-      <div style={{ padding: '0 12px 24px' }}>
+      <div style={{ padding: isCollapsed ? '0 8px 16px' : '0 12px 24px' }}>
         <button
           type="button"
           style={{
@@ -191,8 +197,8 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
             alignItems: 'center',
             justifyContent: 'center',
             width: '100%',
-            padding: '10px 12px',
-            fontSize: 11,
+            padding: isCollapsed ? '8px' : '10px 12px',
+            fontSize: isCollapsed ? 14 : 11,
             fontFamily: 'var(--font-display)',
             color: '#6b5d48',
             background: 'none',
@@ -202,8 +208,9 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
             transition: 'color 200ms, border-color 200ms',
           }}
           aria-label="搜索 ⌘K"
+          title={isCollapsed ? '搜索 ⌘K' : undefined}
         >
-          搜索 ⌘K
+          {isCollapsed ? '⌕' : '搜索 ⌘K'}
         </button>
       </div>
     </aside>
@@ -214,35 +221,42 @@ function NavButton({
   active,
   onClick,
   children,
+  collapsed,
 }: {
   active: boolean;
   onClick: () => void;
   children: ReactNode;
+  collapsed?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
+      title={collapsed ? String(children) : undefined}
       style={{
         display: 'flex',
         alignItems: 'center',
-        padding: '10px 12px',
-        fontSize: 11,
+        justifyContent: collapsed ? 'center' : 'flex-start',
+        padding: collapsed ? '10px 8px' : '10px 12px',
+        fontSize: collapsed ? 0 : 11,
         fontWeight: active ? 700 : 500,
         fontFamily: 'var(--font-display)',
         color: active ? '#2a2118' : '#6b5d48',
         background: 'none',
         border: 'none',
-        borderLeft: `3px solid ${active ? '#7a5c12' : 'transparent'}`,
+        borderLeft: collapsed ? 'none' : `3px solid ${active ? '#7a5c12' : 'transparent'}`,
+        borderBottom: collapsed ? `2px solid ${active ? '#7a5c12' : 'transparent'}` : 'none',
         letterSpacing: '0.1em',
         textTransform: 'uppercase',
         cursor: 'pointer',
         transition: 'color 200ms, border-color 200ms',
-        textAlign: 'left',
+        textAlign: collapsed ? 'center' : 'left',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
       }}
     >
-      {children}
+      {collapsed ? String(children).charAt(0) : children}
     </button>
   );
 }

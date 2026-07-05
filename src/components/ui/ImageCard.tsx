@@ -9,6 +9,7 @@ import { TagBadge } from './TagBadge';
 import { SimilarityBadge } from './SimilarityBadge';
 import { EmbeddingBadge } from './EmbeddingBadge';
 import { convertFileSrc } from '../../lib/tauri';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 interface ImageCardProps {
   image: ImageRecord;
@@ -26,6 +27,7 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
   const fetchStatus = useEmbeddingStore((s) => s.fetchStatus);
 
   const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!embeddingStatus) fetchStatus(image.id);
@@ -120,26 +122,26 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
       </div>
 
       {/* Card body */}
-      <div style={{ padding: '8px 10px', background: '#f2ede4' }}>
+      <div style={{ padding: isMobile ? '10px 12px' : '8px 10px', background: '#f2ede4' }}>
         {/* Model + Favorite + Rating */}
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '4px',
+            marginBottom: isMobile ? '6px' : '4px',
           }}
         >
           <span
             style={{
-              fontSize: '11px',
+              fontSize: isMobile ? '12px' : '11px',
               color: '#7a5c12',
               fontFamily: 'var(--font-display)',
             }}
           >
             {image.model}
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '4px' }}>
             <button
               type="button"
               onClick={(e) => {
@@ -149,12 +151,17 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
               style={{
                 background: 'none',
                 border: 'none',
-                padding: 0,
+                padding: isMobile ? '4px' : '0',
                 cursor: 'pointer',
-                fontSize: '11px',
+                fontSize: isMobile ? '14px' : '11px',
                 color: image.favorite ? '#7a5c12' : '#c4b89e',
                 transition: 'color 200ms',
                 lineHeight: 1,
+                minWidth: isMobile ? '28px' : 'auto',
+                minHeight: isMobile ? '28px' : 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
               aria-label={image.favorite ? '取消收藏' : '收藏'}
             >
@@ -170,12 +177,17 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
               style={{
                 background: 'none',
                 border: 'none',
-                padding: 0,
+                padding: isMobile ? '4px' : '0',
                 cursor: 'pointer',
-                fontSize: '11px',
+                fontSize: isMobile ? '14px' : '11px',
                 color: '#c4b89e',
                 transition: 'color 200ms',
                 lineHeight: 1,
+                minWidth: isMobile ? '28px' : 'auto',
+                minHeight: isMobile ? '28px' : 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
               aria-label="删除"
               title="移到回收站"
@@ -188,13 +200,13 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
         {/* Prompt excerpt */}
         <p
           style={{
-            fontSize: '10px',
+            fontSize: isMobile ? '11px' : '10px',
             color: '#a09480',
             fontFamily: 'var(--font-body)',
             lineHeight: 1.4,
             overflow: 'hidden',
             display: '-webkit-box',
-            WebkitLineClamp: 2,
+            WebkitLineClamp: isMobile ? 3 : 2,
             WebkitBoxOrient: 'vertical',
             margin: 0,
           }}
@@ -203,8 +215,8 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
         </p>
 
         {/* Tags + Embedding badge */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
-          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: isMobile ? '8px' : '6px', flexWrap: 'wrap', gap: '4px' }}>
+          <div style={{ display: 'flex', gap: isMobile ? '6px' : '4px', flexWrap: 'wrap', flex: 1 }}>
             {image.tags.map((tag) => (
               <TagBadge key={tag} name={tag} />
             ))}

@@ -134,8 +134,8 @@ const styles: Record<string, React.CSSProperties> = {
     background: 'rgba(42, 33, 24, 0.5)',
   },
   panel: {
-    width: 520,
-    maxHeight: 420,
+    width: 'min(520px, 90vw)',
+    maxHeight: 'min(420px, 80vh)',
     display: 'flex',
     flexDirection: 'column',
     background: 'var(--color-surface, #f7f2ea)',

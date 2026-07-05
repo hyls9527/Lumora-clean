@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTrashStore } from '../../stores/trashStore';
 import { GridSkeleton } from '../../components/ui/LoadingSkeleton';
 import { ErrorState } from '../../components/ui/ErrorState';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 function formatDeletedTime(iso: string): string {
   if (!iso) return '';
@@ -33,6 +34,7 @@ export function TrashPage() {
     perPage,
   } = useTrashStore();
 
+  const isMobile = useIsMobile();
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [confirmEmpty, setConfirmEmpty] = useState(false);
 
@@ -64,7 +66,7 @@ export function TrashPage() {
           position: 'sticky',
           top: 0,
           zIndex: 10,
-          padding: '14px 32px',
+          padding: '12px 16px',
           background: 'var(--color-bg)',
           borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
           display: 'flex',
@@ -74,7 +76,7 @@ export function TrashPage() {
       >
         <h2
           style={{
-            fontSize: 20,
+            fontSize: isMobile ? 18 : 20,
             fontWeight: 600,
             fontFamily: 'var(--font-display)',
             color: '#2a2118',
@@ -107,7 +109,7 @@ export function TrashPage() {
       {/* Status bar */}
       <div
         style={{
-          padding: '8px 32px',
+          padding: '8px 16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -159,13 +161,14 @@ export function TrashPage() {
               回收站为空
             </div>
           ) : (
-            <div style={{ padding: '16px 32px' }}>
+            <div style={{ padding: isMobile ? '12px 16px' : '16px 32px', overflowX: 'auto' }}>
               <table
                 style={{
                   width: '100%',
                   borderCollapse: 'collapse',
                   fontFamily: 'var(--font-body)',
-                  fontSize: 12,
+                  fontSize: isMobile ? 11 : 12,
+                  minWidth: isMobile ? 480 : 'auto',
                 }}
               >
                 <thead>
@@ -415,7 +418,7 @@ export function TrashPage() {
       {/* Bottom bar */}
       <div
         style={{
-          padding: '14px 32px',
+          padding: '12px 16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',

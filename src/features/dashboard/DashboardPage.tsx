@@ -194,7 +194,7 @@ export function DashboardPage() {
           position: 'sticky',
           top: 0,
           zIndex: 10,
-          padding: '14px 32px',
+          padding: '12px 16px',
           background: 'var(--color-bg)',
           borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
           display: 'flex',
@@ -276,10 +276,10 @@ export function DashboardPage() {
       ) : stats ? (
         <div
           style={{
-            padding: '28px 32px',
+            padding: '20px 16px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 36,
+            gap: 28,
             maxWidth: 560,
           }}
         >
@@ -553,7 +553,7 @@ export function DashboardPage() {
       {/* Bottom bar */}
       <div
         style={{
-          padding: '14px 32px',
+          padding: '12px 16px',
           borderTop: '1px solid rgba(139, 115, 75, 0.10)',
           marginTop: 'auto',
         }}
