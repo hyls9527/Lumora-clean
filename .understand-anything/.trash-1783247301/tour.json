@@ -1,0 +1,111 @@
+[
+  {
+    "order": 1,
+    "title": "项目概览",
+    "description": "从 README 开始，了解 Lumora 的定位：一个面向 AI 创作者的本地优先图片管理桌面应用，使用 Tauri 2 + React 19 构建。",
+    "nodeIds": [
+      "document:README.md"
+    ]
+  },
+  {
+    "order": 2,
+    "title": "应用入口",
+    "description": "前端入口点：main.tsx 挂载 React 应用，App.tsx 设置路由和全局布局。这是理解应用启动流程的起点。",
+    "nodeIds": [
+      "file:src/main.tsx",
+      "file:src/App.tsx"
+    ]
+  },
+  {
+    "order": 3,
+    "title": "设计语言：古卷·灯火",
+    "description": "DESIGN.md 定义了 Lumora 的视觉设计系统——象牙纸页、研磨墨、古铜包浆。所有 UI 组件遵循这套设计语言。",
+    "nodeIds": [
+      "document:DESIGN.md"
+    ]
+  },
+  {
+    "order": 4,
+    "title": "架构文档",
+    "description": "ARCHITECTURE.md 是理解代码结构的关键文档，包含完整的代码地图、数据模型、IPC 契约和测试结构。",
+    "nodeIds": [
+      "document:ARCHITECTURE.md"
+    ]
+  },
+  {
+    "order": 5,
+    "title": "Tauri 命令层",
+    "description": "Rust 后端通过 Tauri commands 暴露 API 给前端。每个 command 模块负责一个业务域：images、ai、embeddings、tags、trash 等。",
+    "nodeIds": [
+      "file:src-tauri/src/commands/images.rs",
+      "file:src-tauri/src/commands/ai.rs",
+      "file:src-tauri/src/commands/embeddings.rs"
+    ]
+  },
+  {
+    "order": 6,
+    "title": "前端 API 层",
+    "description": "lib/api/ 下的模块封装了 Tauri invoke 调用，为前端组件提供类型安全的 API 接口。images.ts 是最大的 API 模块。",
+    "nodeIds": [
+      "file:src/lib/api/images.ts",
+      "file:src/lib/api/ai.ts",
+      "file:src/lib/api/embeddings.ts"
+    ]
+  },
+  {
+    "order": 7,
+    "title": "状态管理",
+    "description": "Zustand stores 管理前端全局状态。imageStore 管理图库数据，trashStore 管理回收站，settingsStore 管理用户设置。",
+    "nodeIds": [
+      "file:src/stores/imageStore.ts",
+      "file:src/stores/trashStore.ts",
+      "file:src/stores/settingsStore.ts"
+    ]
+  },
+  {
+    "order": 8,
+    "title": "UI 组件库",
+    "description": "components/ui/ 包含可复用的 UI 组件：ImageCard（图片卡片）、DetailModal（详情弹窗）、CommandPalette（命令面板）等。",
+    "nodeIds": [
+      "file:src/components/ui/ImageCard.tsx",
+      "file:src/components/ui/CommandPalette.tsx",
+      "file:src/components/ui/DetailModal.tsx"
+    ]
+  },
+  {
+    "order": 9,
+    "title": "功能模块",
+    "description": "features/ 下的模块对应各个页面功能：gallery（图库）、search（搜索）、dashboard（仪表盘）、import（导入）、settings（设置）。",
+    "nodeIds": [
+      "file:src/features/gallery/GalleryPage.tsx",
+      "file:src/features/search/SearchPage.tsx",
+      "file:src/features/dashboard/DashboardPage.tsx"
+    ]
+  },
+  {
+    "order": 10,
+    "title": "数据库层",
+    "description": "SQLite 持久化层，使用 rusqlite + FTS5 全文搜索 + sqlite-vec 向量搜索。migrations.rs 管理数据库 schema 演进。",
+    "nodeIds": [
+      "file:src-tauri/src/db/migrations.rs",
+      "file:src-tauri/src/db/mod.rs"
+    ]
+  },
+  {
+    "order": 11,
+    "title": "CLIP Sidecar",
+    "description": "Python sidecar 服务提供 CLIP 模型嵌入推理，支持图片和文本的向量嵌入，是语义搜索的核心组件。",
+    "nodeIds": [
+      "file:src-tauri/sidecar/clip_server.py"
+    ]
+  },
+  {
+    "order": 12,
+    "title": "CI/CD 流水线",
+    "description": "GitHub Actions 工作流：ci.yml 运行测试和类型检查，release.yml 处理自动发布和 Tauri 桌面构建。",
+    "nodeIds": [
+      "service:.github/workflows/ci.yml",
+      "service:.github/workflows/release.yml"
+    ]
+  }
+]

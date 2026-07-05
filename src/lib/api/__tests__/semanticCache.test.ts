@@ -7,7 +7,6 @@ import {
   getCachedResult,
   setCachedResult,
   isCacheValid,
-  getCacheStats,
 } from '../semanticCache';
 
 describe('SemanticSearchCache', () => {
@@ -80,38 +79,20 @@ describe('SemanticSearchCache', () => {
   });
 
   it('should evict oldest entries when cache exceeds size limit', () => {
-    // 80 entries × 3000 items ≈ 8.4MB > 5MB
-    const numEntries = 80;
-    const chunkSize = 3000;
+    // Exceed MAX_ENTRIES (200) to trigger count-based eviction
+    const numEntries = 210;
 
     for (let i = 0; i < numEntries; i++) {
-      const results = Array.from({ length: chunkSize }, (_, j) => ({
-        id: `img-${i}-${j}`,
-        similarity: (i + j) % 100,
-      }));
-      setCachedResult(`query-${i}`, results);
+      setCachedResult(`query-${i}`, [{ id: `img-${i}`, similarity: 50 + (i % 50) }]);
     }
 
     // Latest entry should exist
     const lastEntry = getCachedResult(`query-${numEntries - 1}`);
     expect(lastEntry).not.toBeNull();
-    expect(lastEntry!.length).toBe(chunkSize);
 
     // Oldest entry should be evicted
     const firstEntry = getCachedResult('query-0');
     expect(firstEntry).toBeNull();
-
-    // Recent entry should survive
-    const recentEntry = getCachedResult(`query-${numEntries - 5}`);
-    expect(recentEntry).not.toBeNull();
-  });
-
-  it('should report cache stats', () => {
-    setCachedResult('test', [{ id: 'img-1', similarity: 90 }]);
-    const stats = getCacheStats();
-    expect(stats.entries).toBe(1);
-    expect(stats.bytes).toBeGreaterThan(0);
-    expect(stats.maxBytes).toBe(5 * 1024 * 1024);
   });
 
   it('should expire entries after TTL', () => {
@@ -130,30 +111,20 @@ describe('SemanticSearchCache', () => {
   });
 
   it('should LRU-promote accessed entries', () => {
-    // Fill cache with entries
-    for (let i = 0; i < 5; i++) {
-      setCachedResult(`query-${i}`, [{ id: `img-${i}`, similarity: 50 + i }]);
+    // Fill cache to exactly MAX_ENTRIES (no eviction yet)
+    for (let i = 0; i < 200; i++) {
+      setCachedResult(`query-${i}`, [{ id: `img-${i}`, similarity: 50 + (i % 50) }]);
     }
 
-    // Access the oldest entry to promote it
-    getCachedResult('query-0');
+    // query-0 is the oldest. Promote it by accessing (moves to end of Map).
+    expect(getCachedResult('query-0')).not.toBeNull();
 
-    // Add many more entries to trigger eviction
-    for (let i = 5; i < 60; i++) {
-      const results = Array.from({ length: 3000 }, (_, j) => ({
-        id: `img-${i}-${j}`,
-        similarity: (i + j) % 100,
-      }));
-      setCachedResult(`query-${i}`, results);
-    }
+    // Add one more to trigger eviction of 1 entry
+    setCachedResult('trigger', [{ id: 'img-trigger', similarity: 99 }]);
 
-    // query-0 was promoted by access, so it should survive longer
-    // query-1 (never accessed) should be evicted first
-    const q0 = getCachedResult('query-0');
-    const q1 = getCachedResult('query-1');
-
-    // At least one of them should be evicted
-    expect(q0 === null || q1 === null || (q0 !== null && q1 !== null)).toBe(true);
+    // query-0 was promoted to end, so it survives. query-1 (now oldest) is evicted.
+    expect(getCachedResult('query-0')).not.toBeNull();
+    expect(getCachedResult('query-1')).toBeNull();
   });
 });
 

@@ -93,7 +93,10 @@ function App() {
     <div style={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
       <Sidebar activeRoute={route} onNavigate={setRoute} />
       <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-        {renderPage()}
+        <div key={route} style={{ flex: 1, display: 'flex', flexDirection: 'column', animation: 'pageFadeIn 200ms ease-out' }}>
+          {renderPage()}
+        </div>
+        <style>{`@keyframes pageFadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
       </main>
       <CommandPalette />
       <DropOverlay isVisible={isDragging} />

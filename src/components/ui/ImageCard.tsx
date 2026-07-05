@@ -51,7 +51,7 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
         boxShadow:
           'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px',
         overflow: 'hidden',
-        transition: 'box-shadow 200ms ease-out, border-color 200ms ease-out',
+        transition: 'box-shadow 200ms ease-out, border-color 200ms ease-out, transform 200ms ease-out',
         outline: 'none',
       }}
       onClick={onClick ?? onOpen}
@@ -65,17 +65,18 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
         if (!focused) {
           e.currentTarget.style.boxShadow =
             'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px';
+          e.currentTarget.style.transform = '';
         }
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow =
-          'rgba(139,115,75,0.14) 0px 0px 0px 1px, rgba(78,50,23,0.08) 0px 4px 16px';
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow =
+          'rgba(139,115,75,0.14) 0px 0px 0px 1px, rgba(78,50,23,0.08) 0px 4px 16px, rgba(78,50,23,0.04) 0px 1px 4px';
       }}
       onMouseLeave={(e) => {
-        if (!focused) {
-          (e.currentTarget as HTMLElement).style.boxShadow =
-            'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px';
-        }
+        e.currentTarget.style.transform = '';
+        e.currentTarget.style.boxShadow =
+          'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px';
       }}
     >
       {/* Image preview area */}

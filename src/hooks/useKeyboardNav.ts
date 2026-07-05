@@ -33,8 +33,7 @@ export function useKeyboardNav({
   const isCommandOpen = useCommandStore((s) => s.isOpen);
 
   useEffect(() => {
-    // Only gallery page has full keyboard nav
-    if (route !== '/gallery') return;
+    // Keyboard nav active on all pages
 
     const handler = (e: KeyboardEvent) => {
       // Command palette open → skip all shortcuts

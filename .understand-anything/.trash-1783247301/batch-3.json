@@ -1,0 +1,3596 @@
+{
+  "nodes": [
+    {
+      "id": "file:.github/CODEOWNERS",
+      "type": "file",
+      "name": "CODEOWNERS",
+      "filePath": ".github/CODEOWNERS",
+      "summary": "Unknown source file (2 lines)",
+      "tags": [
+        "code",
+        "unknown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.github/dependabot.yml",
+      "type": "config",
+      "name": "dependabot.yml",
+      "filePath": ".github/dependabot.yml",
+      "summary": "GitHub configuration (18 lines).",
+      "tags": [
+        "config",
+        "yaml",
+        "ci-cd"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.github/ISSUE_TEMPLATE/bug_report.yml",
+      "type": "config",
+      "name": "bug_report.yml",
+      "filePath": ".github/ISSUE_TEMPLATE/bug_report.yml",
+      "summary": "GitHub configuration (79 lines).",
+      "tags": [
+        "config",
+        "yaml",
+        "ci-cd"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.github/ISSUE_TEMPLATE/feature_request.yml",
+      "type": "config",
+      "name": "feature_request.yml",
+      "filePath": ".github/ISSUE_TEMPLATE/feature_request.yml",
+      "summary": "GitHub configuration (59 lines).",
+      "tags": [
+        "config",
+        "feature-module",
+        "yaml",
+        "ci-cd"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.github/PULL_REQUEST_TEMPLATE.md",
+      "type": "document",
+      "name": "PULL_REQUEST_TEMPLATE.md",
+      "filePath": ".github/PULL_REQUEST_TEMPLATE.md",
+      "summary": "Documentation file (23 lines) providing project guidance.",
+      "tags": [
+        "markdown",
+        "docs"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.understand-anything/.understandignore",
+      "type": "file",
+      "name": ".understandignore",
+      "filePath": ".understand-anything/.understandignore",
+      "summary": "Unknown source file (62 lines)",
+      "tags": [
+        "code",
+        "unknown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.understand-anything/config.json",
+      "type": "config",
+      "name": "config.json",
+      "filePath": ".understand-anything/config.json",
+      "summary": "Configuration file (4 lines).",
+      "tags": [
+        "config",
+        "json"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/build.rs",
+      "type": "file",
+      "name": "build.rs",
+      "filePath": "src-tauri/build.rs",
+      "summary": "Build script for Tauri code generation.",
+      "tags": [
+        "code",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/build.rs:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "src-tauri/build.rs",
+      "summary": "Function main() in build.rs.",
+      "tags": [
+        "code",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:src-tauri/capabilities/default.json",
+      "type": "config",
+      "name": "default.json",
+      "filePath": "src-tauri/capabilities/default.json",
+      "summary": "Configuration file (12 lines).",
+      "tags": [
+        "config",
+        "json"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:src-tauri/Cargo.toml",
+      "type": "config",
+      "name": "Cargo.toml",
+      "filePath": "src-tauri/Cargo.toml",
+      "summary": "Configuration file (35 lines).",
+      "tags": [
+        "config",
+        "toml"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:src-tauri/icons/android/mipmap-anydpi-v26/ic_launcher.xml",
+      "type": "config",
+      "name": "ic_launcher.xml",
+      "filePath": "src-tauri/icons/android/mipmap-anydpi-v26/ic_launcher.xml",
+      "summary": "Configuration file (5 lines).",
+      "tags": [
+        "config",
+        "xml"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:src-tauri/icons/android/values/ic_launcher_background.xml",
+      "type": "config",
+      "name": "ic_launcher_background.xml",
+      "filePath": "src-tauri/icons/android/values/ic_launcher_background.xml",
+      "summary": "Configuration file (4 lines).",
+      "tags": [
+        "config",
+        "xml"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/icons/icon.icns",
+      "type": "file",
+      "name": "icon.icns",
+      "filePath": "src-tauri/icons/icon.icns",
+      "summary": "Icns source file (10075 lines)",
+      "tags": [
+        "code",
+        "icns"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/Lumora.exe.manifest",
+      "type": "file",
+      "name": "Lumora.exe.manifest",
+      "filePath": "src-tauri/Lumora.exe.manifest",
+      "summary": "Manifest source file (21 lines)",
+      "tags": [
+        "code",
+        "manifest"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/nsis/installer-hooks.nsh",
+      "type": "file",
+      "name": "installer-hooks.nsh",
+      "filePath": "src-tauri/nsis/installer-hooks.nsh",
+      "summary": "Nsh source file (61 lines)",
+      "tags": [
+        "code",
+        "hook",
+        "nsh"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/sidecar/clip_server.py",
+      "type": "file",
+      "name": "clip_server.py",
+      "filePath": "src-tauri/sidecar/clip_server.py",
+      "summary": "Sidecar server for CLIP embedding inference. Handles image and text embedding requests.",
+      "tags": [
+        "code",
+        "clip",
+        "python"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src-tauri/sidecar/clip_server.py:load_model",
+      "type": "function",
+      "name": "load_model",
+      "filePath": "src-tauri/sidecar/clip_server.py",
+      "summary": "Function load_model() in clip_server.py.",
+      "tags": [
+        "code",
+        "clip",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "type": "function",
+      "name": "embed_image",
+      "filePath": "src-tauri/sidecar/clip_server.py",
+      "summary": "Function embed_image(image_path) in clip_server.py.",
+      "tags": [
+        "code",
+        "clip",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "type": "function",
+      "name": "embed_text",
+      "filePath": "src-tauri/sidecar/clip_server.py",
+      "summary": "Function embed_text(text) in clip_server.py.",
+      "tags": [
+        "code",
+        "clip",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/sidecar/clip_server.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "src-tauri/sidecar/clip_server.py",
+      "summary": "Function main() in clip_server.py.",
+      "tags": [
+        "code",
+        "clip",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:src-tauri/sidecar/requirements.txt",
+      "type": "document",
+      "name": "requirements.txt",
+      "filePath": "src-tauri/sidecar/requirements.txt",
+      "summary": "Documentation file (3 lines) providing project guidance.",
+      "tags": [
+        "docs",
+        "txt"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/src/commands/ai.rs",
+      "type": "file",
+      "name": "ai.rs",
+      "filePath": "src-tauri/src/commands/ai.rs",
+      "summary": "Tauri command module for ai operations. Exposes 10 commands to the frontend.",
+      "tags": [
+        "code",
+        "rust",
+        "ai",
+        "tauri-command"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "type": "function",
+      "name": "check_ollama_available",
+      "filePath": "src-tauri/src/commands/ai.rs",
+      "summary": "Function check_ollama_available(cfg) in ai.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "ai"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "type": "function",
+      "name": "call_ollama_analyze",
+      "filePath": "src-tauri/src/commands/ai.rs",
+      "summary": "Function call_ollama_analyze(cfg, image_path, model) in ai.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "ai"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/ai.rs:store_analysis",
+      "type": "function",
+      "name": "store_analysis",
+      "filePath": "src-tauri/src/commands/ai.rs",
+      "summary": "Function store_analysis(conn, image_id, result) in ai.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "ai"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/ai.rs:auto_tag_from_analysis",
+      "type": "function",
+      "name": "auto_tag_from_analysis",
+      "filePath": "src-tauri/src/commands/ai.rs",
+      "summary": "Function auto_tag_from_analysis(conn, image_id, tags) in ai.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "ai"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/ai.rs:get_latest_analysis",
+      "type": "function",
+      "name": "get_latest_analysis",
+      "filePath": "src-tauri/src/commands/ai.rs",
+      "summary": "Function get_latest_analysis(conn, image_id) in ai.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "ai"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/ai.rs:get_analysis_history_db",
+      "type": "function",
+      "name": "get_analysis_history_db",
+      "filePath": "src-tauri/src/commands/ai.rs",
+      "summary": "Function get_analysis_history_db(conn, image_id) in ai.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "ai"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/ai.rs:analyze_image_cmd",
+      "type": "function",
+      "name": "analyze_image_cmd",
+      "filePath": "src-tauri/src/commands/ai.rs",
+      "summary": "Function analyze_image_cmd(db, cfg, image_id, image_path) in ai.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "ai"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/ai.rs:get_analysis_result_cmd",
+      "type": "function",
+      "name": "get_analysis_result_cmd",
+      "filePath": "src-tauri/src/commands/ai.rs",
+      "summary": "Function get_analysis_result_cmd(db, image_id) in ai.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "ai"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/ai.rs:get_analysis_history_cmd",
+      "type": "function",
+      "name": "get_analysis_history_cmd",
+      "filePath": "src-tauri/src/commands/ai.rs",
+      "summary": "Function get_analysis_history_cmd(db, image_id) in ai.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "ai"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/ai.rs:apply_ai_tags_cmd",
+      "type": "function",
+      "name": "apply_ai_tags_cmd",
+      "filePath": "src-tauri/src/commands/ai.rs",
+      "summary": "Function apply_ai_tags_cmd(db, image_id) in ai.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "ai"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/src/commands/clip.rs",
+      "type": "file",
+      "name": "clip.rs",
+      "filePath": "src-tauri/src/commands/clip.rs",
+      "summary": "Tauri command module for clip operations. Exposes 5 commands to the frontend.",
+      "tags": [
+        "code",
+        "clip",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "type": "function",
+      "name": "clip_embed_image",
+      "filePath": "src-tauri/src/commands/clip.rs",
+      "summary": "Function clip_embed_image(image_path) in clip.rs.",
+      "tags": [
+        "code",
+        "clip",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "type": "function",
+      "name": "clip_embed_text",
+      "filePath": "src-tauri/src/commands/clip.rs",
+      "summary": "Function clip_embed_text(text) in clip.rs.",
+      "tags": [
+        "code",
+        "clip",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "type": "function",
+      "name": "get_sidecar_path",
+      "filePath": "src-tauri/src/commands/clip.rs",
+      "summary": "Function get_sidecar_path() in clip.rs.",
+      "tags": [
+        "code",
+        "clip",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/clip.rs:clip_embed_image_cmd",
+      "type": "function",
+      "name": "clip_embed_image_cmd",
+      "filePath": "src-tauri/src/commands/clip.rs",
+      "summary": "Function clip_embed_image_cmd(db, image_path) in clip.rs.",
+      "tags": [
+        "code",
+        "clip",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/clip.rs:clip_embed_text_cmd",
+      "type": "function",
+      "name": "clip_embed_text_cmd",
+      "filePath": "src-tauri/src/commands/clip.rs",
+      "summary": "Function clip_embed_text_cmd(text) in clip.rs.",
+      "tags": [
+        "code",
+        "clip",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/src/commands/dashboard.rs",
+      "type": "file",
+      "name": "dashboard.rs",
+      "filePath": "src-tauri/src/commands/dashboard.rs",
+      "summary": "Tauri command module for dashboard operations. Exposes 1 commands to the frontend.",
+      "tags": [
+        "code",
+        "dashboard",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "type": "function",
+      "name": "get_dashboard_stats",
+      "filePath": "src-tauri/src/commands/dashboard.rs",
+      "summary": "Function get_dashboard_stats(db) in dashboard.rs.",
+      "tags": [
+        "code",
+        "dashboard",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/src/commands/embeddings.rs",
+      "type": "file",
+      "name": "embeddings.rs",
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "summary": "Tauri command module for embeddings operations. Exposes 11 commands to the frontend.",
+      "tags": [
+        "code",
+        "embedding",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "type": "function",
+      "name": "upsert_embedding",
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "summary": "Function upsert_embedding(conn, image_id, embedding) in embeddings.rs.",
+      "tags": [
+        "code",
+        "embedding",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "type": "function",
+      "name": "get_embedding_status_db",
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "summary": "Function get_embedding_status_db(conn, image_id) in embeddings.rs.",
+      "tags": [
+        "code",
+        "embedding",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "type": "function",
+      "name": "search_semantic_db",
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "summary": "Function search_semantic_db(conn, query_embedding, limit) in embeddings.rs.",
+      "tags": [
+        "code",
+        "embedding",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/embeddings.rs:generate_embedding",
+      "type": "function",
+      "name": "generate_embedding",
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "summary": "Function generate_embedding(db, image_id, embedding) in embeddings.rs.",
+      "tags": [
+        "code",
+        "embedding",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_cmd",
+      "type": "function",
+      "name": "get_embedding_status_cmd",
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "summary": "Function get_embedding_status_cmd(db, image_id) in embeddings.rs.",
+      "tags": [
+        "code",
+        "embedding",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/embeddings.rs:search_semantic_cmd",
+      "type": "function",
+      "name": "search_semantic_cmd",
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "summary": "Function search_semantic_cmd(db, query_embedding, limit) in embeddings.rs.",
+      "tags": [
+        "code",
+        "embedding",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/embeddings.rs:get_embedding_stats_db",
+      "type": "function",
+      "name": "get_embedding_stats_db",
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "summary": "Function get_embedding_stats_db(conn) in embeddings.rs.",
+      "tags": [
+        "code",
+        "embedding",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/embeddings.rs:get_embedding_stats_cmd",
+      "type": "function",
+      "name": "get_embedding_stats_cmd",
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "summary": "Function get_embedding_stats_cmd(db) in embeddings.rs.",
+      "tags": [
+        "code",
+        "embedding",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/embeddings.rs:embed_text_ollama",
+      "type": "function",
+      "name": "embed_text_ollama",
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "summary": "Function embed_text_ollama(cfg, text, model) in embeddings.rs.",
+      "tags": [
+        "code",
+        "embedding",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/embeddings.rs:embed_text_cmd",
+      "type": "function",
+      "name": "embed_text_cmd",
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "summary": "Function embed_text_cmd(cfg, text, model) in embeddings.rs.",
+      "tags": [
+        "code",
+        "embedding",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/embeddings.rs:generate_embedding_for_image_cmd",
+      "type": "function",
+      "name": "generate_embedding_for_image_cmd",
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "summary": "Function generate_embedding_for_image_cmd(db, cfg, image_id, description) in embeddings.rs.",
+      "tags": [
+        "code",
+        "embedding",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/src/commands/export.rs",
+      "type": "file",
+      "name": "export.rs",
+      "filePath": "src-tauri/src/commands/export.rs",
+      "summary": "Tauri command module for export operations. Exposes 6 commands to the frontend.",
+      "tags": [
+        "code",
+        "rust",
+        "export",
+        "tauri-command"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src-tauri/src/commands/export.rs:export_images",
+      "type": "function",
+      "name": "export_images",
+      "filePath": "src-tauri/src/commands/export.rs",
+      "summary": "Function export_images(db, ids, dest_dir, format) in export.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/export.rs:load_tags_for_image",
+      "type": "function",
+      "name": "load_tags_for_image",
+      "filePath": "src-tauri/src/commands/export.rs",
+      "summary": "Function load_tags_for_image(conn, image_id) in export.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/export.rs:build_filename",
+      "type": "function",
+      "name": "build_filename",
+      "filePath": "src-tauri/src/commands/export.rs",
+      "summary": "Function build_filename(record, tags, template) in export.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/export.rs:sanitize_filename",
+      "type": "function",
+      "name": "sanitize_filename",
+      "filePath": "src-tauri/src/commands/export.rs",
+      "summary": "Function sanitize_filename(name) in export.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/export.rs:resolve_extension",
+      "type": "function",
+      "name": "resolve_extension",
+      "filePath": "src-tauri/src/commands/export.rs",
+      "summary": "Function resolve_extension(original_format, target_format) in export.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/export.rs:export_single",
+      "type": "function",
+      "name": "export_single",
+      "filePath": "src-tauri/src/commands/export.rs",
+      "summary": "Function export_single(src, dest, format) in export.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/src/commands/images.rs",
+      "type": "file",
+      "name": "images.rs",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Tauri command module for images operations. Exposes 21 commands to the frontend.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:import_images",
+      "type": "function",
+      "name": "import_images",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function import_images(db, path) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:list_images",
+      "type": "function",
+      "name": "list_images",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function list_images(db, page, per_page) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:search_images",
+      "type": "function",
+      "name": "search_images",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function search_images(db, query) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "type": "function",
+      "name": "search_images_advanced",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function search_images_advanced(db, query, field) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:update_rating",
+      "type": "function",
+      "name": "update_rating",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function update_rating(db, id, rating) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:toggle_favorite",
+      "type": "function",
+      "name": "toggle_favorite",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function toggle_favorite(db, id) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:list_favorites",
+      "type": "function",
+      "name": "list_favorites",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function list_favorites(db) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:rebuild_fts_index",
+      "type": "function",
+      "name": "rebuild_fts_index",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function rebuild_fts_index(db) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:get_variant_group_images",
+      "type": "function",
+      "name": "get_variant_group_images",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function get_variant_group_images(db, variant_group_id) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:escape_fts5",
+      "type": "function",
+      "name": "escape_fts5",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function escape_fts5(query) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:scan_folder",
+      "type": "function",
+      "name": "scan_folder",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function scan_folder(root) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:walk_dir",
+      "type": "function",
+      "name": "walk_dir",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function walk_dir(root) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:file_hash",
+      "type": "function",
+      "name": "file_hash",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function file_hash(path, size) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:probe_dimensions_from_bytes",
+      "type": "function",
+      "name": "probe_dimensions_from_bytes",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function probe_dimensions_from_bytes(bytes, ext) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:probe_png",
+      "type": "function",
+      "name": "probe_png",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function probe_png(bytes) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:probe_jpeg",
+      "type": "function",
+      "name": "probe_jpeg",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function probe_jpeg(bytes) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:probe_webp",
+      "type": "function",
+      "name": "probe_webp",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function probe_webp(bytes) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:probe_gif",
+      "type": "function",
+      "name": "probe_gif",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function probe_gif(path) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:find_or_create_variant_group",
+      "type": "function",
+      "name": "find_or_create_variant_group",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function find_or_create_variant_group(conn, prompt) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:insert_image",
+      "type": "function",
+      "name": "insert_image",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function insert_image(conn, entry) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/images.rs:load_record",
+      "type": "function",
+      "name": "load_record",
+      "filePath": "src-tauri/src/commands/images.rs",
+      "summary": "Function load_record(conn, id) in images.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/src/commands/mod.rs",
+      "type": "file",
+      "name": "mod.rs",
+      "filePath": "src-tauri/src/commands/mod.rs",
+      "summary": "Tauri command module for mod operations. Exposes 0 commands to the frontend.",
+      "tags": [
+        "code",
+        "rust",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src-tauri/src/commands/settings.rs",
+      "type": "file",
+      "name": "settings.rs",
+      "filePath": "src-tauri/src/commands/settings.rs",
+      "summary": "Tauri command module for settings operations. Exposes 2 commands to the frontend.",
+      "tags": [
+        "code",
+        "rust",
+        "settings",
+        "tauri-command"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/settings.rs:get_setting",
+      "type": "function",
+      "name": "get_setting",
+      "filePath": "src-tauri/src/commands/settings.rs",
+      "summary": "Function get_setting(app, key) in settings.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "settings"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src-tauri/src/commands/settings.rs:set_setting",
+      "type": "function",
+      "name": "set_setting",
+      "filePath": "src-tauri/src/commands/settings.rs",
+      "summary": "Function set_setting(app, key, value) in settings.rs.",
+      "tags": [
+        "code",
+        "rust",
+        "settings"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src-tauri/build.rs",
+      "target": "function:src-tauri/build.rs:main",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src-tauri/build.rs:main",
+      "target": "function:src-tauri/build.rs:tauri_build::WindowsAttributes::new",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/build.rs:main",
+      "target": "function:src-tauri/build.rs:windows.window_icon_path",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/build.rs:main",
+      "target": "function:src-tauri/build.rs:tauri_build::Attributes::new().windows_attributes",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/build.rs:main",
+      "target": "function:src-tauri/build.rs:tauri_build::Attributes::new",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/build.rs:main",
+      "target": "function:src-tauri/build.rs:tauri_build::try_build(attrs).expect",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/build.rs:main",
+      "target": "function:src-tauri/build.rs:tauri_build::try_build",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src-tauri/sidecar/clip_server.py",
+      "target": "function:src-tauri/sidecar/clip_server.py:load_model",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/sidecar/clip_server.py",
+      "target": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/sidecar/clip_server.py",
+      "target": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/sidecar/clip_server.py",
+      "target": "function:src-tauri/sidecar/clip_server.py:main",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:load_model",
+      "target": "function:src-tauri/sidecar/clip_server.py:torch.cuda.is_available",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:load_model",
+      "target": "function:src-tauri/sidecar/clip_server.py:open_clip.create_model_and_transforms",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:load_model",
+      "target": "function:src-tauri/sidecar/clip_server.py:_model.to",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:load_model",
+      "target": "function:src-tauri/sidecar/clip_server.py:_model.eval",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "target": "function:src-tauri/sidecar/clip_server.py:load_model",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "target": "function:src-tauri/sidecar/clip_server.py:Image.open(image_path).convert",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "target": "function:src-tauri/sidecar/clip_server.py:Image.open",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "target": "function:src-tauri/sidecar/clip_server.py:_preprocess(image).unsqueeze(0).to",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "target": "function:src-tauri/sidecar/clip_server.py:_preprocess(image).unsqueeze",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "target": "function:src-tauri/sidecar/clip_server.py:_preprocess",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "target": "function:src-tauri/sidecar/clip_server.py:torch.no_grad",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "target": "function:src-tauri/sidecar/clip_server.py:_model.encode_image",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "target": "function:src-tauri/sidecar/clip_server.py:features.norm",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "target": "function:src-tauri/sidecar/clip_server.py:features[0].cpu().numpy().tolist",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "target": "function:src-tauri/sidecar/clip_server.py:features[0].cpu().numpy",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "target": "function:src-tauri/sidecar/clip_server.py:features[0].cpu",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "target": "function:src-tauri/sidecar/clip_server.py:load_model",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "target": "function:src-tauri/sidecar/clip_server.py:open_clip.get_tokenizer",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "target": "function:src-tauri/sidecar/clip_server.py:tokenizer([text]).to",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "target": "function:src-tauri/sidecar/clip_server.py:tokenizer",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "target": "function:src-tauri/sidecar/clip_server.py:torch.no_grad",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "target": "function:src-tauri/sidecar/clip_server.py:_model.encode_text",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "target": "function:src-tauri/sidecar/clip_server.py:features.norm",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "target": "function:src-tauri/sidecar/clip_server.py:features[0].cpu().numpy().tolist",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "target": "function:src-tauri/sidecar/clip_server.py:features[0].cpu().numpy",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "target": "function:src-tauri/sidecar/clip_server.py:features[0].cpu",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:len",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:len",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:print",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:json.dumps",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:len",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:print",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:json.dumps",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:print",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:json.dumps",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:print",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:json.dumps",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:sys.exit",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:json.loads",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:line.strip",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:request.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:request.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:embed_image",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:print",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:json.dumps",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:request.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:embed_text",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/sidecar/clip_server.py:main",
+      "target": "function:src-tauri/sidecar/clip_server.py:print",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src-tauri/src/commands/ai.rs",
+      "target": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/ai.rs",
+      "target": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/ai.rs",
+      "target": "function:src-tauri/src/commands/ai.rs:store_analysis",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/ai.rs",
+      "target": "function:src-tauri/src/commands/ai.rs:auto_tag_from_analysis",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/ai.rs",
+      "target": "function:src-tauri/src/commands/ai.rs:get_latest_analysis",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/ai.rs",
+      "target": "function:src-tauri/src/commands/ai.rs:get_analysis_history_db",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/ai.rs",
+      "target": "function:src-tauri/src/commands/ai.rs:analyze_image_cmd",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/ai.rs",
+      "target": "function:src-tauri/src/commands/ai.rs:get_analysis_result_cmd",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/ai.rs",
+      "target": "function:src-tauri/src/commands/ai.rs:get_analysis_history_cmd",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/ai.rs",
+      "target": "function:src-tauri/src/commands/ai.rs:apply_ai_tags_cmd",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:reqwest::Client::new",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:client\r\n        .get(cfg.url(\"/api/tags\"))\r\n        .timeout(std::time::Duration::from_secs(5))\r\n        .send()\r\n        .await.map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:client\r\n        .get(cfg.url(\"/api/tags\"))\r\n        .timeout(std::time::Duration::from_secs(5)).send",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:client\r\n        .get(cfg.url(\"/api/tags\")).timeout",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:client.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:cfg.url",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:std::time::Duration::from_secs",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:\"Ollama is not running. Please start Ollama to use AI features.\".to_string",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:response.status().is_success",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:response.status",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:Err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:\"Ollama is not responding correctly.\".to_string",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "target": "function:src-tauri/src/commands/ai.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:check_ollama_available",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:std::fs::read(image_path).map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:std::fs::read",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:base64::engine::general_purpose::STANDARD.encode",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:model.to_string",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:reqwest::Client::builder()\r\n        .timeout(std::time::Duration::from_secs(120))\r\n        .build().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:reqwest::Client::builder()\r\n        .timeout(std::time::Duration::from_secs(120)).build",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:reqwest::Client::builder().timeout",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:reqwest::Client::builder",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:std::time::Duration::from_secs",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:client\r\n        .post(cfg.url(\"/api/chat\"))\r\n        .json(&request)\r\n        .send()\r\n        .await.map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:client\r\n        .post(cfg.url(\"/api/chat\"))\r\n        .json(&request).send",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:client\r\n        .post(cfg.url(\"/api/chat\")).json",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:client.post",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:cfg.url",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:response.status().is_success",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:response.status",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:Err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:response\r\n        .json()\r\n        .await.map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:response.json",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:serde_json::from_str(&content).map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:serde_json::from_str",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:call_ollama_analyze",
+      "target": "function:src-tauri/src/commands/ai.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:store_analysis",
+      "target": "function:src-tauri/src/commands/ai.rs:serde_json::to_string(result).unwrap_or_default",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:store_analysis",
+      "target": "function:src-tauri/src/commands/ai.rs:serde_json::to_string",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:store_analysis",
+      "target": "function:src-tauri/src/commands/ai.rs:chrono::Utc::now().to_rfc3339",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:store_analysis",
+      "target": "function:src-tauri/src/commands/ai.rs:chrono::Utc::now",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:store_analysis",
+      "target": "function:src-tauri/src/commands/ai.rs:conn.execute",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:store_analysis",
+      "target": "function:src-tauri/src/commands/ai.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:auto_tag_from_analysis",
+      "target": "function:src-tauri/src/commands/ai.rs:Uuid::new_v4().to_string",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:auto_tag_from_analysis",
+      "target": "function:src-tauri/src/commands/ai.rs:Uuid::new_v4",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:auto_tag_from_analysis",
+      "target": "function:src-tauri/src/commands/ai.rs:conn.execute",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:auto_tag_from_analysis",
+      "target": "function:src-tauri/src/commands/ai.rs:conn.query_row",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:auto_tag_from_analysis",
+      "target": "function:src-tauri/src/commands/ai.rs:r.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/ai.rs:auto_tag_from_analysis",
+      "target": "function:src-tauri/src/commands/ai.rs:conn.execute",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src-tauri/src/commands/clip.rs",
+      "target": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/clip.rs",
+      "target": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/clip.rs",
+      "target": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/clip.rs",
+      "target": "function:src-tauri/src/commands/clip.rs:clip_embed_image_cmd",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/clip.rs",
+      "target": "function:src-tauri/src/commands/clip.rs:clip_embed_text_cmd",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:Command::new(&sidecar_path)\r\n        .args([\"embed-image\", image_path])\r\n        .output().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:Command::new(&sidecar_path)\r\n        .args([\"embed-image\", image_path]).output",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:Command::new(&sidecar_path).args",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:Command::new",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:output.status.success",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:String::from_utf8_lossy",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:Err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:serde_json::from_slice(&output.stdout).map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:serde_json::from_slice",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:Err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image",
+      "target": "function:src-tauri/src/commands/clip.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:Command::new(&sidecar_path)\r\n        .args([\"embed-text\", text])\r\n        .output().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:Command::new(&sidecar_path)\r\n        .args([\"embed-text\", text]).output",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:Command::new(&sidecar_path).args",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:Command::new",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:output.status.success",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:String::from_utf8_lossy",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:Err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:serde_json::from_slice(&output.stdout).map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:serde_json::from_slice",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:Err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_text",
+      "target": "function:src-tauri/src/commands/clip.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:std::env::current_dir()\r\n        .map_err(|e| AppError::External(format!(\"Failed to get current dir: {}\", e)))?\r\n        .join(\"src-tauri\")\r\n        .join(\"sidecar\").join",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:std::env::current_dir()\r\n        .map_err(|e| AppError::External(format!(\"Failed to get current dir: {}\", e)))?\r\n        .join(\"src-tauri\").join",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:std::env::current_dir()\r\n        .map_err(|e| AppError::External(format!(\"Failed to get current dir: {}\", e)))?.join",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:std::env::current_dir().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:std::env::current_dir",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:sidecar_py.exists",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:sidecar_py.to_string_lossy().to_string",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:sidecar_py.to_string_lossy",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:Err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:\"CLIP sidecar not found\".to_string",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:test_get_sidecar_path",
+      "target": "function:src-tauri/src/commands/clip.rs:get_sidecar_path",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image_cmd",
+      "target": "function:src-tauri/src/commands/clip.rs:db.conn().lock().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image_cmd",
+      "target": "function:src-tauri/src/commands/clip.rs:db.conn().lock",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image_cmd",
+      "target": "function:src-tauri/src/commands/clip.rs:db.conn",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/clip.rs:clip_embed_image_cmd",
+      "target": "function:src-tauri/src/commands/clip.rs:conn\r\n            .query_row(\r\n                \"SELECT 1 FROM images WHERE file_path = ?1\",\r\n                rusqlite::params![image_path],\r\n                |_| Ok(true),\r\n            ).unwrap_or",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src-tauri/src/commands/dashboard.rs",
+      "target": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:db.conn().lock().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:db.conn().lock",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:db.conn",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:conn.query_row",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:r.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:conn.query_row",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:r.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:conn.prepare",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:stmt\r\n        .query_map([], |row| {\r\n            Ok(FormatCount {\r\n                format: row.get(0)?,\r\n                count: row.get(1)?,\r\n            })\r\n        })\r\n        ?\r\n        .collect::<Result<Vec<_>, _>>",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:stmt.query_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:row.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:row.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:conn.prepare",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:stmt\r\n        .query_map([], |row| {\r\n            Ok(RatingCount {\r\n                rating: row.get(0)?,\r\n                count: row.get(1)?,\r\n            })\r\n        })\r\n        ?\r\n        .collect::<Result<Vec<_>, _>>",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:stmt.query_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:row.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:row.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:conn.prepare",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:stmt\r\n        .query_map([], |row| {\r\n            Ok(TagCount {\r\n                name: row.get(0)?,\r\n                count: row.get(1)?,\r\n            })\r\n        })\r\n        ?\r\n        .collect::<Result<Vec<_>, _>>",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:stmt.query_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:row.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:row.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:conn.prepare",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:stmt\r\n        .query_map([], row_to_record)\r\n        ?\r\n        .collect::<Result<Vec<_>, _>>",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:stmt.query_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/dashboard.rs:get_dashboard_stats",
+      "target": "function:src-tauri/src/commands/dashboard.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src-tauri/src/commands/embeddings.rs",
+      "target": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/embeddings.rs",
+      "target": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/embeddings.rs",
+      "target": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/embeddings.rs",
+      "target": "function:src-tauri/src/commands/embeddings.rs:generate_embedding",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/embeddings.rs",
+      "target": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_cmd",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/embeddings.rs",
+      "target": "function:src-tauri/src/commands/embeddings.rs:search_semantic_cmd",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/embeddings.rs",
+      "target": "function:src-tauri/src/commands/embeddings.rs:get_embedding_stats_db",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/embeddings.rs",
+      "target": "function:src-tauri/src/commands/embeddings.rs:get_embedding_stats_cmd",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/embeddings.rs",
+      "target": "function:src-tauri/src/commands/embeddings.rs:embed_text_ollama",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/embeddings.rs",
+      "target": "function:src-tauri/src/commands/embeddings.rs:embed_text_cmd",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/embeddings.rs",
+      "target": "function:src-tauri/src/commands/embeddings.rs:generate_embedding_for_image_cmd",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:embedding\r\n        .iter()\r\n        .flat_map(|f| f.to_le_bytes().to_vec()).collect",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:embedding\r\n        .iter().flat_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:embedding.iter",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:f.to_le_bytes().to_vec",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:f.to_le_bytes",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:embedding.len",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:conn.execute",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:serde_json::to_string(embedding).unwrap_or_default",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:serde_json::to_string",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:conn.execute",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:conn.execute",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:conn.prepare",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:stmt.query_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:row.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:row.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:row.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:rows.next",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:Some",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:serde_json::to_string(query_embedding).unwrap_or_default",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:serde_json::to_string",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:conn.prepare",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:stmt.query_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:row.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:row.get::<_, f64>",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:Vec::new",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:results.push",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:generate_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:db.conn().lock().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:generate_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:db.conn().lock",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:generate_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:db.conn",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:generate_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:generate_embedding",
+      "target": "function:src-tauri/src/commands/embeddings.rs:upsert_embedding",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_cmd",
+      "target": "function:src-tauri/src/commands/embeddings.rs:db.conn().lock().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_cmd",
+      "target": "function:src-tauri/src/commands/embeddings.rs:db.conn().lock",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_cmd",
+      "target": "function:src-tauri/src/commands/embeddings.rs:db.conn",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_cmd",
+      "target": "function:src-tauri/src/commands/embeddings.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_cmd",
+      "target": "function:src-tauri/src/commands/embeddings.rs:get_embedding_status_db",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_cmd",
+      "target": "function:src-tauri/src/commands/embeddings.rs:db.conn().lock().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_cmd",
+      "target": "function:src-tauri/src/commands/embeddings.rs:db.conn().lock",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_cmd",
+      "target": "function:src-tauri/src/commands/embeddings.rs:db.conn",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_cmd",
+      "target": "function:src-tauri/src/commands/embeddings.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_cmd",
+      "target": "function:src-tauri/src/commands/embeddings.rs:search_semantic_db",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:search_semantic_cmd",
+      "target": "function:src-tauri/src/commands/embeddings.rs:limit.unwrap_or",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_stats_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:conn.query_row",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/embeddings.rs:get_embedding_stats_db",
+      "target": "function:src-tauri/src/commands/embeddings.rs:r.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src-tauri/src/commands/export.rs",
+      "target": "function:src-tauri/src/commands/export.rs:export_images",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/export.rs",
+      "target": "function:src-tauri/src/commands/export.rs:load_tags_for_image",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/export.rs",
+      "target": "function:src-tauri/src/commands/export.rs:build_filename",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/export.rs",
+      "target": "function:src-tauri/src/commands/export.rs:sanitize_filename",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/export.rs",
+      "target": "function:src-tauri/src/commands/export.rs:resolve_extension",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/export.rs",
+      "target": "function:src-tauri/src/commands/export.rs:export_single",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:Path::new",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:fs::create_dir_all(dest).map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:fs::create_dir_all",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:db.conn().lock().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:db.conn().lock",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:db.conn",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:conn.query_row",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:load_tags_for_image",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:build_filename",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:rename_template.as_deref",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:resolve_extension",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:dest.join",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:export_single",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_images",
+      "target": "function:src-tauri/src/commands/export.rs:dest_dir.clone",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:load_tags_for_image",
+      "target": "function:src-tauri/src/commands/export.rs:conn.prepare",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:load_tags_for_image",
+      "target": "function:src-tauri/src/commands/export.rs:stmt.query_map(params![image_id], |row| row.get(0))\r\n        .map(|rows| rows.filter_map(|r| r.ok()).collect()).unwrap_or_default",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:load_tags_for_image",
+      "target": "function:src-tauri/src/commands/export.rs:stmt.query_map(params![image_id], |row| row.get(0)).map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:load_tags_for_image",
+      "target": "function:src-tauri/src/commands/export.rs:stmt.query_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:load_tags_for_image",
+      "target": "function:src-tauri/src/commands/export.rs:row.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:load_tags_for_image",
+      "target": "function:src-tauri/src/commands/export.rs:rows.filter_map(|r| r.ok()).collect",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:load_tags_for_image",
+      "target": "function:src-tauri/src/commands/export.rs:rows.filter_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:load_tags_for_image",
+      "target": "function:src-tauri/src/commands/export.rs:r.ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:template.unwrap_or",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:Path::new(&record.file_path)\r\n        .file_stem()\r\n        .map(|s| s.to_string_lossy().into_owned()).unwrap_or_else",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:Path::new(&record.file_path)\r\n        .file_stem().map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:Path::new(&record.file_path).file_stem",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:Path::new",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:s.to_string_lossy().into_owned",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:s.to_string_lossy",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:record.id.clone",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:record\r\n        .created_at\r\n        .split('T')\r\n        .next().unwrap_or",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:record\r\n        .created_at\r\n        .split('T').next",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:record\r\n        .created_at.split",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:sanitize_filename",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:tpl.replace(\"{name}\", &stem)\r\n            .replace(\"{id}\", &record.id)\r\n            .replace(\"{date}\", date)\r\n            .replace(\"{rating}\", &record.rating.to_string()).replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:tpl.replace(\"{name}\", &stem)\r\n            .replace(\"{id}\", &record.id)\r\n            .replace(\"{date}\", date).replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:tpl.replace(\"{name}\", &stem)\r\n            .replace(\"{id}\", &record.id).replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:tpl.replace(\"{name}\", &stem).replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:tpl.replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:record.rating.to_string",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:build_filename",
+      "target": "function:src-tauri/src/commands/export.rs:tags.join",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:sanitize_filename",
+      "target": "function:src-tauri/src/commands/export.rs:name.replace('/', \"_\")\r\n        .replace('\\\\', \"_\")\r\n        .replace(\"..\", \"_\").replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:sanitize_filename",
+      "target": "function:src-tauri/src/commands/export.rs:name.replace('/', \"_\")\r\n        .replace('\\\\', \"_\").replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:sanitize_filename",
+      "target": "function:src-tauri/src/commands/export.rs:name.replace('/', \"_\").replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:sanitize_filename",
+      "target": "function:src-tauri/src/commands/export.rs:name.replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_single",
+      "target": "function:src-tauri/src/commands/export.rs:fs::copy(src, dest).map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_single",
+      "target": "function:src-tauri/src/commands/export.rs:fs::copy",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_single",
+      "target": "function:src-tauri/src/commands/export.rs:AppError::Io",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/export.rs:export_single",
+      "target": "function:src-tauri/src/commands/export.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:import_images",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:list_images",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:search_images",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:update_rating",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:toggle_favorite",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:list_favorites",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:rebuild_fts_index",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:get_variant_group_images",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:escape_fts5",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:scan_folder",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:walk_dir",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:file_hash",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:probe_dimensions_from_bytes",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:probe_png",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:probe_jpeg",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:probe_webp",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:probe_gif",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:find_or_create_variant_group",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:insert_image",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/images.rs",
+      "target": "function:src-tauri/src/commands/images.rs:load_record",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:scan_folder",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:entries.len",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:db.conn().lock().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:db.conn().lock",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:db.conn",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:conn.unchecked_transaction",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:Vec::with_capacity",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:entries.len",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:insert_image",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:imported.push",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:load_record",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:tx.commit",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:import_images",
+      "target": "function:src-tauri/src/commands/images.rs:imported.len",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:list_images",
+      "target": "function:src-tauri/src/commands/images.rs:db.conn().lock().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:list_images",
+      "target": "function:src-tauri/src/commands/images.rs:db.conn().lock",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:list_images",
+      "target": "function:src-tauri/src/commands/images.rs:db.conn",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:list_images",
+      "target": "function:src-tauri/src/commands/images.rs:page.saturating_sub",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:list_images",
+      "target": "function:src-tauri/src/commands/images.rs:conn.query_row",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:list_images",
+      "target": "function:src-tauri/src/commands/images.rs:r.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:list_images",
+      "target": "function:src-tauri/src/commands/images.rs:conn.prepare",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:list_images",
+      "target": "function:src-tauri/src/commands/images.rs:stmt\r\n        .query_map(params![per_page, offset], row_to_record)\r\n        ?\r\n        .collect::<Result<Vec<_>, _>>",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:list_images",
+      "target": "function:src-tauri/src/commands/images.rs:stmt.query_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:list_images",
+      "target": "function:src-tauri/src/commands/images.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images",
+      "target": "function:src-tauri/src/commands/images.rs:db.conn().lock().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images",
+      "target": "function:src-tauri/src/commands/images.rs:db.conn().lock",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images",
+      "target": "function:src-tauri/src/commands/images.rs:db.conn",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images",
+      "target": "function:src-tauri/src/commands/images.rs:conn.prepare",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images",
+      "target": "function:src-tauri/src/commands/images.rs:escape_fts5",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images",
+      "target": "function:src-tauri/src/commands/images.rs:stmt\r\n        .query_map(params![escaped], row_to_record)\r\n        ?\r\n        .collect::<Result<Vec<_>, _>>",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images",
+      "target": "function:src-tauri/src/commands/images.rs:stmt.query_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images",
+      "target": "function:src-tauri/src/commands/images.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:field.unwrap_or_else",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:\"all\".to_string",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:db.conn().lock().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:db.conn().lock",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:db.conn",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:field.is_empty",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:conn.prepare",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:escape_fts5",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:stmt\r\n            .query_map(params![escaped], row_to_record)?\r\n            .collect::<Result<Vec<_>, _>>",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:stmt.query_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:query.trim().parse",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:query.trim",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:conn.prepare",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:stmt\r\n            .query_map(params![seed_val], row_to_record)?\r\n            .collect::<Result<Vec<_>, _>>",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:stmt.query_map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/images.rs:search_images_advanced",
+      "target": "function:src-tauri/src/commands/images.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src-tauri/src/commands/settings.rs",
+      "target": "function:src-tauri/src/commands/settings.rs:get_setting",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src-tauri/src/commands/settings.rs",
+      "target": "function:src-tauri/src/commands/settings.rs:set_setting",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:get_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:app\r\n        .store(\"settings.json\").map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:get_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:app.store",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:get_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:get_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:store.get(&key).and_then",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:get_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:store.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:get_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:v.as_str().map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:get_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:v.as_str",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:get_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:set_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:app\r\n        .store(\"settings.json\").map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:set_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:app.store",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:set_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:set_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:store.set",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:set_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:serde_json::Value::String",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:set_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:store.save().map_err",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:set_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:store.save",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:set_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:AppError::External",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src-tauri/src/commands/settings.rs:set_setting",
+      "target": "function:src-tauri/src/commands/settings.rs:Ok",
+      "type": "calls",
+      "weight": 0.8
+    }
+  ]
+}

@@ -134,6 +134,7 @@ export function GalleryPage() {
   const isMobile = useIsMobile();
 
   const [batchDeleting, setBatchDeleting] = useState(false);
+  const [columnCount, setColumnCount] = useState(0); // 0 = auto (CSS responsive)
 
   const images = getFilteredImages();
   const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -310,6 +311,28 @@ export function GalleryPage() {
             </h2>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {[2, 3, 4].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setColumnCount(columnCount === n ? 0 : n)}
+                style={{
+                  fontSize: 11,
+                  fontFamily: 'var(--font-display)',
+                  color: columnCount === n ? '#7a5c12' : '#6b5d48',
+                  background: 'none',
+                  border: 'none',
+                  padding: '0 0 2px',
+                  borderBottom: `2px solid ${columnCount === n ? '#7a5c12' : 'transparent'}`,
+                  cursor: 'pointer',
+                  transition: 'color 200ms, border-color 200ms',
+                }}
+                title={`${n}列`}
+              >
+                {n}列
+              </button>
+            ))}
+            <span style={{ width: 1, height: 14, background: 'rgba(139,115,75,0.15)', margin: '0 4px' }} />
             <ViewButton
               active={filters.view === 'grid'}
               onClick={() => setView('grid')}
@@ -404,7 +427,13 @@ export function GalleryPage() {
         <GridSkeleton count={8} />
       ) : !error ? (
         images.length === 0 ? (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)', gap: 12, textAlign: 'center', padding: '0 32px' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)', gap: 16, textAlign: 'center', padding: '0 32px' }}>
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="12" y="8" width="40" height="48" rx="3" stroke="#c4b89e" strokeWidth="1.5" fill="none" />
+              <path d="M20 20h24M20 28h16M20 36h20" stroke="#c4b89e" strokeWidth="1" strokeLinecap="round" />
+              <circle cx="44" cy="44" r="10" stroke="#7a5c12" strokeWidth="1.5" fill="rgba(122,92,18,0.06)" />
+              <path d="M41 44l2 2 4-4" stroke="#7a5c12" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             <span style={{ fontSize: 15, fontFamily: 'var(--font-display)', color: 'var(--color-text-secondary)' }}>图库尚空</span>
             <span style={{ fontSize: 13, fontFamily: 'var(--font-body)', color: 'var(--color-text-muted)' }}>导入图片，点亮属于你的灯火。</span>
           </div>
@@ -419,6 +448,7 @@ export function GalleryPage() {
             <div
               ref={gridRef}
               className={filters.view === 'grid' ? 'gallery-grid' : 'gallery-list'}
+              style={columnCount > 0 && filters.view === 'grid' ? { columnCount } : undefined}
             >
               {images.map((img, index) => (
                 <div
@@ -479,7 +509,7 @@ export function GalleryPage() {
         )
       ) : null}
 
-      {/* Bottom bar */}
+      {/* Bottom bar — page info only */}
       <div
         style={{
           padding: '12px 16px',
@@ -490,61 +520,78 @@ export function GalleryPage() {
           marginTop: 'auto',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span
-            style={{ fontSize: 11, color: '#6b5d48', fontFamily: 'var(--font-body)' }}
-          >
-            {selectedIds.size > 0
-              ? `已选 ${selectedIds.size} 张`
-              : `${images.length} 张作品`}
-          </span>
-          {selectedIds.size > 0 && (
-            <>
-              <button
-                type="button"
-                onClick={handleBatchDelete}
-                disabled={batchDeleting}
-                style={{
-                  fontSize: 11,
-                  fontFamily: 'var(--font-display)',
-                  color: '#b33a3a',
-                  background: 'none',
-                  border: '1px solid rgba(179, 58, 58, 0.2)',
-                  padding: '4px 12px',
-                  borderRadius: 4,
-                  cursor: batchDeleting ? 'not-allowed' : 'pointer',
-                  opacity: batchDeleting ? 0.5 : 1,
-                  transition: 'background 200ms',
-                }}
-              >
-                {batchDeleting ? '删除中…' : '批量删除'}
-              </button>
-              <button
-                type="button"
-                onClick={clearSelection}
-                style={{
-                  fontSize: 11,
-                  fontFamily: 'var(--font-display)',
-                  color: '#6b5d48',
-                  background: 'none',
-                  border: '1px solid rgba(139, 115, 75, 0.10)',
-                  padding: '4px 12px',
-                  borderRadius: 4,
-                  cursor: 'pointer',
-                  transition: 'background 200ms',
-                }}
-              >
-                取消选择
-              </button>
-            </>
-          )}
-        </div>
-        <span
-          style={{ fontSize: 11, color: '#6b5d48', fontFamily: 'var(--font-body)' }}
-        >
+        <span style={{ fontSize: 11, color: '#6b5d48', fontFamily: 'var(--font-body)' }}>
+          {images.length} 张作品
+        </span>
+        <span style={{ fontSize: 11, color: '#6b5d48', fontFamily: 'var(--font-body)' }}>
           第 {page} / {totalPages} 页
         </span>
       </div>
+
+      {/* Floating batch toolbar */}
+      {selectedIds.size > 0 && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 24,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 50,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '10px 20px',
+            background: '#2a2118',
+            color: '#f2ede4',
+            borderRadius: 8,
+            boxShadow: 'rgba(0,0,0,0.25) 0px 8px 32px',
+            animation: 'slideUp 200ms ease-out',
+            fontFamily: 'var(--font-body)',
+          }}
+        >
+          <style>{`@keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }`}</style>
+          <span style={{ fontSize: 13, fontWeight: 500 }}>
+            已选 {selectedIds.size} 张
+          </span>
+          <span style={{ width: 1, height: 20, background: 'rgba(242,237,228,0.2)' }} />
+          <button
+            type="button"
+            onClick={handleBatchDelete}
+            disabled={batchDeleting}
+            style={{
+              fontSize: 12,
+              fontFamily: 'var(--font-display)',
+              color: '#f2ede4',
+              background: '#8b3030',
+              border: 'none',
+              padding: '6px 16px',
+              borderRadius: 4,
+              cursor: batchDeleting ? 'not-allowed' : 'pointer',
+              opacity: batchDeleting ? 0.5 : 1,
+              transition: 'background 200ms',
+            }}
+          >
+            {batchDeleting ? '删除中…' : '批量删除'}
+          </button>
+          <button
+            type="button"
+            onClick={clearSelection}
+            style={{
+              fontSize: 12,
+              fontFamily: 'var(--font-display)',
+              color: '#f2ede4',
+              background: 'rgba(242,237,228,0.1)',
+              border: 'none',
+              padding: '6px 16px',
+              borderRadius: 4,
+              cursor: 'pointer',
+              transition: 'background 200ms',
+            }}
+          >
+            取消
+          </button>
+        </div>
+      )}
 
       {/* Detail Modal */}
       <DetailModal

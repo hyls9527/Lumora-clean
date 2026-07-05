@@ -157,6 +157,10 @@ export function TrashPage() {
                 fontSize: 13,
               }}
             >
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 16h24M18 16V12h12v4M16 16v20h16V16" stroke="#c4b89e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M20 22v10M24 22v10M28 22v10" stroke="#c4b89e" strokeWidth="1" strokeLinecap="round" />
+              </svg>
               <span style={{ fontSize: 15, fontFamily: 'var(--font-display)', marginBottom: 4, color: 'var(--color-text-secondary)' }}>废纸成尘</span>
               回收站为空
             </div>

@@ -1,0 +1,182 @@
+{
+  "projectRoot": "C:\\Users\\Admin\\Desktop\\Vibe coding\\Lumora-clean",
+  "batchFiles": [
+    {
+      "path": "src/components/ui/ai/ColorPaletteStrip.tsx",
+      "language": "typescript",
+      "sizeLines": 51,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/ai/TagSuggestionCard.tsx",
+      "language": "typescript",
+      "sizeLines": 162,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/CommandPalette.tsx",
+      "language": "typescript",
+      "sizeLines": 218,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/DetailModal.tsx",
+      "language": "typescript",
+      "sizeLines": 340,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/DropOverlay.tsx",
+      "language": "typescript",
+      "sizeLines": 68,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/EmbeddingBadge.tsx",
+      "language": "typescript",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/ErrorBoundary.tsx",
+      "language": "typescript",
+      "sizeLines": 55,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/ErrorState.tsx",
+      "language": "typescript",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/ImageCard.tsx",
+      "language": "typescript",
+      "sizeLines": 229,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/InfiniteScroll.tsx",
+      "language": "typescript",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/LazyLoad.tsx",
+      "language": "typescript",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/LoadingSkeleton.tsx",
+      "language": "typescript",
+      "sizeLines": 132,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/Rating.tsx",
+      "language": "typescript",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/SemanticSearchBar.tsx",
+      "language": "typescript",
+      "sizeLines": 307,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/Sidebar.tsx",
+      "language": "typescript",
+      "sizeLines": 262,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/SimilarityBadge.tsx",
+      "language": "typescript",
+      "sizeLines": 33,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/TagBadge.tsx",
+      "language": "typescript",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ui/UpdateBanner.tsx",
+      "language": "typescript",
+      "sizeLines": 55,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/dashboard/DashboardPage.tsx",
+      "language": "typescript",
+      "sizeLines": 580,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/export/ExportPage.tsx",
+      "language": "typescript",
+      "sizeLines": 389,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/favorites/__tests__/FavoritesPage.test.tsx",
+      "language": "typescript",
+      "sizeLines": 99,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/favorites/FavoritesPage.tsx",
+      "language": "typescript",
+      "sizeLines": 174,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/gallery/GalleryPage.tsx",
+      "language": "typescript",
+      "sizeLines": 560,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/import/ImportPage.tsx",
+      "language": "typescript",
+      "sizeLines": 601,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/search/SearchPage.tsx",
+      "language": "typescript",
+      "sizeLines": 698,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "src/components/ui/ai/ColorPaletteStrip.tsx": [],
+    "src/components/ui/ai/TagSuggestionCard.tsx": [],
+    "src/components/ui/CommandPalette.tsx": [],
+    "src/components/ui/DetailModal.tsx": [],
+    "src/components/ui/DropOverlay.tsx": [],
+    "src/components/ui/EmbeddingBadge.tsx": [],
+    "src/components/ui/ErrorBoundary.tsx": [],
+    "src/components/ui/ErrorState.tsx": [],
+    "src/components/ui/ImageCard.tsx": [],
+    "src/components/ui/InfiniteScroll.tsx": [],
+    "src/components/ui/LazyLoad.tsx": [],
+    "src/components/ui/LoadingSkeleton.tsx": [],
+    "src/components/ui/Rating.tsx": [],
+    "src/components/ui/SemanticSearchBar.tsx": [],
+    "src/components/ui/Sidebar.tsx": [],
+    "src/components/ui/SimilarityBadge.tsx": [],
+    "src/components/ui/TagBadge.tsx": [],
+    "src/components/ui/UpdateBanner.tsx": [],
+    "src/features/dashboard/DashboardPage.tsx": [],
+    "src/features/export/ExportPage.tsx": [],
+    "src/features/favorites/__tests__/FavoritesPage.test.tsx": [],
+    "src/features/favorites/FavoritesPage.tsx": [],
+    "src/features/gallery/GalleryPage.tsx": [],
+    "src/features/import/ImportPage.tsx": [],
+    "src/features/search/SearchPage.tsx": []
+  }
+}

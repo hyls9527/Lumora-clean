@@ -1,0 +1,56 @@
+{
+  "projectRoot": "C:\\Users\\Admin\\Desktop\\Vibe coding\\Lumora-clean",
+  "batchFiles": [
+    {
+      "path": "src/stores/smartCollectionStore.ts",
+      "language": "typescript",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/stores/trashStore.ts",
+      "language": "typescript",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/types/image.ts",
+      "language": "typescript",
+      "sizeLines": 25,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/vite-env.d.ts",
+      "language": "typescript",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "vite.config.ts",
+      "language": "typescript",
+      "sizeLines": 24,
+      "fileCategory": "code"
+    },
+    {
+      "path": "vitest.config.ts",
+      "language": "typescript",
+      "sizeLines": 9,
+      "fileCategory": "code"
+    },
+    {
+      "path": "vitest.setup.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "src/stores/smartCollectionStore.ts": [],
+    "src/stores/trashStore.ts": [],
+    "src/types/image.ts": [],
+    "src/vite-env.d.ts": [],
+    "vite.config.ts": [],
+    "vitest.config.ts": [],
+    "vitest.setup.ts": []
+  }
+}

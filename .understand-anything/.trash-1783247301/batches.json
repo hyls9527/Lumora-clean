@@ -1,0 +1,1472 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 145,
+  "totalBatches": 8,
+  "exportsByPath": {
+    ".github/CODEOWNERS": [],
+    ".understand-anything/.understandignore": [],
+    "src-tauri/build.rs": [],
+    "src-tauri/icons/icon.icns": [],
+    "src-tauri/Lumora.exe.manifest": [],
+    "src-tauri/nsis/installer-hooks.nsh": [],
+    "src-tauri/sidecar/clip_server.py": [
+      "load_model",
+      "embed_image",
+      "embed_text",
+      "main"
+    ],
+    "src-tauri/src/commands/ai.rs": [
+      "AnalysisTag",
+      "AnalysisResult",
+      "AnalysisHistoryItem",
+      "store_analysis",
+      "get_latest_analysis",
+      "get_analysis_history_db",
+      "analyze_image_cmd",
+      "get_analysis_result_cmd",
+      "get_analysis_history_cmd",
+      "apply_ai_tags_cmd"
+    ],
+    "src-tauri/src/commands/clip.rs": [
+      "ClipEmbeddingResponse",
+      "clip_embed_image",
+      "clip_embed_text",
+      "clip_embed_image_cmd",
+      "clip_embed_text_cmd"
+    ],
+    "src-tauri/src/commands/dashboard.rs": [
+      "get_dashboard_stats"
+    ],
+    "src-tauri/src/commands/embeddings.rs": [
+      "EmbeddingInfo",
+      "SemanticSearchResult",
+      "upsert_embedding",
+      "get_embedding_status_db",
+      "search_semantic_db",
+      "generate_embedding",
+      "get_embedding_status_cmd",
+      "search_semantic_cmd",
+      "EmbeddingStats",
+      "get_embedding_stats_db",
+      "get_embedding_stats_cmd",
+      "embed_text_cmd",
+      "generate_embedding_for_image_cmd"
+    ],
+    "src-tauri/src/commands/export.rs": [
+      "export_images"
+    ],
+    "src-tauri/src/commands/images.rs": [
+      "import_images",
+      "list_images",
+      "search_images",
+      "search_images_advanced",
+      "update_rating",
+      "toggle_favorite",
+      "list_favorites",
+      "rebuild_fts_index",
+      "get_variant_group_images",
+      "probe_dimensions_from_bytes"
+    ],
+    "src-tauri/src/commands/mod.rs": [],
+    "src-tauri/src/commands/settings.rs": [
+      "get_setting",
+      "set_setting"
+    ],
+    "src-tauri/src/commands/tags.rs": [
+      "create_tag",
+      "list_tags",
+      "delete_tag",
+      "update_tag",
+      "add_tag_to_image",
+      "remove_tag_from_image",
+      "get_image_tags",
+      "create_tag_impl",
+      "add_tag_to_image_impl"
+    ],
+    "src-tauri/src/commands/trash.rs": [
+      "soft_delete_image",
+      "restore_image",
+      "permanent_delete_image",
+      "list_trash",
+      "empty_trash",
+      "batch_soft_delete",
+      "batch_restore",
+      "batch_permanent_delete",
+      "batch_add_tag",
+      "batch_remove_tag"
+    ],
+    "src-tauri/src/db/migrations.rs": [
+      "run_migrations",
+      "downgrade_to"
+    ],
+    "src-tauri/src/db/mod.rs": [
+      "DbHandle",
+      "open",
+      "open_memory",
+      "conn"
+    ],
+    "src-tauri/src/db/schema.rs": [],
+    "src-tauri/src/error.rs": [
+      "AppError"
+    ],
+    "src-tauri/src/lib.rs": [
+      "run"
+    ],
+    "src-tauri/src/main.rs": [],
+    "src-tauri/src/metadata/mod.rs": [
+      "probe_metadata",
+      "probe_metadata_from_bytes"
+    ],
+    "src-tauri/src/metadata/png.rs": [
+      "read_text_chunks_from_bytes",
+      "read_text_chunks"
+    ],
+    "src-tauri/src/metadata/sd.rs": [
+      "parse_metadata"
+    ],
+    "src-tauri/src/ollama.rs": [
+      "OllamaConfig",
+      "from_env",
+      "host",
+      "url",
+      "get_ollama_host",
+      "check_ollama_status"
+    ],
+    "src-tauri/src/schema/mod.rs": [],
+    "src-tauri/src/schema/types.rs": [
+      "ImageRecord",
+      "PaginatedResult",
+      "Tag",
+      "DashboardStats",
+      "FormatCount",
+      "RatingCount",
+      "TagCount",
+      "ExportResult",
+      "ImportResult",
+      "row_to_record"
+    ],
+    "src/App.tsx": [],
+    "src/components/ui/__tests__/accessibility.test.ts": [],
+    "src/components/ui/__tests__/CommandPalette.test.tsx": [],
+    "src/components/ui/__tests__/design-compliance.test.ts": [],
+    "src/components/ui/__tests__/DetailModal.test.tsx": [],
+    "src/components/ui/__tests__/ErrorState.test.tsx": [],
+    "src/components/ui/__tests__/ImageCard.test.tsx": [],
+    "src/components/ui/__tests__/UpdateBanner.test.tsx": [],
+    "src/components/ui/ai/AiAnalysisSection.tsx": [
+      "AiAnalysisSection"
+    ],
+    "src/components/ui/ai/AnalysisHistoryList.tsx": [
+      "AnalysisHistoryList"
+    ],
+    "src/components/ui/ai/ColorPaletteStrip.tsx": [
+      "ColorPaletteStrip"
+    ],
+    "src/components/ui/ai/TagSuggestionCard.tsx": [
+      "TagSuggestionCard"
+    ],
+    "src/components/ui/CommandPalette.tsx": [
+      "CommandPalette"
+    ],
+    "src/components/ui/DetailModal.tsx": [
+      "DetailModal"
+    ],
+    "src/components/ui/DropOverlay.tsx": [
+      "DropOverlay"
+    ],
+    "src/components/ui/EmbeddingBadge.tsx": [
+      "EmbeddingBadge"
+    ],
+    "src/components/ui/ErrorBoundary.tsx": [
+      "ErrorBoundary"
+    ],
+    "src/components/ui/ErrorState.tsx": [
+      "ErrorState"
+    ],
+    "src/components/ui/ImageCard.tsx": [
+      "ImageCard"
+    ],
+    "src/components/ui/InfiniteScroll.tsx": [
+      "InfiniteScroll"
+    ],
+    "src/components/ui/LazyLoad.tsx": [
+      "LazyLoad"
+    ],
+    "src/components/ui/LoadingSkeleton.tsx": [
+      "GridSkeleton",
+      "SearchSkeleton",
+      "ListSkeleton"
+    ],
+    "src/components/ui/Rating.tsx": [
+      "PlumStamp",
+      "Rating"
+    ],
+    "src/components/ui/SemanticSearchBar.tsx": [
+      "SemanticSearchBar"
+    ],
+    "src/components/ui/Sidebar.tsx": [
+      "Sidebar"
+    ],
+    "src/components/ui/SimilarityBadge.tsx": [
+      "SimilarityBadge"
+    ],
+    "src/components/ui/TagBadge.tsx": [
+      "TagBadge"
+    ],
+    "src/components/ui/UpdateBanner.tsx": [
+      "UpdateBanner"
+    ],
+    "src/features/dashboard/DashboardPage.tsx": [
+      "DashboardPage"
+    ],
+    "src/features/export/ExportPage.tsx": [
+      "ExportPage"
+    ],
+    "src/features/favorites/__tests__/FavoritesPage.test.tsx": [],
+    "src/features/favorites/FavoritesPage.tsx": [
+      "FavoritesPage"
+    ],
+    "src/features/gallery/GalleryPage.tsx": [
+      "GalleryPage"
+    ],
+    "src/features/import/ImportPage.tsx": [
+      "ImportPage"
+    ],
+    "src/features/search/SearchPage.tsx": [
+      "SearchPage"
+    ],
+    "src/features/settings/SettingsPage.tsx": [
+      "SettingsPage"
+    ],
+    "src/features/tags/TagManager.tsx": [
+      "TagManager"
+    ],
+    "src/features/trash/TrashPage.tsx": [
+      "TrashPage"
+    ],
+    "src/hooks/__tests__/useImageActions.test.ts": [],
+    "src/hooks/__tests__/useOllamaStatus.test.ts": [],
+    "src/hooks/__tests__/useSelection.test.ts": [],
+    "src/hooks/__tests__/useUpdater.test.ts": [],
+    "src/hooks/useDragDrop.ts": [
+      "useDragDrop"
+    ],
+    "src/hooks/useImageActions.ts": [
+      "useImageActions"
+    ],
+    "src/hooks/useKeyboardNav.ts": [
+      "useKeyboardNav"
+    ],
+    "src/hooks/useMediaQuery.ts": [
+      "useMediaQuery",
+      "useIsMobile",
+      "useIsTablet",
+      "useIsDesktop",
+      "useIsSmallPhone"
+    ],
+    "src/hooks/useOllamaStatus.ts": [
+      "useOllamaStatus"
+    ],
+    "src/hooks/useSelection.ts": [
+      "useSelection"
+    ],
+    "src/hooks/useUpdater.ts": [
+      "useUpdater"
+    ],
+    "src/i18n/.gitkeep": [],
+    "src/lib/__tests__/format.test.ts": [],
+    "src/lib/__tests__/i18n.test.ts": [],
+    "src/lib/api/__tests__/images.test.ts": [],
+    "src/lib/api/__tests__/semanticCache.test.ts": [],
+    "src/lib/api/__tests__/type-contract.test.ts": [],
+    "src/lib/api/__tests__/write-commands.test.ts": [],
+    "src/lib/api/.gitkeep": [],
+    "src/lib/api/ai.ts": [
+      "analyzeImage",
+      "getAnalysisResult",
+      "getAnalysisHistory"
+    ],
+    "src/lib/api/embeddings.ts": [
+      "getEmbeddingStatus",
+      "generateEmbeddings",
+      "storeEmbedding",
+      "getEmbeddingStats"
+    ],
+    "src/lib/api/images.ts": [
+      "toImageRecord",
+      "importImages",
+      "listImages",
+      "searchImages",
+      "searchImagesAdvanced",
+      "updateRating",
+      "toggleFavorite",
+      "listFavorites",
+      "createTag",
+      "listTags",
+      "deleteTag",
+      "addTagToImage",
+      "removeTagFromImage",
+      "getImageTags",
+      "softDeleteImage",
+      "restoreImage",
+      "permanentDeleteImage",
+      "listTrash",
+      "emptyTrash",
+      "batchSoftDelete",
+      "getDashboardStats",
+      "exportImages"
+    ],
+    "src/lib/api/semantic.ts": [
+      "searchSemantic",
+      "generateImageEmbedding",
+      "getSearchSuggestions"
+    ],
+    "src/lib/api/semanticCache.ts": [
+      "getCachedResult",
+      "setCachedResult",
+      "isCacheValid",
+      "invalidateSemanticCache",
+      "getCacheStats",
+      "searchSemanticCached"
+    ],
+    "src/lib/format.ts": [
+      "formatDate",
+      "formatFileSize"
+    ],
+    "src/lib/i18n.ts": [
+      "notifyLanguageChanged",
+      "t",
+      "useTranslation"
+    ],
+    "src/lib/tauri.ts": [
+      "invoke",
+      "isTauriAvailable",
+      "convertFileSrc"
+    ],
+    "src/main.tsx": [],
+    "src/stores/__tests__/aiAnalysisStore.test.ts": [],
+    "src/stores/__tests__/embeddingStore.test.ts": [],
+    "src/stores/__tests__/imageStore.test.ts": [],
+    "src/stores/__tests__/imageTagsStore.test.ts": [],
+    "src/stores/__tests__/semanticSearchStore.test.ts": [],
+    "src/stores/__tests__/settingsStore.test.ts": [],
+    "src/stores/__tests__/smartCollectionStore.test.ts": [],
+    "src/stores/__tests__/trashStore.test.ts": [],
+    "src/stores/.gitkeep": [],
+    "src/stores/aiAnalysisStore.ts": [
+      "useAiAnalysisStore"
+    ],
+    "src/stores/commandStore.ts": [
+      "useCommandStore"
+    ],
+    "src/stores/embeddingStore.ts": [
+      "useEmbeddingStore"
+    ],
+    "src/stores/imageStore.ts": [
+      "ImageRecord",
+      "useImageStore"
+    ],
+    "src/stores/imageTagsStore.ts": [
+      "useImageTagsStore"
+    ],
+    "src/stores/semanticSearchStore.ts": [
+      "useSemanticSearchStore"
+    ],
+    "src/stores/settingsStore.ts": [
+      "useSettingsStore"
+    ],
+    "src/stores/smartCollectionStore.ts": [
+      "useSmartCollectionStore"
+    ],
+    "src/stores/trashStore.ts": [
+      "useTrashStore"
+    ],
+    "src/types/image.ts": [],
+    "src/vite-env.d.ts": [],
+    "vite.config.ts": [],
+    "vitest.config.ts": [],
+    "vitest.setup.ts": []
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "language": "yaml",
+          "sizeLines": 62,
+          "fileCategory": "infra"
+        },
+        {
+          "path": ".github/workflows/release.yml",
+          "language": "yaml",
+          "sizeLines": 156,
+          "fileCategory": "infra"
+        }
+      ],
+      "batchImportData": {
+        ".github/workflows/ci.yml": [],
+        ".github/workflows/release.yml": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": "ARCHITECTURE.md",
+          "language": "markdown",
+          "sizeLines": 245,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "CHANGELOG.md",
+          "language": "markdown",
+          "sizeLines": 163,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "CLAUDE.md",
+          "language": "markdown",
+          "sizeLines": 29,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "CODE_OF_CONDUCT.md",
+          "language": "markdown",
+          "sizeLines": 39,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "CONTRIBUTING.md",
+          "language": "markdown",
+          "sizeLines": 67,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "DESIGN.md",
+          "language": "markdown",
+          "sizeLines": 113,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "README.md",
+          "language": "markdown",
+          "sizeLines": 121,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "SECURITY.md",
+          "language": "markdown",
+          "sizeLines": 38,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "index.html",
+          "language": "html",
+          "sizeLines": 33,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "package.json",
+          "language": "json",
+          "sizeLines": 40,
+          "fileCategory": "config"
+        },
+        {
+          "path": "tsconfig.json",
+          "language": "json",
+          "sizeLines": 22,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        "ARCHITECTURE.md": [],
+        "CHANGELOG.md": [],
+        "CLAUDE.md": [],
+        "CODE_OF_CONDUCT.md": [],
+        "CONTRIBUTING.md": [],
+        "DESIGN.md": [],
+        "README.md": [],
+        "SECURITY.md": [],
+        "index.html": [],
+        "package.json": [],
+        "tsconfig.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": ".github/CODEOWNERS",
+          "language": "unknown",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".github/dependabot.yml",
+          "language": "yaml",
+          "sizeLines": 18,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+          "language": "yaml",
+          "sizeLines": 79,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".github/ISSUE_TEMPLATE/feature_request.yml",
+          "language": "yaml",
+          "sizeLines": 59,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".github/PULL_REQUEST_TEMPLATE.md",
+          "language": "markdown",
+          "sizeLines": 23,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".understand-anything/.understandignore",
+          "language": "unknown",
+          "sizeLines": 62,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".understand-anything/config.json",
+          "language": "json",
+          "sizeLines": 4,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/build.rs",
+          "language": "rust",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/capabilities/default.json",
+          "language": "json",
+          "sizeLines": 12,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/Cargo.toml",
+          "language": "toml",
+          "sizeLines": 35,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/icons/android/mipmap-anydpi-v26/ic_launcher.xml",
+          "language": "xml",
+          "sizeLines": 4,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/icons/android/values/ic_launcher_background.xml",
+          "language": "xml",
+          "sizeLines": 3,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src-tauri/icons/icon.icns",
+          "language": "icns",
+          "sizeLines": 10074,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/Lumora.exe.manifest",
+          "language": "manifest",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/nsis/installer-hooks.nsh",
+          "language": "nsh",
+          "sizeLines": 61,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/sidecar/clip_server.py",
+          "language": "python",
+          "sizeLines": 118,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/sidecar/requirements.txt",
+          "language": "txt",
+          "sizeLines": 3,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "src-tauri/src/commands/ai.rs",
+          "language": "rust",
+          "sizeLines": 504,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/clip.rs",
+          "language": "rust",
+          "sizeLines": 121,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/dashboard.rs",
+          "language": "rust",
+          "sizeLines": 108,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/embeddings.rs",
+          "language": "rust",
+          "sizeLines": 416,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/export.rs",
+          "language": "rust",
+          "sizeLines": 143,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/images.rs",
+          "language": "rust",
+          "sizeLines": 1106,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/mod.rs",
+          "language": "rust",
+          "sizeLines": 9,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/settings.rs",
+          "language": "rust",
+          "sizeLines": 30,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".github/CODEOWNERS": [],
+        ".github/dependabot.yml": [],
+        ".github/ISSUE_TEMPLATE/bug_report.yml": [],
+        ".github/ISSUE_TEMPLATE/feature_request.yml": [],
+        ".github/PULL_REQUEST_TEMPLATE.md": [],
+        ".understand-anything/.understandignore": [],
+        ".understand-anything/config.json": [],
+        "src-tauri/build.rs": [],
+        "src-tauri/capabilities/default.json": [],
+        "src-tauri/Cargo.toml": [],
+        "src-tauri/icons/android/mipmap-anydpi-v26/ic_launcher.xml": [],
+        "src-tauri/icons/android/values/ic_launcher_background.xml": [],
+        "src-tauri/icons/icon.icns": [],
+        "src-tauri/Lumora.exe.manifest": [],
+        "src-tauri/nsis/installer-hooks.nsh": [],
+        "src-tauri/sidecar/clip_server.py": [],
+        "src-tauri/sidecar/requirements.txt": [],
+        "src-tauri/src/commands/ai.rs": [],
+        "src-tauri/src/commands/clip.rs": [],
+        "src-tauri/src/commands/dashboard.rs": [],
+        "src-tauri/src/commands/embeddings.rs": [],
+        "src-tauri/src/commands/export.rs": [],
+        "src-tauri/src/commands/images.rs": [],
+        "src-tauri/src/commands/mod.rs": [],
+        "src-tauri/src/commands/settings.rs": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": "src-tauri/src/commands/tags.rs",
+          "language": "rust",
+          "sizeLines": 291,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/commands/trash.rs",
+          "language": "rust",
+          "sizeLines": 341,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/db/migrations.rs",
+          "language": "rust",
+          "sizeLines": 259,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/db/mod.rs",
+          "language": "rust",
+          "sizeLines": 61,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/db/schema.rs",
+          "language": "rust",
+          "sizeLines": 130,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/error.rs",
+          "language": "rust",
+          "sizeLines": 73,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/lib.rs",
+          "language": "rust",
+          "sizeLines": 94,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/main.rs",
+          "language": "rust",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/metadata/mod.rs",
+          "language": "rust",
+          "sizeLines": 103,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/metadata/png.rs",
+          "language": "rust",
+          "sizeLines": 225,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/metadata/sd.rs",
+          "language": "rust",
+          "sizeLines": 304,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/ollama.rs",
+          "language": "rust",
+          "sizeLines": 63,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/schema/mod.rs",
+          "language": "rust",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/src/schema/types.rs",
+          "language": "rust",
+          "sizeLines": 118,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src-tauri/tauri.conf.json",
+          "language": "json",
+          "sizeLines": 61,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src/App.tsx",
+          "language": "typescript",
+          "sizeLines": 108,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/__tests__/accessibility.test.ts",
+          "language": "typescript",
+          "sizeLines": 136,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/__tests__/CommandPalette.test.tsx",
+          "language": "typescript",
+          "sizeLines": 119,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/__tests__/design-compliance.test.ts",
+          "language": "typescript",
+          "sizeLines": 143,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/__tests__/DetailModal.test.tsx",
+          "language": "typescript",
+          "sizeLines": 116,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/__tests__/ErrorState.test.tsx",
+          "language": "typescript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/__tests__/ImageCard.test.tsx",
+          "language": "typescript",
+          "sizeLines": 150,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/__tests__/UpdateBanner.test.tsx",
+          "language": "typescript",
+          "sizeLines": 98,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/ai/AiAnalysisSection.tsx",
+          "language": "typescript",
+          "sizeLines": 270,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/ai/AnalysisHistoryList.tsx",
+          "language": "typescript",
+          "sizeLines": 78,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src-tauri/src/commands/tags.rs": [],
+        "src-tauri/src/commands/trash.rs": [],
+        "src-tauri/src/db/migrations.rs": [],
+        "src-tauri/src/db/mod.rs": [],
+        "src-tauri/src/db/schema.rs": [],
+        "src-tauri/src/error.rs": [],
+        "src-tauri/src/lib.rs": [],
+        "src-tauri/src/main.rs": [],
+        "src-tauri/src/metadata/mod.rs": [],
+        "src-tauri/src/metadata/png.rs": [],
+        "src-tauri/src/metadata/sd.rs": [],
+        "src-tauri/src/ollama.rs": [],
+        "src-tauri/src/schema/mod.rs": [],
+        "src-tauri/src/schema/types.rs": [],
+        "src-tauri/tauri.conf.json": [],
+        "src/App.tsx": [],
+        "src/components/ui/__tests__/accessibility.test.ts": [],
+        "src/components/ui/__tests__/CommandPalette.test.tsx": [],
+        "src/components/ui/__tests__/design-compliance.test.ts": [],
+        "src/components/ui/__tests__/DetailModal.test.tsx": [],
+        "src/components/ui/__tests__/ErrorState.test.tsx": [],
+        "src/components/ui/__tests__/ImageCard.test.tsx": [],
+        "src/components/ui/__tests__/UpdateBanner.test.tsx": [],
+        "src/components/ui/ai/AiAnalysisSection.tsx": [],
+        "src/components/ui/ai/AnalysisHistoryList.tsx": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": "src/components/ui/ai/ColorPaletteStrip.tsx",
+          "language": "typescript",
+          "sizeLines": 51,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/ai/TagSuggestionCard.tsx",
+          "language": "typescript",
+          "sizeLines": 162,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/CommandPalette.tsx",
+          "language": "typescript",
+          "sizeLines": 218,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/DetailModal.tsx",
+          "language": "typescript",
+          "sizeLines": 340,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/DropOverlay.tsx",
+          "language": "typescript",
+          "sizeLines": 68,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/EmbeddingBadge.tsx",
+          "language": "typescript",
+          "sizeLines": 49,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/ErrorBoundary.tsx",
+          "language": "typescript",
+          "sizeLines": 55,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/ErrorState.tsx",
+          "language": "typescript",
+          "sizeLines": 62,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/ImageCard.tsx",
+          "language": "typescript",
+          "sizeLines": 229,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/InfiniteScroll.tsx",
+          "language": "typescript",
+          "sizeLines": 66,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/LazyLoad.tsx",
+          "language": "typescript",
+          "sizeLines": 52,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/LoadingSkeleton.tsx",
+          "language": "typescript",
+          "sizeLines": 132,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/Rating.tsx",
+          "language": "typescript",
+          "sizeLines": 47,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/SemanticSearchBar.tsx",
+          "language": "typescript",
+          "sizeLines": 307,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/Sidebar.tsx",
+          "language": "typescript",
+          "sizeLines": 262,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/SimilarityBadge.tsx",
+          "language": "typescript",
+          "sizeLines": 33,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/TagBadge.tsx",
+          "language": "typescript",
+          "sizeLines": 60,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ui/UpdateBanner.tsx",
+          "language": "typescript",
+          "sizeLines": 55,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/dashboard/DashboardPage.tsx",
+          "language": "typescript",
+          "sizeLines": 580,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/export/ExportPage.tsx",
+          "language": "typescript",
+          "sizeLines": 389,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/favorites/__tests__/FavoritesPage.test.tsx",
+          "language": "typescript",
+          "sizeLines": 99,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/favorites/FavoritesPage.tsx",
+          "language": "typescript",
+          "sizeLines": 174,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/gallery/GalleryPage.tsx",
+          "language": "typescript",
+          "sizeLines": 560,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/import/ImportPage.tsx",
+          "language": "typescript",
+          "sizeLines": 601,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/search/SearchPage.tsx",
+          "language": "typescript",
+          "sizeLines": 698,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/components/ui/ai/ColorPaletteStrip.tsx": [],
+        "src/components/ui/ai/TagSuggestionCard.tsx": [],
+        "src/components/ui/CommandPalette.tsx": [],
+        "src/components/ui/DetailModal.tsx": [],
+        "src/components/ui/DropOverlay.tsx": [],
+        "src/components/ui/EmbeddingBadge.tsx": [],
+        "src/components/ui/ErrorBoundary.tsx": [],
+        "src/components/ui/ErrorState.tsx": [],
+        "src/components/ui/ImageCard.tsx": [],
+        "src/components/ui/InfiniteScroll.tsx": [],
+        "src/components/ui/LazyLoad.tsx": [],
+        "src/components/ui/LoadingSkeleton.tsx": [],
+        "src/components/ui/Rating.tsx": [],
+        "src/components/ui/SemanticSearchBar.tsx": [],
+        "src/components/ui/Sidebar.tsx": [],
+        "src/components/ui/SimilarityBadge.tsx": [],
+        "src/components/ui/TagBadge.tsx": [],
+        "src/components/ui/UpdateBanner.tsx": [],
+        "src/features/dashboard/DashboardPage.tsx": [],
+        "src/features/export/ExportPage.tsx": [],
+        "src/features/favorites/__tests__/FavoritesPage.test.tsx": [],
+        "src/features/favorites/FavoritesPage.tsx": [],
+        "src/features/gallery/GalleryPage.tsx": [],
+        "src/features/import/ImportPage.tsx": [],
+        "src/features/search/SearchPage.tsx": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": "src/features/settings/SettingsPage.tsx",
+          "language": "typescript",
+          "sizeLines": 298,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/tags/TagManager.tsx",
+          "language": "typescript",
+          "sizeLines": 379,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/features/trash/TrashPage.tsx",
+          "language": "typescript",
+          "sizeLines": 440,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/hooks/__tests__/useImageActions.test.ts",
+          "language": "typescript",
+          "sizeLines": 145,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/hooks/__tests__/useOllamaStatus.test.ts",
+          "language": "typescript",
+          "sizeLines": 125,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/hooks/__tests__/useSelection.test.ts",
+          "language": "typescript",
+          "sizeLines": 210,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/hooks/__tests__/useUpdater.test.ts",
+          "language": "typescript",
+          "sizeLines": 133,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/hooks/useDragDrop.ts",
+          "language": "typescript",
+          "sizeLines": 64,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/hooks/useImageActions.ts",
+          "language": "typescript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/hooks/useKeyboardNav.ts",
+          "language": "typescript",
+          "sizeLines": 100,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/hooks/useMediaQuery.ts",
+          "language": "typescript",
+          "sizeLines": 57,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/hooks/useOllamaStatus.ts",
+          "language": "typescript",
+          "sizeLines": 65,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/hooks/useSelection.ts",
+          "language": "typescript",
+          "sizeLines": 30,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/hooks/useUpdater.ts",
+          "language": "typescript",
+          "sizeLines": 99,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/i18n/.gitkeep",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/i18n/en.json",
+          "language": "json",
+          "sizeLines": 316,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src/i18n/zh.json",
+          "language": "json",
+          "sizeLines": 316,
+          "fileCategory": "config"
+        },
+        {
+          "path": "src/index.css",
+          "language": "css",
+          "sizeLines": 124,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "src/lib/__tests__/format.test.ts",
+          "language": "typescript",
+          "sizeLines": 40,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/__tests__/i18n.test.ts",
+          "language": "typescript",
+          "sizeLines": 45,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/api/__tests__/images.test.ts",
+          "language": "typescript",
+          "sizeLines": 177,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/api/__tests__/semanticCache.test.ts",
+          "language": "typescript",
+          "sizeLines": 187,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/api/__tests__/type-contract.test.ts",
+          "language": "typescript",
+          "sizeLines": 143,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/api/__tests__/write-commands.test.ts",
+          "language": "typescript",
+          "sizeLines": 84,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/api/.gitkeep",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/features/settings/SettingsPage.tsx": [],
+        "src/features/tags/TagManager.tsx": [],
+        "src/features/trash/TrashPage.tsx": [],
+        "src/hooks/__tests__/useImageActions.test.ts": [],
+        "src/hooks/__tests__/useOllamaStatus.test.ts": [],
+        "src/hooks/__tests__/useSelection.test.ts": [],
+        "src/hooks/__tests__/useUpdater.test.ts": [],
+        "src/hooks/useDragDrop.ts": [],
+        "src/hooks/useImageActions.ts": [],
+        "src/hooks/useKeyboardNav.ts": [],
+        "src/hooks/useMediaQuery.ts": [],
+        "src/hooks/useOllamaStatus.ts": [],
+        "src/hooks/useSelection.ts": [],
+        "src/hooks/useUpdater.ts": [],
+        "src/i18n/.gitkeep": [],
+        "src/i18n/en.json": [],
+        "src/i18n/zh.json": [],
+        "src/index.css": [],
+        "src/lib/__tests__/format.test.ts": [],
+        "src/lib/__tests__/i18n.test.ts": [],
+        "src/lib/api/__tests__/images.test.ts": [],
+        "src/lib/api/__tests__/semanticCache.test.ts": [],
+        "src/lib/api/__tests__/type-contract.test.ts": [],
+        "src/lib/api/__tests__/write-commands.test.ts": [],
+        "src/lib/api/.gitkeep": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 7,
+      "files": [
+        {
+          "path": "src/lib/api/ai.ts",
+          "language": "typescript",
+          "sizeLines": 114,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/api/embeddings.ts",
+          "language": "typescript",
+          "sizeLines": 91,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/api/images.ts",
+          "language": "typescript",
+          "sizeLines": 282,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/api/semantic.ts",
+          "language": "typescript",
+          "sizeLines": 56,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/api/semanticCache.ts",
+          "language": "typescript",
+          "sizeLines": 237,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/format.ts",
+          "language": "typescript",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/i18n.ts",
+          "language": "typescript",
+          "sizeLines": 96,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/tauri.ts",
+          "language": "typescript",
+          "sizeLines": 133,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/main.tsx",
+          "language": "typescript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/__tests__/aiAnalysisStore.test.ts",
+          "language": "typescript",
+          "sizeLines": 147,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/__tests__/embeddingStore.test.ts",
+          "language": "typescript",
+          "sizeLines": 133,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/__tests__/imageStore.test.ts",
+          "language": "typescript",
+          "sizeLines": 177,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/__tests__/imageTagsStore.test.ts",
+          "language": "typescript",
+          "sizeLines": 90,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/__tests__/semanticSearchStore.test.ts",
+          "language": "typescript",
+          "sizeLines": 162,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/__tests__/settingsStore.test.ts",
+          "language": "typescript",
+          "sizeLines": 158,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/__tests__/smartCollectionStore.test.ts",
+          "language": "typescript",
+          "sizeLines": 175,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/__tests__/trashStore.test.ts",
+          "language": "typescript",
+          "sizeLines": 212,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/.gitkeep",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/aiAnalysisStore.ts",
+          "language": "typescript",
+          "sizeLines": 107,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/commandStore.ts",
+          "language": "typescript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/embeddingStore.ts",
+          "language": "typescript",
+          "sizeLines": 92,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/imageStore.ts",
+          "language": "typescript",
+          "sizeLines": 235,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/imageTagsStore.ts",
+          "language": "typescript",
+          "sizeLines": 50,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/semanticSearchStore.ts",
+          "language": "typescript",
+          "sizeLines": 95,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/settingsStore.ts",
+          "language": "typescript",
+          "sizeLines": 58,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/lib/api/ai.ts": [],
+        "src/lib/api/embeddings.ts": [],
+        "src/lib/api/images.ts": [],
+        "src/lib/api/semantic.ts": [],
+        "src/lib/api/semanticCache.ts": [],
+        "src/lib/format.ts": [],
+        "src/lib/i18n.ts": [],
+        "src/lib/tauri.ts": [],
+        "src/main.tsx": [],
+        "src/stores/__tests__/aiAnalysisStore.test.ts": [],
+        "src/stores/__tests__/embeddingStore.test.ts": [],
+        "src/stores/__tests__/imageStore.test.ts": [],
+        "src/stores/__tests__/imageTagsStore.test.ts": [],
+        "src/stores/__tests__/semanticSearchStore.test.ts": [],
+        "src/stores/__tests__/settingsStore.test.ts": [],
+        "src/stores/__tests__/smartCollectionStore.test.ts": [],
+        "src/stores/__tests__/trashStore.test.ts": [],
+        "src/stores/.gitkeep": [],
+        "src/stores/aiAnalysisStore.ts": [],
+        "src/stores/commandStore.ts": [],
+        "src/stores/embeddingStore.ts": [],
+        "src/stores/imageStore.ts": [],
+        "src/stores/imageTagsStore.ts": [],
+        "src/stores/semanticSearchStore.ts": [],
+        "src/stores/settingsStore.ts": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 8,
+      "files": [
+        {
+          "path": "src/stores/smartCollectionStore.ts",
+          "language": "typescript",
+          "sizeLines": 66,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/stores/trashStore.ts",
+          "language": "typescript",
+          "sizeLines": 92,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/types/image.ts",
+          "language": "typescript",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/vite-env.d.ts",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "vite.config.ts",
+          "language": "typescript",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "vitest.config.ts",
+          "language": "typescript",
+          "sizeLines": 9,
+          "fileCategory": "code"
+        },
+        {
+          "path": "vitest.setup.ts",
+          "language": "typescript",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/stores/smartCollectionStore.ts": [],
+        "src/stores/trashStore.ts": [],
+        "src/types/image.ts": [],
+        "src/vite-env.d.ts": [],
+        "vite.config.ts": [],
+        "vitest.config.ts": [],
+        "vitest.setup.ts": []
+      },
+      "neighborMap": {}
+    }
+  ]
+}

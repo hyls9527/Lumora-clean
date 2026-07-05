@@ -66,17 +66,6 @@ export async function generateEmbeddings(
 }
 
 /**
- * Store a generated embedding for an image.
- * Calls Tauri command `generate_embedding`.
- */
-export async function storeEmbedding(
-  imageId: string,
-  embedding: number[],
-): Promise<void> {
-  await invoke('generate_embedding', { imageId, embedding });
-}
-
-/**
  * Get aggregate embedding stats.
  * Calls Tauri command `get_embedding_stats_cmd`.
  */

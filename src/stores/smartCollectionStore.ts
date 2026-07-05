@@ -1,17 +1,12 @@
 import { create } from 'zustand';
 import { invoke } from '../lib/tauri';
 
-export interface SmartCollectionRule {
-  field: 'model' | 'seed' | 'prompt' | 'rating' | 'format' | 'tag';
-  op: 'equals' | 'contains' | 'gte' | 'lte' | 'in';
-  value: string | number | string[];
-}
-
+// ponytail: SmartCollectionRule + CRUD methods removed — no UI calls them.
+// Add back when a collection editor UI exists.
 export interface SmartCollection {
   id: string;
   name: string;
-  rules: SmartCollectionRule[];
-  logic: 'AND' | 'OR';
+  // rules + logic omitted until UI exists
 }
 
 interface SmartCollectionState {
@@ -19,12 +14,9 @@ interface SmartCollectionState {
   loading: boolean;
   error: string | null;
   load: () => Promise<void>;
-  addCollection: (name: string, rules: SmartCollectionRule[], logic: 'AND' | 'OR') => Promise<void>;
-  removeCollection: (id: string) => Promise<void>;
-  updateCollection: (id: string, updates: Partial<SmartCollection>) => Promise<void>;
 }
 
-export const useSmartCollectionStore = create<SmartCollectionState>((set, get) => ({
+export const useSmartCollectionStore = create<SmartCollectionState>((set) => ({
   collections: [],
   loading: false,
   error: null,
@@ -42,25 +34,5 @@ export const useSmartCollectionStore = create<SmartCollectionState>((set, get) =
     } catch (err) {
       set({ loading: false, error: err instanceof Error ? err.message : '加载智能集合失败' });
     }
-  },
-
-  addCollection: async (name, rules, logic) => {
-    const id = crypto.randomUUID();
-    const newCollection: SmartCollection = { id, name, rules, logic };
-    const updated = [...get().collections, newCollection];
-    set({ collections: updated });
-    await invoke('set_setting', { key: 'smart_collections', value: JSON.stringify(updated) });
-  },
-
-  removeCollection: async (id) => {
-    const updated = get().collections.filter((c) => c.id !== id);
-    set({ collections: updated });
-    await invoke('set_setting', { key: 'smart_collections', value: JSON.stringify(updated) });
-  },
-
-  updateCollection: async (id, updates) => {
-    const updated = get().collections.map((c) => (c.id === id ? { ...c, ...updates } : c));
-    set({ collections: updated });
-    await invoke('set_setting', { key: 'smart_collections', value: JSON.stringify(updated) });
   },
 }));

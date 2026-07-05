@@ -1,0 +1,182 @@
+{
+  "projectRoot": "C:\\Users\\Admin\\Desktop\\Vibe coding\\Lumora-clean",
+  "batchFiles": [
+    {
+      "path": "src/features/settings/SettingsPage.tsx",
+      "language": "typescript",
+      "sizeLines": 298,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/tags/TagManager.tsx",
+      "language": "typescript",
+      "sizeLines": 379,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/features/trash/TrashPage.tsx",
+      "language": "typescript",
+      "sizeLines": 440,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/hooks/__tests__/useImageActions.test.ts",
+      "language": "typescript",
+      "sizeLines": 145,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/hooks/__tests__/useOllamaStatus.test.ts",
+      "language": "typescript",
+      "sizeLines": 125,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/hooks/__tests__/useSelection.test.ts",
+      "language": "typescript",
+      "sizeLines": 210,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/hooks/__tests__/useUpdater.test.ts",
+      "language": "typescript",
+      "sizeLines": 133,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/hooks/useDragDrop.ts",
+      "language": "typescript",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/hooks/useImageActions.ts",
+      "language": "typescript",
+      "sizeLines": 42,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/hooks/useKeyboardNav.ts",
+      "language": "typescript",
+      "sizeLines": 100,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/hooks/useMediaQuery.ts",
+      "language": "typescript",
+      "sizeLines": 57,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/hooks/useOllamaStatus.ts",
+      "language": "typescript",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/hooks/useSelection.ts",
+      "language": "typescript",
+      "sizeLines": 30,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/hooks/useUpdater.ts",
+      "language": "typescript",
+      "sizeLines": 99,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/i18n/.gitkeep",
+      "language": "unknown",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/i18n/en.json",
+      "language": "json",
+      "sizeLines": 316,
+      "fileCategory": "config"
+    },
+    {
+      "path": "src/i18n/zh.json",
+      "language": "json",
+      "sizeLines": 316,
+      "fileCategory": "config"
+    },
+    {
+      "path": "src/index.css",
+      "language": "css",
+      "sizeLines": 124,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "src/lib/__tests__/format.test.ts",
+      "language": "typescript",
+      "sizeLines": 40,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/__tests__/i18n.test.ts",
+      "language": "typescript",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/api/__tests__/images.test.ts",
+      "language": "typescript",
+      "sizeLines": 177,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/api/__tests__/semanticCache.test.ts",
+      "language": "typescript",
+      "sizeLines": 187,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/api/__tests__/type-contract.test.ts",
+      "language": "typescript",
+      "sizeLines": 143,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/api/__tests__/write-commands.test.ts",
+      "language": "typescript",
+      "sizeLines": 84,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/api/.gitkeep",
+      "language": "unknown",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "src/features/settings/SettingsPage.tsx": [],
+    "src/features/tags/TagManager.tsx": [],
+    "src/features/trash/TrashPage.tsx": [],
+    "src/hooks/__tests__/useImageActions.test.ts": [],
+    "src/hooks/__tests__/useOllamaStatus.test.ts": [],
+    "src/hooks/__tests__/useSelection.test.ts": [],
+    "src/hooks/__tests__/useUpdater.test.ts": [],
+    "src/hooks/useDragDrop.ts": [],
+    "src/hooks/useImageActions.ts": [],
+    "src/hooks/useKeyboardNav.ts": [],
+    "src/hooks/useMediaQuery.ts": [],
+    "src/hooks/useOllamaStatus.ts": [],
+    "src/hooks/useSelection.ts": [],
+    "src/hooks/useUpdater.ts": [],
+    "src/i18n/.gitkeep": [],
+    "src/i18n/en.json": [],
+    "src/i18n/zh.json": [],
+    "src/index.css": [],
+    "src/lib/__tests__/format.test.ts": [],
+    "src/lib/__tests__/i18n.test.ts": [],
+    "src/lib/api/__tests__/images.test.ts": [],
+    "src/lib/api/__tests__/semanticCache.test.ts": [],
+    "src/lib/api/__tests__/type-contract.test.ts": [],
+    "src/lib/api/__tests__/write-commands.test.ts": [],
+    "src/lib/api/.gitkeep": []
+  }
+}

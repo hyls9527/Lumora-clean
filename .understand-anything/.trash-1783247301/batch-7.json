@@ -1,0 +1,2458 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/lib/api/ai.ts",
+      "type": "file",
+      "name": "ai.ts",
+      "filePath": "src/lib/api/ai.ts",
+      "summary": "API client module for ai operations.",
+      "tags": [
+        "code",
+        "ai",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/lib/api/ai.ts:snakeToCamel",
+      "type": "function",
+      "name": "snakeToCamel",
+      "filePath": "src/lib/api/ai.ts",
+      "summary": "Function snakeToCamel(str) in ai.ts.",
+      "tags": [
+        "code",
+        "ai",
+        "api-layer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/ai.ts:convertKeysToCamel",
+      "type": "function",
+      "name": "convertKeysToCamel",
+      "filePath": "src/lib/api/ai.ts",
+      "summary": "Function convertKeysToCamel(obj) in ai.ts.",
+      "tags": [
+        "code",
+        "ai",
+        "api-layer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/ai.ts:normalizeAnalysisResult",
+      "type": "function",
+      "name": "normalizeAnalysisResult",
+      "filePath": "src/lib/api/ai.ts",
+      "summary": "Function normalizeAnalysisResult(raw) in ai.ts.",
+      "tags": [
+        "code",
+        "ai",
+        "api-layer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/ai.ts:analyzeImage",
+      "type": "function",
+      "name": "analyzeImage",
+      "filePath": "src/lib/api/ai.ts",
+      "summary": "Function analyzeImage(imageId, imagePath, model) in ai.ts.",
+      "tags": [
+        "code",
+        "ai",
+        "api-layer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/ai.ts:getAnalysisResult",
+      "type": "function",
+      "name": "getAnalysisResult",
+      "filePath": "src/lib/api/ai.ts",
+      "summary": "Function getAnalysisResult(imageId) in ai.ts.",
+      "tags": [
+        "code",
+        "ai",
+        "api-layer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/ai.ts:getAnalysisHistory",
+      "type": "function",
+      "name": "getAnalysisHistory",
+      "filePath": "src/lib/api/ai.ts",
+      "summary": "Function getAnalysisHistory(imageId) in ai.ts.",
+      "tags": [
+        "code",
+        "ai",
+        "api-layer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/api/embeddings.ts",
+      "type": "file",
+      "name": "embeddings.ts",
+      "filePath": "src/lib/api/embeddings.ts",
+      "summary": "API client module for embeddings operations.",
+      "tags": [
+        "code",
+        "embedding",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/lib/api/embeddings.ts:getEmbeddingStatus",
+      "type": "function",
+      "name": "getEmbeddingStatus",
+      "filePath": "src/lib/api/embeddings.ts",
+      "summary": "Function getEmbeddingStatus(imageId) in embeddings.ts.",
+      "tags": [
+        "code",
+        "embedding",
+        "api-layer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/embeddings.ts:generateEmbeddings",
+      "type": "function",
+      "name": "generateEmbeddings",
+      "filePath": "src/lib/api/embeddings.ts",
+      "summary": "Function generateEmbeddings(images) in embeddings.ts.",
+      "tags": [
+        "code",
+        "embedding",
+        "api-layer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/embeddings.ts:storeEmbedding",
+      "type": "function",
+      "name": "storeEmbedding",
+      "filePath": "src/lib/api/embeddings.ts",
+      "summary": "Function storeEmbedding(imageId, embedding) in embeddings.ts.",
+      "tags": [
+        "code",
+        "embedding",
+        "api-layer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/embeddings.ts:getEmbeddingStats",
+      "type": "function",
+      "name": "getEmbeddingStats",
+      "filePath": "src/lib/api/embeddings.ts",
+      "summary": "Function getEmbeddingStats() in embeddings.ts.",
+      "tags": [
+        "code",
+        "embedding",
+        "api-layer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/api/images.ts",
+      "type": "file",
+      "name": "images.ts",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "API client module for images operations.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:parseMetadata",
+      "type": "function",
+      "name": "parseMetadata",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function parseMetadata(json) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:toImageRecord",
+      "type": "function",
+      "name": "toImageRecord",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function toImageRecord(raw) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:importImages",
+      "type": "function",
+      "name": "importImages",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function importImages(folderPath) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:listImages",
+      "type": "function",
+      "name": "listImages",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function listImages(page, perPage) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:searchImages",
+      "type": "function",
+      "name": "searchImages",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function searchImages(query) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:searchImagesAdvanced",
+      "type": "function",
+      "name": "searchImagesAdvanced",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function searchImagesAdvanced(query, field) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:updateRating",
+      "type": "function",
+      "name": "updateRating",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function updateRating(id, rating) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:toggleFavorite",
+      "type": "function",
+      "name": "toggleFavorite",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function toggleFavorite(id) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:listFavorites",
+      "type": "function",
+      "name": "listFavorites",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function listFavorites() in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:createTag",
+      "type": "function",
+      "name": "createTag",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function createTag(name, color) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:listTags",
+      "type": "function",
+      "name": "listTags",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function listTags() in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:deleteTag",
+      "type": "function",
+      "name": "deleteTag",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function deleteTag(id) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:addTagToImage",
+      "type": "function",
+      "name": "addTagToImage",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function addTagToImage(imageId, tagId) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:removeTagFromImage",
+      "type": "function",
+      "name": "removeTagFromImage",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function removeTagFromImage(imageId, tagId) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:getImageTags",
+      "type": "function",
+      "name": "getImageTags",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function getImageTags(imageId) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:softDeleteImage",
+      "type": "function",
+      "name": "softDeleteImage",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function softDeleteImage(id) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:restoreImage",
+      "type": "function",
+      "name": "restoreImage",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function restoreImage(id) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:permanentDeleteImage",
+      "type": "function",
+      "name": "permanentDeleteImage",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function permanentDeleteImage(id) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:listTrash",
+      "type": "function",
+      "name": "listTrash",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function listTrash(page, perPage) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:emptyTrash",
+      "type": "function",
+      "name": "emptyTrash",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function emptyTrash() in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:batchSoftDelete",
+      "type": "function",
+      "name": "batchSoftDelete",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function batchSoftDelete(ids) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:getDashboardStats",
+      "type": "function",
+      "name": "getDashboardStats",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function getDashboardStats() in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/images.ts:exportImages",
+      "type": "function",
+      "name": "exportImages",
+      "filePath": "src/lib/api/images.ts",
+      "summary": "Function exportImages(ids, destDir, format, renameTemplate) in images.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/api/semantic.ts",
+      "type": "file",
+      "name": "semantic.ts",
+      "filePath": "src/lib/api/semantic.ts",
+      "summary": "API client module for semantic operations.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semantic.ts:searchSemantic",
+      "type": "function",
+      "name": "searchSemantic",
+      "filePath": "src/lib/api/semantic.ts",
+      "summary": "Function searchSemantic(query, limit) in semantic.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semantic.ts:generateImageEmbedding",
+      "type": "function",
+      "name": "generateImageEmbedding",
+      "filePath": "src/lib/api/semantic.ts",
+      "summary": "Function generateImageEmbedding(imageId, description) in semantic.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semantic.ts:getSearchSuggestions",
+      "type": "function",
+      "name": "getSearchSuggestions",
+      "filePath": "src/lib/api/semantic.ts",
+      "summary": "Function getSearchSuggestions(_query) in semantic.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/api/semanticCache.ts",
+      "type": "file",
+      "name": "semanticCache.ts",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "API client module for semanticCache operations.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/lib/api/semanticCache.ts:normalizeQuery",
+      "type": "function",
+      "name": "normalizeQuery",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "Function normalizeQuery(q) in semanticCache.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semanticCache.ts:estimateBytes",
+      "type": "function",
+      "name": "estimateBytes",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "Function estimateBytes(key, results) in semanticCache.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semanticCache.ts:evict",
+      "type": "function",
+      "name": "evict",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "Function evict() in semanticCache.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semanticCache.ts:isExpired",
+      "type": "function",
+      "name": "isExpired",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "Function isExpired(entry) in semanticCache.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semanticCache.ts:hydrate",
+      "type": "function",
+      "name": "hydrate",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "Function hydrate() in semanticCache.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semanticCache.ts:persist",
+      "type": "function",
+      "name": "persist",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "Function persist() in semanticCache.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semanticCache.ts:getCachedResult",
+      "type": "function",
+      "name": "getCachedResult",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "Function getCachedResult(query) in semanticCache.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semanticCache.ts:setCachedResult",
+      "type": "function",
+      "name": "setCachedResult",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "Function setCachedResult(query, results) in semanticCache.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semanticCache.ts:isCacheValid",
+      "type": "function",
+      "name": "isCacheValid",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "Function isCacheValid() in semanticCache.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semanticCache.ts:invalidateSemanticCache",
+      "type": "function",
+      "name": "invalidateSemanticCache",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "Function invalidateSemanticCache() in semanticCache.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semanticCache.ts:getCacheStats",
+      "type": "function",
+      "name": "getCacheStats",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "Function getCacheStats() in semanticCache.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/semanticCache.ts:searchSemanticCached",
+      "type": "function",
+      "name": "searchSemanticCached",
+      "filePath": "src/lib/api/semanticCache.ts",
+      "summary": "Function searchSemanticCached(query, limit) in semanticCache.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/format.ts",
+      "type": "file",
+      "name": "format.ts",
+      "filePath": "src/lib/format.ts",
+      "summary": "Typescript source file (28 lines) Contains 2 functions.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/format.ts:formatDate",
+      "type": "function",
+      "name": "formatDate",
+      "filePath": "src/lib/format.ts",
+      "summary": "Function formatDate(iso) in format.ts.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/format.ts:formatFileSize",
+      "type": "function",
+      "name": "formatFileSize",
+      "filePath": "src/lib/format.ts",
+      "summary": "Function formatFileSize(kb) in format.ts.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/i18n.ts",
+      "type": "file",
+      "name": "i18n.ts",
+      "filePath": "src/lib/i18n.ts",
+      "summary": "Typescript source file (96 lines) Contains 6 functions.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/lib/i18n.ts:getLanguage",
+      "type": "function",
+      "name": "getLanguage",
+      "filePath": "src/lib/i18n.ts",
+      "summary": "Function getLanguage() in i18n.ts.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/i18n.ts:subscribe",
+      "type": "function",
+      "name": "subscribe",
+      "filePath": "src/lib/i18n.ts",
+      "summary": "Function subscribe(listener) in i18n.ts.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/i18n.ts:notifyLanguageChanged",
+      "type": "function",
+      "name": "notifyLanguageChanged",
+      "filePath": "src/lib/i18n.ts",
+      "summary": "Function notifyLanguageChanged() in i18n.ts.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/i18n.ts:getNestedValue",
+      "type": "function",
+      "name": "getNestedValue",
+      "filePath": "src/lib/i18n.ts",
+      "summary": "Function getNestedValue(obj, path) in i18n.ts.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/i18n.ts:t",
+      "type": "function",
+      "name": "t",
+      "filePath": "src/lib/i18n.ts",
+      "summary": "Function t(key, lang, params) in i18n.ts.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/i18n.ts:useTranslation",
+      "type": "function",
+      "name": "useTranslation",
+      "filePath": "src/lib/i18n.ts",
+      "summary": "Function useTranslation(namespace) in i18n.ts.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/tauri.ts",
+      "type": "file",
+      "name": "tauri.ts",
+      "filePath": "src/lib/tauri.ts",
+      "summary": "Typescript source file (133 lines) Contains 4 functions.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/lib/tauri.ts:mockResponse",
+      "type": "function",
+      "name": "mockResponse",
+      "filePath": "src/lib/tauri.ts",
+      "summary": "Function mockResponse(cmd) in tauri.ts.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/tauri.ts:wrapError",
+      "type": "function",
+      "name": "wrapError",
+      "filePath": "src/lib/tauri.ts",
+      "summary": "Function wrapError(cmd, error) in tauri.ts.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/tauri.ts:invoke",
+      "type": "function",
+      "name": "invoke",
+      "filePath": "src/lib/tauri.ts",
+      "summary": "Function invoke(cmd, args) in tauri.ts.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/tauri.ts:convertFileSrc",
+      "type": "function",
+      "name": "convertFileSrc",
+      "filePath": "src/lib/tauri.ts",
+      "summary": "Function convertFileSrc(filePath) in tauri.ts.",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/main.tsx",
+      "type": "file",
+      "name": "main.tsx",
+      "filePath": "src/main.tsx",
+      "summary": "Application entry point. Mounts React app to DOM.",
+      "tags": [
+        "code",
+        "ai",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/__tests__/aiAnalysisStore.test.ts",
+      "type": "file",
+      "name": "aiAnalysisStore.test.ts",
+      "filePath": "src/stores/__tests__/aiAnalysisStore.test.ts",
+      "summary": "Zustand store managing aiAnalysisStore.test state.",
+      "tags": [
+        "state-management",
+        "test",
+        "ai",
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/__tests__/embeddingStore.test.ts",
+      "type": "file",
+      "name": "embeddingStore.test.ts",
+      "filePath": "src/stores/__tests__/embeddingStore.test.ts",
+      "summary": "Zustand store managing embeddingStore.test state.",
+      "tags": [
+        "state-management",
+        "test",
+        "embedding",
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/__tests__/imageStore.test.ts",
+      "type": "file",
+      "name": "imageStore.test.ts",
+      "filePath": "src/stores/__tests__/imageStore.test.ts",
+      "summary": "Zustand store managing imageStore.test state.",
+      "tags": [
+        "code",
+        "state-management",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/__tests__/imageTagsStore.test.ts",
+      "type": "file",
+      "name": "imageTagsStore.test.ts",
+      "filePath": "src/stores/__tests__/imageTagsStore.test.ts",
+      "summary": "Zustand store managing imageTagsStore.test state.",
+      "tags": [
+        "state-management",
+        "test",
+        "tags",
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/__tests__/semanticSearchStore.test.ts",
+      "type": "file",
+      "name": "semanticSearchStore.test.ts",
+      "filePath": "src/stores/__tests__/semanticSearchStore.test.ts",
+      "summary": "Zustand store managing semanticSearchStore.test state.",
+      "tags": [
+        "state-management",
+        "test",
+        "code",
+        "search",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/__tests__/settingsStore.test.ts",
+      "type": "file",
+      "name": "settingsStore.test.ts",
+      "filePath": "src/stores/__tests__/settingsStore.test.ts",
+      "summary": "Zustand store managing settingsStore.test state.",
+      "tags": [
+        "state-management",
+        "test",
+        "settings",
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/__tests__/smartCollectionStore.test.ts",
+      "type": "file",
+      "name": "smartCollectionStore.test.ts",
+      "filePath": "src/stores/__tests__/smartCollectionStore.test.ts",
+      "summary": "Zustand store managing smartCollectionStore.test state.",
+      "tags": [
+        "code",
+        "state-management",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/stores/__tests__/smartCollectionStore.test.ts:makeCollection",
+      "type": "function",
+      "name": "makeCollection",
+      "filePath": "src/stores/__tests__/smartCollectionStore.test.ts",
+      "summary": "Function makeCollection(id, name) in smartCollectionStore.test.ts.",
+      "tags": [
+        "code",
+        "state-management",
+        "test"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/__tests__/trashStore.test.ts",
+      "type": "file",
+      "name": "trashStore.test.ts",
+      "filePath": "src/stores/__tests__/trashStore.test.ts",
+      "summary": "Zustand store managing trashStore.test state.",
+      "tags": [
+        "state-management",
+        "test",
+        "code",
+        "trash",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/stores/__tests__/trashStore.test.ts:makeImage",
+      "type": "function",
+      "name": "makeImage",
+      "filePath": "src/stores/__tests__/trashStore.test.ts",
+      "summary": "Function makeImage(id) in trashStore.test.ts.",
+      "tags": [
+        "state-management",
+        "test",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/.gitkeep",
+      "type": "file",
+      "name": ".gitkeep",
+      "filePath": "src/stores/.gitkeep",
+      "summary": "Unknown source file (1 lines)",
+      "tags": [
+        "code",
+        "state-management",
+        "unknown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/aiAnalysisStore.ts",
+      "type": "file",
+      "name": "aiAnalysisStore.ts",
+      "filePath": "src/stores/aiAnalysisStore.ts",
+      "summary": "Zustand store managing aiAnalysisStore state.",
+      "tags": [
+        "code",
+        "state-management",
+        "ai",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/commandStore.ts",
+      "type": "file",
+      "name": "commandStore.ts",
+      "filePath": "src/stores/commandStore.ts",
+      "summary": "Zustand store managing commandStore state.",
+      "tags": [
+        "code",
+        "state-management",
+        "tauri-command",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/embeddingStore.ts",
+      "type": "file",
+      "name": "embeddingStore.ts",
+      "filePath": "src/stores/embeddingStore.ts",
+      "summary": "Zustand store managing embeddingStore state.",
+      "tags": [
+        "code",
+        "embedding",
+        "state-management",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/imageStore.ts",
+      "type": "file",
+      "name": "imageStore.ts",
+      "filePath": "src/stores/imageStore.ts",
+      "summary": "Zustand store managing imageStore state.",
+      "tags": [
+        "code",
+        "state-management",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/imageTagsStore.ts",
+      "type": "file",
+      "name": "imageTagsStore.ts",
+      "filePath": "src/stores/imageTagsStore.ts",
+      "summary": "Zustand store managing imageTagsStore state.",
+      "tags": [
+        "code",
+        "state-management",
+        "tags",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/semanticSearchStore.ts",
+      "type": "file",
+      "name": "semanticSearchStore.ts",
+      "filePath": "src/stores/semanticSearchStore.ts",
+      "summary": "Zustand store managing semanticSearchStore state.",
+      "tags": [
+        "code",
+        "state-management",
+        "search",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/settingsStore.ts",
+      "type": "file",
+      "name": "settingsStore.ts",
+      "filePath": "src/stores/settingsStore.ts",
+      "summary": "Zustand store managing settingsStore state.",
+      "tags": [
+        "code",
+        "state-management",
+        "settings",
+        "typescript"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/lib/api/ai.ts",
+      "target": "function:src/lib/api/ai.ts:snakeToCamel",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/ai.ts",
+      "target": "function:src/lib/api/ai.ts:convertKeysToCamel",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/ai.ts",
+      "target": "function:src/lib/api/ai.ts:normalizeAnalysisResult",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/ai.ts",
+      "target": "function:src/lib/api/ai.ts:analyzeImage",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/ai.ts",
+      "target": "function:src/lib/api/ai.ts:getAnalysisResult",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/ai.ts",
+      "target": "function:src/lib/api/ai.ts:getAnalysisHistory",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:snakeToCamel",
+      "target": "function:src/lib/api/ai.ts:str.replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:snakeToCamel",
+      "target": "function:src/lib/api/ai.ts:letter.toUpperCase",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:convertKeysToCamel",
+      "target": "function:src/lib/api/ai.ts:Array.isArray",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:convertKeysToCamel",
+      "target": "function:src/lib/api/ai.ts:obj.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:convertKeysToCamel",
+      "target": "function:src/lib/api/ai.ts:Object.fromEntries",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:convertKeysToCamel",
+      "target": "function:src/lib/api/ai.ts:Object.entries(obj as Record<string, unknown>).map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:convertKeysToCamel",
+      "target": "function:src/lib/api/ai.ts:Object.entries",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:convertKeysToCamel",
+      "target": "function:src/lib/api/ai.ts:snakeToCamel",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:convertKeysToCamel",
+      "target": "function:src/lib/api/ai.ts:convertKeysToCamel",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:normalizeAnalysisResult",
+      "target": "function:src/lib/api/ai.ts:convertKeysToCamel",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:analyzeImage",
+      "target": "function:src/lib/api/ai.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:analyzeImage",
+      "target": "function:src/lib/api/ai.ts:normalizeAnalysisResult",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:getAnalysisResult",
+      "target": "function:src/lib/api/ai.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:getAnalysisResult",
+      "target": "function:src/lib/api/ai.ts:normalizeAnalysisResult",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:getAnalysisHistory",
+      "target": "function:src/lib/api/ai.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:getAnalysisHistory",
+      "target": "function:src/lib/api/ai.ts:items.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:getAnalysisHistory",
+      "target": "function:src/lib/api/ai.ts:convertKeysToCamel",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/ai.ts:getAnalysisHistory",
+      "target": "function:src/lib/api/ai.ts:normalizeAnalysisResult",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/api/embeddings.ts",
+      "target": "function:src/lib/api/embeddings.ts:getEmbeddingStatus",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/embeddings.ts",
+      "target": "function:src/lib/api/embeddings.ts:generateEmbeddings",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/embeddings.ts",
+      "target": "function:src/lib/api/embeddings.ts:storeEmbedding",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/embeddings.ts",
+      "target": "function:src/lib/api/embeddings.ts:getEmbeddingStats",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/lib/api/embeddings.ts:getEmbeddingStatus",
+      "target": "function:src/lib/api/embeddings.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/embeddings.ts:generateEmbeddings",
+      "target": "function:src/lib/api/embeddings.ts:invoke('generate_embedding_for_image_cmd', {\r\n      imageId: img.id,\r\n      description,\r\n    }).then",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/embeddings.ts:generateEmbeddings",
+      "target": "function:src/lib/api/embeddings.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/embeddings.ts:generateEmbeddings",
+      "target": "function:src/lib/api/embeddings.ts:results.push",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/embeddings.ts:generateEmbeddings",
+      "target": "function:src/lib/api/embeddings.ts:Promise.all",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/embeddings.ts:generateEmbeddings",
+      "target": "function:src/lib/api/embeddings.ts:Promise.all",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/embeddings.ts:storeEmbedding",
+      "target": "function:src/lib/api/embeddings.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/embeddings.ts:getEmbeddingStats",
+      "target": "function:src/lib/api/embeddings.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:parseMetadata",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:toImageRecord",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:importImages",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:listImages",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:searchImages",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:searchImagesAdvanced",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:updateRating",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:toggleFavorite",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:listFavorites",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:createTag",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:listTags",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:deleteTag",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:addTagToImage",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:removeTagFromImage",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:getImageTags",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:softDeleteImage",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:restoreImage",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:permanentDeleteImage",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:listTrash",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:emptyTrash",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:batchSoftDelete",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:getDashboardStats",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/images.ts",
+      "target": "function:src/lib/api/images.ts:exportImages",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/lib/api/images.ts:parseMetadata",
+      "target": "function:src/lib/api/images.ts:JSON.parse",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:parseMetadata",
+      "target": "function:src/lib/api/images.ts:Array.isArray",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:toImageRecord",
+      "target": "function:src/lib/api/images.ts:parseMetadata",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:toImageRecord",
+      "target": "function:src/lib/api/images.ts:raw.filePath.split(/[/\\\\]/).pop",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:toImageRecord",
+      "target": "function:src/lib/api/images.ts:raw.filePath.split",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:importImages",
+      "target": "function:src/lib/api/images.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:importImages",
+      "target": "function:src/lib/api/images.ts:raw.items.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:listImages",
+      "target": "function:src/lib/api/images.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:listImages",
+      "target": "function:src/lib/api/images.ts:raw.items.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:searchImages",
+      "target": "function:src/lib/api/images.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:searchImages",
+      "target": "function:src/lib/api/images.ts:raw.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:searchImagesAdvanced",
+      "target": "function:src/lib/api/images.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:searchImagesAdvanced",
+      "target": "function:src/lib/api/images.ts:raw.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:updateRating",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:toggleFavorite",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:listFavorites",
+      "target": "function:src/lib/api/images.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:listFavorites",
+      "target": "function:src/lib/api/images.ts:raw.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:createTag",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:listTags",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:deleteTag",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:addTagToImage",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:removeTagFromImage",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:getImageTags",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:softDeleteImage",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:restoreImage",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:permanentDeleteImage",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:listTrash",
+      "target": "function:src/lib/api/images.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:listTrash",
+      "target": "function:src/lib/api/images.ts:raw.items.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:emptyTrash",
+      "target": "function:src/lib/api/images.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:batchSoftDelete",
+      "target": "function:src/lib/api/images.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:getDashboardStats",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/images.ts:exportImages",
+      "target": "function:src/lib/api/images.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/api/semantic.ts",
+      "target": "function:src/lib/api/semantic.ts:searchSemantic",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semantic.ts",
+      "target": "function:src/lib/api/semantic.ts:generateImageEmbedding",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semantic.ts",
+      "target": "function:src/lib/api/semantic.ts:getSearchSuggestions",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/lib/api/semantic.ts:searchSemantic",
+      "target": "function:src/lib/api/semantic.ts:query.trim",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semantic.ts:searchSemantic",
+      "target": "function:src/lib/api/semantic.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semantic.ts:searchSemantic",
+      "target": "function:src/lib/api/semantic.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semantic.ts:searchSemantic",
+      "target": "function:src/lib/api/semantic.ts:results.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semantic.ts:searchSemantic",
+      "target": "function:src/lib/api/semantic.ts:Math.round",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semantic.ts:generateImageEmbedding",
+      "target": "function:src/lib/api/semantic.ts:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/api/semanticCache.ts",
+      "target": "function:src/lib/api/semanticCache.ts:normalizeQuery",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semanticCache.ts",
+      "target": "function:src/lib/api/semanticCache.ts:estimateBytes",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semanticCache.ts",
+      "target": "function:src/lib/api/semanticCache.ts:evict",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semanticCache.ts",
+      "target": "function:src/lib/api/semanticCache.ts:isExpired",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semanticCache.ts",
+      "target": "function:src/lib/api/semanticCache.ts:hydrate",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semanticCache.ts",
+      "target": "function:src/lib/api/semanticCache.ts:persist",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semanticCache.ts",
+      "target": "function:src/lib/api/semanticCache.ts:getCachedResult",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semanticCache.ts",
+      "target": "function:src/lib/api/semanticCache.ts:setCachedResult",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semanticCache.ts",
+      "target": "function:src/lib/api/semanticCache.ts:isCacheValid",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semanticCache.ts",
+      "target": "function:src/lib/api/semanticCache.ts:invalidateSemanticCache",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semanticCache.ts",
+      "target": "function:src/lib/api/semanticCache.ts:getCacheStats",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/api/semanticCache.ts",
+      "target": "function:src/lib/api/semanticCache.ts:searchSemanticCached",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:normalizeQuery",
+      "target": "function:src/lib/api/semanticCache.ts:q.toLowerCase().trim().replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:normalizeQuery",
+      "target": "function:src/lib/api/semanticCache.ts:q.toLowerCase().trim",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:normalizeQuery",
+      "target": "function:src/lib/api/semanticCache.ts:q.toLowerCase",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:estimateBytes",
+      "target": "function:src/lib/api/semanticCache.ts:String",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:evict",
+      "target": "function:src/lib/api/semanticCache.ts:Array.from",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:evict",
+      "target": "function:src/lib/api/semanticCache.ts:cache.keys",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:evict",
+      "target": "function:src/lib/api/semanticCache.ts:cache.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:evict",
+      "target": "function:src/lib/api/semanticCache.ts:cache.delete",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:isExpired",
+      "target": "function:src/lib/api/semanticCache.ts:Date.now",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:hydrate",
+      "target": "function:src/lib/api/semanticCache.ts:localStorage.getItem",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:hydrate",
+      "target": "function:src/lib/api/semanticCache.ts:JSON.parse",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:hydrate",
+      "target": "function:src/lib/api/semanticCache.ts:Object.keys",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:hydrate",
+      "target": "function:src/lib/api/semanticCache.ts:isExpired",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:hydrate",
+      "target": "function:src/lib/api/semanticCache.ts:cache.set",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:hydrate",
+      "target": "function:src/lib/api/semanticCache.ts:localStorage.removeItem",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:clearTimeout",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:setTimeout",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:cache.forEach",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:localStorage.setItem",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:JSON.stringify",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:Array.from",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:cache.keys",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:Math.floor",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:cache.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:cache.delete",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:cache.forEach",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:localStorage.setItem",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:JSON.stringify",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:persist",
+      "target": "function:src/lib/api/semanticCache.ts:localStorage.removeItem",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:getCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:hydrate",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:getCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:normalizeQuery",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:getCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:cache.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:getCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:isExpired",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:getCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:cache.delete",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:getCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:persist",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:getCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:cache.delete",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:getCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:cache.set",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:setCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:hydrate",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:setCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:normalizeQuery",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:setCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:estimateBytes",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:setCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:cache.get",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:setCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:cache.delete",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:setCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:cache.set",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:setCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:Date.now",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:setCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:evict",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:setCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:persist",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:setCachedResult",
+      "target": "function:src/lib/api/semanticCache.ts:localStorage.setItem",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:isCacheValid",
+      "target": "function:src/lib/api/semanticCache.ts:localStorage.getItem",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:invalidateSemanticCache",
+      "target": "function:src/lib/api/semanticCache.ts:clearTimeout",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/semanticCache.ts:invalidateSemanticCache",
+      "target": "function:src/lib/api/semanticCache.ts:cache.clear",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/format.ts",
+      "target": "function:src/lib/format.ts:formatDate",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/format.ts",
+      "target": "function:src/lib/format.ts:formatFileSize",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/lib/format.ts:formatDate",
+      "target": "function:src/lib/format.ts:new Date(iso).toLocaleString",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/format.ts:formatFileSize",
+      "target": "function:src/lib/format.ts:mb.toFixed",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/format.ts:formatFileSize",
+      "target": "function:src/lib/format.ts:(mb / 1024).toFixed",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/i18n.ts",
+      "target": "function:src/lib/i18n.ts:getLanguage",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/i18n.ts",
+      "target": "function:src/lib/i18n.ts:subscribe",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/i18n.ts",
+      "target": "function:src/lib/i18n.ts:notifyLanguageChanged",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/i18n.ts",
+      "target": "function:src/lib/i18n.ts:getNestedValue",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/i18n.ts",
+      "target": "function:src/lib/i18n.ts:t",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/i18n.ts",
+      "target": "function:src/lib/i18n.ts:useTranslation",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/lib/i18n.ts:getLanguage",
+      "target": "function:src/lib/i18n.ts:localStorage.getItem",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:subscribe",
+      "target": "function:src/lib/i18n.ts:listeners.push",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:handler",
+      "target": "function:src/lib/i18n.ts:listener",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:subscribe",
+      "target": "function:src/lib/i18n.ts:window.addEventListener",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:subscribe",
+      "target": "function:src/lib/i18n.ts:listeners.filter",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:subscribe",
+      "target": "function:src/lib/i18n.ts:window.removeEventListener",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:notifyLanguageChanged",
+      "target": "function:src/lib/i18n.ts:listeners.forEach",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:notifyLanguageChanged",
+      "target": "function:src/lib/i18n.ts:l",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:getNestedValue",
+      "target": "function:src/lib/i18n.ts:path.split",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:t",
+      "target": "function:src/lib/i18n.ts:getLanguage",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:t",
+      "target": "function:src/lib/i18n.ts:getNestedValue",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:t",
+      "target": "function:src/lib/i18n.ts:Object.entries",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:t",
+      "target": "function:src/lib/i18n.ts:value.replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:t",
+      "target": "function:src/lib/i18n.ts:String",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:useTranslation",
+      "target": "function:src/lib/i18n.ts:useSyncExternalStore",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:useTranslation",
+      "target": "function:src/lib/i18n.ts:useCallback",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:useTranslation",
+      "target": "function:src/lib/i18n.ts:getNestedValue",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:useTranslation",
+      "target": "function:src/lib/i18n.ts:Object.entries",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:useTranslation",
+      "target": "function:src/lib/i18n.ts:value.replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:useTranslation",
+      "target": "function:src/lib/i18n.ts:String",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/i18n.ts:useTranslation",
+      "target": "function:src/lib/i18n.ts:useMemo",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/tauri.ts",
+      "target": "function:src/lib/tauri.ts:mockResponse",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/tauri.ts",
+      "target": "function:src/lib/tauri.ts:wrapError",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/tauri.ts",
+      "target": "function:src/lib/tauri.ts:invoke",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/lib/tauri.ts",
+      "target": "function:src/lib/tauri.ts:convertFileSrc",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/lib/tauri.ts:mockResponse",
+      "target": "function:src/lib/tauri.ts:['list_images', 'list_trash'].includes",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:mockResponse",
+      "target": "function:src/lib/tauri.ts:['list_tags', 'search_images', 'get_image_tags', 'list_favorites'].includes",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:wrapError",
+      "target": "function:src/lib/tauri.ts:String",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:wrapError",
+      "target": "function:src/lib/tauri.ts:Object.assign",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:import",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:_realInvoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:WRITE_COMMANDS.has",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:Promise.resolve().then",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:Promise.resolve",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:invalidateSemanticCache",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:console.error",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:wrapError",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:mockResponse",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:WRITE_COMMANDS.has",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:Promise.resolve().then",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:Promise.resolve",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:invoke",
+      "target": "function:src/lib/tauri.ts:invalidateSemanticCache",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:convertFileSrc",
+      "target": "function:src/lib/tauri.ts:import",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/tauri.ts:convertFileSrc",
+      "target": "function:src/lib/tauri.ts:mod.convertFileSrc",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/stores/__tests__/smartCollectionStore.test.ts",
+      "target": "function:src/stores/__tests__/smartCollectionStore.test.ts:makeCollection",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/stores/__tests__/trashStore.test.ts",
+      "target": "function:src/stores/__tests__/trashStore.test.ts:makeImage",
+      "type": "contains",
+      "weight": 1.0
+    }
+  ]
+}

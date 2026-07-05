@@ -1,0 +1,6650 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "3201d73a9e0b3a8ae32ac88c66f4b06366923958",
+  "generatedAt": "2026-07-05T10:28:08.907Z",
+  "files": {
+    ".github/CODEOWNERS": {
+      "filePath": ".github/CODEOWNERS",
+      "contentHash": "00e29cf5a98b0487de78ced3ac39a0fdd18f9ad0b7dc913ebf26ed57a3436610",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 3,
+      "hasStructuralAnalysis": false
+    },
+    ".github/dependabot.yml": {
+      "filePath": ".github/dependabot.yml",
+      "contentHash": "0de3d40ebf582982d644734f00b4fdda62810c63552d3a335fcd4c3fbf0d1d4d",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    },
+    ".github/ISSUE_TEMPLATE/bug_report.yml": {
+      "filePath": ".github/ISSUE_TEMPLATE/bug_report.yml",
+      "contentHash": "73924b337879072c8e6edc095c2141c67e8067b6919b104dfcabab0051a76690",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 80,
+      "hasStructuralAnalysis": true
+    },
+    ".github/ISSUE_TEMPLATE/feature_request.yml": {
+      "filePath": ".github/ISSUE_TEMPLATE/feature_request.yml",
+      "contentHash": "42e6f767bc1bc2a47b4b208fb6178663290fc71268e9686341604bfa11bbcd38",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 60,
+      "hasStructuralAnalysis": true
+    },
+    ".github/PULL_REQUEST_TEMPLATE.md": {
+      "filePath": ".github/PULL_REQUEST_TEMPLATE.md",
+      "contentHash": "e912ada0e59ef968702a7283e5e10154dd71f153f9f89b651518fae6d5d30a73",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 24,
+      "hasStructuralAnalysis": true
+    },
+    ".github/workflows/ci.yml": {
+      "filePath": ".github/workflows/ci.yml",
+      "contentHash": "62e3ba74f5d24608f6af73e837726e7144ee244c6decea9cc063df8383d082af",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 63,
+      "hasStructuralAnalysis": true
+    },
+    ".github/workflows/release.yml": {
+      "filePath": ".github/workflows/release.yml",
+      "contentHash": "9eca76b3fbda57124c5ffb9771c3dc01117a4c3f392d615e3ba7b904f7272c81",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 157,
+      "hasStructuralAnalysis": true
+    },
+    ".understand-anything/.understandignore": {
+      "filePath": ".understand-anything/.understandignore",
+      "contentHash": "a52d837838e522afba038486516acab08c297e68fc1726d23522a19b79cc8bfb",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 63,
+      "hasStructuralAnalysis": false
+    },
+    ".understand-anything/config.json": {
+      "filePath": ".understand-anything/config.json",
+      "contentHash": "8c3a9d19059e85bec2c97b88b9416907cb3febd8c157599ffd99684a17a954f9",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 5,
+      "hasStructuralAnalysis": true
+    },
+    "ARCHITECTURE.md": {
+      "filePath": "ARCHITECTURE.md",
+      "contentHash": "f75a1a239ccfa2fac634180cce31fb5f3f6ecb9ae319175facd3c6080cc159c8",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 246,
+      "hasStructuralAnalysis": true
+    },
+    "CHANGELOG.md": {
+      "filePath": "CHANGELOG.md",
+      "contentHash": "7a0690e7248596e48335762c4b2a7883b8f0e95e384f39a0fd0faa705f7d869e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 164,
+      "hasStructuralAnalysis": true
+    },
+    "CLAUDE.md": {
+      "filePath": "CLAUDE.md",
+      "contentHash": "22404add523b9fae53271342f0c950182bd65eff8bb30ca3818e961537b5b59b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 30,
+      "hasStructuralAnalysis": true
+    },
+    "CODE_OF_CONDUCT.md": {
+      "filePath": "CODE_OF_CONDUCT.md",
+      "contentHash": "463a6246dbc7cd6114165d62ea19bb3795b1da04489a058370164929305d19db",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 40,
+      "hasStructuralAnalysis": true
+    },
+    "CONTRIBUTING.md": {
+      "filePath": "CONTRIBUTING.md",
+      "contentHash": "efec49faf55f8a2b78ad6936ae1b3897d628b3b8e220b376e8a745c77d2d2959",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 68,
+      "hasStructuralAnalysis": true
+    },
+    "DESIGN.md": {
+      "filePath": "DESIGN.md",
+      "contentHash": "504baa49f912b2f1995d568d5dbcdd3cc9f02e6b76318706f16bf244ba4e45c7",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 114,
+      "hasStructuralAnalysis": true
+    },
+    "index.html": {
+      "filePath": "index.html",
+      "contentHash": "0c32aade171d86d21fb3eff95f87b4618dfd1e6f9e5a4df5ce6ad3d8ef0c1949",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 34,
+      "hasStructuralAnalysis": false
+    },
+    "package.json": {
+      "filePath": "package.json",
+      "contentHash": "e1aa70de22513cf40e994609a5469f18bb82038d8033544d862f5694bfab08b8",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 41,
+      "hasStructuralAnalysis": true
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "bc3ad56c3bbfd282304eac42f3987f241794a0b0a9f97036ccb15739787f7f27",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 122,
+      "hasStructuralAnalysis": true
+    },
+    "SECURITY.md": {
+      "filePath": "SECURITY.md",
+      "contentHash": "36043a476fafbc66d0e9749dfd5879df5133a626d5d908a462dbe504ae49b236",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 39,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/build.rs": {
+      "filePath": "src-tauri/build.rs",
+      "contentHash": "4419c8741947186103ef4b88ff0d085dd43a6c6306e5fb0f6121b7c638504e99",
+      "functions": [
+        {
+          "name": "main",
+          "params": [],
+          "exported": false,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 7,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/capabilities/default.json": {
+      "filePath": "src-tauri/capabilities/default.json",
+      "contentHash": "41bd758e61ca5b1b8b8243482d312f178b5f8e83807b35451da572c3f2c498d8",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 13,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/Cargo.toml": {
+      "filePath": "src-tauri/Cargo.toml",
+      "contentHash": "ed61d2a95d4c041400ba46f34b495e8ab8ff1d213074f8c93b43dd63f1869ffd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 36,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/icons/android/mipmap-anydpi-v26/ic_launcher.xml": {
+      "filePath": "src-tauri/icons/android/mipmap-anydpi-v26/ic_launcher.xml",
+      "contentHash": "760d4b8a06bf7163dd010c33ad2cac9e4a75fa0177afaba042f83e311eef0c3e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 5,
+      "hasStructuralAnalysis": false
+    },
+    "src-tauri/icons/android/values/ic_launcher_background.xml": {
+      "filePath": "src-tauri/icons/android/values/ic_launcher_background.xml",
+      "contentHash": "0687336f0ccc6f7ee09c7c95110667c63b75931238df779a21af401fb864cd34",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 4,
+      "hasStructuralAnalysis": false
+    },
+    "src-tauri/icons/icon.icns": {
+      "filePath": "src-tauri/icons/icon.icns",
+      "contentHash": "3aa168f5d07c848c19a29d59c5ff0c6a2ac9c1d321fb5267d3a0bdd72500ac26",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 10075,
+      "hasStructuralAnalysis": false
+    },
+    "src-tauri/Lumora.exe.manifest": {
+      "filePath": "src-tauri/Lumora.exe.manifest",
+      "contentHash": "5131d552e0c99f705496dbae392c04b7183606c51f4e78ac35bfd9592d62589c",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 22,
+      "hasStructuralAnalysis": false
+    },
+    "src-tauri/nsis/installer-hooks.nsh": {
+      "filePath": "src-tauri/nsis/installer-hooks.nsh",
+      "contentHash": "78c78031f447d9a37424d1c3a2bd630c01a9a1b6b75db2ee985985f2f36eb2af",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 62,
+      "hasStructuralAnalysis": false
+    },
+    "src-tauri/sidecar/clip_server.py": {
+      "filePath": "src-tauri/sidecar/clip_server.py",
+      "contentHash": "741540a1e0515e9d4856c5725d0847d6f15c277aacfb8144c33909f641231d41",
+      "functions": [
+        {
+          "name": "load_model",
+          "params": [],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "embed_image",
+          "params": [
+            "image_path"
+          ],
+          "returnType": "list[float]",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "embed_text",
+          "params": [
+            "text"
+          ],
+          "returnType": "list[float]",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 48
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "base64",
+          "specifiers": [
+            "base64"
+          ]
+        },
+        {
+          "source": "io",
+          "specifiers": [
+            "io"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "open_clip",
+          "specifiers": [
+            "open_clip"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "PIL",
+          "specifiers": [
+            "Image"
+          ]
+        }
+      ],
+      "exports": [
+        "load_model",
+        "embed_image",
+        "embed_text",
+        "main"
+      ],
+      "totalLines": 119,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/sidecar/requirements.txt": {
+      "filePath": "src-tauri/sidecar/requirements.txt",
+      "contentHash": "826eab374716db599775fcb0baedba9126dc975b9672590dc755bd133952a94c",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 4,
+      "hasStructuralAnalysis": false
+    },
+    "src-tauri/src/commands/ai.rs": {
+      "filePath": "src-tauri/src/commands/ai.rs",
+      "contentHash": "e35123a320bd81e03a2aeb2299b5db44bc16384460001dcb4438a70713db49b2",
+      "functions": [
+        {
+          "name": "check_ollama_available",
+          "params": [
+            "cfg"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": false,
+          "lineCount": 15
+        },
+        {
+          "name": "call_ollama_analyze",
+          "params": [
+            "cfg",
+            "image_path",
+            "model"
+          ],
+          "returnType": "AppResult<AnalysisResult>",
+          "exported": false,
+          "lineCount": 60
+        },
+        {
+          "name": "store_analysis",
+          "params": [
+            "conn",
+            "image_id",
+            "result"
+          ],
+          "returnType": "Result<String, rusqlite::Error>",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "auto_tag_from_analysis",
+          "params": [
+            "conn",
+            "image_id",
+            "tags"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": false,
+          "lineCount": 26
+        },
+        {
+          "name": "get_latest_analysis",
+          "params": [
+            "conn",
+            "image_id"
+          ],
+          "returnType": "Result<Option<AnalysisResult>, rusqlite::Error>",
+          "exported": true,
+          "lineCount": 25
+        },
+        {
+          "name": "get_analysis_history_db",
+          "params": [
+            "conn",
+            "image_id"
+          ],
+          "returnType": "Result<Vec<AnalysisHistoryItem>, rusqlite::Error>",
+          "exported": true,
+          "lineCount": 31
+        },
+        {
+          "name": "analyze_image_cmd",
+          "params": [
+            "db",
+            "cfg",
+            "image_id",
+            "image_path",
+            "model"
+          ],
+          "returnType": "AppResult<AnalysisResult>",
+          "exported": true,
+          "lineCount": 37
+        },
+        {
+          "name": "get_analysis_result_cmd",
+          "params": [
+            "db",
+            "image_id"
+          ],
+          "returnType": "AppResult<Option<AnalysisResult>>",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "get_analysis_history_cmd",
+          "params": [
+            "db",
+            "image_id"
+          ],
+          "returnType": "AppResult<Vec<AnalysisHistoryItem>>",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "apply_ai_tags_cmd",
+          "params": [
+            "db",
+            "image_id"
+          ],
+          "returnType": "AppResult<Vec<String>>",
+          "exported": true,
+          "lineCount": 15
+        }
+      ],
+      "classes": [
+        {
+          "name": "AnalysisTag",
+          "methods": [],
+          "properties": [
+            "name",
+            "confidence"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "AnalysisResult",
+          "methods": [],
+          "properties": [
+            "description",
+            "tags",
+            "objects",
+            "color_palette",
+            "composition"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "AnalysisHistoryItem",
+          "methods": [],
+          "properties": [
+            "id",
+            "image_id",
+            "result",
+            "analyzed_at"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "OllamaMessage",
+          "methods": [],
+          "properties": [
+            "role",
+            "content",
+            "images"
+          ],
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "OllamaRequest",
+          "methods": [],
+          "properties": [
+            "model",
+            "messages",
+            "stream"
+          ],
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "OllamaResponse",
+          "methods": [],
+          "properties": [
+            "message"
+          ],
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "rusqlite",
+          "specifiers": [
+            "params"
+          ]
+        },
+        {
+          "source": "rusqlite",
+          "specifiers": [
+            "Connection"
+          ]
+        },
+        {
+          "source": "serde",
+          "specifiers": [
+            "Deserialize",
+            "Serialize"
+          ]
+        },
+        {
+          "source": "tauri",
+          "specifiers": [
+            "command"
+          ]
+        },
+        {
+          "source": "uuid",
+          "specifiers": [
+            "Uuid"
+          ]
+        },
+        {
+          "source": "crate::db",
+          "specifiers": [
+            "DbHandle"
+          ]
+        },
+        {
+          "source": "crate::error",
+          "specifiers": [
+            "AppError",
+            "AppResult"
+          ]
+        }
+      ],
+      "exports": [
+        "AnalysisTag",
+        "AnalysisResult",
+        "AnalysisHistoryItem",
+        "store_analysis",
+        "get_latest_analysis",
+        "get_analysis_history_db",
+        "analyze_image_cmd",
+        "get_analysis_result_cmd",
+        "get_analysis_history_cmd",
+        "apply_ai_tags_cmd"
+      ],
+      "totalLines": 505,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/commands/clip.rs": {
+      "filePath": "src-tauri/src/commands/clip.rs",
+      "contentHash": "1f0da55ade3d1ba5886ab02d6fb0f170db0714fb71790cc8e77bfe266f1b8738",
+      "functions": [
+        {
+          "name": "clip_embed_image",
+          "params": [
+            "image_path"
+          ],
+          "returnType": "AppResult<Vec<f64>>",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "clip_embed_text",
+          "params": [
+            "text"
+          ],
+          "returnType": "AppResult<Vec<f64>>",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "get_sidecar_path",
+          "params": [],
+          "returnType": "AppResult<String>",
+          "exported": false,
+          "lineCount": 15
+        },
+        {
+          "name": "clip_embed_image_cmd",
+          "params": [
+            "db",
+            "image_path"
+          ],
+          "returnType": "AppResult<Vec<f64>>",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "clip_embed_text_cmd",
+          "params": [
+            "text"
+          ],
+          "returnType": "AppResult<Vec<f64>>",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "ClipEmbeddingResponse",
+          "methods": [],
+          "properties": [
+            "embedding",
+            "error"
+          ],
+          "exported": true,
+          "lineCount": 5
+        }
+      ],
+      "imports": [
+        {
+          "source": "crate::error",
+          "specifiers": [
+            "AppError",
+            "AppResult"
+          ]
+        },
+        {
+          "source": "std::process",
+          "specifiers": [
+            "Command"
+          ]
+        },
+        {
+          "source": "serde",
+          "specifiers": [
+            "Deserialize",
+            "Serialize"
+          ]
+        },
+        {
+          "source": "rusqlite",
+          "specifiers": [
+            "rusqlite"
+          ]
+        }
+      ],
+      "exports": [
+        "ClipEmbeddingResponse",
+        "clip_embed_image",
+        "clip_embed_text",
+        "clip_embed_image_cmd",
+        "clip_embed_text_cmd"
+      ],
+      "totalLines": 122,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/commands/dashboard.rs": {
+      "filePath": "src-tauri/src/commands/dashboard.rs",
+      "contentHash": "19049d2ecb10b000a9e34ef673b4425ed9931e7a3077e7d98a19288b9fca88e9",
+      "functions": [
+        {
+          "name": "get_dashboard_stats",
+          "params": [
+            "db"
+          ],
+          "returnType": "AppResult<DashboardStats>",
+          "exported": true,
+          "lineCount": 102
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "crate::db",
+          "specifiers": [
+            "DbHandle"
+          ]
+        },
+        {
+          "source": "crate::error",
+          "specifiers": [
+            "AppError",
+            "AppResult"
+          ]
+        },
+        {
+          "source": "crate::schema::types",
+          "specifiers": [
+            "DashboardStats",
+            "FormatCount",
+            "RatingCount",
+            "TagCount"
+          ]
+        },
+        {
+          "source": "crate::schema::types",
+          "specifiers": [
+            "row_to_record"
+          ]
+        }
+      ],
+      "exports": [
+        "get_dashboard_stats"
+      ],
+      "totalLines": 109,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/commands/embeddings.rs": {
+      "filePath": "src-tauri/src/commands/embeddings.rs",
+      "contentHash": "dda1080e4e59cf87db114cd9a1b3e820fe6762eca2a7e17b9eab5c6d7cc8592c",
+      "functions": [
+        {
+          "name": "upsert_embedding",
+          "params": [
+            "conn",
+            "image_id",
+            "embedding"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": true,
+          "lineCount": 34
+        },
+        {
+          "name": "get_embedding_status_db",
+          "params": [
+            "conn",
+            "image_id"
+          ],
+          "returnType": "Result<Option<EmbeddingInfo>, rusqlite::Error>",
+          "exported": true,
+          "lineCount": 20
+        },
+        {
+          "name": "search_semantic_db",
+          "params": [
+            "conn",
+            "query_embedding",
+            "limit"
+          ],
+          "returnType": "Result<Vec<SemanticSearchResult>, rusqlite::Error>",
+          "exported": true,
+          "lineCount": 27
+        },
+        {
+          "name": "generate_embedding",
+          "params": [
+            "db",
+            "image_id",
+            "embedding"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "get_embedding_status_cmd",
+          "params": [
+            "db",
+            "image_id"
+          ],
+          "returnType": "AppResult<Option<EmbeddingInfo>>",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "search_semantic_cmd",
+          "params": [
+            "db",
+            "query_embedding",
+            "limit"
+          ],
+          "returnType": "AppResult<Vec<SemanticSearchResult>>",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "get_embedding_stats_db",
+          "params": [
+            "conn"
+          ],
+          "returnType": "Result<EmbeddingStats, rusqlite::Error>",
+          "exported": true,
+          "lineCount": 24
+        },
+        {
+          "name": "get_embedding_stats_cmd",
+          "params": [
+            "db"
+          ],
+          "returnType": "AppResult<EmbeddingStats>",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "embed_text_ollama",
+          "params": [
+            "cfg",
+            "text",
+            "model"
+          ],
+          "returnType": "AppResult<Vec<f64>>",
+          "exported": false,
+          "lineCount": 36
+        },
+        {
+          "name": "embed_text_cmd",
+          "params": [
+            "cfg",
+            "text",
+            "model"
+          ],
+          "returnType": "AppResult<Vec<f64>>",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "generate_embedding_for_image_cmd",
+          "params": [
+            "db",
+            "cfg",
+            "image_id",
+            "description",
+            "model"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "classes": [
+        {
+          "name": "EmbeddingInfo",
+          "methods": [],
+          "properties": [
+            "status",
+            "dimensions",
+            "generated_at"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "SemanticSearchResult",
+          "methods": [],
+          "properties": [
+            "id",
+            "similarity"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "EmbeddingStats",
+          "methods": [],
+          "properties": [
+            "embedded",
+            "pending",
+            "error",
+            "total"
+          ],
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "imports": [
+        {
+          "source": "rusqlite",
+          "specifiers": [
+            "Connection"
+          ]
+        },
+        {
+          "source": "serde",
+          "specifiers": [
+            "Deserialize",
+            "Serialize"
+          ]
+        },
+        {
+          "source": "tauri",
+          "specifiers": [
+            "command"
+          ]
+        },
+        {
+          "source": "crate::db",
+          "specifiers": [
+            "DbHandle"
+          ]
+        },
+        {
+          "source": "crate::error",
+          "specifiers": [
+            "AppError",
+            "AppResult"
+          ]
+        }
+      ],
+      "exports": [
+        "EmbeddingInfo",
+        "SemanticSearchResult",
+        "upsert_embedding",
+        "get_embedding_status_db",
+        "search_semantic_db",
+        "generate_embedding",
+        "get_embedding_status_cmd",
+        "search_semantic_cmd",
+        "EmbeddingStats",
+        "get_embedding_stats_db",
+        "get_embedding_stats_cmd",
+        "embed_text_cmd",
+        "generate_embedding_for_image_cmd"
+      ],
+      "totalLines": 417,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/commands/export.rs": {
+      "filePath": "src-tauri/src/commands/export.rs",
+      "contentHash": "bb0194175de01b40d0e3b9d7a17154b3d25442065291d3c4a030d907d3091291",
+      "functions": [
+        {
+          "name": "export_images",
+          "params": [
+            "db",
+            "ids",
+            "dest_dir",
+            "format",
+            "rename_template"
+          ],
+          "returnType": "AppResult<ExportResult>",
+          "exported": true,
+          "lineCount": 46
+        },
+        {
+          "name": "load_tags_for_image",
+          "params": [
+            "conn",
+            "image_id"
+          ],
+          "returnType": "Vec<String>",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "build_filename",
+          "params": [
+            "record",
+            "tags",
+            "template"
+          ],
+          "returnType": "String",
+          "exported": false,
+          "lineCount": 25
+        },
+        {
+          "name": "sanitize_filename",
+          "params": [
+            "name"
+          ],
+          "returnType": "String",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "resolve_extension",
+          "params": [
+            "original_format",
+            "target_format"
+          ],
+          "returnType": "&'a str",
+          "exported": false,
+          "lineCount": 15
+        },
+        {
+          "name": "export_single",
+          "params": [
+            "src",
+            "dest",
+            "format"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": false,
+          "lineCount": 20
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "std",
+          "specifiers": [
+            "fs"
+          ]
+        },
+        {
+          "source": "std::path",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "rusqlite",
+          "specifiers": [
+            "params"
+          ]
+        },
+        {
+          "source": "crate::error",
+          "specifiers": [
+            "AppError",
+            "AppResult"
+          ]
+        },
+        {
+          "source": "crate::db",
+          "specifiers": [
+            "DbHandle"
+          ]
+        },
+        {
+          "source": "crate::schema::types",
+          "specifiers": [
+            "row_to_record"
+          ]
+        },
+        {
+          "source": "crate::schema::types",
+          "specifiers": [
+            "ExportResult"
+          ]
+        }
+      ],
+      "exports": [
+        "export_images"
+      ],
+      "totalLines": 144,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/commands/images.rs": {
+      "filePath": "src-tauri/src/commands/images.rs",
+      "contentHash": "634c79eb1bdf22436e411db2aee9ce4131318971e5f38662be97608ee77d9ca9",
+      "functions": [
+        {
+          "name": "import_images",
+          "params": [
+            "db",
+            "path"
+          ],
+          "returnType": "AppResult<ImportResult>",
+          "exported": true,
+          "lineCount": 25
+        },
+        {
+          "name": "list_images",
+          "params": [
+            "db",
+            "page",
+            "per_page"
+          ],
+          "returnType": "AppResult<PaginatedResult>",
+          "exported": true,
+          "lineCount": 30
+        },
+        {
+          "name": "search_images",
+          "params": [
+            "db",
+            "query"
+          ],
+          "returnType": "AppResult<Vec<ImageRecord>>",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "search_images_advanced",
+          "params": [
+            "db",
+            "query",
+            "field"
+          ],
+          "returnType": "AppResult<Vec<ImageRecord>>",
+          "exported": true,
+          "lineCount": 64
+        },
+        {
+          "name": "update_rating",
+          "params": [
+            "db",
+            "id",
+            "rating"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "toggle_favorite",
+          "params": [
+            "db",
+            "id"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "list_favorites",
+          "params": [
+            "db"
+          ],
+          "returnType": "AppResult<Vec<ImageRecord>>",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "rebuild_fts_index",
+          "params": [
+            "db"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "get_variant_group_images",
+          "params": [
+            "db",
+            "variant_group_id"
+          ],
+          "returnType": "AppResult<Vec<ImageRecord>>",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "escape_fts5",
+          "params": [
+            "query"
+          ],
+          "returnType": "String",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "scan_folder",
+          "params": [
+            "root"
+          ],
+          "returnType": "std::io::Result<Vec<ImportEntry>>",
+          "exported": false,
+          "lineCount": 47
+        },
+        {
+          "name": "walk_dir",
+          "params": [
+            "root"
+          ],
+          "returnType": "std::io::Result<Vec<String>>",
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "file_hash",
+          "params": [
+            "path",
+            "size"
+          ],
+          "returnType": "String",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "probe_dimensions_from_bytes",
+          "params": [
+            "bytes",
+            "ext"
+          ],
+          "returnType": "(Option<i32>, Option<i32>)",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "probe_png",
+          "params": [
+            "bytes"
+          ],
+          "returnType": "(Option<i32>, Option<i32>)",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "probe_jpeg",
+          "params": [
+            "bytes"
+          ],
+          "returnType": "(Option<i32>, Option<i32>)",
+          "exported": false,
+          "lineCount": 24
+        },
+        {
+          "name": "probe_webp",
+          "params": [
+            "bytes"
+          ],
+          "returnType": "(Option<i32>, Option<i32>)",
+          "exported": false,
+          "lineCount": 17
+        },
+        {
+          "name": "probe_gif",
+          "params": [
+            "path"
+          ],
+          "returnType": "(Option<i32>, Option<i32>)",
+          "exported": false,
+          "lineCount": 22
+        },
+        {
+          "name": "find_or_create_variant_group",
+          "params": [
+            "conn",
+            "prompt"
+          ],
+          "returnType": "Result<String, rusqlite::Error>",
+          "exported": false,
+          "lineCount": 18
+        },
+        {
+          "name": "insert_image",
+          "params": [
+            "conn",
+            "entry"
+          ],
+          "returnType": "Result<bool, rusqlite::Error>",
+          "exported": false,
+          "lineCount": 38
+        },
+        {
+          "name": "load_record",
+          "params": [
+            "conn",
+            "id"
+          ],
+          "returnType": "Result<ImageRecord, rusqlite::Error>",
+          "exported": false,
+          "lineCount": 7
+        }
+      ],
+      "classes": [
+        {
+          "name": "ImportEntry",
+          "methods": [],
+          "properties": [
+            "id",
+            "file_path",
+            "file_hash",
+            "file_size_kb",
+            "width",
+            "height",
+            "format",
+            "created_at",
+            "metadata_json"
+          ],
+          "exported": false,
+          "lineCount": 11
+        }
+      ],
+      "imports": [
+        {
+          "source": "std::collections::hash_map",
+          "specifiers": [
+            "DefaultHasher"
+          ]
+        },
+        {
+          "source": "std",
+          "specifiers": [
+            "fs"
+          ]
+        },
+        {
+          "source": "std::hash",
+          "specifiers": [
+            "Hash",
+            "Hasher"
+          ]
+        },
+        {
+          "source": "rusqlite",
+          "specifiers": [
+            "params"
+          ]
+        },
+        {
+          "source": "crate::error",
+          "specifiers": [
+            "AppError",
+            "AppResult"
+          ]
+        },
+        {
+          "source": "uuid",
+          "specifiers": [
+            "Uuid"
+          ]
+        },
+        {
+          "source": "crate::db",
+          "specifiers": [
+            "DbHandle"
+          ]
+        },
+        {
+          "source": "crate",
+          "specifiers": [
+            "metadata"
+          ]
+        },
+        {
+          "source": "crate::schema::types",
+          "specifiers": [
+            "row_to_record",
+            "ImageRecord",
+            "ImportResult",
+            "PaginatedResult"
+          ]
+        }
+      ],
+      "exports": [
+        "import_images",
+        "list_images",
+        "search_images",
+        "search_images_advanced",
+        "update_rating",
+        "toggle_favorite",
+        "list_favorites",
+        "rebuild_fts_index",
+        "get_variant_group_images",
+        "probe_dimensions_from_bytes"
+      ],
+      "totalLines": 1107,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/commands/mod.rs": {
+      "filePath": "src-tauri/src/commands/mod.rs",
+      "contentHash": "0965ed9c25fb72cf870f7cc4d62213df08b6fa054be757d1c3da280d336a4888",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/commands/settings.rs": {
+      "filePath": "src-tauri/src/commands/settings.rs",
+      "contentHash": "c642be3370bb4cdb340fac959305c8a642641468257809cddfd0e7de3a3355a1",
+      "functions": [
+        {
+          "name": "get_setting",
+          "params": [
+            "app",
+            "key"
+          ],
+          "returnType": "AppResult<Option<String>>",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "set_setting",
+          "params": [
+            "app",
+            "key",
+            "value"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 12
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "crate::error",
+          "specifiers": [
+            "AppError",
+            "AppResult"
+          ]
+        },
+        {
+          "source": "tauri",
+          "specifiers": [
+            "command"
+          ]
+        },
+        {
+          "source": "tauri_plugin_store",
+          "specifiers": [
+            "StoreExt"
+          ]
+        }
+      ],
+      "exports": [
+        "get_setting",
+        "set_setting"
+      ],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/commands/tags.rs": {
+      "filePath": "src-tauri/src/commands/tags.rs",
+      "contentHash": "7f0e362d97bc63314d3ebb6c9533f87598b24dadcd4fe48170b2cf7ff998c45d",
+      "functions": [
+        {
+          "name": "create_tag",
+          "params": [
+            "db",
+            "name",
+            "color"
+          ],
+          "returnType": "AppResult<Tag>",
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "list_tags",
+          "params": [
+            "db"
+          ],
+          "returnType": "AppResult<Vec<Tag>>",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "delete_tag",
+          "params": [
+            "db",
+            "id"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "update_tag",
+          "params": [
+            "db",
+            "id",
+            "name",
+            "color"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 35
+        },
+        {
+          "name": "add_tag_to_image",
+          "params": [
+            "db",
+            "image_id",
+            "tag_id"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "remove_tag_from_image",
+          "params": [
+            "db",
+            "image_id",
+            "tag_id"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "get_image_tags",
+          "params": [
+            "db",
+            "image_id"
+          ],
+          "returnType": "AppResult<Vec<Tag>>",
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "row_to_tag",
+          "params": [
+            "row"
+          ],
+          "returnType": "Result<Tag, rusqlite::Error>",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "create_tag_impl",
+          "params": [
+            "conn",
+            "name",
+            "color"
+          ],
+          "returnType": "AppResult<String>",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "add_tag_to_image_impl",
+          "params": [
+            "conn",
+            "image_id",
+            "tag_id"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "rusqlite",
+          "specifiers": [
+            "params"
+          ]
+        },
+        {
+          "source": "crate::error",
+          "specifiers": [
+            "AppError",
+            "AppResult"
+          ]
+        },
+        {
+          "source": "uuid",
+          "specifiers": [
+            "Uuid"
+          ]
+        },
+        {
+          "source": "crate::db",
+          "specifiers": [
+            "DbHandle"
+          ]
+        },
+        {
+          "source": "crate::schema::types",
+          "specifiers": [
+            "Tag"
+          ]
+        }
+      ],
+      "exports": [
+        "create_tag",
+        "list_tags",
+        "delete_tag",
+        "update_tag",
+        "add_tag_to_image",
+        "remove_tag_from_image",
+        "get_image_tags",
+        "create_tag_impl",
+        "add_tag_to_image_impl"
+      ],
+      "totalLines": 292,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/commands/trash.rs": {
+      "filePath": "src-tauri/src/commands/trash.rs",
+      "contentHash": "bbcc56e77f1d2d0b142b9ce8f408b19d627332ce0db62577fa0a13bf493b4704",
+      "functions": [
+        {
+          "name": "soft_delete_image",
+          "params": [
+            "db",
+            "id"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "restore_image",
+          "params": [
+            "db",
+            "id"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "permanent_delete_image",
+          "params": [
+            "db",
+            "id"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "permanent_delete_tx",
+          "params": [
+            "tx",
+            "id"
+          ],
+          "returnType": "Result<(), AppError>",
+          "exported": false,
+          "lineCount": 23
+        },
+        {
+          "name": "permanent_delete_impl",
+          "params": [
+            "conn",
+            "id"
+          ],
+          "returnType": "AppResult<()>",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "list_trash",
+          "params": [
+            "db",
+            "page",
+            "per_page"
+          ],
+          "returnType": "AppResult<PaginatedResult>",
+          "exported": true,
+          "lineCount": 32
+        },
+        {
+          "name": "empty_trash",
+          "params": [
+            "db"
+          ],
+          "returnType": "AppResult<u64>",
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "batch_soft_delete",
+          "params": [
+            "db",
+            "ids"
+          ],
+          "returnType": "AppResult<u64>",
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "batch_restore",
+          "params": [
+            "db",
+            "ids"
+          ],
+          "returnType": "AppResult<u64>",
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "batch_permanent_delete",
+          "params": [
+            "db",
+            "ids"
+          ],
+          "returnType": "AppResult<u64>",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "batch_add_tag",
+          "params": [
+            "db",
+            "image_ids",
+            "tag_id"
+          ],
+          "returnType": "AppResult<u64>",
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "batch_remove_tag",
+          "params": [
+            "db",
+            "image_ids",
+            "tag_id"
+          ],
+          "returnType": "AppResult<u64>",
+          "exported": true,
+          "lineCount": 18
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "rusqlite",
+          "specifiers": [
+            "params"
+          ]
+        },
+        {
+          "source": "crate::error",
+          "specifiers": [
+            "AppError",
+            "AppResult"
+          ]
+        },
+        {
+          "source": "crate::db",
+          "specifiers": [
+            "DbHandle"
+          ]
+        },
+        {
+          "source": "crate::schema::types",
+          "specifiers": [
+            "PaginatedResult"
+          ]
+        },
+        {
+          "source": "crate::schema::types",
+          "specifiers": [
+            "row_to_record"
+          ]
+        }
+      ],
+      "exports": [
+        "soft_delete_image",
+        "restore_image",
+        "permanent_delete_image",
+        "list_trash",
+        "empty_trash",
+        "batch_soft_delete",
+        "batch_restore",
+        "batch_permanent_delete",
+        "batch_add_tag",
+        "batch_remove_tag"
+      ],
+      "totalLines": 342,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/db/migrations.rs": {
+      "filePath": "src-tauri/src/db/migrations.rs",
+      "contentHash": "29b9cf3571d72a32e42c4bda3d3af5d3d3960e07fd6148d8d740069da2037463",
+      "functions": [
+        {
+          "name": "run_migrations",
+          "params": [
+            "conn"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "current_version",
+          "params": [
+            "conn"
+          ],
+          "returnType": "Result<i64, rusqlite::Error>",
+          "exported": false,
+          "lineCount": 16
+        },
+        {
+          "name": "set_version",
+          "params": [
+            "conn",
+            "version"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "apply_migration",
+          "params": [
+            "conn",
+            "version"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "apply_v1",
+          "params": [
+            "conn"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "apply_v2",
+          "params": [
+            "conn"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "apply_v3",
+          "params": [
+            "conn"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "apply_v4",
+          "params": [
+            "conn"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "apply_v5",
+          "params": [
+            "conn"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "apply_v6",
+          "params": [
+            "conn"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "downgrade_to",
+          "params": [
+            "conn",
+            "target"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "revert_migration",
+          "params": [
+            "conn",
+            "version"
+          ],
+          "returnType": "Result<(), rusqlite::Error>",
+          "exported": false,
+          "lineCount": 42
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "rusqlite",
+          "specifiers": [
+            "Connection"
+          ]
+        },
+        {
+          "source": "super",
+          "specifiers": [
+            "schema"
+          ]
+        }
+      ],
+      "exports": [
+        "run_migrations",
+        "downgrade_to"
+      ],
+      "totalLines": 260,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/db/mod.rs": {
+      "filePath": "src-tauri/src/db/mod.rs",
+      "contentHash": "0da74473fdb57ee5e7ebd46d0ec70c6efb10bfc0a74dc67829f54f15985f7fb6",
+      "functions": [
+        {
+          "name": "open",
+          "params": [
+            "path"
+          ],
+          "returnType": "Result<Self, rusqlite::Error>",
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "open_memory",
+          "params": [],
+          "returnType": "Result<Self, rusqlite::Error>",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "conn",
+          "params": [],
+          "returnType": "&Mutex<Connection>",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "DbHandle",
+          "methods": [
+            "open",
+            "open_memory",
+            "conn"
+          ],
+          "properties": [
+            "conn"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "rusqlite",
+          "specifiers": [
+            "ffi::sqlite3_auto_extension",
+            "Connection"
+          ]
+        },
+        {
+          "source": "std::path",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "std::sync",
+          "specifiers": [
+            "Mutex"
+          ]
+        }
+      ],
+      "exports": [
+        "DbHandle",
+        "open",
+        "open_memory",
+        "conn"
+      ],
+      "totalLines": 62,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/db/schema.rs": {
+      "filePath": "src-tauri/src/db/schema.rs",
+      "contentHash": "a5d4eb7921231e1b939cec8b4e7e1ed17637d6ea5aaa4e853422c36312f77f5d",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 131,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/error.rs": {
+      "filePath": "src-tauri/src/error.rs",
+      "contentHash": "1e4b3aa24a00b34f8aa75fb4b57ace792b1132094b601ae392dec8fe1f235701",
+      "functions": [
+        {
+          "name": "fmt",
+          "params": [
+            "f"
+          ],
+          "returnType": "fmt::Result",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "from",
+          "params": [
+            "e"
+          ],
+          "returnType": "Self",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "from",
+          "params": [
+            "e"
+          ],
+          "returnType": "Self",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "from",
+          "params": [
+            "e"
+          ],
+          "returnType": "Self",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "from",
+          "params": [
+            "e"
+          ],
+          "returnType": "Self",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "from",
+          "params": [
+            "s"
+          ],
+          "returnType": "Self",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "from",
+          "params": [
+            "e"
+          ],
+          "returnType": "Self",
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "AppError",
+          "methods": [
+            "fmt",
+            "from",
+            "from",
+            "from",
+            "from",
+            "from"
+          ],
+          "properties": [
+            "Db",
+            "Io",
+            "NotFound",
+            "InvalidInput",
+            "External",
+            "Lock"
+          ],
+          "exported": true,
+          "lineCount": 14
+        }
+      ],
+      "imports": [
+        {
+          "source": "std",
+          "specifiers": [
+            "fmt"
+          ]
+        }
+      ],
+      "exports": [
+        "AppError"
+      ],
+      "totalLines": 74,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/lib.rs": {
+      "filePath": "src-tauri/src/lib.rs",
+      "contentHash": "c3eab4e51446bac157bc2d776ecb300ff1483c173243c02aec97c7eb506ff935",
+      "functions": [
+        {
+          "name": "run",
+          "params": [],
+          "exported": true,
+          "lineCount": 76
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "tauri",
+          "specifiers": [
+            "Manager"
+          ]
+        },
+        {
+          "source": "std::path",
+          "specifiers": [
+            "PathBuf"
+          ]
+        },
+        {
+          "source": "db",
+          "specifiers": [
+            "DbHandle"
+          ]
+        }
+      ],
+      "exports": [
+        "run"
+      ],
+      "totalLines": 95,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/main.rs": {
+      "filePath": "src-tauri/src/main.rs",
+      "contentHash": "4e2f0b2df7d602c353248d9c9c49fd26c65194ef06acb4bbbef6496e34cd199d",
+      "functions": [
+        {
+          "name": "main",
+          "params": [],
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 7,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/metadata/mod.rs": {
+      "filePath": "src-tauri/src/metadata/mod.rs",
+      "contentHash": "be0ee54eb83a7c207cec9d67a1cb1c118e814c2892af746d84452c958cbb0934",
+      "functions": [
+        {
+          "name": "probe_metadata",
+          "params": [
+            "path",
+            "ext"
+          ],
+          "returnType": "Option<String>",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "probe_metadata_from_bytes",
+          "params": [
+            "buf",
+            "ext"
+          ],
+          "returnType": "Option<String>",
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "std::path",
+          "specifiers": [
+            "Path"
+          ]
+        }
+      ],
+      "exports": [
+        "probe_metadata",
+        "probe_metadata_from_bytes"
+      ],
+      "totalLines": 104,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/metadata/png.rs": {
+      "filePath": "src-tauri/src/metadata/png.rs",
+      "contentHash": "2ffeffbfd789511274baa706f7046377301b6286c04da860e25ccbdd297fbde4",
+      "functions": [
+        {
+          "name": "read_text_chunks_from_bytes",
+          "params": [
+            "buf"
+          ],
+          "returnType": "Option<Vec<(String, String)>>",
+          "exported": true,
+          "lineCount": 44
+        },
+        {
+          "name": "read_text_chunks",
+          "params": [
+            "path"
+          ],
+          "returnType": "Option<Vec<(String, String)>>",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "parse_text_chunk",
+          "params": [
+            "data"
+          ],
+          "returnType": "Option<(String, String)>",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "parse_itxt_chunk",
+          "params": [
+            "data"
+          ],
+          "returnType": "Option<(String, String)>",
+          "exported": false,
+          "lineCount": 28
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "std::fs",
+          "specifiers": [
+            "File"
+          ]
+        },
+        {
+          "source": "std::io",
+          "specifiers": [
+            "Read"
+          ]
+        },
+        {
+          "source": "std::path",
+          "specifiers": [
+            "Path"
+          ]
+        }
+      ],
+      "exports": [
+        "read_text_chunks_from_bytes",
+        "read_text_chunks"
+      ],
+      "totalLines": 226,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/metadata/sd.rs": {
+      "filePath": "src-tauri/src/metadata/sd.rs",
+      "contentHash": "96e5b817bcb29ddfd0222cbefee54ee38ccd4517196edde92fea5036e4374b28",
+      "functions": [
+        {
+          "name": "parse_metadata",
+          "params": [
+            "chunks"
+          ],
+          "returnType": "Option<String>",
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "parse_a1111_parameters",
+          "params": [
+            "text"
+          ],
+          "returnType": "Option<Value>",
+          "exported": false,
+          "lineCount": 99
+        },
+        {
+          "name": "split_params",
+          "params": [
+            "params"
+          ],
+          "returnType": "Vec<(String, String)>",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "parse_size",
+          "params": [
+            "s"
+          ],
+          "returnType": "Option<(i32, i32)>",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "parse_comfyui_prompt",
+          "params": [
+            "json_str"
+          ],
+          "returnType": "Option<Value>",
+          "exported": false,
+          "lineCount": 55
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "serde_json",
+          "specifiers": [
+            "json",
+            "Map",
+            "Value"
+          ]
+        }
+      ],
+      "exports": [
+        "parse_metadata"
+      ],
+      "totalLines": 305,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/ollama.rs": {
+      "filePath": "src-tauri/src/ollama.rs",
+      "contentHash": "4a29e4a3b22faea74cd998ba4d0db27ec6b7adbeb539cac9cbc7ebee61cb5631",
+      "functions": [
+        {
+          "name": "from_env",
+          "params": [],
+          "returnType": "Self",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "host",
+          "params": [],
+          "returnType": "&str",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "url",
+          "params": [
+            "path"
+          ],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "get_ollama_host",
+          "params": [
+            "config"
+          ],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "check_ollama_status",
+          "params": [
+            "config"
+          ],
+          "returnType": "Result<(bool, Option<String>), String>",
+          "exported": true,
+          "lineCount": 26
+        }
+      ],
+      "classes": [
+        {
+          "name": "OllamaConfig",
+          "methods": [
+            "from_env",
+            "host",
+            "url"
+          ],
+          "properties": [
+            "host"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [],
+      "exports": [
+        "OllamaConfig",
+        "from_env",
+        "host",
+        "url",
+        "get_ollama_host",
+        "check_ollama_status"
+      ],
+      "totalLines": 64,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/schema/mod.rs": {
+      "filePath": "src-tauri/src/schema/mod.rs",
+      "contentHash": "3c477a5ba213a5568038ba0b34c4099f996a8eb000826f22971775daf12ba4e1",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 2,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/src/schema/types.rs": {
+      "filePath": "src-tauri/src/schema/types.rs",
+      "contentHash": "80784bce426c3009466ddf12b152bf7faef497cdcb631b24d21bb2ad0df39072",
+      "functions": [
+        {
+          "name": "row_to_record",
+          "params": [
+            "row"
+          ],
+          "returnType": "Result<ImageRecord, rusqlite::Error>",
+          "exported": true,
+          "lineCount": 19
+        }
+      ],
+      "classes": [
+        {
+          "name": "ImageRecord",
+          "methods": [],
+          "properties": [
+            "id",
+            "file_path",
+            "file_hash",
+            "file_size_kb",
+            "width",
+            "height",
+            "format",
+            "created_at",
+            "imported_at",
+            "deleted",
+            "rating",
+            "favorite",
+            "metadata_json",
+            "deleted_at",
+            "variant_group_id"
+          ],
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "PaginatedResult",
+          "methods": [],
+          "properties": [
+            "items",
+            "total",
+            "page",
+            "per_page"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "Tag",
+          "methods": [],
+          "properties": [
+            "id",
+            "name",
+            "color",
+            "created_at"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "DashboardStats",
+          "methods": [],
+          "properties": [
+            "total_images",
+            "total_size_kb",
+            "format_counts",
+            "rating_counts",
+            "top_tags",
+            "recent_imports"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "FormatCount",
+          "methods": [],
+          "properties": [
+            "format",
+            "count"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "RatingCount",
+          "methods": [],
+          "properties": [
+            "rating",
+            "count"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "TagCount",
+          "methods": [],
+          "properties": [
+            "name",
+            "count"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "ExportResult",
+          "methods": [],
+          "properties": [
+            "success",
+            "failed",
+            "dest_dir"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "ImportResult",
+          "methods": [],
+          "properties": [
+            "items",
+            "imported",
+            "skipped",
+            "total_scanned"
+          ],
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "imports": [
+        {
+          "source": "serde",
+          "specifiers": [
+            "Deserialize",
+            "Serialize"
+          ]
+        }
+      ],
+      "exports": [
+        "ImageRecord",
+        "PaginatedResult",
+        "Tag",
+        "DashboardStats",
+        "FormatCount",
+        "RatingCount",
+        "TagCount",
+        "ExportResult",
+        "ImportResult",
+        "row_to_record"
+      ],
+      "totalLines": 119,
+      "hasStructuralAnalysis": true
+    },
+    "src-tauri/tauri.conf.json": {
+      "filePath": "src-tauri/tauri.conf.json",
+      "contentHash": "066bddcc019e33e8e16c316da3968d55c8c75ba8503305c2a8f7062040240ffd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 62,
+      "hasStructuralAnalysis": true
+    },
+    "src/App.tsx": {
+      "filePath": "src/App.tsx",
+      "contentHash": "936be9a31007ad3e3251ced5720bb36ff69c7ad9f5bd6e235816e5c3043570f4",
+      "functions": [
+        {
+          "name": "App",
+          "params": [],
+          "exported": false,
+          "lineCount": 81
+        },
+        {
+          "name": "Loading",
+          "params": [],
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState",
+            "lazy",
+            "Suspense",
+            "useCallback"
+          ]
+        },
+        {
+          "source": "./components/ui/Sidebar",
+          "specifiers": [
+            "Sidebar"
+          ]
+        },
+        {
+          "source": "./components/ui/CommandPalette",
+          "specifiers": [
+            "CommandPalette"
+          ]
+        },
+        {
+          "source": "./components/ui/DropOverlay",
+          "specifiers": [
+            "DropOverlay"
+          ]
+        },
+        {
+          "source": "./features/gallery/GalleryPage",
+          "specifiers": [
+            "GalleryPage"
+          ]
+        },
+        {
+          "source": "./stores/settingsStore",
+          "specifiers": [
+            "useSettingsStore"
+          ]
+        },
+        {
+          "source": "./stores/commandStore",
+          "specifiers": [
+            "useCommandStore"
+          ]
+        },
+        {
+          "source": "./hooks/useDragDrop",
+          "specifiers": [
+            "useDragDrop"
+          ]
+        },
+        {
+          "source": "./lib/i18n",
+          "specifiers": [
+            "useTranslation",
+            "t"
+          ]
+        },
+        {
+          "source": "./components/ui/ErrorBoundary",
+          "specifiers": [
+            "ErrorBoundary"
+          ]
+        },
+        {
+          "source": "./stores/commandStore",
+          "specifiers": [
+            "Command"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 109,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/__tests__/accessibility.test.ts": {
+      "filePath": "src/components/ui/__tests__/accessibility.test.ts",
+      "contentHash": "1eb76202b1c6d5b1402e471a33a34c5c4b32fa620474e7d6c5130d14e18372dd",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect"
+          ]
+        },
+        {
+          "source": "fs",
+          "specifiers": [
+            "readFileSync"
+          ]
+        },
+        {
+          "source": "path",
+          "specifiers": [
+            "resolve"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 137,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/__tests__/CommandPalette.test.tsx": {
+      "filePath": "src/components/ui/__tests__/CommandPalette.test.tsx",
+      "contentHash": "77b8e503ede7c3dc9126f302dac6301e97fb05778a0d4e8cf29dd3765daee73e",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "render",
+            "screen",
+            "fireEvent",
+            "cleanup"
+          ]
+        },
+        {
+          "source": "../CommandPalette",
+          "specifiers": [
+            "CommandPalette"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 120,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/__tests__/design-compliance.test.ts": {
+      "filePath": "src/components/ui/__tests__/design-compliance.test.ts",
+      "contentHash": "ac42db1dff86baeb09ff1bde060ea13a2d17ffaf7d6ffa8f8fb9f853f30d53df",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect"
+          ]
+        },
+        {
+          "source": "fs",
+          "specifiers": [
+            "readFileSync"
+          ]
+        },
+        {
+          "source": "path",
+          "specifiers": [
+            "resolve"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 144,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/__tests__/DetailModal.test.tsx": {
+      "filePath": "src/components/ui/__tests__/DetailModal.test.tsx",
+      "contentHash": "d214582c6fcec76cf44a2da80bf57dea13013063d0d68ba746bde80a1a172495",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "render",
+            "screen",
+            "fireEvent",
+            "cleanup"
+          ]
+        },
+        {
+          "source": "../DetailModal",
+          "specifiers": [
+            "DetailModal"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 117,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/__tests__/ErrorState.test.tsx": {
+      "filePath": "src/components/ui/__tests__/ErrorState.test.tsx",
+      "contentHash": "d3d6104a833a263dcc54972491fa5c8bbd6114dc518b57ff18307a674ef7333c",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "render",
+            "screen",
+            "fireEvent",
+            "cleanup"
+          ]
+        },
+        {
+          "source": "../ErrorState",
+          "specifiers": [
+            "ErrorState"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 43,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/__tests__/ImageCard.test.tsx": {
+      "filePath": "src/components/ui/__tests__/ImageCard.test.tsx",
+      "contentHash": "c9723e98f3aa1453c676ce92e6ad42d1c583d6583cf99f9aee1053a83482b12b",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "render",
+            "screen",
+            "cleanup"
+          ]
+        },
+        {
+          "source": "../ImageCard",
+          "specifiers": [
+            "ImageCard"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 151,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/__tests__/UpdateBanner.test.tsx": {
+      "filePath": "src/components/ui/__tests__/UpdateBanner.test.tsx",
+      "contentHash": "16ecacca8fda79dc37e3d60e7b06d2d30ec138293f7ae12b706aacbba85fd066",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "render",
+            "screen",
+            "cleanup",
+            "fireEvent"
+          ]
+        },
+        {
+          "source": "../UpdateBanner",
+          "specifiers": [
+            "UpdateBanner"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 99,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/ai/AiAnalysisSection.tsx": {
+      "filePath": "src/components/ui/ai/AiAnalysisSection.tsx",
+      "contentHash": "f7d0b7dc92f2fe64990f60edf6d4d552df02116d8278c824a83bae1334f422bc",
+      "functions": [
+        {
+          "name": "AiAnalysisSection",
+          "params": [
+            "{ imageId }"
+          ],
+          "exported": true,
+          "lineCount": 242
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState"
+          ]
+        },
+        {
+          "source": "../../../stores/aiAnalysisStore",
+          "specifiers": [
+            "useAiAnalysisStore"
+          ]
+        },
+        {
+          "source": "../../../stores/imageTagsStore",
+          "specifiers": [
+            "useImageTagsStore"
+          ]
+        },
+        {
+          "source": "../../../lib/api/images",
+          "specifiers": [
+            "createTag",
+            "listTags"
+          ]
+        },
+        {
+          "source": "../../../lib/i18n",
+          "specifiers": [
+            "useTranslation"
+          ]
+        },
+        {
+          "source": "./TagSuggestionCard",
+          "specifiers": [
+            "TagSuggestionCard"
+          ]
+        },
+        {
+          "source": "./ColorPaletteStrip",
+          "specifiers": [
+            "ColorPaletteStrip"
+          ]
+        },
+        {
+          "source": "./AnalysisHistoryList",
+          "specifiers": [
+            "AnalysisHistoryList"
+          ]
+        }
+      ],
+      "exports": [
+        "AiAnalysisSection"
+      ],
+      "totalLines": 271,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/ai/AnalysisHistoryList.tsx": {
+      "filePath": "src/components/ui/ai/AnalysisHistoryList.tsx",
+      "contentHash": "5fbb0af654777d6652e0dcdf4ef01240476f2a3074d27bc78814a325971a2c03",
+      "functions": [
+        {
+          "name": "formatDateTime",
+          "params": [
+            "iso"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "AnalysisHistoryList",
+          "params": [
+            "{ items }"
+          ],
+          "exported": true,
+          "lineCount": 62
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../../../lib/api/ai",
+          "specifiers": [
+            "AnalysisHistoryItem"
+          ]
+        },
+        {
+          "source": "../../../lib/i18n",
+          "specifiers": [
+            "useTranslation"
+          ]
+        }
+      ],
+      "exports": [
+        "AnalysisHistoryList"
+      ],
+      "totalLines": 79,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/ai/ColorPaletteStrip.tsx": {
+      "filePath": "src/components/ui/ai/ColorPaletteStrip.tsx",
+      "contentHash": "8d786a935104828d6dfdf30d95dc048341c0b228a63b673c883a3da01c064cea",
+      "functions": [
+        {
+          "name": "ColorPaletteStrip",
+          "params": [
+            "{ colors }"
+          ],
+          "exported": true,
+          "lineCount": 45
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../../../lib/i18n",
+          "specifiers": [
+            "useTranslation"
+          ]
+        }
+      ],
+      "exports": [
+        "ColorPaletteStrip"
+      ],
+      "totalLines": 52,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/ai/TagSuggestionCard.tsx": {
+      "filePath": "src/components/ui/ai/TagSuggestionCard.tsx",
+      "contentHash": "ce6db0781ca8eaad38247fe6e6a9942c9af3a18e36d01d467916bc49f434a905",
+      "functions": [
+        {
+          "name": "TagSuggestionCard",
+          "params": [
+            "{\r\n  tag,\r\n  accepted,\r\n  rejected,\r\n  onAccept,\r\n  onReject,\r\n}"
+          ],
+          "exported": true,
+          "lineCount": 151
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../../../lib/i18n",
+          "specifiers": [
+            "useTranslation"
+          ]
+        },
+        {
+          "source": "../../../lib/api/ai",
+          "specifiers": [
+            "AnalysisTag"
+          ]
+        }
+      ],
+      "exports": [
+        "TagSuggestionCard"
+      ],
+      "totalLines": 163,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/CommandPalette.tsx": {
+      "filePath": "src/components/ui/CommandPalette.tsx",
+      "contentHash": "b66da3fc7ebf427dcd626a14bf482fa9e21a9faa7b48e6ca15cb09df08a53951",
+      "functions": [
+        {
+          "name": "CommandPalette",
+          "params": [],
+          "exported": true,
+          "lineCount": 119
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useEffect",
+            "useRef",
+            "useCallback"
+          ]
+        },
+        {
+          "source": "../../stores/commandStore",
+          "specifiers": [
+            "useCommandStore"
+          ]
+        },
+        {
+          "source": "../../lib/i18n",
+          "specifiers": [
+            "useTranslation"
+          ]
+        }
+      ],
+      "exports": [
+        "CommandPalette"
+      ],
+      "totalLines": 219,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/DetailModal.tsx": {
+      "filePath": "src/components/ui/DetailModal.tsx",
+      "contentHash": "1de091fba0abe57571abfbe97cc34a0dad014cb9eeacc5d872e7605a05a3a67a",
+      "functions": [
+        {
+          "name": "DetailModal",
+          "params": [
+            "{\r\n  image,\r\n  onClose,\r\n  onPrev,\r\n  onNext,\r\n  onToggleFavorite,\r\n  onSetRating,\r\n}"
+          ],
+          "exported": true,
+          "lineCount": 219
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState"
+          ]
+        },
+        {
+          "source": "../../types/image",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        },
+        {
+          "source": "./Rating",
+          "specifiers": [
+            "Rating"
+          ]
+        },
+        {
+          "source": "./TagBadge",
+          "specifiers": [
+            "TagBadge"
+          ]
+        },
+        {
+          "source": "../../lib/format",
+          "specifiers": [
+            "formatDate",
+            "formatFileSize"
+          ]
+        },
+        {
+          "source": "../../lib/tauri",
+          "specifiers": [
+            "convertFileSrc"
+          ]
+        },
+        {
+          "source": "../../hooks/useMediaQuery",
+          "specifiers": [
+            "useIsMobile"
+          ]
+        }
+      ],
+      "exports": [
+        "DetailModal"
+      ],
+      "totalLines": 341,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/DropOverlay.tsx": {
+      "filePath": "src/components/ui/DropOverlay.tsx",
+      "contentHash": "148f3cef5313b7b0625189844d751a5c07a275ed43cc9c50815b78a52609a323",
+      "functions": [
+        {
+          "name": "DropOverlay",
+          "params": [
+            "{ isVisible }"
+          ],
+          "exported": true,
+          "lineCount": 60
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "DropOverlay"
+      ],
+      "totalLines": 69,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/EmbeddingBadge.tsx": {
+      "filePath": "src/components/ui/EmbeddingBadge.tsx",
+      "contentHash": "8d8c100e9cf9932351ef627e03d072b62004f5761f1c2f621ee59060e87f96bb",
+      "functions": [
+        {
+          "name": "EmbeddingBadge",
+          "params": [
+            "{ status, size = 12 }"
+          ],
+          "exported": true,
+          "lineCount": 35
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../../lib/i18n",
+          "specifiers": [
+            "useTranslation"
+          ]
+        },
+        {
+          "source": "../../lib/api/embeddings",
+          "specifiers": [
+            "EmbeddingStatus"
+          ]
+        }
+      ],
+      "exports": [
+        "EmbeddingBadge"
+      ],
+      "totalLines": 50,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/ErrorBoundary.tsx": {
+      "filePath": "src/components/ui/ErrorBoundary.tsx",
+      "contentHash": "37f4b48a7c3e95899935246602028fb58ca28df9ba2ffeea3e02f6847f00c817",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ErrorBoundary",
+          "methods": [
+            "constructor",
+            "getDerivedStateFromError",
+            "componentDidCatch",
+            "render"
+          ],
+          "properties": [
+            "handleRetry"
+          ],
+          "exported": true,
+          "lineCount": 38
+        }
+      ],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "React"
+          ]
+        },
+        {
+          "source": "./ErrorState",
+          "specifiers": [
+            "ErrorState"
+          ]
+        }
+      ],
+      "exports": [
+        "ErrorBoundary"
+      ],
+      "totalLines": 56,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/ErrorState.tsx": {
+      "filePath": "src/components/ui/ErrorState.tsx",
+      "contentHash": "55d6fb7c579407efdd135d455481d889508b553ed456b3d5d098f4b341f3997e",
+      "functions": [
+        {
+          "name": "ErrorState",
+          "params": [
+            "{ message, onRetry }"
+          ],
+          "exported": true,
+          "lineCount": 57
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "ErrorState"
+      ],
+      "totalLines": 63,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/ImageCard.tsx": {
+      "filePath": "src/components/ui/ImageCard.tsx",
+      "contentHash": "30445a91b4092fcde003696d7b0c946743efa91cec3b0eb6700e1430acdbc834",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "memo",
+            "useState"
+          ]
+        },
+        {
+          "source": "../../stores/imageStore",
+          "specifiers": [
+            "useImageStore"
+          ]
+        },
+        {
+          "source": "../../hooks/useImageActions",
+          "specifiers": [
+            "useImageActions"
+          ]
+        },
+        {
+          "source": "../../types/image",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        },
+        {
+          "source": "../../stores/trashStore",
+          "specifiers": [
+            "useTrashStore"
+          ]
+        },
+        {
+          "source": "../../stores/embeddingStore",
+          "specifiers": [
+            "useEmbeddingStore"
+          ]
+        },
+        {
+          "source": "./Rating",
+          "specifiers": [
+            "Rating"
+          ]
+        },
+        {
+          "source": "./TagBadge",
+          "specifiers": [
+            "TagBadge"
+          ]
+        },
+        {
+          "source": "./SimilarityBadge",
+          "specifiers": [
+            "SimilarityBadge"
+          ]
+        },
+        {
+          "source": "./EmbeddingBadge",
+          "specifiers": [
+            "EmbeddingBadge"
+          ]
+        },
+        {
+          "source": "../../lib/tauri",
+          "specifiers": [
+            "convertFileSrc"
+          ]
+        },
+        {
+          "source": "../../hooks/useMediaQuery",
+          "specifiers": [
+            "useIsMobile"
+          ]
+        }
+      ],
+      "exports": [
+        "ImageCard"
+      ],
+      "totalLines": 230,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/InfiniteScroll.tsx": {
+      "filePath": "src/components/ui/InfiniteScroll.tsx",
+      "contentHash": "c1308ef24992a4ebe719b8b6fb6087b94cc47aa80f6b900e2ae32fe717451045",
+      "functions": [
+        {
+          "name": "InfiniteScroll",
+          "params": [
+            "{\n  onLoadMore,\n  hasMore,\n  loading,\n  children,\n  threshold = 200,\n}"
+          ],
+          "exported": true,
+          "lineCount": 52
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useRef",
+            "useCallback"
+          ]
+        }
+      ],
+      "exports": [
+        "InfiniteScroll"
+      ],
+      "totalLines": 67,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/LazyLoad.tsx": {
+      "filePath": "src/components/ui/LazyLoad.tsx",
+      "contentHash": "c62c3acbeae67a838d03ed1addd48a4f085bbbcac9d05e0cc82983bc8a71ee5b",
+      "functions": [
+        {
+          "name": "LazyLoad",
+          "params": [
+            "{ children, height = 200, rootMargin = '200px' }"
+          ],
+          "exported": true,
+          "lineCount": 37
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useRef",
+            "useState",
+            "ReactNode"
+          ]
+        }
+      ],
+      "exports": [
+        "LazyLoad"
+      ],
+      "totalLines": 53,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/LoadingSkeleton.tsx": {
+      "filePath": "src/components/ui/LoadingSkeleton.tsx",
+      "contentHash": "4d0e17eb0719fed03336cb07f2b573ebbc3f2e3535d8e80168e3b70786802f80",
+      "functions": [
+        {
+          "name": "Bone",
+          "params": [
+            "{ style }"
+          ],
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "GridSkeleton",
+          "params": [
+            "{ count = 8 }"
+          ],
+          "exported": true,
+          "lineCount": 37
+        },
+        {
+          "name": "SearchSkeleton",
+          "params": [
+            "{ count = 6 }"
+          ],
+          "exported": true,
+          "lineCount": 35
+        },
+        {
+          "name": "ListSkeleton",
+          "params": [
+            "{ count = 5 }"
+          ],
+          "exported": true,
+          "lineCount": 39
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "GridSkeleton",
+        "SearchSkeleton",
+        "ListSkeleton"
+      ],
+      "totalLines": 133,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/Rating.tsx": {
+      "filePath": "src/components/ui/Rating.tsx",
+      "contentHash": "647c4fcc3230f5450e2261aba90ef989ebe7b64af7cb95de1088164b5202ad02",
+      "functions": [
+        {
+          "name": "PlumStamp",
+          "params": [
+            "{ filled }"
+          ],
+          "exported": true,
+          "lineCount": 20
+        },
+        {
+          "name": "Rating",
+          "params": [
+            "{ value, onChange }"
+          ],
+          "exported": true,
+          "lineCount": 25
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "PlumStamp",
+        "Rating"
+      ],
+      "totalLines": 48,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/SemanticSearchBar.tsx": {
+      "filePath": "src/components/ui/SemanticSearchBar.tsx",
+      "contentHash": "5484c4dacaffd018e8ef6ecbb05fa826dd72695f058bb78452b83c818f6a39f2",
+      "functions": [
+        {
+          "name": "SemanticSearchBar",
+          "params": [],
+          "exported": true,
+          "lineCount": 269
+        },
+        {
+          "name": "ModeButton",
+          "params": [
+            "{\r\n  active,\r\n  onClick,\r\n  label,\r\n}"
+          ],
+          "exported": false,
+          "lineCount": 31
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useCallback",
+            "useRef",
+            "useEffect"
+          ]
+        },
+        {
+          "source": "../../stores/semanticSearchStore",
+          "specifiers": [
+            "useSemanticSearchStore",
+            "SearchMode"
+          ]
+        },
+        {
+          "source": "../../lib/i18n",
+          "specifiers": [
+            "useTranslation"
+          ]
+        }
+      ],
+      "exports": [
+        "SemanticSearchBar"
+      ],
+      "totalLines": 308,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/Sidebar.tsx": {
+      "filePath": "src/components/ui/Sidebar.tsx",
+      "contentHash": "6199198ed62766c47afdedf2a3fbd33ad361f101c576390f8f67bb86b3945b38",
+      "functions": [
+        {
+          "name": "Sidebar",
+          "params": [
+            "{ activeRoute, onNavigate }"
+          ],
+          "exported": true,
+          "lineCount": 188
+        },
+        {
+          "name": "NavButton",
+          "params": [
+            "{\r\n  active,\r\n  onClick,\r\n  children,\r\n  collapsed,\r\n}"
+          ],
+          "exported": false,
+          "lineCount": 43
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "ReactNode"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect"
+          ]
+        },
+        {
+          "source": "../../hooks/useOllamaStatus",
+          "specifiers": [
+            "useOllamaStatus"
+          ]
+        },
+        {
+          "source": "../../stores/smartCollectionStore",
+          "specifiers": [
+            "useSmartCollectionStore"
+          ]
+        },
+        {
+          "source": "../../lib/i18n",
+          "specifiers": [
+            "useTranslation"
+          ]
+        },
+        {
+          "source": "./UpdateBanner",
+          "specifiers": [
+            "UpdateBanner"
+          ]
+        },
+        {
+          "source": "../../hooks/useMediaQuery",
+          "specifiers": [
+            "useIsMobile"
+          ]
+        }
+      ],
+      "exports": [
+        "Sidebar"
+      ],
+      "totalLines": 263,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/SimilarityBadge.tsx": {
+      "filePath": "src/components/ui/SimilarityBadge.tsx",
+      "contentHash": "689150a874bc34054210145983e093342c9e2bcc329d761a2ee27ebd29a09f85",
+      "functions": [
+        {
+          "name": "SimilarityBadge",
+          "params": [
+            "{ value }"
+          ],
+          "exported": true,
+          "lineCount": 24
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "SimilarityBadge"
+      ],
+      "totalLines": 34,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/TagBadge.tsx": {
+      "filePath": "src/components/ui/TagBadge.tsx",
+      "contentHash": "19d3ba97b84e97a4decd177171fd2c11ea506a41b1231df80177e37418b965fb",
+      "functions": [
+        {
+          "name": "TagBadge",
+          "params": [
+            "{ name, color, onRemove }"
+          ],
+          "exported": true,
+          "lineCount": 54
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "TagBadge"
+      ],
+      "totalLines": 61,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/ui/UpdateBanner.tsx": {
+      "filePath": "src/components/ui/UpdateBanner.tsx",
+      "contentHash": "cfbeec2d65b9ebbf8802be8376b322a4af6114187a05b621d585d054809c4bd6",
+      "functions": [
+        {
+          "name": "UpdateBanner",
+          "params": [],
+          "exported": true,
+          "lineCount": 48
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../../hooks/useUpdater",
+          "specifiers": [
+            "useUpdater"
+          ]
+        }
+      ],
+      "exports": [
+        "UpdateBanner"
+      ],
+      "totalLines": 56,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/dashboard/DashboardPage.tsx": {
+      "filePath": "src/features/dashboard/DashboardPage.tsx",
+      "contentHash": "263d0af7148958222d8c377ec093c60672169ceee158d6587980f52a7da9d1d7",
+      "functions": [
+        {
+          "name": "toImageRecord",
+          "params": [
+            "raw"
+          ],
+          "returnType": "ImageRecord",
+          "exported": false,
+          "lineCount": 46
+        },
+        {
+          "name": "DotRow",
+          "params": [
+            "{\r\n  label,\r\n  value,\r\n}"
+          ],
+          "exported": false,
+          "lineCount": 49
+        },
+        {
+          "name": "SectionTitle",
+          "params": [
+            "{ children }"
+          ],
+          "exported": false,
+          "lineCount": 17
+        },
+        {
+          "name": "formatTime",
+          "params": [
+            "iso"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 13
+        },
+        {
+          "name": "DashboardPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 436
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState",
+            "useCallback"
+          ]
+        },
+        {
+          "source": "../../lib/api/images",
+          "specifiers": [
+            "getDashboardStats",
+            "DashboardStats"
+          ]
+        },
+        {
+          "source": "../../types/image",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        },
+        {
+          "source": "../../stores/embeddingStore",
+          "specifiers": [
+            "useEmbeddingStore"
+          ]
+        },
+        {
+          "source": "../../lib/i18n",
+          "specifiers": [
+            "useTranslation"
+          ]
+        },
+        {
+          "source": "../../lib/format",
+          "specifiers": [
+            "formatFileSize"
+          ]
+        }
+      ],
+      "exports": [
+        "DashboardPage"
+      ],
+      "totalLines": 581,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/export/ExportPage.tsx": {
+      "filePath": "src/features/export/ExportPage.tsx",
+      "contentHash": "0f977598f3227f3d9f681657e78e76b51e4f93ca264fa4f047b32f54f789370d",
+      "functions": [
+        {
+          "name": "ExportPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 300
+        },
+        {
+          "name": "SectionHeader",
+          "params": [
+            "{ children }"
+          ],
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "FormatOption",
+          "params": [
+            "{\r\n  label,\r\n  active,\r\n  onClick,\r\n}"
+          ],
+          "exported": false,
+          "lineCount": 31
+        },
+        {
+          "name": "ResultRow",
+          "params": [
+            "{ label, value }"
+          ],
+          "exported": false,
+          "lineCount": 26
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useCallback",
+            "useEffect"
+          ]
+        },
+        {
+          "source": "../../stores/imageStore",
+          "specifiers": [
+            "useImageStore"
+          ]
+        },
+        {
+          "source": "../../hooks/useSelection",
+          "specifiers": [
+            "useSelection"
+          ]
+        },
+        {
+          "source": "../../lib/i18n",
+          "specifiers": [
+            "useTranslation"
+          ]
+        },
+        {
+          "source": "../../lib/api/images",
+          "specifiers": [
+            "ExportResult"
+          ]
+        }
+      ],
+      "exports": [
+        "ExportPage"
+      ],
+      "totalLines": 390,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/favorites/__tests__/FavoritesPage.test.tsx": {
+      "filePath": "src/features/favorites/__tests__/FavoritesPage.test.tsx",
+      "contentHash": "e2f14d7f8e857bf7b45bfee7469c36bada7a0db276299b24e2c9152ec6fc519f",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "render",
+            "screen",
+            "cleanup",
+            "waitFor"
+          ]
+        },
+        {
+          "source": "../FavoritesPage",
+          "specifiers": [
+            "FavoritesPage"
+          ]
+        },
+        {
+          "source": "../../../lib/api/images",
+          "specifiers": [
+            "* as api"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 100,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/favorites/FavoritesPage.tsx": {
+      "filePath": "src/features/favorites/FavoritesPage.tsx",
+      "contentHash": "2c63021aa42ee1a117eb5b771f0274daafc806d8da20d0dfe4cf2ec14e6bdc45",
+      "functions": [
+        {
+          "name": "FavoritesPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 164
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState",
+            "useCallback"
+          ]
+        },
+        {
+          "source": "../../hooks/useImageActions",
+          "specifiers": [
+            "useImageActions"
+          ]
+        },
+        {
+          "source": "../../types/image",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        },
+        {
+          "source": "../../components/ui/ImageCard",
+          "specifiers": [
+            "ImageCard"
+          ]
+        },
+        {
+          "source": "../../components/ui/DetailModal",
+          "specifiers": [
+            "DetailModal"
+          ]
+        },
+        {
+          "source": "../../lib/api/images",
+          "specifiers": [
+            "listFavorites"
+          ]
+        },
+        {
+          "source": "../../components/ui/ErrorState",
+          "specifiers": [
+            "ErrorState"
+          ]
+        }
+      ],
+      "exports": [
+        "FavoritesPage"
+      ],
+      "totalLines": 175,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/gallery/GalleryPage.tsx": {
+      "filePath": "src/features/gallery/GalleryPage.tsx",
+      "contentHash": "ab7e9f7b74e82718800b8616eb8b6c911af860d2cac18d65cb6fd98aee1ee5f7",
+      "functions": [
+        {
+          "name": "SortButton",
+          "params": [
+            "{\r\n  active,\r\n  onClick,\r\n  children,\r\n}"
+          ],
+          "exported": false,
+          "lineCount": 29
+        },
+        {
+          "name": "FilterButton",
+          "params": [
+            "{\r\n  active,\r\n  onClick,\r\n  children,\r\n}"
+          ],
+          "exported": false,
+          "lineCount": 30
+        },
+        {
+          "name": "ViewButton",
+          "params": [
+            "{\r\n  active,\r\n  onClick,\r\n  children,\r\n}"
+          ],
+          "exported": false,
+          "lineCount": 29
+        },
+        {
+          "name": "GalleryPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 445
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState",
+            "useCallback",
+            "useRef"
+          ]
+        },
+        {
+          "source": "../../stores/imageStore",
+          "specifiers": [
+            "useImageStore"
+          ]
+        },
+        {
+          "source": "../../hooks/useSelection",
+          "specifiers": [
+            "useSelection"
+          ]
+        },
+        {
+          "source": "../../hooks/useImageActions",
+          "specifiers": [
+            "useImageActions"
+          ]
+        },
+        {
+          "source": "../../stores/trashStore",
+          "specifiers": [
+            "useTrashStore"
+          ]
+        },
+        {
+          "source": "../../components/ui/ImageCard",
+          "specifiers": [
+            "ImageCard"
+          ]
+        },
+        {
+          "source": "../../components/ui/DetailModal",
+          "specifiers": [
+            "DetailModal"
+          ]
+        },
+        {
+          "source": "../../components/ui/LoadingSkeleton",
+          "specifiers": [
+            "GridSkeleton"
+          ]
+        },
+        {
+          "source": "../../components/ui/ErrorState",
+          "specifiers": [
+            "ErrorState"
+          ]
+        },
+        {
+          "source": "../../components/ui/LazyLoad",
+          "specifiers": [
+            "LazyLoad"
+          ]
+        },
+        {
+          "source": "../../components/ui/InfiniteScroll",
+          "specifiers": [
+            "InfiniteScroll"
+          ]
+        },
+        {
+          "source": "../../hooks/useKeyboardNav",
+          "specifiers": [
+            "useKeyboardNav"
+          ]
+        },
+        {
+          "source": "../../lib/api/images",
+          "specifiers": [
+            "batchSoftDelete"
+          ]
+        },
+        {
+          "source": "../../hooks/useMediaQuery",
+          "specifiers": [
+            "useIsMobile"
+          ]
+        }
+      ],
+      "exports": [
+        "GalleryPage"
+      ],
+      "totalLines": 561,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/import/ImportPage.tsx": {
+      "filePath": "src/features/import/ImportPage.tsx",
+      "contentHash": "8db553acd3b83d843d7c05533ca5c3f91102a7c54bc8eeedf6722ce45beee87f",
+      "functions": [
+        {
+          "name": "ImportPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 419
+        },
+        {
+          "name": "StatCard",
+          "params": [
+            "{\r\n  dotColor,\r\n  title,\r\n  status,\r\n  detail,\r\n}"
+          ],
+          "exported": false,
+          "lineCount": 48
+        },
+        {
+          "name": "StatusBadge",
+          "params": [
+            "{ status }"
+          ],
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "SectionHeader",
+          "params": [
+            "{ children }"
+          ],
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "SettingRow",
+          "params": [
+            "{\r\n  label,\r\n  children,\r\n}"
+          ],
+          "exported": false,
+          "lineCount": 23
+        },
+        {
+          "name": "Toggle",
+          "params": [
+            "{ defaultChecked }"
+          ],
+          "exported": false,
+          "lineCount": 35
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useCallback"
+          ]
+        },
+        {
+          "source": "@tauri-apps/plugin-dialog",
+          "specifiers": [
+            "open"
+          ]
+        },
+        {
+          "source": "../../stores/imageStore",
+          "specifiers": [
+            "useImageStore"
+          ]
+        },
+        {
+          "source": "../../components/ui/ErrorState",
+          "specifiers": [
+            "ErrorState"
+          ]
+        },
+        {
+          "source": "../../hooks/useMediaQuery",
+          "specifiers": [
+            "useIsMobile"
+          ]
+        }
+      ],
+      "exports": [
+        "ImportPage"
+      ],
+      "totalLines": 602,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/search/SearchPage.tsx": {
+      "filePath": "src/features/search/SearchPage.tsx",
+      "contentHash": "7dcc96901a70c674dfd3ca19839e5dbb224f7936a28fe8453c308f7eec757e88",
+      "functions": [
+        {
+          "name": "SearchPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 593
+        },
+        {
+          "name": "ResultCard",
+          "params": [
+            "{\r\n  image,\r\n}"
+          ],
+          "exported": false,
+          "lineCount": 66
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useCallback"
+          ]
+        },
+        {
+          "source": "../../stores/imageStore",
+          "specifiers": [
+            "useImageStore"
+          ]
+        },
+        {
+          "source": "../../components/ui/LoadingSkeleton",
+          "specifiers": [
+            "SearchSkeleton"
+          ]
+        },
+        {
+          "source": "../../components/ui/ErrorState",
+          "specifiers": [
+            "ErrorState"
+          ]
+        },
+        {
+          "source": "../../components/ui/SemanticSearchBar",
+          "specifiers": [
+            "SemanticSearchBar"
+          ]
+        },
+        {
+          "source": "../../components/ui/SimilarityBadge",
+          "specifiers": [
+            "SimilarityBadge"
+          ]
+        },
+        {
+          "source": "../../stores/semanticSearchStore",
+          "specifiers": [
+            "useSemanticSearchStore"
+          ]
+        },
+        {
+          "source": "../../lib/i18n",
+          "specifiers": [
+            "useTranslation"
+          ]
+        },
+        {
+          "source": "../../hooks/useMediaQuery",
+          "specifiers": [
+            "useIsMobile",
+            "useMediaQuery"
+          ]
+        }
+      ],
+      "exports": [
+        "SearchPage"
+      ],
+      "totalLines": 699,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/settings/SettingsPage.tsx": {
+      "filePath": "src/features/settings/SettingsPage.tsx",
+      "contentHash": "dd004ca93511c42e1c422d094f8bdcacd457a62b8a7e673af0f0dcec7bc82822",
+      "functions": [
+        {
+          "name": "SectionHeading",
+          "params": [
+            "{ children }"
+          ],
+          "exported": false,
+          "lineCount": 18
+        },
+        {
+          "name": "Row",
+          "params": [
+            "{\r\n  label,\r\n  children,\r\n}"
+          ],
+          "exported": false,
+          "lineCount": 30
+        },
+        {
+          "name": "SegmentedControl",
+          "params": [
+            "{\r\n  options,\r\n  value,\r\n  onChange,\r\n  disabled,\r\n}"
+          ],
+          "exported": false,
+          "lineCount": 52
+        },
+        {
+          "name": "Kbd",
+          "params": [
+            "{ children }"
+          ],
+          "exported": false,
+          "lineCount": 18
+        },
+        {
+          "name": "SettingsPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 156
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../../stores/settingsStore",
+          "specifiers": [
+            "useSettingsStore"
+          ]
+        },
+        {
+          "source": "../../lib/i18n",
+          "specifiers": [
+            "useTranslation"
+          ]
+        },
+        {
+          "source": "../../stores/settingsStore",
+          "specifiers": [
+            "Language"
+          ]
+        }
+      ],
+      "exports": [
+        "SettingsPage"
+      ],
+      "totalLines": 299,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/tags/TagManager.tsx": {
+      "filePath": "src/features/tags/TagManager.tsx",
+      "contentHash": "9a510da9570d65a532dfb5a93ea743c459a1199b4ed1f0ce6cac7e7f4c5eace6",
+      "functions": [
+        {
+          "name": "TagManager",
+          "params": [],
+          "exported": true,
+          "lineCount": 353
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useEffect",
+            "useCallback"
+          ]
+        },
+        {
+          "source": "../../lib/tauri",
+          "specifiers": [
+            "invoke"
+          ]
+        },
+        {
+          "source": "../../hooks/useMediaQuery",
+          "specifiers": [
+            "useIsMobile"
+          ]
+        }
+      ],
+      "exports": [
+        "TagManager"
+      ],
+      "totalLines": 380,
+      "hasStructuralAnalysis": true
+    },
+    "src/features/trash/TrashPage.tsx": {
+      "filePath": "src/features/trash/TrashPage.tsx",
+      "contentHash": "6d547c27424b1cb045a8a597cc39a386283d2b0b3c3cbc9a3bdc3be485b43c4e",
+      "functions": [
+        {
+          "name": "formatDeletedTime",
+          "params": [
+            "iso"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 15
+        },
+        {
+          "name": "TrashPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 416
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState"
+          ]
+        },
+        {
+          "source": "../../stores/trashStore",
+          "specifiers": [
+            "useTrashStore"
+          ]
+        },
+        {
+          "source": "../../components/ui/LoadingSkeleton",
+          "specifiers": [
+            "GridSkeleton"
+          ]
+        },
+        {
+          "source": "../../components/ui/ErrorState",
+          "specifiers": [
+            "ErrorState"
+          ]
+        },
+        {
+          "source": "../../hooks/useMediaQuery",
+          "specifiers": [
+            "useIsMobile"
+          ]
+        }
+      ],
+      "exports": [
+        "TrashPage"
+      ],
+      "totalLines": 441,
+      "hasStructuralAnalysis": true
+    },
+    "src/hooks/__tests__/useImageActions.test.ts": {
+      "filePath": "src/hooks/__tests__/useImageActions.test.ts",
+      "contentHash": "6796f0dabcdc569418d36ec5378bc17dd4cf924104e991a3f3397d07e05743d9",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "renderHook",
+            "act"
+          ]
+        },
+        {
+          "source": "../useImageActions",
+          "specifiers": [
+            "useImageActions"
+          ]
+        },
+        {
+          "source": "../../stores/imageStore",
+          "specifiers": [
+            "useImageStore"
+          ]
+        },
+        {
+          "source": "../../lib/api/images",
+          "specifiers": [
+            "* as api"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 146,
+      "hasStructuralAnalysis": true
+    },
+    "src/hooks/__tests__/useOllamaStatus.test.ts": {
+      "filePath": "src/hooks/__tests__/useOllamaStatus.test.ts",
+      "contentHash": "18a19343e4e5e819d0dc193c3c02c7a8d6dcbc31ad90a579a76409840847448c",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "renderHook",
+            "act"
+          ]
+        },
+        {
+          "source": "../useOllamaStatus",
+          "specifiers": [
+            "useOllamaStatus"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 126,
+      "hasStructuralAnalysis": true
+    },
+    "src/hooks/__tests__/useSelection.test.ts": {
+      "filePath": "src/hooks/__tests__/useSelection.test.ts",
+      "contentHash": "f9503cd9c7dc7abc446c610ce6a774f9bb05afa27c64b0b5353c53e8a7465ba5",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect"
+          ]
+        },
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "renderHook",
+            "act"
+          ]
+        },
+        {
+          "source": "../useSelection",
+          "specifiers": [
+            "useSelection"
+          ]
+        },
+        {
+          "source": "../../types/image",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 211,
+      "hasStructuralAnalysis": true
+    },
+    "src/hooks/__tests__/useUpdater.test.ts": {
+      "filePath": "src/hooks/__tests__/useUpdater.test.ts",
+      "contentHash": "a19da67de14105c5678d7bf7f81d1ca55c01bc267b9bb4524963df96688596ea",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "@testing-library/react",
+          "specifiers": [
+            "renderHook",
+            "act",
+            "cleanup"
+          ]
+        },
+        {
+          "source": "../useUpdater",
+          "specifiers": [
+            "useUpdater"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 134,
+      "hasStructuralAnalysis": true
+    },
+    "src/hooks/useDragDrop.ts": {
+      "filePath": "src/hooks/useDragDrop.ts",
+      "contentHash": "e23dd068446903e4ca702827c8b6baca7c96f7e2ad354573ed6336c222859109",
+      "functions": [
+        {
+          "name": "useDragDrop",
+          "params": [
+            "{ onDrop, onDragOver, onDragLeave }"
+          ],
+          "exported": true,
+          "lineCount": 49
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect",
+            "useState"
+          ]
+        }
+      ],
+      "exports": [
+        "useDragDrop"
+      ],
+      "totalLines": 65,
+      "hasStructuralAnalysis": true
+    },
+    "src/hooks/useImageActions.ts": {
+      "filePath": "src/hooks/useImageActions.ts",
+      "contentHash": "73be1deb6ca8cfa5b32622840a11d8df70a72446b4be9544ae849e8cf0419974",
+      "functions": [
+        {
+          "name": "useImageActions",
+          "params": [],
+          "exported": true,
+          "lineCount": 35
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useCallback"
+          ]
+        },
+        {
+          "source": "../stores/imageStore",
+          "specifiers": [
+            "useImageStore"
+          ]
+        },
+        {
+          "source": "../lib/api/images",
+          "specifiers": [
+            "* as api"
+          ]
+        }
+      ],
+      "exports": [
+        "useImageActions"
+      ],
+      "totalLines": 43,
+      "hasStructuralAnalysis": true
+    },
+    "src/hooks/useKeyboardNav.ts": {
+      "filePath": "src/hooks/useKeyboardNav.ts",
+      "contentHash": "b9b89b784a9cd4cfc292a2c7a7ee4c19431ba7d816d7b22e1b20053c7ccea81d",
+      "functions": [
+        {
+          "name": "useKeyboardNav",
+          "params": [
+            "{\r\n  route,\r\n  onArrowUp,\r\n  onArrowDown,\r\n  onArrowLeft,\r\n  onArrowRight,\r\n  onEnter,\r\n  onSpace,\r\n  onEscape,\r\n  onDelete,\r\n  onFavorite,\r\n  onRate,\r\n}"
+          ],
+          "exported": true,
+          "lineCount": 81
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useEffect"
+          ]
+        },
+        {
+          "source": "../stores/commandStore",
+          "specifiers": [
+            "useCommandStore"
+          ]
+        }
+      ],
+      "exports": [
+        "useKeyboardNav"
+      ],
+      "totalLines": 101,
+      "hasStructuralAnalysis": true
+    },
+    "src/hooks/useMediaQuery.ts": {
+      "filePath": "src/hooks/useMediaQuery.ts",
+      "contentHash": "5734a17dac9e237ea393944ab7914047a6824c2d89f418bdcdb1f59da4e1494c",
+      "functions": [
+        {
+          "name": "useMediaQuery",
+          "params": [
+            "query"
+          ],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 32
+        },
+        {
+          "name": "useIsMobile",
+          "params": [],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "useIsTablet",
+          "params": [],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "useIsDesktop",
+          "params": [],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "useIsSmallPhone",
+          "params": [],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useEffect"
+          ]
+        }
+      ],
+      "exports": [
+        "useMediaQuery",
+        "useIsMobile",
+        "useIsTablet",
+        "useIsDesktop",
+        "useIsSmallPhone"
+      ],
+      "totalLines": 58,
+      "hasStructuralAnalysis": true
+    },
+    "src/hooks/useOllamaStatus.ts": {
+      "filePath": "src/hooks/useOllamaStatus.ts",
+      "contentHash": "9f078ec41f82baeb4c10e2af09e614b5c5f3b1b17246669859b1ff3a6a768d41",
+      "functions": [
+        {
+          "name": "useOllamaStatus",
+          "params": [
+            "options"
+          ],
+          "returnType": "OllamaStatus",
+          "exported": true,
+          "lineCount": 47
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useEffect",
+            "useCallback",
+            "useRef"
+          ]
+        },
+        {
+          "source": "../lib/tauri",
+          "specifiers": [
+            "invoke"
+          ]
+        }
+      ],
+      "exports": [
+        "useOllamaStatus"
+      ],
+      "totalLines": 66,
+      "hasStructuralAnalysis": true
+    },
+    "src/hooks/useSelection.ts": {
+      "filePath": "src/hooks/useSelection.ts",
+      "contentHash": "6a682370eb81383f0feb8629f9f69538ab28a5bfe0f5df1c9ff36bbc4deb3d12",
+      "functions": [
+        {
+          "name": "useSelection",
+          "params": [],
+          "exported": true,
+          "lineCount": 27
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useCallback"
+          ]
+        },
+        {
+          "source": "../types/image",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        }
+      ],
+      "exports": [
+        "useSelection"
+      ],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    },
+    "src/hooks/useUpdater.ts": {
+      "filePath": "src/hooks/useUpdater.ts",
+      "contentHash": "282bcd3cf433c9a29b088a2104b7918c1be9c73bc032a7710717cd1c4623d5b3",
+      "functions": [
+        {
+          "name": "useUpdater",
+          "params": [],
+          "returnType": "UpdaterState",
+          "exported": true,
+          "lineCount": 75
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "useEffect",
+            "useCallback",
+            "useRef"
+          ]
+        },
+        {
+          "source": "@tauri-apps/plugin-updater",
+          "specifiers": [
+            "Update"
+          ]
+        }
+      ],
+      "exports": [
+        "useUpdater"
+      ],
+      "totalLines": 100,
+      "hasStructuralAnalysis": true
+    },
+    "src/i18n/.gitkeep": {
+      "filePath": "src/i18n/.gitkeep",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": false
+    },
+    "src/i18n/en.json": {
+      "filePath": "src/i18n/en.json",
+      "contentHash": "bf4ba4278b47d9edcee997402c3ffcdf72bb59ad88946cafa8b00400c1791a49",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 317,
+      "hasStructuralAnalysis": true
+    },
+    "src/i18n/zh.json": {
+      "filePath": "src/i18n/zh.json",
+      "contentHash": "ef6ac1d6da5547b9eb029814ead43f5397e47e1fe16abf3eea482a23f73e2035",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 317,
+      "hasStructuralAnalysis": true
+    },
+    "src/index.css": {
+      "filePath": "src/index.css",
+      "contentHash": "1f7f4a79ab13093565fba40c44135f6a0bc16ead1abbf1383a345d2ebd3290c2",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 125,
+      "hasStructuralAnalysis": false
+    },
+    "src/lib/__tests__/format.test.ts": {
+      "filePath": "src/lib/__tests__/format.test.ts",
+      "contentHash": "1774344667f9b6f1037b99bdd31b6586a21c941bed0371b376119e70ef14ee66",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect"
+          ]
+        },
+        {
+          "source": "../format",
+          "specifiers": [
+            "formatDate",
+            "formatFileSize"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 41,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/__tests__/i18n.test.ts": {
+      "filePath": "src/lib/__tests__/i18n.test.ts",
+      "contentHash": "fe0d043f500ad558626b86e9a5b2811cd1ca4565f704e46612010cf6d651a8de",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "../i18n",
+          "specifiers": [
+            "t",
+            "notifyLanguageChanged"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 46,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/api/__tests__/images.test.ts": {
+      "filePath": "src/lib/api/__tests__/images.test.ts",
+      "contentHash": "498e1417b0622372b0b3261055e18642711057c2c9f7f04b1eac71eee0d32c91",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "../images",
+          "specifiers": [
+            "importImages",
+            "listImages",
+            "searchImages",
+            "updateRating",
+            "toggleFavorite",
+            "softDeleteImage",
+            "restoreImage",
+            "permanentDeleteImage",
+            "listTrash",
+            "emptyTrash",
+            "toImageRecord",
+            "TauriImageRecord"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 178,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/api/__tests__/semanticCache.test.ts": {
+      "filePath": "src/lib/api/__tests__/semanticCache.test.ts",
+      "contentHash": "4b064d5d60342b84eb9b8b801fd5d14f43f0177f472b70d4eae651b5aa959c97",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach",
+            "afterEach"
+          ]
+        },
+        {
+          "source": "../../tauri",
+          "specifiers": [
+            "* as tauri"
+          ]
+        },
+        {
+          "source": "../semanticCache",
+          "specifiers": [
+            "searchSemanticCached",
+            "invalidateSemanticCache",
+            "getCachedResult",
+            "setCachedResult",
+            "isCacheValid",
+            "getCacheStats"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 188,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/api/__tests__/type-contract.test.ts": {
+      "filePath": "src/lib/api/__tests__/type-contract.test.ts",
+      "contentHash": "bb1802b813168e6a6f81166ea2fa7dc3454e59bc5bdc4eb8c249714e9803cdc4",
+      "functions": [
+        {
+          "name": "snakeToCamel",
+          "params": [
+            "str"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi"
+          ]
+        },
+        {
+          "source": "../images",
+          "specifiers": [
+            "toImageRecord",
+            "TauriImageRecord"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 144,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/api/__tests__/write-commands.test.ts": {
+      "filePath": "src/lib/api/__tests__/write-commands.test.ts",
+      "contentHash": "2d3b0f12ba9e9f63c68e315fc3d1eb1c2161f8e577ca1a611d226ec6be7ff15f",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 85,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/api/.gitkeep": {
+      "filePath": "src/lib/api/.gitkeep",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": false
+    },
+    "src/lib/api/ai.ts": {
+      "filePath": "src/lib/api/ai.ts",
+      "contentHash": "d38aed6d6ac5d713ceea5fe67771eb7f6f5c07436f7ba61b38052ef09331090f",
+      "functions": [
+        {
+          "name": "snakeToCamel",
+          "params": [
+            "str"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "convertKeysToCamel",
+          "params": [
+            "obj"
+          ],
+          "returnType": "unknown",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "normalizeAnalysisResult",
+          "params": [
+            "raw"
+          ],
+          "returnType": "AnalysisResult",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "analyzeImage",
+          "params": [
+            "imageId",
+            "imagePath",
+            "model"
+          ],
+          "returnType": "Promise<AnalysisResult>",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "getAnalysisResult",
+          "params": [
+            "imageId"
+          ],
+          "returnType": "Promise<AnalysisResult | null>",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "getAnalysisHistory",
+          "params": [
+            "imageId"
+          ],
+          "returnType": "Promise<AnalysisHistoryItem[]>",
+          "exported": true,
+          "lineCount": 12
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../tauri",
+          "specifiers": [
+            "invoke"
+          ]
+        }
+      ],
+      "exports": [
+        "analyzeImage",
+        "getAnalysisResult",
+        "getAnalysisHistory"
+      ],
+      "totalLines": 115,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/api/embeddings.ts": {
+      "filePath": "src/lib/api/embeddings.ts",
+      "contentHash": "f53296124d891fc45e182389e79f3ed5136544ccd075db9b6503631623125dfe",
+      "functions": [
+        {
+          "name": "getEmbeddingStatus",
+          "params": [
+            "imageId"
+          ],
+          "returnType": "Promise<EmbeddingInfo>",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "generateEmbeddings",
+          "params": [
+            "images"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "storeEmbedding",
+          "params": [
+            "imageId",
+            "embedding"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "getEmbeddingStats",
+          "params": [],
+          "returnType": "Promise<EmbeddingStats>",
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../tauri",
+          "specifiers": [
+            "invoke"
+          ]
+        },
+        {
+          "source": "../../types/image",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        }
+      ],
+      "exports": [
+        "getEmbeddingStatus",
+        "generateEmbeddings",
+        "storeEmbedding",
+        "getEmbeddingStats"
+      ],
+      "totalLines": 92,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/api/images.ts": {
+      "filePath": "src/lib/api/images.ts",
+      "contentHash": "db78f36b9c60b48ea819be10035a81e0ffbf2944622e7e391de046ca79fa7f67",
+      "functions": [
+        {
+          "name": "parseMetadata",
+          "params": [
+            "json"
+          ],
+          "returnType": "{\r\n  model: string;\r\n  prompt: string;\r\n  tags: string[];\r\n}",
+          "exported": false,
+          "lineCount": 17
+        },
+        {
+          "name": "toImageRecord",
+          "params": [
+            "raw"
+          ],
+          "returnType": "ImageRecord",
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "importImages",
+          "params": [
+            "folderPath"
+          ],
+          "returnType": "Promise<ImportResult>",
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "listImages",
+          "params": [
+            "page",
+            "perPage"
+          ],
+          "returnType": "Promise<{ items: ImageRecord[]; total: number }>",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "searchImages",
+          "params": [
+            "query"
+          ],
+          "returnType": "Promise<ImageRecord[]>",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "searchImagesAdvanced",
+          "params": [
+            "query",
+            "field"
+          ],
+          "returnType": "Promise<ImageRecord[]>",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "updateRating",
+          "params": [
+            "id",
+            "rating"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "toggleFavorite",
+          "params": [
+            "id"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "listFavorites",
+          "params": [],
+          "returnType": "Promise<ImageRecord[]>",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "createTag",
+          "params": [
+            "name",
+            "color"
+          ],
+          "returnType": "Promise<TagRecord>",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "listTags",
+          "params": [],
+          "returnType": "Promise<TagRecord[]>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "deleteTag",
+          "params": [
+            "id"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "addTagToImage",
+          "params": [
+            "imageId",
+            "tagId"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "removeTagFromImage",
+          "params": [
+            "imageId",
+            "tagId"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "getImageTags",
+          "params": [
+            "imageId"
+          ],
+          "returnType": "Promise<TagRecord[]>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "softDeleteImage",
+          "params": [
+            "id"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "restoreImage",
+          "params": [
+            "id"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "permanentDeleteImage",
+          "params": [
+            "id"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "listTrash",
+          "params": [
+            "page",
+            "perPage"
+          ],
+          "returnType": "Promise<{ items: ImageRecord[]; total: number }>",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "emptyTrash",
+          "params": [],
+          "returnType": "Promise<number>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "batchSoftDelete",
+          "params": [
+            "ids"
+          ],
+          "returnType": "Promise<number>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getDashboardStats",
+          "params": [],
+          "returnType": "Promise<DashboardStats>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "exportImages",
+          "params": [
+            "ids",
+            "destDir",
+            "format",
+            "renameTemplate"
+          ],
+          "returnType": "Promise<ExportResult>",
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../tauri",
+          "specifiers": [
+            "invoke"
+          ]
+        },
+        {
+          "source": "../../types/image",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        }
+      ],
+      "exports": [
+        "toImageRecord",
+        "importImages",
+        "listImages",
+        "searchImages",
+        "searchImagesAdvanced",
+        "updateRating",
+        "toggleFavorite",
+        "listFavorites",
+        "createTag",
+        "listTags",
+        "deleteTag",
+        "addTagToImage",
+        "removeTagFromImage",
+        "getImageTags",
+        "softDeleteImage",
+        "restoreImage",
+        "permanentDeleteImage",
+        "listTrash",
+        "emptyTrash",
+        "batchSoftDelete",
+        "getDashboardStats",
+        "exportImages"
+      ],
+      "totalLines": 283,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/api/semantic.ts": {
+      "filePath": "src/lib/api/semantic.ts",
+      "contentHash": "932f78b738ee3c60390f1d710bb0309a224b35c34501eb2868fe2e499ab0a637",
+      "functions": [
+        {
+          "name": "searchSemantic",
+          "params": [
+            "query",
+            "limit"
+          ],
+          "returnType": "Promise<SemanticSearchResult[]>",
+          "exported": true,
+          "lineCount": 20
+        },
+        {
+          "name": "generateImageEmbedding",
+          "params": [
+            "imageId",
+            "description"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "getSearchSuggestions",
+          "params": [
+            "_query"
+          ],
+          "returnType": "Promise<string[]>",
+          "exported": true,
+          "lineCount": 5
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../tauri",
+          "specifiers": [
+            "invoke"
+          ]
+        }
+      ],
+      "exports": [
+        "searchSemantic",
+        "generateImageEmbedding",
+        "getSearchSuggestions"
+      ],
+      "totalLines": 57,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/api/semanticCache.ts": {
+      "filePath": "src/lib/api/semanticCache.ts",
+      "contentHash": "b366bd30ce21ba16500d126b95903994905d501b132b6c93a61904940d9a6eab",
+      "functions": [
+        {
+          "name": "normalizeQuery",
+          "params": [
+            "q"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "estimateBytes",
+          "params": [
+            "key",
+            "results"
+          ],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "evict",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "isExpired",
+          "params": [
+            "entry"
+          ],
+          "returnType": "boolean",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "hydrate",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "persist",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 26
+        },
+        {
+          "name": "getCachedResult",
+          "params": [
+            "query"
+          ],
+          "returnType": "{ id: string; similarity: number }[] | null",
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "setCachedResult",
+          "params": [
+            "query",
+            "results"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "isCacheValid",
+          "params": [],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "invalidateSemanticCache",
+          "params": [],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "getCacheStats",
+          "params": [],
+          "returnType": "{ entries: number; bytes: number; maxBytes: number }",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "searchSemanticCached",
+          "params": [
+            "query",
+            "limit"
+          ],
+          "returnType": "Promise<{ id: string; similarity: number }[]>",
+          "exported": true,
+          "lineCount": 30
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../tauri",
+          "specifiers": [
+            "invoke"
+          ]
+        }
+      ],
+      "exports": [
+        "getCachedResult",
+        "setCachedResult",
+        "isCacheValid",
+        "invalidateSemanticCache",
+        "getCacheStats",
+        "searchSemanticCached"
+      ],
+      "totalLines": 238,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/format.ts": {
+      "filePath": "src/lib/format.ts",
+      "contentHash": "c6697569f0b32fadde63e56bf8a458e353b13b5c7267f60390ae49ae732b2f8b",
+      "functions": [
+        {
+          "name": "formatDate",
+          "params": [
+            "iso"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "formatFileSize",
+          "params": [
+            "kb"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "formatDate",
+        "formatFileSize"
+      ],
+      "totalLines": 29,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/i18n.ts": {
+      "filePath": "src/lib/i18n.ts",
+      "contentHash": "851c8459b351d9e84335e8c74b5c2a225ad084318bf1dd9c237a00421625f10a",
+      "functions": [
+        {
+          "name": "getLanguage",
+          "params": [],
+          "returnType": "Language",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "subscribe",
+          "params": [
+            "listener"
+          ],
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "notifyLanguageChanged",
+          "params": [],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getNestedValue",
+          "params": [
+            "obj",
+            "path"
+          ],
+          "returnType": "string | undefined",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "t",
+          "params": [
+            "key",
+            "lang",
+            "params"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "useTranslation",
+          "params": [
+            "namespace"
+          ],
+          "exported": true,
+          "lineCount": 21
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "../i18n/zh.json",
+          "specifiers": [
+            "zh"
+          ]
+        },
+        {
+          "source": "../i18n/en.json",
+          "specifiers": [
+            "en"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "useCallback",
+            "useMemo",
+            "useSyncExternalStore"
+          ]
+        }
+      ],
+      "exports": [
+        "notifyLanguageChanged",
+        "t",
+        "useTranslation"
+      ],
+      "totalLines": 97,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/tauri.ts": {
+      "filePath": "src/lib/tauri.ts",
+      "contentHash": "1f46e425d027680c130193cfcc98e41d776c4a77dade7603bc8423fb44bce4a4",
+      "functions": [
+        {
+          "name": "mockResponse",
+          "params": [
+            "cmd"
+          ],
+          "returnType": "unknown",
+          "exported": false,
+          "lineCount": 23
+        },
+        {
+          "name": "wrapError",
+          "params": [
+            "cmd",
+            "error"
+          ],
+          "returnType": "Error",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "invoke",
+          "params": [
+            "cmd",
+            "args"
+          ],
+          "returnType": "Promise<T>",
+          "exported": true,
+          "lineCount": 35
+        },
+        {
+          "name": "convertFileSrc",
+          "params": [
+            "filePath"
+          ],
+          "returnType": "Promise<string>",
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./api/semanticCache",
+          "specifiers": [
+            "invalidateSemanticCache"
+          ]
+        }
+      ],
+      "exports": [
+        "invoke",
+        "isTauriAvailable",
+        "convertFileSrc"
+      ],
+      "totalLines": 134,
+      "hasStructuralAnalysis": true
+    },
+    "src/main.tsx": {
+      "filePath": "src/main.tsx",
+      "contentHash": "8baa675da3a6326ba930cd9bc88740313ae1a0ff5704d7e357257dbacc671527",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "React"
+          ]
+        },
+        {
+          "source": "react-dom/client",
+          "specifiers": [
+            "ReactDOM"
+          ]
+        },
+        {
+          "source": "./App",
+          "specifiers": [
+            "App"
+          ]
+        },
+        {
+          "source": "./components/ui/ErrorBoundary",
+          "specifiers": [
+            "ErrorBoundary"
+          ]
+        },
+        {
+          "source": "./index.css",
+          "specifiers": []
+        }
+      ],
+      "exports": [],
+      "totalLines": 14,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/__tests__/aiAnalysisStore.test.ts": {
+      "filePath": "src/stores/__tests__/aiAnalysisStore.test.ts",
+      "contentHash": "76a289ec5ff37d8ea5c24ff472d6016d378794dd98dce852e28675a9fc73beb8",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "../aiAnalysisStore",
+          "specifiers": [
+            "useAiAnalysisStore"
+          ]
+        },
+        {
+          "source": "../../lib/api/ai",
+          "specifiers": [
+            "* as api"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 148,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/__tests__/embeddingStore.test.ts": {
+      "filePath": "src/stores/__tests__/embeddingStore.test.ts",
+      "contentHash": "e1abd7181a5f6306617d34a8643052ba54572faf32c84907606b1df1df2cb6e4",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "../embeddingStore",
+          "specifiers": [
+            "useEmbeddingStore"
+          ]
+        },
+        {
+          "source": "../../lib/api/embeddings",
+          "specifiers": [
+            "* as api"
+          ]
+        },
+        {
+          "source": "../imageStore",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 134,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/__tests__/imageStore.test.ts": {
+      "filePath": "src/stores/__tests__/imageStore.test.ts",
+      "contentHash": "a19e7a6bf8b00a41bce87e674515658cbafbc263f8775f63bb40f1d6c6dba326",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "../imageStore",
+          "specifiers": [
+            "useImageStore"
+          ]
+        },
+        {
+          "source": "../../lib/api/images",
+          "specifiers": [
+            "* as api"
+          ]
+        },
+        {
+          "source": "../../types/image",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 178,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/__tests__/imageTagsStore.test.ts": {
+      "filePath": "src/stores/__tests__/imageTagsStore.test.ts",
+      "contentHash": "7b17555e07d35c691752936b7018f2fa7c14d976a2d5ac7a87f2926507ca9130",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "../imageTagsStore",
+          "specifiers": [
+            "useImageTagsStore"
+          ]
+        },
+        {
+          "source": "../../lib/api/images",
+          "specifiers": [
+            "* as api"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 91,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/__tests__/semanticSearchStore.test.ts": {
+      "filePath": "src/stores/__tests__/semanticSearchStore.test.ts",
+      "contentHash": "13bad3f13c811329991f4335dfb02f01a7453e842fc0b52be239a6b4a9cb9389",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "../semanticSearchStore",
+          "specifiers": [
+            "useSemanticSearchStore"
+          ]
+        },
+        {
+          "source": "../../lib/api/semantic",
+          "specifiers": [
+            "* as api"
+          ]
+        },
+        {
+          "source": "../../lib/api/semanticCache",
+          "specifiers": [
+            "* as cacheApi"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 163,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/__tests__/settingsStore.test.ts": {
+      "filePath": "src/stores/__tests__/settingsStore.test.ts",
+      "contentHash": "8c723d27f5761582ed2260ec153a1c90b26ca5c8f91598d96907efa633f4bd96",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "../settingsStore",
+          "specifiers": [
+            "useSettingsStore"
+          ]
+        },
+        {
+          "source": "../../lib/tauri",
+          "specifiers": [
+            "* as tauri"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 159,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/__tests__/smartCollectionStore.test.ts": {
+      "filePath": "src/stores/__tests__/smartCollectionStore.test.ts",
+      "contentHash": "2a3caf9cd2caadd7cb1cd79fec61270fe95d7fe9a53410b97a07540215386d93",
+      "functions": [
+        {
+          "name": "makeCollection",
+          "params": [
+            "id",
+            "name"
+          ],
+          "returnType": "SmartCollection",
+          "exported": false,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "../smartCollectionStore",
+          "specifiers": [
+            "useSmartCollectionStore"
+          ]
+        },
+        {
+          "source": "../smartCollectionStore",
+          "specifiers": [
+            "SmartCollection"
+          ]
+        },
+        {
+          "source": "../../lib/tauri",
+          "specifiers": [
+            "* as tauri"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 176,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/__tests__/trashStore.test.ts": {
+      "filePath": "src/stores/__tests__/trashStore.test.ts",
+      "contentHash": "c74842bd762d3afd83f61f40e77476ff801e1cac6b8eb49b6ef3271775c8b8eb",
+      "functions": [
+        {
+          "name": "makeImage",
+          "params": [
+            "id"
+          ],
+          "returnType": "ImageRecord",
+          "exported": false,
+          "lineCount": 15
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect",
+            "vi",
+            "beforeEach"
+          ]
+        },
+        {
+          "source": "../../lib/api/images",
+          "specifiers": [
+            "* as api"
+          ]
+        },
+        {
+          "source": "../trashStore",
+          "specifiers": [
+            "useTrashStore"
+          ]
+        },
+        {
+          "source": "../../types/image",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 213,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/.gitkeep": {
+      "filePath": "src/stores/.gitkeep",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": false
+    },
+    "src/stores/aiAnalysisStore.ts": {
+      "filePath": "src/stores/aiAnalysisStore.ts",
+      "contentHash": "c7ec168cd8fbcf006e55a6a071bde54db4270bd4b4401d772fba4364dc2f7dde",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "zustand",
+          "specifiers": [
+            "create"
+          ]
+        },
+        {
+          "source": "../lib/api/ai",
+          "specifiers": [
+            "AnalysisResult",
+            "AnalysisHistoryItem"
+          ]
+        },
+        {
+          "source": "../lib/api/ai",
+          "specifiers": [
+            "* as aiApi"
+          ]
+        }
+      ],
+      "exports": [
+        "useAiAnalysisStore"
+      ],
+      "totalLines": 108,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/commandStore.ts": {
+      "filePath": "src/stores/commandStore.ts",
+      "contentHash": "3ee9452380fddcc875f3d6edef6d792a9047000f38c173acd75ae4de4f8e3009",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "zustand",
+          "specifiers": [
+            "create"
+          ]
+        }
+      ],
+      "exports": [
+        "useCommandStore"
+      ],
+      "totalLines": 43,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/embeddingStore.ts": {
+      "filePath": "src/stores/embeddingStore.ts",
+      "contentHash": "34effcef50ecd0ed8c01a7337d236685cfb08fd8925208526f3093a0cbcbe5ce",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "zustand",
+          "specifiers": [
+            "create"
+          ]
+        },
+        {
+          "source": "../lib/api/embeddings",
+          "specifiers": [
+            "getEmbeddingStatus",
+            "getEmbeddingStats",
+            "generateEmbeddings",
+            "EmbeddingInfo",
+            "EmbeddingStats"
+          ]
+        },
+        {
+          "source": "./imageStore",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        }
+      ],
+      "exports": [
+        "useEmbeddingStore"
+      ],
+      "totalLines": 93,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/imageStore.ts": {
+      "filePath": "src/stores/imageStore.ts",
+      "contentHash": "1640f813fc683b0ca1251629173e3234a9d127abe98e8cf0c7c0757efa5cba66",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "zustand",
+          "specifiers": [
+            "create"
+          ]
+        },
+        {
+          "source": "../lib/api/images",
+          "specifiers": [
+            "* as api"
+          ]
+        },
+        {
+          "source": "../lib/api/images",
+          "specifiers": [
+            "ExportResult"
+          ]
+        },
+        {
+          "source": "../types/image",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        }
+      ],
+      "exports": [
+        "ImageRecord",
+        "useImageStore"
+      ],
+      "totalLines": 236,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/imageTagsStore.ts": {
+      "filePath": "src/stores/imageTagsStore.ts",
+      "contentHash": "ea8879294f049174f959c1a06eabb3332fda1a8d3f5eef95a0a836b80b5ed180",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "zustand",
+          "specifiers": [
+            "create"
+          ]
+        },
+        {
+          "source": "../lib/api/images",
+          "specifiers": [
+            "* as api"
+          ]
+        }
+      ],
+      "exports": [
+        "useImageTagsStore"
+      ],
+      "totalLines": 51,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/semanticSearchStore.ts": {
+      "filePath": "src/stores/semanticSearchStore.ts",
+      "contentHash": "4ff9b932723b67f4cf061f91fffc1e855c2e1713aa443b422d301fa9dde5425a",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "zustand",
+          "specifiers": [
+            "create"
+          ]
+        },
+        {
+          "source": "../lib/api/semantic",
+          "specifiers": [
+            "getSearchSuggestions",
+            "SemanticSearchResult"
+          ]
+        },
+        {
+          "source": "../lib/api/semanticCache",
+          "specifiers": [
+            "searchSemanticCached",
+            "invalidateSemanticCache"
+          ]
+        }
+      ],
+      "exports": [
+        "useSemanticSearchStore"
+      ],
+      "totalLines": 96,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/settingsStore.ts": {
+      "filePath": "src/stores/settingsStore.ts",
+      "contentHash": "61fdf6e76c18c3ad5d31f9a7ee753f230f12a2f7bd3bde823aef84ed1c4e0189",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "zustand",
+          "specifiers": [
+            "create"
+          ]
+        },
+        {
+          "source": "../lib/tauri",
+          "specifiers": [
+            "invoke"
+          ]
+        },
+        {
+          "source": "../lib/i18n",
+          "specifiers": [
+            "notifyLanguageChanged"
+          ]
+        }
+      ],
+      "exports": [
+        "useSettingsStore"
+      ],
+      "totalLines": 59,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/smartCollectionStore.ts": {
+      "filePath": "src/stores/smartCollectionStore.ts",
+      "contentHash": "df0b1a6acbd8c7d4a45c2205944ccd86942288979a6ce537f7dab358273f4cdc",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "zustand",
+          "specifiers": [
+            "create"
+          ]
+        },
+        {
+          "source": "../lib/tauri",
+          "specifiers": [
+            "invoke"
+          ]
+        }
+      ],
+      "exports": [
+        "useSmartCollectionStore"
+      ],
+      "totalLines": 67,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/trashStore.ts": {
+      "filePath": "src/stores/trashStore.ts",
+      "contentHash": "d14df5a7fd164f705906c85dfbbd02957ac9dafa290796d68ea06324a7e192ab",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "zustand",
+          "specifiers": [
+            "create"
+          ]
+        },
+        {
+          "source": "../lib/api/images",
+          "specifiers": [
+            "* as api"
+          ]
+        },
+        {
+          "source": "../types/image",
+          "specifiers": [
+            "ImageRecord"
+          ]
+        }
+      ],
+      "exports": [
+        "useTrashStore"
+      ],
+      "totalLines": 93,
+      "hasStructuralAnalysis": true
+    },
+    "src/types/image.ts": {
+      "filePath": "src/types/image.ts",
+      "contentHash": "b2088ca113d0f8667959ce838e3c0495336bbb6d836055e25b9d0864cb93dfc6",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 26,
+      "hasStructuralAnalysis": true
+    },
+    "src/vite-env.d.ts": {
+      "filePath": "src/vite-env.d.ts",
+      "contentHash": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 2,
+      "hasStructuralAnalysis": true
+    },
+    "tsconfig.json": {
+      "filePath": "tsconfig.json",
+      "contentHash": "0de1bb2f52856b5003aaabb322aa71a8a38756728943d0380e1e59168145cb6b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 23,
+      "hasStructuralAnalysis": true
+    },
+    "vite.config.ts": {
+      "filePath": "vite.config.ts",
+      "contentHash": "5a6907c5b25fca027a259d0b39701e25d3ea828d97249fd27973d5b98f476340",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vite",
+          "specifiers": [
+            "defineConfig"
+          ]
+        },
+        {
+          "source": "@vitejs/plugin-react",
+          "specifiers": [
+            "react"
+          ]
+        },
+        {
+          "source": "@tailwindcss/vite",
+          "specifiers": [
+            "tailwindcss"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 25,
+      "hasStructuralAnalysis": true
+    },
+    "vitest.config.ts": {
+      "filePath": "vitest.config.ts",
+      "contentHash": "451fdc489649c99a035c8d22eda6cffb7901ec955feb4eaa2365660fa5f9703c",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest/config",
+          "specifiers": [
+            "defineConfig"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "vitest.setup.ts": {
+      "filePath": "vitest.setup.ts",
+      "contentHash": "a5109beae5b3f786f3031367977aab7c4ddf223a82bae853238eefb79cc7f186",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 15,
+      "hasStructuralAnalysis": true
+    }
+  }
+}

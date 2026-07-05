@@ -1,0 +1,2093 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/features/settings/SettingsPage.tsx",
+      "type": "file",
+      "name": "SettingsPage.tsx",
+      "filePath": "src/features/settings/SettingsPage.tsx",
+      "summary": "Feature page component for settings functionality.",
+      "tags": [
+        "code",
+        "feature-module",
+        "settings",
+        "typescript"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/features/settings/SettingsPage.tsx:SectionHeading",
+      "type": "function",
+      "name": "SectionHeading",
+      "filePath": "src/features/settings/SettingsPage.tsx",
+      "summary": "Function SectionHeading({ children }) in SettingsPage.tsx.",
+      "tags": [
+        "code",
+        "feature-module",
+        "settings"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/features/settings/SettingsPage.tsx:Row",
+      "type": "function",
+      "name": "Row",
+      "filePath": "src/features/settings/SettingsPage.tsx",
+      "summary": "Function Row({\r\n  label,\r\n  children,\r\n}) in SettingsPage.tsx.",
+      "tags": [
+        "code",
+        "feature-module",
+        "settings"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/features/settings/SettingsPage.tsx:SegmentedControl",
+      "type": "function",
+      "name": "SegmentedControl",
+      "filePath": "src/features/settings/SettingsPage.tsx",
+      "summary": "Function SegmentedControl({\r\n  options,\r\n  value,\r\n  onChange,\r\n  disabled,\r\n}) in SettingsPage.tsx.",
+      "tags": [
+        "code",
+        "feature-module",
+        "settings"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/features/settings/SettingsPage.tsx:Kbd",
+      "type": "function",
+      "name": "Kbd",
+      "filePath": "src/features/settings/SettingsPage.tsx",
+      "summary": "Function Kbd({ children }) in SettingsPage.tsx.",
+      "tags": [
+        "code",
+        "feature-module",
+        "settings"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "type": "function",
+      "name": "SettingsPage",
+      "filePath": "src/features/settings/SettingsPage.tsx",
+      "summary": "Function SettingsPage() in SettingsPage.tsx.",
+      "tags": [
+        "code",
+        "feature-module",
+        "settings"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/tags/TagManager.tsx",
+      "type": "file",
+      "name": "TagManager.tsx",
+      "filePath": "src/features/tags/TagManager.tsx",
+      "summary": "Feature page component for tags functionality.",
+      "tags": [
+        "code",
+        "feature-module",
+        "tags",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/features/tags/TagManager.tsx:TagManager",
+      "type": "function",
+      "name": "TagManager",
+      "filePath": "src/features/tags/TagManager.tsx",
+      "summary": "Function TagManager() in TagManager.tsx.",
+      "tags": [
+        "code",
+        "feature-module",
+        "tags"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/features/trash/TrashPage.tsx",
+      "type": "file",
+      "name": "TrashPage.tsx",
+      "filePath": "src/features/trash/TrashPage.tsx",
+      "summary": "Feature page component for trash functionality.",
+      "tags": [
+        "code",
+        "trash",
+        "feature-module",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/features/trash/TrashPage.tsx:formatDeletedTime",
+      "type": "function",
+      "name": "formatDeletedTime",
+      "filePath": "src/features/trash/TrashPage.tsx",
+      "summary": "Function formatDeletedTime(iso) in TrashPage.tsx.",
+      "tags": [
+        "code",
+        "trash",
+        "feature-module"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "type": "function",
+      "name": "TrashPage",
+      "filePath": "src/features/trash/TrashPage.tsx",
+      "summary": "Function TrashPage() in TrashPage.tsx.",
+      "tags": [
+        "code",
+        "trash",
+        "feature-module"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/hooks/__tests__/useImageActions.test.ts",
+      "type": "file",
+      "name": "useImageActions.test.ts",
+      "filePath": "src/hooks/__tests__/useImageActions.test.ts",
+      "summary": "Custom React hook (useImageActions.test.ts).",
+      "tags": [
+        "code",
+        "hook",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/hooks/__tests__/useOllamaStatus.test.ts",
+      "type": "file",
+      "name": "useOllamaStatus.test.ts",
+      "filePath": "src/hooks/__tests__/useOllamaStatus.test.ts",
+      "summary": "Custom React hook (useOllamaStatus.test.ts).",
+      "tags": [
+        "code",
+        "hook",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/hooks/__tests__/useSelection.test.ts",
+      "type": "file",
+      "name": "useSelection.test.ts",
+      "filePath": "src/hooks/__tests__/useSelection.test.ts",
+      "summary": "Custom React hook (useSelection.test.ts).",
+      "tags": [
+        "code",
+        "hook",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/hooks/__tests__/useUpdater.test.ts",
+      "type": "file",
+      "name": "useUpdater.test.ts",
+      "filePath": "src/hooks/__tests__/useUpdater.test.ts",
+      "summary": "Custom React hook (useUpdater.test.ts).",
+      "tags": [
+        "code",
+        "hook",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/hooks/useDragDrop.ts",
+      "type": "file",
+      "name": "useDragDrop.ts",
+      "filePath": "src/hooks/useDragDrop.ts",
+      "summary": "Custom React hook (useDragDrop.ts).",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "type": "function",
+      "name": "useDragDrop",
+      "filePath": "src/hooks/useDragDrop.ts",
+      "summary": "Function useDragDrop({ onDrop, onDragOver, onDragLeave }) in useDragDrop.ts.",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/hooks/useImageActions.ts",
+      "type": "file",
+      "name": "useImageActions.ts",
+      "filePath": "src/hooks/useImageActions.ts",
+      "summary": "Custom React hook (useImageActions.ts).",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/hooks/useImageActions.ts:useImageActions",
+      "type": "function",
+      "name": "useImageActions",
+      "filePath": "src/hooks/useImageActions.ts",
+      "summary": "Function useImageActions() in useImageActions.ts.",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/hooks/useKeyboardNav.ts",
+      "type": "file",
+      "name": "useKeyboardNav.ts",
+      "filePath": "src/hooks/useKeyboardNav.ts",
+      "summary": "Custom React hook (useKeyboardNav.ts).",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/hooks/useKeyboardNav.ts:useKeyboardNav",
+      "type": "function",
+      "name": "useKeyboardNav",
+      "filePath": "src/hooks/useKeyboardNav.ts",
+      "summary": "Function useKeyboardNav({\r\n  route,\r\n  onArrowUp,\r\n  onArrowDown,\r\n  onArrowLeft,\r\n  onArrowRight,\r\n  onEnter,\r\n  onSpace,\r\n  onEscape,\r\n  onDelete,\r\n  onFavorite,\r\n  onRate,\r\n}) in useKeyboardNav.ts.",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/hooks/useMediaQuery.ts",
+      "type": "file",
+      "name": "useMediaQuery.ts",
+      "filePath": "src/hooks/useMediaQuery.ts",
+      "summary": "Custom React hook (useMediaQuery.ts).",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "type": "function",
+      "name": "useMediaQuery",
+      "filePath": "src/hooks/useMediaQuery.ts",
+      "summary": "Function useMediaQuery(query) in useMediaQuery.ts.",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/hooks/useMediaQuery.ts:useIsMobile",
+      "type": "function",
+      "name": "useIsMobile",
+      "filePath": "src/hooks/useMediaQuery.ts",
+      "summary": "Function useIsMobile() in useMediaQuery.ts.",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/hooks/useMediaQuery.ts:useIsTablet",
+      "type": "function",
+      "name": "useIsTablet",
+      "filePath": "src/hooks/useMediaQuery.ts",
+      "summary": "Function useIsTablet() in useMediaQuery.ts.",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/hooks/useMediaQuery.ts:useIsDesktop",
+      "type": "function",
+      "name": "useIsDesktop",
+      "filePath": "src/hooks/useMediaQuery.ts",
+      "summary": "Function useIsDesktop() in useMediaQuery.ts.",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/hooks/useMediaQuery.ts:useIsSmallPhone",
+      "type": "function",
+      "name": "useIsSmallPhone",
+      "filePath": "src/hooks/useMediaQuery.ts",
+      "summary": "Function useIsSmallPhone() in useMediaQuery.ts.",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/hooks/useOllamaStatus.ts",
+      "type": "file",
+      "name": "useOllamaStatus.ts",
+      "filePath": "src/hooks/useOllamaStatus.ts",
+      "summary": "Custom React hook (useOllamaStatus.ts).",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "type": "function",
+      "name": "useOllamaStatus",
+      "filePath": "src/hooks/useOllamaStatus.ts",
+      "summary": "Function useOllamaStatus(options) in useOllamaStatus.ts.",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/hooks/useSelection.ts",
+      "type": "file",
+      "name": "useSelection.ts",
+      "filePath": "src/hooks/useSelection.ts",
+      "summary": "Custom React hook (useSelection.ts).",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/hooks/useSelection.ts:useSelection",
+      "type": "function",
+      "name": "useSelection",
+      "filePath": "src/hooks/useSelection.ts",
+      "summary": "Function useSelection() in useSelection.ts.",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/hooks/useUpdater.ts",
+      "type": "file",
+      "name": "useUpdater.ts",
+      "filePath": "src/hooks/useUpdater.ts",
+      "summary": "Custom React hook (useUpdater.ts).",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/hooks/useUpdater.ts:useUpdater",
+      "type": "function",
+      "name": "useUpdater",
+      "filePath": "src/hooks/useUpdater.ts",
+      "summary": "Function useUpdater() in useUpdater.ts.",
+      "tags": [
+        "code",
+        "hook",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/i18n/.gitkeep",
+      "type": "file",
+      "name": ".gitkeep",
+      "filePath": "src/i18n/.gitkeep",
+      "summary": "Unknown source file (1 lines)",
+      "tags": [
+        "code",
+        "unknown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:src/i18n/en.json",
+      "type": "config",
+      "name": "en.json",
+      "filePath": "src/i18n/en.json",
+      "summary": "Configuration file (316 lines).",
+      "tags": [
+        "config",
+        "json"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:src/i18n/zh.json",
+      "type": "config",
+      "name": "zh.json",
+      "filePath": "src/i18n/zh.json",
+      "summary": "Configuration file (316 lines).",
+      "tags": [
+        "config",
+        "json"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/index.css",
+      "type": "file",
+      "name": "index.css",
+      "filePath": "src/index.css",
+      "summary": "Global stylesheet with Tailwind CSS imports and design token definitions.",
+      "tags": [
+        "markup",
+        "css"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/__tests__/format.test.ts",
+      "type": "file",
+      "name": "format.test.ts",
+      "filePath": "src/lib/__tests__/format.test.ts",
+      "summary": "Typescript source file (40 lines)",
+      "tags": [
+        "code",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/__tests__/i18n.test.ts",
+      "type": "file",
+      "name": "i18n.test.ts",
+      "filePath": "src/lib/__tests__/i18n.test.ts",
+      "summary": "Typescript source file (45 lines)",
+      "tags": [
+        "code",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/api/__tests__/images.test.ts",
+      "type": "file",
+      "name": "images.test.ts",
+      "filePath": "src/lib/api/__tests__/images.test.ts",
+      "summary": "API client module for images.test operations.",
+      "tags": [
+        "code",
+        "api-layer",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/api/__tests__/semanticCache.test.ts",
+      "type": "file",
+      "name": "semanticCache.test.ts",
+      "filePath": "src/lib/api/__tests__/semanticCache.test.ts",
+      "summary": "API client module for semanticCache.test operations.",
+      "tags": [
+        "code",
+        "api-layer",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/api/__tests__/type-contract.test.ts",
+      "type": "file",
+      "name": "type-contract.test.ts",
+      "filePath": "src/lib/api/__tests__/type-contract.test.ts",
+      "summary": "API client module for type-contract.test operations.",
+      "tags": [
+        "code",
+        "api-layer",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api/__tests__/type-contract.test.ts:snakeToCamel",
+      "type": "function",
+      "name": "snakeToCamel",
+      "filePath": "src/lib/api/__tests__/type-contract.test.ts",
+      "summary": "Function snakeToCamel(str) in type-contract.test.ts.",
+      "tags": [
+        "code",
+        "api-layer",
+        "test"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/api/__tests__/write-commands.test.ts",
+      "type": "file",
+      "name": "write-commands.test.ts",
+      "filePath": "src/lib/api/__tests__/write-commands.test.ts",
+      "summary": "API client module for write-commands.test operations.",
+      "tags": [
+        "test",
+        "api-layer",
+        "tauri-command",
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/api/.gitkeep",
+      "type": "file",
+      "name": ".gitkeep",
+      "filePath": "src/lib/api/.gitkeep",
+      "summary": "Unknown source file (1 lines)",
+      "tags": [
+        "code",
+        "api-layer",
+        "unknown"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/features/settings/SettingsPage.tsx",
+      "target": "function:src/features/settings/SettingsPage.tsx:SectionHeading",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/settings/SettingsPage.tsx",
+      "target": "function:src/features/settings/SettingsPage.tsx:Row",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/settings/SettingsPage.tsx",
+      "target": "function:src/features/settings/SettingsPage.tsx:SegmentedControl",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/settings/SettingsPage.tsx",
+      "target": "function:src/features/settings/SettingsPage.tsx:Kbd",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/settings/SettingsPage.tsx",
+      "target": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SegmentedControl",
+      "target": "function:src/features/settings/SettingsPage.tsx:options.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SegmentedControl",
+      "target": "function:src/features/settings/SettingsPage.tsx:disabled",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SegmentedControl",
+      "target": "function:src/features/settings/SettingsPage.tsx:onChange",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:useTranslation",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:useSettingsStore",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:useSettingsStore",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:useSettingsStore",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:useSettingsStore",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:shortcuts.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/settings/SettingsPage.tsx:SettingsPage",
+      "target": "function:src/features/settings/SettingsPage.tsx:t",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/tags/TagManager.tsx",
+      "target": "function:src/features/tags/TagManager.tsx:TagManager",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:useIsMobile",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:useCallback",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:setTags",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:setError",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:useEffect",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:loadTags",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleCreate",
+      "target": "function:src/features/tags/TagManager.tsx:newName.trim",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleCreate",
+      "target": "function:src/features/tags/TagManager.tsx:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleCreate",
+      "target": "function:src/features/tags/TagManager.tsx:setNewName",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleCreate",
+      "target": "function:src/features/tags/TagManager.tsx:setNewColor",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleCreate",
+      "target": "function:src/features/tags/TagManager.tsx:setError",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleCreate",
+      "target": "function:src/features/tags/TagManager.tsx:loadTags",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleCreate",
+      "target": "function:src/features/tags/TagManager.tsx:setError",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleDelete",
+      "target": "function:src/features/tags/TagManager.tsx:window.confirm",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleDelete",
+      "target": "function:src/features/tags/TagManager.tsx:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleDelete",
+      "target": "function:src/features/tags/TagManager.tsx:setError",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleDelete",
+      "target": "function:src/features/tags/TagManager.tsx:loadTags",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleDelete",
+      "target": "function:src/features/tags/TagManager.tsx:setError",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:handleKeyDown",
+      "target": "function:src/features/tags/TagManager.tsx:handleCreate",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:setNewName",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:PRESET_COLORS.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:setNewColor",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:newName.trim",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:newName.trim",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:newName.trim",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:newName.trim",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:tags.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:PRESET_COLORS.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:setEditingId",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:loadTags",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:setEditingId",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:setEditingId",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/tags/TagManager.tsx:TagManager",
+      "target": "function:src/features/tags/TagManager.tsx:handleDelete",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/features/trash/TrashPage.tsx",
+      "target": "function:src/features/trash/TrashPage.tsx:formatDeletedTime",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/features/trash/TrashPage.tsx",
+      "target": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:formatDeletedTime",
+      "target": "function:src/features/trash/TrashPage.tsx:iso.replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:formatDeletedTime",
+      "target": "function:src/features/trash/TrashPage.tsx:d.toLocaleString",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:useTrashStore",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:useIsMobile",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:Math.max",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:Math.ceil",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:useEffect",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:fetchTrash",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:handleRestore",
+      "target": "function:src/features/trash/TrashPage.tsx:restoreImage",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:handlePermanentDelete",
+      "target": "function:src/features/trash/TrashPage.tsx:permanentDelete",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:handlePermanentDelete",
+      "target": "function:src/features/trash/TrashPage.tsx:setConfirmDeleteId",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:handleEmptyTrash",
+      "target": "function:src/features/trash/TrashPage.tsx:emptyTrash",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:handleEmptyTrash",
+      "target": "function:src/features/trash/TrashPage.tsx:setConfirmEmpty",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:setConfirmEmpty",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:fetchTrash",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:images.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:formatDeletedTime",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:handleRestore",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:handlePermanentDelete",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:setConfirmDeleteId",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:setConfirmDeleteId",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:Array.from({ length: totalPages }, (_, i) => i + 1).map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:Array.from",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:fetchTrash",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:setConfirmEmpty",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:e.stopPropagation",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/features/trash/TrashPage.tsx:TrashPage",
+      "target": "function:src/features/trash/TrashPage.tsx:setConfirmEmpty",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/hooks/useDragDrop.ts",
+      "target": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:useEffect",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:import(/* @vite-ignore */ '@tauri-apps/api/webview')\n      .then(({ getCurrentWebview }) => {\n        if (cancelled) return;\n        const webview = getCurrentWebview();\n        unlistenPromise = webview.onDragDropEvent((event) => {\n          switch (event.payload.type) {\n            case 'enter':\n            case 'over':\n              setIsDragging(true);\n              onDragOver?.();\n              break;\n\n            case 'drop':\n              setIsDragging(false);\n              if (event.payload.paths && event.payload.paths.length > 0) {\n                onDrop?.(event.payload.paths);\n              }\n              break;\n\n            case 'leave':\n              setIsDragging(false);\n              onDragLeave?.();\n              break;\n          }\n        });\n      })\n      .catch",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:import(/* @vite-ignore */ '@tauri-apps/api/webview')\n      .then",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:import",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:getCurrentWebview",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:webview.onDragDropEvent",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:setIsDragging",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:onDragOver",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:setIsDragging",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:onDrop",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:setIsDragging",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:onDragLeave",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:console.error",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:unlistenPromise.then((fn) => fn()).catch",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:unlistenPromise.then",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useDragDrop.ts:useDragDrop",
+      "target": "function:src/hooks/useDragDrop.ts:fn",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/hooks/useImageActions.ts",
+      "target": "function:src/hooks/useImageActions.ts:useImageActions",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:useImageStore",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:useCallback",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:useImageStore.getState().images.find",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:useImageStore.getState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:updateImage",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:api.toggleFavorite(id).catch",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:api.toggleFavorite",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:updateImage",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:console.error",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:useCallback",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:useImageStore.getState().images.find",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:useImageStore.getState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:updateImage",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:api.updateRating(id, rating).catch",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:api.updateRating",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:updateImage",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useImageActions.ts:useImageActions",
+      "target": "function:src/hooks/useImageActions.ts:console.error",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/hooks/useKeyboardNav.ts",
+      "target": "function:src/hooks/useKeyboardNav.ts:useKeyboardNav",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:useKeyboardNav",
+      "target": "function:src/hooks/useKeyboardNav.ts:useCommandStore",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:useKeyboardNav",
+      "target": "function:src/hooks/useKeyboardNav.ts:useEffect",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:e.preventDefault",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:onArrowUp",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:e.preventDefault",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:onArrowDown",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:e.preventDefault",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:onArrowLeft",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:e.preventDefault",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:onArrowRight",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:e.preventDefault",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:onEnter",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:e.preventDefault",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:onSpace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:e.preventDefault",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:onEscape",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:e.preventDefault",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:onDelete",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:e.preventDefault",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:onFavorite",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:e.preventDefault",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:onRate",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:handler",
+      "target": "function:src/hooks/useKeyboardNav.ts:Number",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:useKeyboardNav",
+      "target": "function:src/hooks/useKeyboardNav.ts:window.addEventListener",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useKeyboardNav.ts:useKeyboardNav",
+      "target": "function:src/hooks/useKeyboardNav.ts:window.removeEventListener",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/hooks/useMediaQuery.ts",
+      "target": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/hooks/useMediaQuery.ts",
+      "target": "function:src/hooks/useMediaQuery.ts:useIsMobile",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/hooks/useMediaQuery.ts",
+      "target": "function:src/hooks/useMediaQuery.ts:useIsTablet",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/hooks/useMediaQuery.ts",
+      "target": "function:src/hooks/useMediaQuery.ts:useIsDesktop",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/hooks/useMediaQuery.ts",
+      "target": "function:src/hooks/useMediaQuery.ts:useIsSmallPhone",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "target": "function:src/hooks/useMediaQuery.ts:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "target": "function:src/hooks/useMediaQuery.ts:window.matchMedia",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "target": "function:src/hooks/useMediaQuery.ts:useEffect",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "target": "function:src/hooks/useMediaQuery.ts:window.matchMedia",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "target": "function:src/hooks/useMediaQuery.ts:setMatches",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useMediaQuery.ts:handler",
+      "target": "function:src/hooks/useMediaQuery.ts:setMatches",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "target": "function:src/hooks/useMediaQuery.ts:mediaQuery.addEventListener",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "target": "function:src/hooks/useMediaQuery.ts:mediaQuery.removeEventListener",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useMediaQuery.ts:useIsMobile",
+      "target": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useMediaQuery.ts:useIsTablet",
+      "target": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useMediaQuery.ts:useIsDesktop",
+      "target": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useMediaQuery.ts:useIsSmallPhone",
+      "target": "function:src/hooks/useMediaQuery.ts:useMediaQuery",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/hooks/useOllamaStatus.ts",
+      "target": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:useRef",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:useCallback",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:setChecking",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:await invoke",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:setAvailable",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:setError",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:setAvailable",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:setError",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:setChecking",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:useEffect",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:setAvailable",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:setChecking",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:check",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:setInterval",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useOllamaStatus.ts:useOllamaStatus",
+      "target": "function:src/hooks/useOllamaStatus.ts:clearInterval",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/hooks/useSelection.ts",
+      "target": "function:src/hooks/useSelection.ts:useSelection",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/hooks/useSelection.ts:useSelection",
+      "target": "function:src/hooks/useSelection.ts:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useSelection.ts:useSelection",
+      "target": "function:src/hooks/useSelection.ts:useCallback",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useSelection.ts:useSelection",
+      "target": "function:src/hooks/useSelection.ts:setSelectedIds",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useSelection.ts:useSelection",
+      "target": "function:src/hooks/useSelection.ts:next.has",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useSelection.ts:useSelection",
+      "target": "function:src/hooks/useSelection.ts:next.delete",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useSelection.ts:useSelection",
+      "target": "function:src/hooks/useSelection.ts:next.add",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useSelection.ts:useSelection",
+      "target": "function:src/hooks/useSelection.ts:useCallback",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useSelection.ts:useSelection",
+      "target": "function:src/hooks/useSelection.ts:setSelectedIds",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useSelection.ts:useSelection",
+      "target": "function:src/hooks/useSelection.ts:images.map",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useSelection.ts:useSelection",
+      "target": "function:src/hooks/useSelection.ts:useCallback",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useSelection.ts:useSelection",
+      "target": "function:src/hooks/useSelection.ts:setSelectedIds",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/hooks/useUpdater.ts",
+      "target": "function:src/hooks/useUpdater.ts:useUpdater",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:useState",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:useRef",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:useRef",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:useEffect",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:useCallback",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setChecking",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setError",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:import",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:check",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setAvailable",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setUpdateInfo",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setAvailable",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setUpdateInfo",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setError",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setChecking",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:useCallback",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setInstalling",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setError",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:updateRef.current.downloadAndInstall",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setDownloaded",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setError",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:setInstalling",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:useEffect",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/hooks/useUpdater.ts:useUpdater",
+      "target": "function:src/hooks/useUpdater.ts:checkForUpdates",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/api/__tests__/type-contract.test.ts",
+      "target": "function:src/lib/api/__tests__/type-contract.test.ts:snakeToCamel",
+      "type": "contains",
+      "weight": 1.0
+    },
+    {
+      "source": "function:src/lib/api/__tests__/type-contract.test.ts:snakeToCamel",
+      "target": "function:src/lib/api/__tests__/type-contract.test.ts:str.replace",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/api/__tests__/type-contract.test.ts:snakeToCamel",
+      "target": "function:src/lib/api/__tests__/type-contract.test.ts:letter.toUpperCase",
+      "type": "calls",
+      "weight": 0.8
+    }
+  ]
+}

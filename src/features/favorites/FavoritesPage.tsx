@@ -112,14 +112,19 @@ export function FavoritesPage() {
           style={{
             flex: 1,
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
+            gap: 16,
             color: '#a09480',
             fontFamily: 'var(--font-body)',
             fontSize: 13,
-          }}
-        >
-          暂无收藏图片
+            }}
+            >
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 8l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" stroke="#c4b89e" strokeWidth="1.5" fill="rgba(122,92,18,0.06)" strokeLinejoin="round" />
+            </svg>
+            暂无收藏图片
         </div>
       ) : (
         <div

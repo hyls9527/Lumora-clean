@@ -211,6 +211,38 @@ export function SettingsPage() {
               disabled={(v) => v === 'dark'}
             />
           </Row>
+          {/* Theme preview card */}
+          <div
+            style={{
+              marginTop: 16,
+              padding: 16,
+              borderRadius: 6,
+              background: 'var(--color-surface)',
+              border: '1px solid rgba(139, 115, 75, 0.10)',
+              display: 'flex',
+              gap: 12,
+              alignItems: 'center',
+            }}
+          >
+            <div style={{ display: 'flex', gap: 6 }}>
+              {['#f2ede4', '#f7f2ea', '#2a2118', '#6b5d48', '#7a5c12', '#4a7a3a', '#8b3030'].map((c) => (
+                <div
+                  key={c}
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: 4,
+                    background: c,
+                    border: '1px solid rgba(139, 115, 75, 0.15)',
+                  }}
+                  title={c}
+                />
+              ))}
+            </div>
+            <span style={{ fontSize: 11, color: '#a09480', fontFamily: 'var(--font-body)' }}>
+              {theme === 'light' ? '古卷·灯火' : '暗夜（开发中）'}
+            </span>
+          </div>
         </section>
 
         {/* ── Shortcuts ── */}

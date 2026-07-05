@@ -223,16 +223,25 @@ export function TagManager() {
         }}
       >
         {tags.length === 0 ? (
-          <p
+          <div
             style={{
-              fontSize: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 12,
               color: '#a09480',
               textAlign: 'center',
               padding: '32px 0',
             }}
           >
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 20l6-12h12l6 12-6 12H14z" stroke="#c4b89e" strokeWidth="1.5" fill="none" />
+              <circle cx="20" cy="20" r="3" stroke="#7a5c12" strokeWidth="1.5" fill="rgba(122,92,18,0.06)" />
+            </svg>
+            <p style={{ fontSize: '12px', margin: 0 }}>
             暂无标签，创建一个开始使用吧
-          </p>
+            </p>
+          </div>
         ) : (
           tags.map((tag) => (
             <div

@@ -1,0 +1,94 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/stores/smartCollectionStore.ts",
+      "type": "file",
+      "name": "smartCollectionStore.ts",
+      "filePath": "src/stores/smartCollectionStore.ts",
+      "summary": "Zustand store managing smartCollectionStore state.",
+      "tags": [
+        "code",
+        "state-management",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/stores/trashStore.ts",
+      "type": "file",
+      "name": "trashStore.ts",
+      "filePath": "src/stores/trashStore.ts",
+      "summary": "Zustand store managing trashStore state.",
+      "tags": [
+        "code",
+        "trash",
+        "state-management",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/types/image.ts",
+      "type": "file",
+      "name": "image.ts",
+      "filePath": "src/types/image.ts",
+      "summary": "Typescript source file (25 lines)",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/vite-env.d.ts",
+      "type": "file",
+      "name": "vite-env.d.ts",
+      "filePath": "src/vite-env.d.ts",
+      "summary": "Typescript source file (1 lines)",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:vite.config.ts",
+      "type": "file",
+      "name": "vite.config.ts",
+      "filePath": "vite.config.ts",
+      "summary": "Typescript source file (24 lines)",
+      "tags": [
+        "code",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:vitest.config.ts",
+      "type": "file",
+      "name": "vitest.config.ts",
+      "filePath": "vitest.config.ts",
+      "summary": "Typescript source file (9 lines)",
+      "tags": [
+        "code",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:vitest.setup.ts",
+      "type": "file",
+      "name": "vitest.setup.ts",
+      "filePath": "vitest.setup.ts",
+      "summary": "Typescript source file (14 lines)",
+      "tags": [
+        "code",
+        "test",
+        "typescript"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": []
+}
