@@ -171,7 +171,9 @@
   "settings": {
     "title": "Settings",
     "language": "Language",
+    "interfaceLanguage": "Interface Language",
     "theme": "Theme",
+    "appearanceTheme": "Appearance Theme",
     "lightTheme": "Light",
     "darkTheme": "Dark (coming soon)",
     "shortcuts": "Keyboard Shortcuts",

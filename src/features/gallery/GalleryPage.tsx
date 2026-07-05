@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useImageStore } from '../../stores/imageStore';
+import { useSelection } from '../../hooks/useSelection';
+import { useImageActions } from '../../hooks/useImageActions';
 import { useTrashStore } from '../../stores/trashStore';
 import { ImageCard } from '../../components/ui/ImageCard';
 import { DetailModal } from '../../components/ui/DetailModal';
@@ -65,14 +67,14 @@ function FilterButton({
       style={{
         fontSize: 11,
         fontFamily: 'var(--font-display)',
-        color: active ? '#f2ede4' : '#6b5d48',
-        background: active ? '#7a5c12' : 'transparent',
-        border: active ? 'none' : '1px solid rgba(139, 115, 75, 0.10)',
-        padding: '4px 12px',
-        borderRadius: 4,
+        color: active ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+        background: 'none',
+        border: 'none',
+        padding: '0 0 2px',
+        borderBottom: `2px solid ${active ? 'var(--color-accent)' : 'transparent'}`,
         whiteSpace: 'nowrap',
         cursor: 'pointer',
-        transition: 'background 200ms, color 200ms',
+        transition: 'color 200ms, border-color 200ms',
       }}
     >
       {children}
@@ -116,20 +118,17 @@ export function GalleryPage() {
     setSortBy,
     setModelFilter,
     setView,
-    selectedIds,
     getFilteredImages,
     loading,
     error,
     fetchImages,
     loadMore,
-    toggleFavorite,
-    setRating,
-    toggleSelect,
-    clearSelection,
     page,
     total,
     perPage,
   } = useImageStore();
+  const { selectedIds, toggleSelect, clearSelection } = useSelection();
+  const { toggleFavorite, setRating } = useImageActions();
   const softDelete = useTrashStore((s) => s.softDeleteImage);
 
   const [batchDeleting, setBatchDeleting] = useState(false);
@@ -141,6 +140,10 @@ export function GalleryPage() {
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const [detailImage, setDetailImage] = useState<ReturnType<typeof getFilteredImages>[0] | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  
+  // Use ref to hold images to avoid callback recreation
+  const imagesRef = useRef(images);
+  imagesRef.current = images;
 
   useEffect(() => {
     fetchImages(1);
@@ -160,8 +163,8 @@ export function GalleryPage() {
   }, []);
 
   const handleArrowDown = useCallback(() => {
-    setFocusedIndex((prev) => Math.min(images.length - 1, prev + 1));
-  }, [images.length]);
+    setFocusedIndex((prev) => Math.min(imagesRef.current.length - 1, prev + 1));
+  }, []);
 
   const handleArrowLeft = useCallback(() => {
     // In grid view, jump one column left (approx 4 columns)
@@ -169,20 +172,22 @@ export function GalleryPage() {
   }, []);
 
   const handleArrowRight = useCallback(() => {
-    setFocusedIndex((prev) => Math.min(images.length - 1, prev + 1));
-  }, [images.length]);
+    setFocusedIndex((prev) => Math.min(imagesRef.current.length - 1, prev + 1));
+  }, []);
 
   const handleEnter = useCallback(() => {
-    if (focusedIndex >= 0 && focusedIndex < images.length) {
-      setDetailImage(images[focusedIndex]);
+    const imgs = imagesRef.current;
+    if (focusedIndex >= 0 && focusedIndex < imgs.length) {
+      setDetailImage(imgs[focusedIndex]);
     }
-  }, [focusedIndex, images]);
+  }, [focusedIndex]);
 
   const handleSpace = useCallback(() => {
-    if (focusedIndex >= 0 && focusedIndex < images.length) {
-      toggleSelect(images[focusedIndex].id);
+    const imgs = imagesRef.current;
+    if (focusedIndex >= 0 && focusedIndex < imgs.length) {
+      toggleSelect(imgs[focusedIndex].id);
     }
-  }, [focusedIndex, images, toggleSelect]);
+  }, [focusedIndex, toggleSelect]);
 
   const handleEscape = useCallback(() => {
     if (selectedIds.size > 0) {
@@ -192,24 +197,29 @@ export function GalleryPage() {
   }, [selectedIds.size, clearSelection]);
 
   const handleDelete = useCallback(() => {
-    if (focusedIndex >= 0 && focusedIndex < images.length) {
-      softDelete(images[focusedIndex].id).then(() => fetchImages());
+    const imgs = imagesRef.current;
+    if (focusedIndex >= 0 && focusedIndex < imgs.length) {
+      softDelete(imgs[focusedIndex].id)
+        .then(() => fetchImages())
+        .catch((err) => console.error('Failed to delete image:', { id: imgs[focusedIndex].id, err }));
     }
-  }, [focusedIndex, images, softDelete, fetchImages]);
+  }, [focusedIndex, softDelete, fetchImages]);
 
   const handleFavorite = useCallback(() => {
-    if (focusedIndex >= 0 && focusedIndex < images.length) {
-      toggleFavorite(images[focusedIndex].id);
+    const imgs = imagesRef.current;
+    if (focusedIndex >= 0 && focusedIndex < imgs.length) {
+      toggleFavorite(imgs[focusedIndex].id);
     }
-  }, [focusedIndex, images, toggleFavorite]);
+  }, [focusedIndex, toggleFavorite]);
 
   const handleRate = useCallback(
     (rating: number) => {
-      if (focusedIndex >= 0 && focusedIndex < images.length) {
-        setRating(images[focusedIndex].id, rating);
+      const imgs = imagesRef.current;
+      if (focusedIndex >= 0 && focusedIndex < imgs.length) {
+        setRating(imgs[focusedIndex].id, rating);
       }
     },
-    [focusedIndex, images, setRating],
+    [focusedIndex, setRating],
   );
 
   const handleBatchDelete = useCallback(async () => {
@@ -229,20 +239,22 @@ export function GalleryPage() {
   const handleDetailPrev = useCallback(() => {
     setDetailImage((prev) => {
       if (!prev) return prev;
-      const idx = images.findIndex((i) => i.id === prev.id);
+      const imgs = imagesRef.current;
+      const idx = imgs.findIndex((i) => i.id === prev.id);
       const nextIdx = Math.max(0, idx - 1);
-      return images[nextIdx] ?? prev;
+      return imgs[nextIdx] ?? prev;
     });
-  }, [images]);
+  }, []);
 
   const handleDetailNext = useCallback(() => {
     setDetailImage((prev) => {
       if (!prev) return prev;
-      const idx = images.findIndex((i) => i.id === prev.id);
-      const nextIdx = Math.min(images.length - 1, idx + 1);
-      return images[nextIdx] ?? prev;
+      const imgs = imagesRef.current;
+      const idx = imgs.findIndex((i) => i.id === prev.id);
+      const nextIdx = Math.min(imgs.length - 1, idx + 1);
+      return imgs[nextIdx] ?? prev;
     });
-  }, [images]);
+  }, []);
 
   useKeyboardNav({
     route: '/gallery',
@@ -259,7 +271,7 @@ export function GalleryPage() {
   });
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ flex: 1, minWidth: 0, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {/* Toolbar */}
       <div
         style={{
@@ -315,6 +327,8 @@ export function GalleryPage() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '10px 16px',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -328,7 +342,7 @@ export function GalleryPage() {
               </SortButton>
             ))}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {modelFilters.map((m) => (
               <FilterButton
                 key={m}
@@ -386,9 +400,9 @@ export function GalleryPage() {
         <GridSkeleton count={8} />
       ) : !error ? (
         images.length === 0 ? (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#a09480', gap: 8 }}>
-            <span style={{ fontSize: 48 }}>📷</span>
-            <span style={{ fontSize: 13, fontFamily: 'var(--font-body)' }}>还没有图片，去导入一些吧！</span>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)', gap: 12, textAlign: 'center', padding: '0 32px' }}>
+            <span style={{ fontSize: 15, fontFamily: 'var(--font-display)', color: 'var(--color-text-secondary)' }}>图库尚空</span>
+            <span style={{ fontSize: 13, fontFamily: 'var(--font-body)', color: 'var(--color-text-muted)' }}>导入图片，点亮属于你的灯火。</span>
           </div>
         ) : (
           <>
@@ -400,11 +414,7 @@ export function GalleryPage() {
           >
             <div
               ref={gridRef}
-              style={{
-                columnCount: filters.view === 'grid' ? 4 : 1,
-                columnGap: 12,
-                padding: '24px 32px',
-              }}
+              className={filters.view === 'grid' ? 'gallery-grid' : 'gallery-list'}
             >
               {images.map((img, index) => (
                 <div

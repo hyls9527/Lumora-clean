@@ -31,6 +31,14 @@
   --font-sans: var(--font-body);
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--color-bg);
@@ -44,4 +52,101 @@ h4,
 h5,
 h6 {
   font-family: var(--font-serif);
+}
+
+/* Gallery responsive masonry grid */
+.gallery-grid {
+  column-count: 1;
+  column-gap: 12px;
+  padding: 16px 20px;
+}
+
+@media (min-width: 560px) {
+  .gallery-grid {
+    padding: 20px 28px;
+  }
+}
+
+@media (min-width: 800px) {
+  .gallery-grid {
+    column-count: 2;
+    padding: 24px 32px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .gallery-grid {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 1400px) {
+  .gallery-grid {
+    column-count: 4;
+  }
+}
+
+.gallery-list {
+  column-count: 1;
+  padding: 16px 20px;
+}
+
+@media (min-width: 560px) {
+  .gallery-list {
+    padding: 24px 32px;
+  }
+}
+
+/* Responsive sidebar: avoid clipping or overflow when UI is zoomed */
+.app-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  transition: width 200ms;
+}
+
+.app-sidebar nav button {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 860px) {
+  .app-sidebar {
+    width: 160px;
+  }
+
+  .app-sidebar > div:first-child {
+    padding: 24px 16px 16px;
+  }
+
+  .app-sidebar nav button {
+    font-size: 10px;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-sidebar {
+    width: 130px;
+  }
+
+  .app-sidebar > div:first-child {
+    padding: 20px 12px 12px;
+  }
+
+  .app-sidebar nav button {
+    font-size: 9px;
+    padding: 7px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-sidebar {
+    width: 110px;
+  }
+
+  .app-sidebar nav button {
+    font-size: 8px;
+    padding: 6px 6px;
+  }
 }

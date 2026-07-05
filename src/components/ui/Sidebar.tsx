@@ -38,9 +38,8 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
     <aside
       role="navigation"
       aria-label="主导航"
+      className="app-sidebar"
       style={{
-        width: 200,
-        flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
         background: 'var(--color-bg)',

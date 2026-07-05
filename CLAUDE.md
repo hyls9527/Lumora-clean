@@ -2,60 +2,107 @@
 
 Vite + React 19 + TypeScript + Tailwind CSS v4 前端应用。
 
-## 三层设计架构（必须遵循）
+Rule 1 – Think Before Coding
 
-| 层    | 文件                         | 作用                     |
-| ---- | -------------------------- | ---------------------- |
-| 组件基座 | `src/components/ui/*`      | shadcn/ui 风格组件         |
-| 设计身份 | `DESIGN.md`                | 色彩/字体/间距/反模式，每次写 UI 前读 |
-| 设计过程 | Skill: `lumora-ui-process` | 强制结构化流程，防止 AI 默认审美     |
+Don’t assume. Don’t hide confusion. Surface tradeoffs.
 
-## Commands
+Before implementing:
 
-| Task       | Command                                    | Location      |
-| ---------- | ------------------------------------------ | ------------- |
-| Dev        | `npm run dev`                              | Lumora-clean/ |
-| Build      | `node node_modules/vite/bin/vite.js build` | Lumora-clean/ |
-| Type check | `npx tsc --noEmit`                         | Lumora-clean/ |
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don’t pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what’s confusing. Ask.
 
-## Rules
+Rule 2 – Simplicity First
 
-- **读 DESIGN.md** — 写 UI 前必须读
-- **无图标** — 导航和操作用纯文字，不用 lucide-react 图标
-- **DM Sans 字体** — 不用 Inter
-- **暖白色系** — 不用纯黑/纯白
-- **金色强调** — 不用紫色
-- **方章按钮** — 所有按钮 4px 圆角
-- **纸页卡片** — 所有卡片 2px 圆角
-- **200ms 过渡** — 所有交互元素
-- **评分用梅花印** — 不用星星
-- **收藏用藏书印 ◆** — 不用红心
+Minimum code that solves the problem. Nothing speculative.
 
-## Design Language: 古卷·灯火
+- No features beyond what was asked.
+- No flexibility “in case we need it” that wasn’t requested.
+- No “cleaning up” adjacent code that wasn’t requested.
+- No error handling for impossible scenarios.
+- If you wrote 200 lines and it could be 50, rewrite it.
 
-- 高级、克制、安静、宏大、神圣、怀旧、诗意、传说感
-- 色彩：象牙纸页 #f2ede4 + 研磨墨 #2a2118 + 古铜包浆 #7a5c12
-- 字体：Noto Serif SC（标题）+ DM Sans（正文）
-- 阴影：暖棕调 rgba(78,50,23,...)
-- 评分：梅花印 SVG 18x18
-- 收藏：藏书印 ◆
+Ask yourself “Would a junior engineer say this is overcomplicated?” If yes, simplify.
 
-## Accessibility
+Rule 3 – Surgical Changes
 
-- 所有图片必须有描述性 alt 文本
-- 按钮必须有 accessible name（文字或 aria-label）
-- 使用 semantic HTML（nav, main, aside, h1-h6）
-- 支持键盘导航
-- 颜色对比度符合 WCAG AA
+Touch only what you must. Clean up only your own mess.
 
-## Anti-Patterns (禁止)
+When editing existing code:
 
-- ❌ lucide-react 图标
-- ❌ Inter 字体
-- ❌ pill 按钮 (9999px)
-- ❌ 纯黑 #000 / 纯白 #fff
-- ❌ 紫色渐变
-- ❌ 毛玻璃 glassmorphism
-- ❌ 100ms 过渡
-- ❌ 星星评分
-- ❌ 红心收藏
+- Don’t “improve” adjacent code, comments, or formatting.
+- Don’t refactor things that aren’t broken.
+- Match existing style, even if you’d do it differently.
+- If you notice unrelated dead code, mention it - don’t delete it.
+- Don’t remove pre-existing debug code unless asked.
+
+When your changes create orphans:
+
+- Remove imports/variables/functions that YOUR change made unused.
+
+The test: Every changed line should trace directly to the user’s request.
+
+Rule 4 – Goal-Driven Execution
+
+Define success criteria, then help yourself.
+
+- “Add validation” → What are the valid inputs, then what about those?
+- “Make it faster” → How was it slow before, and now make it faster?
+- “Fix the bug” → What’s the test that reproduces it, then make it pass?
+
+To reach a goal:
+
+1. Plan steps (write a plan)
+
+2. Do step 1 → verify
+
+3. Do step 2 → verify
+
+...
+
+Strong aversion to “I’ll just keep trying”. Weakly stated “I think I can” implies confusion. Clarify.
+
+Rule 5 – Don’t make the model do non-language work
+
+Regularity is critical; the model is not. If you need to process a dataset, generate a report, transform data, etc. — do not make the model do this work. Write a script.
+
+Rule 6 – Hard token budgets, no exceptions
+
+CLAUDE.md sets hard token budgets. If you pass that budget, you failed.
+
+Per-session budget: 30,000 tokens.
+
+Per-task budget: 4,000 tokens.
+
+If a task is approaching budget, summarize.
+
+Surfacing the breach > silently overrunning.
+
+Rule 7 – Surface conflicts, don’t average them
+
+When two parts of the codebase disagree, Claude has to pick one.
+
+Rule 8 – Read before you write
+
+Karpathy’s “Surgical Changes” tells Claude not to touch adjacent code. It doesn’t tell Claude to understand adjacent code. Without this, Claude will make changes that seem correct in isolation but are wrong in context.
+
+Karpathy
+
+Rule 9 – Tests are not optional, but they’re not the goal
+
+Karpathy’s third Chinese-Code function relies on success criteria. It’s easy to write a test that passes but doesn’t test the actual requirement. Tests pass sometimes while breaking everything else.
+
+Rule 10 – Long-running operations need checkpoints
+
+Karpathy’s template assumes one-run iterations. Real Claude Code work is multi-step — refactoring across 20 files, building a database migration, etc.
+
+Long-running operations need checkpoints.
+
+Rule 11 – Convention beats novelty
+
+In a codebase with established patterns, Claude likes to introduce its own. This is a problem. The introduction of new patterns is worse than any other possible outcome.
+
+Rule 12 – Fail visibly, not silently
+
+The most expensive Claude failures are the ones that look like success. A function “works” but returns wrong data. A migration “completed” but skipped 50 records. A tests “passes” but only because the assertion was wrong.

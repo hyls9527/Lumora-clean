@@ -7,12 +7,19 @@ vi.mock('../../../lib/tauri', () => ({
   convertFileSrc: vi.fn((path: string) => Promise.resolve(`asset://localhost/${encodeURIComponent(path)}`)),
 }));
 
+// Mock the hooks
+vi.mock('../../../hooks/useImageActions', () => ({
+  useImageActions: () => ({
+    toggleFavorite: vi.fn(),
+    setRating: vi.fn(),
+  }),
+}));
+
 // Mock the stores
 vi.mock('../../../stores/imageStore', () => ({
   useImageStore: vi.fn((selector) => {
     const state = {
-      toggleFavorite: vi.fn(),
-      setRating: vi.fn(),
+      fetchImages: vi.fn(),
     };
     return selector ? selector(state) : state;
   }),

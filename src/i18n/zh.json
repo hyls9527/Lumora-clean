@@ -171,7 +171,9 @@
   "settings": {
     "title": "设置",
     "language": "语言",
+    "interfaceLanguage": "界面语言",
     "theme": "主题",
+    "appearanceTheme": "外观主题",
     "lightTheme": "浅色",
     "darkTheme": "深色（即将推出）",
     "shortcuts": "快捷键参考",

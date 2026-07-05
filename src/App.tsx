@@ -90,9 +90,11 @@ function App() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
       <Sidebar activeRoute={route} onNavigate={setRoute} />
-      {renderPage()}
+      <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+        {renderPage()}
+      </main>
       <CommandPalette />
       <DropOverlay isVisible={isDragging} />
     </div>

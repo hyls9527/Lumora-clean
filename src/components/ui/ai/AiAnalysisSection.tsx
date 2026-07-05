@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAiAnalysisStore } from '../../../stores/aiAnalysisStore';
-import { useImageStore } from '../../../stores/imageStore';
-import { createTag, listTags, addTagToImage } from '../../../lib/api/images';
+import { useImageTagsStore } from '../../../stores/imageTagsStore';
+import { createTag, listTags } from '../../../lib/api/images';
 import { useTranslation } from '../../../lib/i18n';
 import { TagSuggestionCard } from './TagSuggestionCard';
 import { ColorPaletteStrip } from './ColorPaletteStrip';
@@ -42,6 +42,9 @@ export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
   const rejectTag = useAiAnalysisStore((s) => s.rejectTag);
   const loadHistory = useAiAnalysisStore((s) => s.loadHistory);
 
+  const addTagToImage = useImageTagsStore((s) => s.addTagToImage);
+  const fetchImageTags = useImageTagsStore((s) => s.fetchImageTags);
+
   const isAnalyzing = analyzingId === imageId;
 
   const handleAnalyze = () => {
@@ -68,7 +71,7 @@ export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
         await addTagToImage(imageId, tagId);
       }
 
-      await useImageStore.getState().fetchImageTags(imageId);
+      await fetchImageTags(imageId);
 
       for (const tag of nonRejected) {
         acceptTag(imageId, tag.name);
@@ -76,6 +79,8 @@ export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
 
       setApplied(true);
       setTimeout(() => setApplied(false), 3000);
+    } catch (err) {
+      console.error('Failed to apply tags:', { imageId, err });
     } finally {
       setApplying(false);
     }

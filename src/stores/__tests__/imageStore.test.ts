@@ -5,15 +5,11 @@ vi.mock('../../lib/api/images', () => ({
   searchImagesAdvanced: vi.fn(),
   importImages: vi.fn(),
   exportImages: vi.fn(),
-  toggleFavorite: vi.fn(),
-  updateRating: vi.fn(),
-  getImageTags: vi.fn(),
-  addTagToImage: vi.fn(),
-  removeTagFromImage: vi.fn(),
 }));
 
 import { useImageStore } from '../imageStore';
 import * as api from '../../lib/api/images';
+import type { ImageRecord } from '../../types/image';
 
 const mockImage = {
   id: '1',
@@ -40,8 +36,6 @@ beforeEach(() => {
     page: 1,
     total: 0,
     perPage: 40,
-    selectedIds: new Set(),
-    imageTags: {},
   });
 });
 
@@ -92,107 +86,76 @@ describe('searchImages', () => {
   });
 });
 
-describe('toggleFavorite (optimistic)', () => {
-  it('toggles immediately, then calls API', () => {
-    useImageStore.setState({ images: [{ ...mockImage, favorite: false }] });
-    vi.mocked(api.toggleFavorite).mockResolvedValue(undefined);
-    useImageStore.getState().toggleFavorite('1');
-    expect(useImageStore.getState().images[0].favorite).toBe(true);
-    expect(api.toggleFavorite).toHaveBeenCalledWith('1');
-  });
-
-  it('rolls back on API failure', async () => {
-    useImageStore.setState({ images: [{ ...mockImage, favorite: false }] });
-    vi.mocked(api.toggleFavorite).mockRejectedValue(new Error('network'));
-    useImageStore.getState().toggleFavorite('1');
-    // Immediate optimistic update
-    expect(useImageStore.getState().images[0].favorite).toBe(true);
-    // Wait for rollback
-    await vi.waitFor(() => {
-      expect(useImageStore.getState().images[0].favorite).toBe(false);
+describe('updateImage', () => {
+  it('updates the matching image by id', () => {
+    useImageStore.setState({
+      images: [
+        mockImage,
+        { ...mockImage, id: '2', rating: 0, favorite: false },
+      ],
     });
+
+    useImageStore.getState().updateImage('2', (img) => ({
+      ...img,
+      favorite: true,
+      rating: 5,
+    }));
+
+    const { images } = useImageStore.getState();
+    expect(images[0].favorite).toBe(false); // id '1' unchanged
+    expect(images[0].rating).toBe(0);
+    expect(images[1].favorite).toBe(true);
+    expect(images[1].rating).toBe(5);
   });
 
-  it('sets error on API failure after rollback', async () => {
-    useImageStore.setState({ images: [{ ...mockImage, favorite: false }], error: null });
-    vi.mocked(api.toggleFavorite).mockRejectedValue(new Error('fav network error'));
-    useImageStore.getState().toggleFavorite('1');
-    await vi.waitFor(() => {
-      expect(useImageStore.getState().images[0].favorite).toBe(false);
-      expect(useImageStore.getState().error).toBe('fav network error');
-    });
-  });
-});
-
-describe('setRating (optimistic)', () => {
-  it('updates immediately, then calls API', () => {
-    useImageStore.setState({ images: [{ ...mockImage, rating: 3 }] });
-    vi.mocked(api.updateRating).mockResolvedValue(undefined);
-    useImageStore.getState().setRating('1', 5);
-    expect(useImageStore.getState().images[0].rating).toBe(5);
-    expect(api.updateRating).toHaveBeenCalledWith('1', 5);
-  });
-
-  it('rolls back on API failure', async () => {
-    useImageStore.setState({ images: [{ ...mockImage, rating: 3 }] });
-    vi.mocked(api.updateRating).mockRejectedValue(new Error('network'));
-    useImageStore.getState().setRating('1', 5);
-    expect(useImageStore.getState().images[0].rating).toBe(5);
-    await vi.waitFor(() => {
-      expect(useImageStore.getState().images[0].rating).toBe(3);
-    });
-  });
-
-  it('sets error on API failure after rollback', async () => {
-    useImageStore.setState({ images: [{ ...mockImage, rating: 3 }], error: null });
-    vi.mocked(api.updateRating).mockRejectedValue(new Error('rating network error'));
-    useImageStore.getState().setRating('1', 5);
-    await vi.waitFor(() => {
-      expect(useImageStore.getState().images[0].rating).toBe(3);
-      expect(useImageStore.getState().error).toBe('rating network error');
-    });
-  });
-});
-
-describe('selection', () => {
-  it('toggleSelect adds and removes ids', () => {
+  it('does nothing when id does not match any image', () => {
     useImageStore.setState({ images: [mockImage] });
-    useImageStore.getState().toggleSelect('1');
-    expect(useImageStore.getState().selectedIds.has('1')).toBe(true);
-    useImageStore.getState().toggleSelect('1');
-    expect(useImageStore.getState().selectedIds.has('1')).toBe(false);
+
+    useImageStore.getState().updateImage('nonexistent', (img) => ({
+      ...img,
+      favorite: true,
+    }));
+
+    expect(useImageStore.getState().images[0].favorite).toBe(false);
   });
 
-  it('selectAll selects all images', () => {
-    useImageStore.setState({ images: [mockImage, { ...mockImage, id: '2' }] });
-    useImageStore.getState().selectAll();
-    expect(useImageStore.getState().selectedIds.size).toBe(2);
+  it('passes the correct image to the updater function', () => {
+    useImageStore.setState({ images: [mockImage] });
+    const updater = vi.fn((img: ImageRecord) => ({ ...img, rating: 3 }));
+
+    useImageStore.getState().updateImage('1', updater);
+
+    expect(updater).toHaveBeenCalledWith(
+      expect.objectContaining({ id: '1', rating: 0 }),
+    );
+    expect(useImageStore.getState().images[0].rating).toBe(3);
   });
 
-  it('clearSelection empties the set', () => {
-    useImageStore.setState({ selectedIds: new Set(['1', '2']) });
-    useImageStore.getState().clearSelection();
-    expect(useImageStore.getState().selectedIds.size).toBe(0);
-  });
-});
+  it('supports multiple sequential updates on the same image', () => {
+    useImageStore.setState({ images: [mockImage] });
+    const { updateImage } = useImageStore.getState();
 
-describe('tag operations error handling', () => {
-  it('fetchImageTags sets error on failure', async () => {
-    vi.mocked(api.getImageTags).mockRejectedValue(new Error('tag fetch failed'));
-    await useImageStore.getState().fetchImageTags('img-1');
-    expect(useImageStore.getState().error).toBe('tag fetch failed');
-  });
+    updateImage('1', (img) => ({ ...img, rating: 1 }));
+    updateImage('1', (img) => ({ ...img, rating: 3 }));
+    updateImage('1', (img) => ({ ...img, favorite: true }));
 
-  it('addTagToImage sets error on failure', async () => {
-    vi.mocked(api.addTagToImage).mockRejectedValue(new Error('add tag failed'));
-    await useImageStore.getState().addTagToImage('img-1', 'tag-1');
-    expect(useImageStore.getState().error).toBe('add tag failed');
+    const img = useImageStore.getState().images[0];
+    expect(img.rating).toBe(3);
+    expect(img.favorite).toBe(true);
   });
 
-  it('removeTagFromImage sets error on failure', async () => {
-    vi.mocked(api.removeTagFromImage).mockRejectedValue(new Error('remove tag failed'));
-    await useImageStore.getState().removeTagFromImage('img-1', 'tag-1');
-    expect(useImageStore.getState().error).toBe('remove tag failed');
+  it('preserves other images when updating one', () => {
+    const img1 = { ...mockImage, id: '1', rating: 0 };
+    const img2 = { ...mockImage, id: '2', rating: 2 };
+    const img3 = { ...mockImage, id: '3', rating: 4 };
+    useImageStore.setState({ images: [img1, img2, img3] });
+
+    useImageStore.getState().updateImage('2', (img) => ({ ...img, rating: 5 }));
+
+    const { images } = useImageStore.getState();
+    expect(images[0].rating).toBe(0);
+    expect(images[1].rating).toBe(5);
+    expect(images[2].rating).toBe(4);
   });
 });
 

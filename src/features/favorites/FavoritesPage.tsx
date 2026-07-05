@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useImageStore } from '../../stores/imageStore';
+import { useImageActions } from '../../hooks/useImageActions';
 import type { ImageRecord } from '../../types/image';
 import { ImageCard } from '../../components/ui/ImageCard';
 import { DetailModal } from '../../components/ui/DetailModal';
@@ -7,8 +7,7 @@ import { listFavorites } from '../../lib/api/images';
 import { ErrorState } from '../../components/ui/ErrorState';
 
 export function FavoritesPage() {
-  const toggleFavorite = useImageStore((s) => s.toggleFavorite);
-  const setRating = useImageStore((s) => s.setRating);
+  const { toggleFavorite, setRating } = useImageActions();
 
   const [favorites, setFavorites] = useState<ImageRecord[]>([]);
   const [detailImage, setDetailImage] = useState<ImageRecord | null>(null);

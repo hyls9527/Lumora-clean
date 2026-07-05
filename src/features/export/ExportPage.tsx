@@ -1,10 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useImageStore } from '../../stores/imageStore';
+import { useSelection } from '../../hooks/useSelection';
 import { useTranslation } from '../../lib/i18n';
 import type { ExportResult } from '../../lib/api/images';
 
 export function ExportPage() {
-  const { images, selectedIds, fetchImages, exportImages } = useImageStore();
+  const { images, fetchImages, exportImages } = useImageStore();
+  const { selectedIds } = useSelection();
   const { t } = useTranslation();
 
   const [destDir, setDestDir] = useState('');

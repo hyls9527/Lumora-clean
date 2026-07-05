@@ -155,7 +155,7 @@ export function TrashPage() {
                 fontSize: 13,
               }}
             >
-              <span style={{ fontSize: 32, marginBottom: 4 }}>🗑</span>
+              <span style={{ fontSize: 15, fontFamily: 'var(--font-display)', marginBottom: 4, color: 'var(--color-text-secondary)' }}>废纸成尘</span>
               回收站为空
             </div>
           ) : (

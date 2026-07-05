@@ -19,7 +19,6 @@ interface FilterState {
 interface ImageStore {
   images: ImageRecord[];
   filters: FilterState;
-  selectedIds: Set<string>;
   loading: boolean;
   error: string | null;
   // Pagination
@@ -41,27 +40,14 @@ interface ImageStore {
   setSearchField: (field: string) => void;
   setSearchMode: (mode: 'text' | 'image') => void;
   setSimilarityThreshold: (threshold: number) => void;
-  toggleFavorite: (id: string) => void;
-  setRating: (id: string, rating: number) => void;
-  toggleSelect: (id: string) => void;
-  selectAll: () => void;
-  clearSelection: () => void;
-  // Tag actions
-  fetchImageTags: (imageId: string) => Promise<void>;
-  addTagToImage: (imageId: string, tagId: string) => Promise<void>;
-  removeTagFromImage: (imageId: string, tagId: string) => Promise<void>;
-  imageTags: Record<string, string[]>;
+  updateImage: (id: string, updater: (img: ImageRecord) => ImageRecord) => void;
   // Derived
   getFilteredImages: () => ImageRecord[];
   getSearchResults: () => ImageRecord[];
 }
 
-let _favSeq = 0;
-let _ratingSeq = 0;
-
 export const useImageStore = create<ImageStore>((set, get) => ({
   images: [],
-  imageTags: {},
   filters: {
     mode: 'creator',
     view: 'grid',
@@ -72,7 +58,6 @@ export const useImageStore = create<ImageStore>((set, get) => ({
     searchMode: 'text',
     similarityThreshold: 70,
   },
-  selectedIds: new Set<string>(),
   loading: false,
   error: null,
   page: 1,
@@ -204,95 +189,10 @@ export const useImageStore = create<ImageStore>((set, get) => ({
   setSimilarityThreshold: (similarityThreshold) =>
     set((s) => ({ filters: { ...s.filters, similarityThreshold } })),
 
-  toggleFavorite: (id) => {
-    const seq = ++_favSeq;
+  updateImage: (id, updater) =>
     set((s) => ({
-      images: s.images.map((img) =>
-        img.id === id ? { ...img, favorite: !img.favorite } : img,
-      ),
-    }));
-    api.toggleFavorite(id).catch((err) => {
-      if (seq === _favSeq) {
-        set((s) => ({
-          images: s.images.map((img) =>
-            img.id === id ? { ...img, favorite: !img.favorite } : img,
-          ),
-          error: err instanceof Error ? err.message : '收藏操作失败',
-        }));
-      }
-    });
-  },
-
-  setRating: (id, rating) => {
-    const seq = ++_ratingSeq;
-    const prev = get().images.find((img) => img.id === id)?.rating;
-    set((s) => ({
-      images: s.images.map((img) =>
-        img.id === id ? { ...img, rating } : img,
-      ),
-    }));
-    api.updateRating(id, rating).catch((err) => {
-      if (prev !== undefined && seq === _ratingSeq) {
-        set((s) => ({
-          images: s.images.map((img) =>
-            img.id === id ? { ...img, rating: prev } : img,
-          ),
-          error: err instanceof Error ? err.message : '评分操作失败',
-        }));
-      }
-    });
-  },
-
-  toggleSelect: (id) =>
-    set((s) => {
-      const next = new Set(s.selectedIds);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return { selectedIds: next };
-    }),
-
-  selectAll: () =>
-    set((s) => ({
-      selectedIds: new Set(s.images.map((img) => img.id)),
+      images: s.images.map((img) => (img.id === id ? updater(img) : img)),
     })),
-
-  clearSelection: () => set({ selectedIds: new Set() }),
-
-  fetchImageTags: async (imageId: string) => {
-    try {
-      const tags = await api.getImageTags(imageId);
-      set((s) => ({
-        imageTags: { ...s.imageTags, [imageId]: tags.map((t) => t.name) },
-      }));
-    } catch (err) {
-      set({ error: err instanceof Error ? err.message : '获取标签失败' });
-    }
-  },
-
-  addTagToImage: async (imageId: string, tagId: string) => {
-    try {
-      await api.addTagToImage(imageId, tagId);
-      // refresh image tags
-      const tags = await api.getImageTags(imageId);
-      set((s) => ({
-        imageTags: { ...s.imageTags, [imageId]: tags.map((t) => t.name) },
-      }));
-    } catch (err) {
-      set({ error: err instanceof Error ? err.message : '添加标签失败' });
-    }
-  },
-
-  removeTagFromImage: async (imageId: string, tagId: string) => {
-    try {
-      await api.removeTagFromImage(imageId, tagId);
-      const tags = await api.getImageTags(imageId);
-      set((s) => ({
-        imageTags: { ...s.imageTags, [imageId]: tags.map((t) => t.name) },
-      }));
-    } catch (err) {
-      set({ error: err instanceof Error ? err.message : '移除标签失败' });
-    }
-  },
 
   getFilteredImages: () => {
     const { images, filters } = get();

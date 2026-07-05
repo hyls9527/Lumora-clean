@@ -1,5 +1,6 @@
 import { useEffect, memo, useState } from 'react';
 import { useImageStore } from '../../stores/imageStore';
+import { useImageActions } from '../../hooks/useImageActions';
 import type { ImageRecord } from '../../types/image';
 import { useTrashStore } from '../../stores/trashStore';
 import { useEmbeddingStore } from '../../stores/embeddingStore';
@@ -18,8 +19,7 @@ interface ImageCardProps {
 }
 
 export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focused, showSimilarity }: ImageCardProps) {
-  const toggleFavorite = useImageStore((s) => s.toggleFavorite);
-  const setRating = useImageStore((s) => s.setRating);
+  const { toggleFavorite, setRating } = useImageActions();
   const softDelete = useTrashStore((s) => s.softDeleteImage);
   const fetchImages = useImageStore((s) => s.fetchImages);
   const embeddingStatus = useEmbeddingStore((s) => s.statusMap[image.id]);

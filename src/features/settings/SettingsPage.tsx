@@ -191,7 +191,7 @@ export function SettingsPage() {
         {/* ── Language ── */}
         <section style={{ marginBottom: 36 }}>
           <SectionHeading>{t('language')}</SectionHeading>
-          <Row label={t('language')}>
+          <Row label={t('interfaceLanguage')}>
             <SegmentedControl
               options={langOptions}
               value={language}
@@ -203,7 +203,7 @@ export function SettingsPage() {
         {/* ── Theme ── */}
         <section style={{ marginBottom: 36 }}>
           <SectionHeading>{t('theme')}</SectionHeading>
-          <Row label={t('theme')}>
+          <Row label={t('appearanceTheme')}>
             <SegmentedControl
               options={themeOptions}
               value={theme}

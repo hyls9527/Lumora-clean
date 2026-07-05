@@ -263,13 +263,13 @@ export function SearchPage() {
             <div
               style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: 48,
-                color: '#a09480',
+                fontSize: 15,
+                color: 'var(--color-text-secondary)',
                 marginBottom: 16,
                 lineHeight: 1,
               }}
             >
-              ☆
+              灯影未寻得
             </div>
             <div
               style={{

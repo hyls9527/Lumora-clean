@@ -22,7 +22,7 @@ function mockResponse(cmd: string): unknown {
     return { items: [], total: 0, page: 1, perPage: 40 };
   if (cmd === 'import_images')
     return { items: [], imported: 0, skipped: 0, totalScanned: 0 };
-  if (['list_tags', 'search_images', 'get_image_tags'].includes(cmd))
+  if (['list_tags', 'search_images', 'get_image_tags', 'list_favorites'].includes(cmd))
     return [];
   if (cmd === 'get_dashboard_stats')
     return { totalImages: 0, totalSizeKb: 0, formatCounts: [], ratingCounts: [], topTags: [], recentImports: [] };
@@ -52,6 +52,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   'search_images': '搜索失败',
   'update_rating': '更新评分失败',
   'toggle_favorite': '更新收藏状态失败',
+  'list_favorites': '加载收藏失败',
   'soft_delete_image': '删除图片失败',
   'restore_image': '恢复图片失败',
   'permanent_delete_image': '永久删除失败',
