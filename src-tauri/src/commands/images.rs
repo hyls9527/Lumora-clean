@@ -347,23 +347,6 @@ fn file_hash(path: &str, size: u64) -> String {
     format!("{:016x}", hasher.finish())
 }
 
-fn probe_dimensions(path: &str, ext: &str) -> (Option<i32>, Option<i32>) {
-    if ext == "gif" {
-        return probe_gif(path);
-    }
-    // Only read first 64KB — enough for all image format headers
-    let mut buf = vec![0u8; 65536];
-    let file = match std::fs::File::open(path) {
-        Ok(f) => f,
-        _ => return (None, None),
-    };
-    use std::io::Read;
-    let mut reader = std::io::BufReader::new(file);
-    let n = reader.read(&mut buf).unwrap_or(0);
-    buf.truncate(n);
-    probe_dimensions_from_bytes(&buf, ext)
-}
-
 /// Extract dimensions from an already-loaded byte buffer.
 pub fn probe_dimensions_from_bytes(bytes: &[u8], ext: &str) -> (Option<i32>, Option<i32>) {
     if bytes.len() < 32 {
@@ -496,10 +479,12 @@ fn insert_image(conn: &rusqlite::Connection, entry: &ImportEntry) -> Result<bool
                 if let Some(prompt) = parsed.get("prompt").and_then(|v| v.as_str()) {
                     if !prompt.is_empty() {
                         if let Ok(group_id) = find_or_create_variant_group(conn, prompt) {
-                            let _ = conn.execute(
+                            if let Err(e) = conn.execute(
                                 "UPDATE images SET variant_group_id = ?1 WHERE id = ?2",
                                 params![group_id, entry.id],
-                            );
+                            ) {
+                                log::warn!("Failed to assign variant group for image {}: {}", entry.id, e);
+                            }
                         }
                     }
                 }

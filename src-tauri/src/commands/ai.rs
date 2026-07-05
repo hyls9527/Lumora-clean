@@ -109,7 +109,10 @@ Return ONLY valid JSON, no other text."#;
         stream: false,
     };
 
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(120))
+        .build()
+        .map_err(|e| format!("failed to create HTTP client: {}", e))?;
     let response = client
         .post(cfg.url("/api/chat"))
         .json(&request)

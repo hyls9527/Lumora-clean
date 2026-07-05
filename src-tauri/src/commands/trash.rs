@@ -61,7 +61,9 @@ fn permanent_delete_tx(tx: &rusqlite::Transaction<'_>, id: &str) -> Result<(), A
         ).unwrap_or(0) > 0,
         "vec_embeddings table missing — sqlite-vec extension not loaded"
     );
-    let _ = tx.execute("DELETE FROM vec_embeddings WHERE image_id = ?1", params![id]);
+    if let Err(e) = tx.execute("DELETE FROM vec_embeddings WHERE image_id = ?1", params![id]) {
+        log::warn!("Failed to delete vec_embeddings for image {}: {}", id, e);
+    }
     tx.execute("DELETE FROM embeddings WHERE image_id = ?1", params![id])?;
     let changed = tx.execute("DELETE FROM images WHERE id = ?1", params![id])?;
     if changed == 0 {
@@ -144,9 +146,10 @@ pub fn batch_soft_delete(
     ids: Vec<String>,
 ) -> AppResult<u64> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let tx = conn.unchecked_transaction()?;
     let mut affected: u64 = 0;
     for id in &ids {
-        let n = conn
+        let n = tx
             .execute(
                 "UPDATE images SET deleted = 1, deleted_at = datetime('now') WHERE id = ?1 AND deleted = 0",
                 rusqlite::params![id],
@@ -154,6 +157,7 @@ pub fn batch_soft_delete(
             ?;
         affected += n as u64;
     }
+    tx.commit()?;
     Ok(affected)
 }
 
@@ -164,9 +168,10 @@ pub fn batch_restore(
     ids: Vec<String>,
 ) -> AppResult<u64> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let tx = conn.unchecked_transaction()?;
     let mut affected: u64 = 0;
     for id in &ids {
-        let n = conn
+        let n = tx
             .execute(
                 "UPDATE images SET deleted = 0, deleted_at = NULL WHERE id = ?1 AND deleted = 1",
                 rusqlite::params![id],
@@ -174,6 +179,7 @@ pub fn batch_restore(
             ?;
         affected += n as u64;
     }
+    tx.commit()?;
     Ok(affected)
 }
 

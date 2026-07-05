@@ -223,8 +223,8 @@ mod tests {
         let db = DbHandle::open_memory().unwrap();
         let conn = db.conn().lock().unwrap();
 
-        let id1 = create_tag_impl(&conn, "nature", Some("#4a7a3a")).unwrap();
-        let id2 = create_tag_impl(&conn, "art", None).unwrap();
+        let _id1 = create_tag_impl(&conn, "nature", Some("#4a7a3a")).unwrap();
+        let _id2 = create_tag_impl(&conn, "art", None).unwrap();
 
         let mut stmt = conn
             .prepare("SELECT id, name, color, created_at FROM tags ORDER BY name")
