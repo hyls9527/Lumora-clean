@@ -327,5 +327,22 @@
       "lte": "小于等于",
       "in": "属于"
     }
+  },
+  "sidebar": {
+    "gallery": "创作者图库",
+    "favorites": "收藏",
+    "dashboard": "仪表盘",
+    "import": "导入管理",
+    "search": "语义搜索",
+    "tags": "标签",
+    "export": "导出",
+    "settings": "设置",
+    "trash": "回收站",
+    "ollamaOffline": "Ollama 离线",
+    "ollamaOnline": "Ollama 在线",
+    "ollamaOfflineTitle": "Ollama 未连接",
+    "ollamaOfflineAria": "Ollama 状态：离线，点击重试",
+    "ollamaOnlineAria": "Ollama 状态：在线",
+    "searchShortcut": "搜索 ⌘K"
   }
 }

@@ -98,7 +98,7 @@ function App() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
       <Sidebar activeRoute={route} onNavigate={setRoute} />
-      <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+      <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div key={route} style={{ flex: 1, display: 'flex', flexDirection: 'column', animation: 'pageFadeIn 200ms ease-out' }}>
           {renderPage()}
         </div>

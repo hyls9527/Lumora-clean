@@ -14,19 +14,19 @@ interface SidebarProps {
 
 interface NavItem {
   key: string;
-  label: string;
+  i18nKey: string;
 }
 
 const navItems: NavItem[] = [
-  { key: '/gallery', label: '创作者图库' },
-  { key: '/favorites', label: '收藏' },
-  { key: '/dashboard', label: '仪表盘' },
-  { key: '/import', label: '导入管理' },
-  { key: '/search', label: '语义搜索' },
-  { key: '/tags', label: '标签' },
-  { key: '/export', label: '导出' },
-  { key: '/settings', label: '设置' },
-  { key: '/trash', label: '回收站' },
+  { key: '/gallery', i18nKey: 'sidebar.gallery' },
+  { key: '/favorites', i18nKey: 'sidebar.favorites' },
+  { key: '/dashboard', i18nKey: 'sidebar.dashboard' },
+  { key: '/import', i18nKey: 'sidebar.import' },
+  { key: '/search', i18nKey: 'sidebar.search' },
+  { key: '/tags', i18nKey: 'sidebar.tags' },
+  { key: '/export', i18nKey: 'sidebar.export' },
+  { key: '/settings', i18nKey: 'sidebar.settings' },
+  { key: '/trash', i18nKey: 'sidebar.trash' },
 ];
 
 export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
@@ -88,7 +88,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
               onClick={() => onNavigate(item.key)}
               collapsed={isCollapsed}
             >
-              {item.label}
+              {t(item.i18nKey)}
             </NavButton>
           );
         })}

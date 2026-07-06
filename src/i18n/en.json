@@ -327,5 +327,22 @@
       "lte": "Less or equal",
       "in": "In"
     }
+  },
+  "sidebar": {
+    "gallery": "Gallery",
+    "favorites": "Favorites",
+    "dashboard": "Dashboard",
+    "import": "Import",
+    "search": "Semantic Search",
+    "tags": "Tags",
+    "export": "Export",
+    "settings": "Settings",
+    "trash": "Trash",
+    "ollamaOffline": "Ollama Offline",
+    "ollamaOnline": "Ollama Online",
+    "ollamaOfflineTitle": "Ollama not connected",
+    "ollamaOfflineAria": "Ollama status: offline, click to retry",
+    "ollamaOnlineAria": "Ollama status: online",
+    "searchShortcut": "Search ⌘K"
   }
 }
