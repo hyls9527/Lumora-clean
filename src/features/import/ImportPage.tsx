@@ -5,7 +5,7 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { Collapsible } from '../../components/ui/Collapsible';
 import { StatCard, StatusBadge, SectionHeader, SettingRow, Toggle, inputStyle, selectStyle } from './ImportComponents';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import { t } from '../../lib/tokens';
+import { t as tok } from '../../lib/tokens';
 
 export function ImportPage() {
   const [dragOver, setDragOver] = useState(false);
@@ -87,8 +87,8 @@ export function ImportPage() {
             style={{
               fontSize: isMobile ? 18 : 20,
               fontWeight: 600,
-              fontFamily: t.fontDisplay,
-              color: t.text,
+              fontFamily: tok.fontDisplay,
+              color: tok.text,
               margin: 0,
             }}
           >
@@ -103,9 +103,9 @@ export function ImportPage() {
               fontWeight: 500,
               letterSpacing: '0.05em',
               textTransform: 'uppercase' as const,
-              fontFamily: t.fontDisplay,
-              color: t.bg,
-              background: t.accent,
+              fontFamily: tok.fontDisplay,
+              color: tok.bg,
+              background: tok.accent,
               border: 'none',
               borderRadius: 4,
               cursor: 'pointer',
@@ -127,7 +127,7 @@ export function ImportPage() {
           tabIndex={0}
           aria-label="选择文件夹导入"
           style={{
-            border: `2px dashed ${dragOver ? t.accent : t.border}`,
+            border: `2px dashed ${dragOver ? tok.accent : tok.border}`,
             borderRadius: 4,
             background: dragOver ? 'rgba(122, 92, 18, 0.04)' : 'var(--color-surface)',
             height: isMobile ? 120 : 140,
@@ -144,8 +144,8 @@ export function ImportPage() {
           <p
             style={{
               fontSize: isMobile ? 13 : 14,
-              fontFamily: t.fontDisplay,
-              color: t.textSecondary,
+              fontFamily: tok.fontDisplay,
+              color: tok.textSecondary,
               marginBottom: 8,
               textAlign: 'center',
             }}
@@ -153,7 +153,7 @@ export function ImportPage() {
             拖拽文件夹到此处，或点击选择
           </p>
           <p
-            style={{ fontSize: isMobile ? 10 : 11, fontFamily: t.fontBody, color: t.textMuted, textAlign: 'center' }}
+            style={{ fontSize: isMobile ? 10 : 11, fontFamily: tok.fontBody, color: tok.textMuted, textAlign: 'center' }}
           >
             支持 PNG、JPG、WEBP 格式
           </p>
@@ -168,8 +168,8 @@ export function ImportPage() {
             <span
               style={{
                 fontSize: 12,
-                fontFamily: t.fontBody,
-                color: t.textSecondary,
+                fontFamily: tok.fontBody,
+                color: tok.textSecondary,
               }}
             >
               正在导入，请稍候…
@@ -190,7 +190,7 @@ export function ImportPage() {
               alignItems: 'center',
               gap: 16,
               fontSize: 12,
-              fontFamily: t.fontBody,
+              fontFamily: tok.fontBody,
               color: '#3b5635',
             }}
           >
@@ -201,7 +201,7 @@ export function ImportPage() {
                 跳过 <strong>{importResult.skipped}</strong> 张（已存在）
               </span>
             )}
-            <span style={{ color: t.textMuted }}>
+            <span style={{ color: tok.textMuted }}>
               共扫描 {importResult.total} 个文件
             </span>
           </div>
@@ -218,13 +218,13 @@ export function ImportPage() {
           }}
         >
           <StatCard
-            dotColor="#a09480"
+            dotColor={tok.textMuted}
             title="手动导入"
             status="就绪"
             detail={recentImports.length > 0 ? `最近导入 ${recentImports.length} 张` : '选择文件夹开始导入'}
           />
           <StatCard
-            dotColor="#a09480"
+            dotColor={tok.textMuted}
             title="ComfyUI"
             status="未连接"
             detail="即将推出"
@@ -240,9 +240,9 @@ export function ImportPage() {
               letterSpacing: '0.1em',
               textTransform: 'uppercase' as const,
               marginBottom: 24,
-              fontFamily: t.fontDisplay,
-              color: t.textSecondary,
-              borderBottom: `1px solid ${t.border}`,
+              fontFamily: tok.fontDisplay,
+              color: tok.textSecondary,
+              borderBottom: `1px solid ${tok.border}`,
               paddingBottom: 12,
             }}
           >
@@ -252,7 +252,7 @@ export function ImportPage() {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              border: `1px solid ${t.border}`,
+              border: `1px solid ${tok.border}`,
               borderRadius: 2,
             }}
           >
@@ -267,7 +267,7 @@ export function ImportPage() {
                   transition: 'background 200ms',
                   borderBottom:
                     i < recentImports.length - 1
-                      ? `1px solid ${t.border}`
+                      ? `1px solid ${tok.border}`
                       : 'none',
                 }}
               >
@@ -287,7 +287,7 @@ export function ImportPage() {
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap' as const,
-                      color: t.text,
+                      color: tok.text,
                     }}
                   >
                     {item.name}
@@ -300,7 +300,7 @@ export function ImportPage() {
         </section>
 
         {/* Advanced settings (expandable) */}
-        <section aria-label="高级设置" style={{ borderTop: `1px dotted ${t.border}`, padding: '12px 0' }}>
+        <section aria-label="高级设置" style={{ borderTop: `1px dotted ${tok.border}`, padding: '12px 0' }}>
           <Collapsible title="高级设置">
             <div>
               {/* ComfyUI Config */}
@@ -329,7 +329,7 @@ export function ImportPage() {
                             gap: 6,
                             cursor: 'pointer',
                             fontSize: 12,
-                            color: t.text,
+                            color: tok.text,
                           }}
                         >
                           <input
@@ -338,7 +338,7 @@ export function ImportPage() {
                             style={{
                               width: 14,
                               height: 14,
-                              accentColor: t.accent,
+                              accentColor: tok.accent,
                             }}
                           />
                           {fmt}
@@ -374,7 +374,7 @@ export function ImportPage() {
                     <Toggle defaultChecked />
                   </SettingRow>
                   <SettingRow label="支持格式">
-                    <span style={{ fontSize: 12, color: t.textSecondary }}>
+                    <span style={{ fontSize: 12, color: tok.textSecondary }}>
                       PNG（含 metadata）、JPG、WEBP
                     </span>
                   </SettingRow>

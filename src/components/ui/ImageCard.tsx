@@ -44,8 +44,8 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
         cursor: 'pointer',
         background: 'var(--color-surface)',
         border: focused
-          ? '2px solid #7a5c12'
-          : '1px solid rgba(139, 115, 75, 0.10)',
+          ? `2px solid ${tok.accent}`
+          : `1px solid ${tok.border}`,
         boxShadow:
           'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px',
         overflow: 'hidden',

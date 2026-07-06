@@ -10,7 +10,7 @@ const token = {
   text: 'var(--color-text)',
   accent: 'var(--color-accent)',
   muted: tok.textSecondary,
-  border: 'rgba(139, 115, 75, 0.10)',
+  border: tok.border,
 };
 
 /* ───────────────────────── sub-components ──────────────────────── */
@@ -219,7 +219,7 @@ export function SettingsPage() {
               padding: 16,
               borderRadius: 6,
               background: 'var(--color-surface)',
-              border: '1px solid rgba(139, 115, 75, 0.10)',
+              border: `1px solid ${tok.border}`,
               display: 'flex',
               gap: 12,
               alignItems: 'center',

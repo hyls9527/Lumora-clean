@@ -1,3 +1,4 @@
+import { t as tok } from '../../lib/tokens';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useCommandStore } from '../../stores/commandStore';
 import { useTranslation } from '../../lib/i18n';
@@ -139,7 +140,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     background: 'var(--color-surface, #f7f2ea)',
-    border: '1px solid rgba(139, 115, 75, 0.10)',
+    border: `1px solid ${tok.border}`,
     borderRadius: 6,
     boxShadow: 'rgba(78,50,23,0.12) 0px 8px 32px, rgba(78,50,23,0.06) 0px 2px 8px',
     overflow: 'hidden',
@@ -154,7 +155,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: 'var(--color-text, #2a2118)',
     background: 'transparent',
     border: 'none',
-    borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
+    borderBottom: `1px solid ${tok.border}`,
     outline: 'none',
     boxSizing: 'border-box',
   },
@@ -205,7 +206,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: 'var(--font-mono, "JetBrains Mono", monospace)',
     color: 'var(--color-text-secondary, #6b5d48)',
     background: 'var(--color-bg-alt, #ebe5d8)',
-    border: '1px solid rgba(139, 115, 75, 0.10)',
+    border: `1px solid ${tok.border}`,
     borderRadius: 3,
     lineHeight: '16px',
   },

@@ -1,4 +1,4 @@
-import { t } from '../../lib/tokens';
+import { t as tok } from '../../lib/tokens';
 interface TagBadgeProps {
   name: string;
   color?: string | null;
@@ -6,8 +6,8 @@ interface TagBadgeProps {
 }
 
 export function TagBadge({ name, color, onRemove }: TagBadgeProps) {
-  const bgColor = color ?? t.border;
-  const textColor = color ? t.text : t.textSecondary;
+  const bgColor = color ?? tok.border;
+  const textColor = color ? tok.text : tok.textSecondary;
 
   return (
     <span
@@ -17,11 +17,11 @@ export function TagBadge({ name, color, onRemove }: TagBadgeProps) {
         gap: '4px',
         fontSize: '10px',
         padding: '2px 6px',
-        border: '1px solid rgba(139, 115, 75, 0.10)',
+        border: `1px solid ${tok.border}`,
         borderRadius: '4px',
         background: bgColor,
         color: textColor,
-        fontFamily: t.fontBody,
+        fontFamily: tok.fontBody,
         transition: 'opacity 200ms',
         lineHeight: 1.6,
       }}

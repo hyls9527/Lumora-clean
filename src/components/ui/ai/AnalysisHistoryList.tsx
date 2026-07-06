@@ -43,7 +43,7 @@ export function AnalysisHistoryList({ items }: AnalysisHistoryListProps) {
               justifyContent: 'space-between',
               alignItems: 'baseline',
               padding: '4px 0',
-              borderBottom: '1px dotted rgba(139, 115, 75, 0.10)',
+              borderBottom: `1px dotted ${tok.border}`,
             }}
           >
             <span

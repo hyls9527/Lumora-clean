@@ -29,7 +29,7 @@ export function TagSuggestionCard({
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '6px 10px',
-          border: '1px solid rgba(139, 115, 75, 0.10)',
+          border: `1px solid ${tok.border}`,
           borderRadius: 4,
           background: 'rgba(139, 115, 75, 0.03)',
           opacity: 0.45,

@@ -3,7 +3,7 @@ import { useTrashStore } from '../../stores/trashStore';
 import { GridSkeleton } from '../../components/ui/LoadingSkeleton';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import { t } from '../../lib/tokens';
+import { t as tok } from '../../lib/tokens';
 
 function formatDeletedTime(iso: string): string {
   if (!iso) return '';
@@ -69,7 +69,7 @@ export function TrashPage() {
           zIndex: 10,
           padding: '12px 16px',
           background: 'var(--color-bg)',
-          borderBottom: `1px solid ${t.border}`,
+          borderBottom: `1px solid ${tok.border}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -79,8 +79,8 @@ export function TrashPage() {
           style={{
             fontSize: isMobile ? 18 : 20,
             fontWeight: 600,
-            fontFamily: t.fontDisplay,
-            color: t.text,
+            fontFamily: tok.fontDisplay,
+            color: tok.text,
             margin: 0,
           }}
         >
@@ -92,7 +92,7 @@ export function TrashPage() {
             onClick={() => setConfirmEmpty(true)}
             style={{
               fontSize: 11,
-              fontFamily: t.fontDisplay,
+              fontFamily: tok.fontDisplay,
               color: '#b33a3a',
               background: 'none',
               border: '1px solid rgba(179, 58, 58, 0.2)',
@@ -114,7 +114,7 @@ export function TrashPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: `1px solid ${t.border}`,
+          borderBottom: `1px solid ${tok.border}`,
           background: 'var(--color-bg)',
         }}
       >
@@ -125,10 +125,10 @@ export function TrashPage() {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: loading ? '#d4a574' : t.textMuted,
+              background: loading ? '#d4a574' : tok.textMuted,
             }}
           />
-          <span style={{ fontSize: 10, color: t.textMuted, fontFamily: t.fontBody }}>
+          <span style={{ fontSize: 10, color: tok.textMuted, fontFamily: tok.fontBody }}>
             {loading ? '加载中…' : `${total} 张已删除图片`}
           </span>
         </div>
@@ -153,16 +153,16 @@ export function TrashPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 8,
-                color: t.textMuted,
-                fontFamily: t.fontBody,
+                color: tok.textMuted,
+                fontFamily: tok.fontBody,
                 fontSize: 13,
               }}
             >
               <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 16h24M18 16V12h12v4M16 16v20h16V16" stroke="#c4b89e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M20 22v10M24 22v10M28 22v10" stroke="#c4b89e" strokeWidth="1" strokeLinecap="round" />
+                <path d="M12 16h24M18 16V12h12v4M16 16v20h16V16" stroke={tok.textFaint} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M20 22v10M24 22v10M28 22v10" stroke={tok.textFaint} strokeWidth="1" strokeLinecap="round" />
               </svg>
-              <span style={{ fontSize: 15, fontFamily: t.fontDisplay, marginBottom: 4, color: 'var(--color-text-secondary)' }}>废纸成尘</span>
+              <span style={{ fontSize: 15, fontFamily: tok.fontDisplay, marginBottom: 4, color: 'var(--color-text-secondary)' }}>废纸成尘</span>
               回收站为空
             </div>
           ) : (
@@ -171,7 +171,7 @@ export function TrashPage() {
                 style={{
                   width: '100%',
                   borderCollapse: 'collapse',
-                  fontFamily: t.fontBody,
+                  fontFamily: tok.fontBody,
                   fontSize: isMobile ? 11 : 12,
                   minWidth: isMobile ? 480 : 'auto',
                 }}
@@ -179,8 +179,8 @@ export function TrashPage() {
                 <thead>
                   <tr
                     style={{
-                      borderBottom: `1px solid ${t.border}`,
-                      color: t.textSecondary,
+                      borderBottom: `1px solid ${tok.border}`,
+                      color: tok.textSecondary,
                       textAlign: 'left',
                     }}
                   >
@@ -210,7 +210,7 @@ export function TrashPage() {
                       <td
                         style={{
                           padding: '10px 12px',
-                          color: t.text,
+                          color: tok.text,
                           maxWidth: 300,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -219,10 +219,10 @@ export function TrashPage() {
                       >
                         {img.fileName}
                       </td>
-                      <td style={{ padding: '10px 12px', color: t.textSecondary }}>
+                      <td style={{ padding: '10px 12px', color: tok.textSecondary }}>
                         {img.width}×{img.height}
                       </td>
-                      <td style={{ padding: '10px 12px', color: t.textMuted }}>
+                      <td style={{ padding: '10px 12px', color: tok.textMuted }}>
                         {formatDeletedTime(img.deletedAt ?? '')}
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'right' }}>
@@ -231,8 +231,8 @@ export function TrashPage() {
                           onClick={() => handleRestore(img.id)}
                           style={{
                             fontSize: 11,
-                            fontFamily: t.fontDisplay,
-                            color: t.success,
+                            fontFamily: tok.fontDisplay,
+                            color: tok.success,
                             background: 'none',
                             border: '1px solid rgba(74, 122, 58, 0.2)',
                             padding: '4px 10px',
@@ -251,8 +251,8 @@ export function TrashPage() {
                               onClick={() => handlePermanentDelete(img.id)}
                               style={{
                                 fontSize: 11,
-                                fontFamily: t.fontDisplay,
-                                color: t.bg,
+                                fontFamily: tok.fontDisplay,
+                                color: tok.bg,
                                 background: '#b33a3a',
                                 border: 'none',
                                 padding: '4px 10px',
@@ -267,10 +267,10 @@ export function TrashPage() {
                               onClick={() => setConfirmDeleteId(null)}
                               style={{
                                 fontSize: 11,
-                                fontFamily: t.fontDisplay,
-                                color: t.textSecondary,
+                                fontFamily: tok.fontDisplay,
+                                color: tok.textSecondary,
                                 background: 'none',
-                                border: `1px solid ${t.border}`,
+                                border: `1px solid ${tok.border}`,
                                 padding: '4px 10px',
                                 borderRadius: 3,
                                 cursor: 'pointer',
@@ -285,7 +285,7 @@ export function TrashPage() {
                             onClick={() => setConfirmDeleteId(img.id)}
                             style={{
                               fontSize: 11,
-                              fontFamily: t.fontDisplay,
+                              fontFamily: tok.fontDisplay,
                               color: '#b33a3a',
                               background: 'none',
                               border: '1px solid rgba(179, 58, 58, 0.15)',
@@ -326,10 +326,10 @@ export function TrashPage() {
                     width: 28,
                     height: 28,
                     fontSize: 11,
-                    fontFamily: t.fontBody,
-                    color: p === page ? t.bg : t.textSecondary,
-                    background: p === page ? t.accent : 'transparent',
-                    border: p === page ? 'none' : `1px solid ${t.border}`,
+                    fontFamily: tok.fontBody,
+                    color: p === page ? tok.bg : tok.textSecondary,
+                    background: p === page ? tok.accent : 'transparent',
+                    border: p === page ? 'none' : `1px solid ${tok.border}`,
                     borderRadius: 4,
                     cursor: 'pointer',
                     transition: 'background 200ms, color 200ms',
@@ -359,12 +359,12 @@ export function TrashPage() {
         >
           <div
             style={{
-              background: t.bg,
+              background: tok.bg,
               borderRadius: 6,
               padding: '24px 28px',
               maxWidth: 360,
               boxShadow: 'rgba(139, 115, 75, 0.12) 0px 0px 0px 1px, rgba(78, 50, 23, 0.12) 0px 8px 32px',
-              fontFamily: t.fontBody,
+              fontFamily: tok.fontBody,
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -372,14 +372,14 @@ export function TrashPage() {
               style={{
                 fontSize: 15,
                 fontWeight: 600,
-                fontFamily: t.fontDisplay,
-                color: t.text,
+                fontFamily: tok.fontDisplay,
+                color: tok.text,
                 margin: '0 0 8px',
               }}
             >
               清空回收站？
             </h3>
-            <p style={{ fontSize: 12, color: t.textSecondary, margin: '0 0 20px', lineHeight: 1.5 }}>
+            <p style={{ fontSize: 12, color: tok.textSecondary, margin: '0 0 20px', lineHeight: 1.5 }}>
               永久删除回收站中的所有 {total} 张图片，此操作不可撤销。
             </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
@@ -388,10 +388,10 @@ export function TrashPage() {
                 onClick={() => setConfirmEmpty(false)}
                 style={{
                   fontSize: 11,
-                  fontFamily: t.fontDisplay,
-                  color: t.textSecondary,
+                  fontFamily: tok.fontDisplay,
+                  color: tok.textSecondary,
                   background: 'none',
-                  border: `1px solid ${t.border}`,
+                  border: `1px solid ${tok.border}`,
                   padding: '6px 14px',
                   borderRadius: 4,
                   cursor: 'pointer',
@@ -404,8 +404,8 @@ export function TrashPage() {
                 onClick={handleEmptyTrash}
                 style={{
                   fontSize: 11,
-                  fontFamily: t.fontDisplay,
-                  color: t.bg,
+                  fontFamily: tok.fontDisplay,
+                  color: tok.bg,
                   background: '#b33a3a',
                   border: 'none',
                   padding: '6px 14px',
@@ -427,14 +427,14 @@ export function TrashPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderTop: `1px solid ${t.border}`,
+          borderTop: `1px solid ${tok.border}`,
           marginTop: 'auto',
         }}
       >
-        <span style={{ fontSize: 11, color: t.textSecondary, fontFamily: t.fontBody }}>
+        <span style={{ fontSize: 11, color: tok.textSecondary, fontFamily: tok.fontBody }}>
           {total} 张已删除图片
         </span>
-        <span style={{ fontSize: 11, color: t.textSecondary, fontFamily: t.fontBody }}>
+        <span style={{ fontSize: 11, color: tok.textSecondary, fontFamily: tok.fontBody }}>
           第 {page} / {totalPages} 页
         </span>
       </div>

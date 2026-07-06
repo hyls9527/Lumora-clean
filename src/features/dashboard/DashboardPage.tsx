@@ -1,3 +1,4 @@
+import { DotRow, SectionTitle, formatTime } from './DashboardComponents';
 import { useEffect, useState, useCallback } from 'react';
 import {
   getDashboardStats,
@@ -9,89 +10,6 @@ import { useTranslation } from '../../lib/i18n';
 import { formatFileSize } from '../../lib/format';
 import { t as tokens } from '../../lib/tokens';
 
-/** Dotted separator row for directory-style layout */
-function DotRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | number;
-}) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'baseline',
-        gap: 8,
-        lineHeight: 1,
-      }}
-    >
-      <span
-        style={{
-          fontSize: 12,
-          color: tokens.textSecondary,
-          fontFamily: tokens.fontBody,
-          whiteSpace: 'nowrap',
-          flexShrink: 0,
-        }}
-      >
-        {label}
-      </span>
-      <span
-        style={{
-          flex: 1,
-          borderBottom: '1px dotted rgba(139, 115, 75, 0.25)',
-          minWidth: 24,
-        }}
-      />
-      <span
-        style={{
-          fontSize: 12,
-          color: tokens.text,
-          fontFamily: tokens.fontBody,
-          fontWeight: 500,
-          whiteSpace: 'nowrap',
-          flexShrink: 0,
-        }}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
-/** Section header */
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <h3
-      style={{
-        fontSize: 11,
-        fontWeight: 700,
-        fontFamily: tokens.fontDisplay,
-        color: tokens.accent,
-        letterSpacing: '0.1em',
-        textTransform: 'uppercase',
-        margin: '0 0 14px',
-      }}
-    >
-      {children}
-    </h3>
-  );
-}
-
-function formatTime(iso: string): string {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleDateString('zh-CN', {
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } catch {
-    return iso;
-  }
-}
 
 export function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);

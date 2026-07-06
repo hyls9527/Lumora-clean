@@ -1,4 +1,4 @@
-import { t } from '../../lib/tokens';
+import { t as tok } from '../../lib/tokens';
 /** 骨架屏占位块 */
 function Bone({ style }: { style?: React.CSSProperties }) {
   return (
@@ -34,11 +34,11 @@ export function GridSkeleton({ count = 8 }: { count?: number }) {
                 borderRadius: 2,
                 overflow: 'hidden',
                 background: 'var(--color-surface)',
-                border: '1px solid rgba(139, 115, 75, 0.10)',
+                border: `1px solid ${tok.border}`,
               }}
             >
               <Bone style={{ width: '100%', aspectRatio: '1' }} />
-              <div style={{ padding: '8px 10px', background: t.bg }}>
+              <div style={{ padding: '8px 10px', background: tok.bg }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <Bone style={{ width: 60, height: 11 }} />
                   <Bone style={{ width: 48, height: 11 }} />
@@ -73,7 +73,7 @@ export function SearchSkeleton({ count = 6 }: { count?: number }) {
               borderRadius: 2,
               overflow: 'hidden',
               background: 'var(--color-surface)',
-              border: '1px solid rgba(139, 115, 75, 0.10)',
+              border: `1px solid ${tok.border}`,
             }}
           >
             <Bone style={{ width: '100%', aspectRatio: '1' }} />
@@ -100,7 +100,7 @@ export function ListSkeleton({ count = 5 }: { count?: number }) {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          border: '1px solid rgba(139, 115, 75, 0.10)',
+          border: `1px solid ${tok.border}`,
           borderRadius: 2,
         }}
       >
@@ -114,7 +114,7 @@ export function ListSkeleton({ count = 5 }: { count?: number }) {
               padding: '12px 16px',
               borderBottom:
                 i < count - 1
-                  ? '1px solid rgba(139, 115, 75, 0.10)'
+                  ? `1px solid ${tok.border}`
                   : 'none',
             }}
           >
