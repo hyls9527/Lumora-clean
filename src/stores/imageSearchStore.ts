@@ -10,6 +10,7 @@ interface ImageSearchState {
 
   search: (imageId: string, filePath: string) => Promise<void>;
   clear: () => void;
+  clearSource: () => void;
 }
 
 export const useImageSearchStore = create<ImageSearchState>((set) => ({
@@ -31,5 +32,9 @@ export const useImageSearchStore = create<ImageSearchState>((set) => ({
 
   clear: () => {
     set({ sourceImageId: null, sourceFilePath: null, results: [], error: null });
+  },
+
+  clearSource: () => {
+    set({ sourceImageId: null, sourceFilePath: null });
   },
 }));

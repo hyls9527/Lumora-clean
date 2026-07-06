@@ -7,6 +7,7 @@ import { SimilarityBadge } from '../../components/ui/SimilarityBadge';
 import { Collapsible } from '../../components/ui/Collapsible';
 import { SearchAdvancedSettings } from './SearchAdvancedSettings';
 import { useSemanticSearchStore } from '../../stores/semanticSearchStore';
+import { useImageSearchStore } from '../../stores/imageSearchStore';
 import { useTranslation } from '../../lib/i18n';
 import { useIsMobile, useMediaQuery } from '../../hooks/useMediaQuery';
 import { t as tok } from '../../lib/tokens';
@@ -50,13 +51,21 @@ export function SearchPage() {
   const { mode: searchMode } =
     useSemanticSearchStore();
 
+  // Image search results (from "以图搜图")
+  const imageSearch = useImageSearchStore();
+  const isImageSearch = imageSearch.sourceImageId !== null;
+  const clearImageSearch = useImageSearchStore((s) => s.clear);
+
   const isMobile = useIsMobile();
   const isTablet = useMediaQuery('(max-width: 1024px)');
 
   const [activeFilter, setActiveFilter] = useState('all');
   const [inputValue, setInputValue] = useState(filters.searchQuery);
 
-  const results = getSearchResults();
+  const normalResults = getSearchResults();
+  const results = isImageSearch ? imageSearch.results : normalResults;
+  const currentLoading = isImageSearch ? imageSearch.loading : loading;
+  const currentError = isImageSearch ? imageSearch.error : error;
 
   const handleSearch = useCallback(() => {
     setSearchQuery(inputValue);
@@ -92,18 +101,30 @@ export function SearchPage() {
           >
             语义搜索
           </h2>
-          <p
-            style={{
-              fontSize: 12,
-              color: tok.textSecondary,
-              fontFamily: tok.fontBody,
-              margin: 0,
-            }}
-          >
-            {results.length > 0
-              ? `找到 ${results.length} 个相似结果`
-              : '输入关键词开始搜索'}
-          </p>
+          {isImageSearch ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 12, color: tok.accent, fontFamily: tok.fontBody }}>
+                以图搜图 · 找到 {results.length} 个相似结果
+              </span>
+              <button
+                type="button"
+                onClick={clearImageSearch}
+                style={{
+                  fontSize: 11, fontFamily: tok.fontBody, color: tok.textSecondary,
+                  background: 'none', border: `1px solid ${tok.border}`,
+                  padding: '2px 8px', borderRadius: 3, cursor: 'pointer',
+                }}
+              >
+                清除
+              </button>
+            </div>
+          ) : (
+            <p style={{ fontSize: 12, color: tok.textSecondary, fontFamily: tok.fontBody, margin: 0 }}>
+              {results.length > 0
+                ? `找到 ${results.length} 个相似结果`
+                : '输入关键词开始搜索'}
+            </p>
+          )}
         </header>
 
         {/* Search bar with semantic search integration */}
@@ -303,15 +324,15 @@ export function SearchPage() {
         )}
 
         {/* Loading state */}
-        {loading && <SearchSkeleton count={6} />}
+        {currentLoading && <SearchSkeleton count={6} />}
 
         {/* Error state */}
-        {error && !loading && (
-          <ErrorState message={error} onRetry={handleSearch} />
+        {currentError && !currentLoading && (
+          <ErrorState message={currentError} onRetry={handleSearch} />
         )}
 
         {/* Results grid */}
-        {!loading && !error && filteredResults.length > 0 && (
+        {!currentLoading && !currentError && filteredResults.length > 0 && (
           <section aria-label={tT("search.searchResults")}>
             <div
               style={{
@@ -320,12 +341,16 @@ export function SearchPage() {
                 gap: isMobile ? 12 : 16,
               }}
             >
-              {filteredResults.map((img) => (
-                <ResultCard
-                  key={img.id}
-                  image={img}
-                />
-              ))}
+              {filteredResults.map((img) =>
+                isImageSearch ? (
+                  <SearchResultCard key={img.id} result={img} />
+                ) : (
+                  <ResultCard
+                    key={img.id}
+                    image={img as Parameters<typeof ResultCard>[0]['image']}
+                  />
+                )
+              )}
             </div>
           </section>
         )}
@@ -358,6 +383,12 @@ export function SearchPage() {
 }
 
 /* --- Sub-components --- */
+
+function SearchResultCard({ result }: { result: { id: string; similarity?: number } }) {
+  const image = useImageStore.getState().getFilteredImages().find((img) => img.id === result.id);
+  if (!image) return null;
+  return <ResultCard image={{ ...image, similarity: result.similarity }} />;
+}
 
 function ResultCard({
   image,

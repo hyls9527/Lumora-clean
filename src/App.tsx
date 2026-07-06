@@ -30,7 +30,7 @@ function App() {
   // Auto-navigate to search when image search is triggered
   const imageSearchSource = useImageSearchStore((s) => s.sourceImageId);
   useEffect(() => {
-    if (imageSearchSource) setRoute('/search');
+    if (imageSearchSource) { setRoute('/search'); useImageSearchStore.getState().clearSource(); }
   }, [imageSearchSource]);
 
   useEffect(() => { void hydrate(); }, [hydrate]);

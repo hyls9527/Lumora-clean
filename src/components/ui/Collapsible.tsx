@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { t } from '../../lib/tokens';
+import { t as tok } from '../../lib/tokens';
 
 interface CollapsibleProps {
   title: string;
@@ -36,7 +36,7 @@ export function Collapsible({ title, children, defaultOpen = false }: Collapsibl
             display: 'inline-block',
             transition: 'transform 200ms',
             fontSize: 10,
-            color: t.textSecondary,
+            color: tok.textSecondary,
             transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
           }}
         >
@@ -46,8 +46,8 @@ export function Collapsible({ title, children, defaultOpen = false }: Collapsibl
           style={{
             fontSize: 13,
             fontWeight: 500,
-            fontFamily: t.fontDisplay,
-            color: open ? t.text : t.textSecondary,
+            fontFamily: tok.fontDisplay,
+            color: open ? tok.text : tok.textSecondary,
           }}
         >
           {title}
