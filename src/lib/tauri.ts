@@ -4,8 +4,6 @@
  * NEVER imports @tauri-apps/api at module level — only via dynamic import when isTauri=true.
  */
 
-import { invalidateSemanticCache } from './api/semanticCache';
-
 const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
 const WRITE_COMMANDS = new Set([
@@ -16,6 +14,24 @@ const WRITE_COMMANDS = new Set([
   'batch_soft_delete', 'batch_restore', 'batch_permanent_delete',
   'batch_add_tag', 'batch_remove_tag',
 ]);
+
+/** Registered callbacks invoked after write commands. */
+const writeListeners: Array<() => void> = [];
+
+/** Register a callback to be invoked after any write command completes. */
+export function onWriteCommand(cb: () => void): () => void {
+  writeListeners.push(cb);
+  return () => {
+    const idx = writeListeners.indexOf(cb);
+    if (idx >= 0) writeListeners.splice(idx, 1);
+  };
+}
+
+function notifyWriteListeners() {
+  for (const cb of writeListeners) {
+    Promise.resolve().then(cb);
+  }
+}
 
 function mockResponse(cmd: string): unknown {
   if (['list_images', 'list_trash'].includes(cmd))
@@ -100,7 +116,7 @@ export async function invoke<T = unknown>(cmd: string, args?: Record<string, unk
       const result = await _realInvoke(cmd, args) as T;
       if (WRITE_COMMANDS.has(cmd)) {
         // Fire-and-forget: don't block or alter return value
-        Promise.resolve().then(() => invalidateSemanticCache());
+        Promise.resolve().then(() => notifyWriteListeners());
       }
       return result;
     } catch (error) {
@@ -114,7 +130,7 @@ export async function invoke<T = unknown>(cmd: string, args?: Record<string, unk
 
   const result = mockResponse(cmd) as T;
   if (WRITE_COMMANDS.has(cmd)) {
-    Promise.resolve().then(() => invalidateSemanticCache());
+    Promise.resolve().then(() => notifyWriteListeners());
   }
   return result;
 }

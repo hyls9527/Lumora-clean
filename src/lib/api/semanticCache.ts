@@ -3,7 +3,7 @@
  * ponytail: dropped byte tracking & storage-full recovery (count-based eviction covers it).
  */
 
-import { invoke } from '../tauri';
+import { invoke, onWriteCommand } from '../tauri';
 
 interface CachedEntry {
   results: { id: string; similarity: number }[];
@@ -134,3 +134,6 @@ export async function searchSemanticCached(
   setCachedResult(query, normalized);
   return normalized;
 }
+
+// Auto-invalidate cache on write commands
+onWriteCommand(invalidateSemanticCache);
