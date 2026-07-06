@@ -1,0 +1,46 @@
+name: Security Audit
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday 9:00 UTC
+  push:
+    branches: [main]
+    paths:
+      - 'package-lock.json'
+      - 'src-tauri/Cargo.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  npm-audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - run: npm audit --omit=dev
+
+  cargo-audit:
+    name: cargo audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  perf-budget:
+    name: Performance Budget
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/perf-budget.mjs
