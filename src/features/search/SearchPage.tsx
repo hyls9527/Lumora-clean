@@ -8,6 +8,7 @@ import { Collapsible } from '../../components/ui/Collapsible';
 import { useSemanticSearchStore } from '../../stores/semanticSearchStore';
 import { useTranslation } from '../../lib/i18n';
 import { useIsMobile, useMediaQuery } from '../../hooks/useMediaQuery';
+import { t as tok } from '../../lib/tokens';
 
 const filterOptions = [
   { key: 'all', label: '全部' },
@@ -34,7 +35,7 @@ const searchHistory = [
 ];
 
 export function SearchPage() {
-  const { t } = useTranslation('search');
+  const { t: tT } = useTranslation('search');
   const {
     filters,
     setSearchQuery,
@@ -82,8 +83,8 @@ export function SearchPage() {
             style={{
               fontSize: isMobile ? 18 : 20,
               fontWeight: 600,
-              fontFamily: 'var(--font-display)',
-              color: '#2a2118',
+              fontFamily: tok.fontDisplay,
+              color: tok.text,
               marginBottom: 6,
               marginTop: 0,
             }}
@@ -93,8 +94,8 @@ export function SearchPage() {
           <p
             style={{
               fontSize: 12,
-              color: '#6b5d48',
-              fontFamily: 'var(--font-body)',
+              color: tok.textSecondary,
+              fontFamily: tok.fontBody,
               margin: 0,
             }}
           >
@@ -108,7 +109,7 @@ export function SearchPage() {
         {searchMode === 'semantic' ? (
           <SemanticSearchBar />
         ) : (
-          <section aria-label={t('searchQuery')} style={{ marginBottom: 24 }}>
+          <section aria-label={tT('searchQuery')} style={{ marginBottom: 24 }}>
             <div style={{ display: 'flex', gap: 8, marginBottom: 0, flexWrap: 'wrap' }}>
               <select
                 value={filters.searchField}
@@ -117,10 +118,10 @@ export function SearchPage() {
                 style={{
                   padding: isMobile ? '12px 10px' : '14px 12px',
                   fontSize: 13,
-                  fontFamily: 'var(--font-body)',
-                  color: '#2a2118',
+                  fontFamily: tok.fontBody,
+                  color: tok.text,
                   background: 'var(--color-surface)',
-                  border: '1px solid rgba(139, 115, 75, 0.10)',
+                  border: `1px solid ${tok.border}`,
                   borderRadius: 4,
                   cursor: 'pointer',
                   transition: 'border-color 200ms',
@@ -140,16 +141,16 @@ export function SearchPage() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={t('textDescription')}
-                aria-label={t('textDescription')}
+                placeholder={tT('textDescription')}
+                aria-label={tT('textDescription')}
                 style={{
                   width: '100%',
                   padding: isMobile ? '12px 100px 12px 14px' : '14px 110px 14px 20px',
                   fontSize: isMobile ? 14 : 15,
-                  fontFamily: 'var(--font-body)',
-                  color: '#2a2118',
+                  fontFamily: tok.fontBody,
+                  color: tok.text,
                   background: 'var(--color-surface)',
-                  border: '1px solid rgba(139, 115, 75, 0.10)',
+                  border: `1px solid ${tok.border}`,
                   borderRadius: 4,
                   outline: 'none',
                   transition: 'border-color 200ms, box-shadow 200ms',
@@ -177,9 +178,9 @@ export function SearchPage() {
                       width: 32,
                       height: 32,
                       fontSize: 16,
-                      color: '#6b5d48',
+                      color: tok.textSecondary,
                       background: 'none',
-                      border: '1px solid rgba(139, 115, 75, 0.10)',
+                      border: `1px solid ${tok.border}`,
                       borderRadius: 4,
                       cursor: 'pointer',
                       transition: 'color 200ms, border-color 200ms',
@@ -188,7 +189,7 @@ export function SearchPage() {
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
-                    aria-label={t('clearSearch')}
+                    aria-label={tT('clearSearch')}
                   >
                     ×
                   </button>
@@ -200,17 +201,17 @@ export function SearchPage() {
                     padding: '8px 20px',
                     fontSize: 13,
                     fontWeight: 500,
-                    fontFamily: 'var(--font-display)',
-                    color: '#f2ede4',
-                    background: '#7a5c12',
+                    fontFamily: tok.fontDisplay,
+                    color: tok.bg,
+                    background: tok.accent,
                     border: 'none',
                     borderRadius: 4,
                     cursor: 'pointer',
                     transition: 'background 200ms',
                   }}
-                  aria-label={t('search')}
+                  aria-label={tT('search')}
                 >
-                  {t('search')}
+                  {tT('search')}
                 </button>
               </div>
             </div>
@@ -226,13 +227,13 @@ export function SearchPage() {
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '8px 0',
-              borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
+              borderBottom: `1px solid ${tok.border}`,
               marginBottom: 20,
               fontSize: 11,
-              fontFamily: 'var(--font-body)',
+              fontFamily: tok.fontBody,
             }}
           >
-            <span style={{ color: '#6b5d48' }}>
+            <span style={{ color: tok.textSecondary }}>
               共 {filteredResults.length} 个结果 · 按相似度排序
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -244,10 +245,10 @@ export function SearchPage() {
                   style={{
                     padding: '4px 12px',
                     fontSize: 11,
-                    fontFamily: 'var(--font-body)',
-                    color: activeFilter === f.key ? '#f2ede4' : '#6b5d48',
-                    background: activeFilter === f.key ? '#7a5c12' : 'var(--color-surface)',
-                    border: activeFilter === f.key ? 'none' : '1px solid rgba(139, 115, 75, 0.10)',
+                    fontFamily: tok.fontBody,
+                    color: activeFilter === f.key ? tok.bg : tok.textSecondary,
+                    background: activeFilter === f.key ? tok.accent : 'var(--color-surface)',
+                    border: activeFilter === f.key ? 'none' : `1px solid ${tok.border}`,
                     borderRadius: 4,
                     cursor: 'pointer',
                     transition: 'background 200ms, color 200ms, border-color 200ms',
@@ -265,7 +266,7 @@ export function SearchPage() {
           <div style={{ textAlign: 'center', padding: '80px 40px' }}>
             <div
               style={{
-                fontFamily: 'var(--font-display)',
+                fontFamily: tok.fontDisplay,
                 fontSize: 15,
                 color: 'var(--color-text-secondary)',
                 marginBottom: 16,
@@ -276,9 +277,9 @@ export function SearchPage() {
             </div>
             <div
               style={{
-                fontFamily: 'var(--font-display)',
+                fontFamily: tok.fontDisplay,
                 fontSize: 18,
-                color: '#2a2118',
+                color: tok.text,
                 marginBottom: 8,
               }}
             >
@@ -287,7 +288,7 @@ export function SearchPage() {
             <div
               style={{
                 fontSize: 13,
-                color: '#6b5d48',
+                color: tok.textSecondary,
                 maxWidth: 400,
                 margin: '0 auto',
                 lineHeight: 1.8,
@@ -330,10 +331,10 @@ export function SearchPage() {
 
         {/* High similarity compare */}
         {filteredResults.some((r) => (r.similarity ?? 0) >= 90) && (
-          <section aria-label="高相似度对比" style={{ marginTop: 32, borderTop: '1px solid rgba(139, 115, 75, 0.10)', borderBottom: '1px solid rgba(139, 115, 75, 0.10)', padding: '12px 0' }}>
+          <section aria-label="高相似度对比" style={{ marginTop: 32, borderTop: `1px solid ${tok.border}`, borderBottom: `1px solid ${tok.border}`, padding: '12px 0' }}>
             <Collapsible title="高相似度对比">
               <div style={{ padding: '32px 0', textAlign: 'center' }}>
-                <p style={{ fontSize: 13, color: '#6b5d48' }}>
+                <p style={{ fontSize: 13, color: tok.textSecondary }}>
                   选择两张图片进行详细对比
                 </p>
               </div>
@@ -342,7 +343,7 @@ export function SearchPage() {
         )}
 
         {/* Advanced settings */}
-        <div style={{ marginTop: 48, borderTop: '1px solid rgba(139, 115, 75, 0.10)', paddingTop: 24 }}>
+        <div style={{ marginTop: 48, borderTop: `1px solid ${tok.border}`, paddingTop: 24 }}>
           <Collapsible title="高级设置">
             <div style={{ paddingTop: 24 }}>
               {/* Search scope */}
@@ -352,8 +353,8 @@ export function SearchPage() {
                     display: 'block',
                     fontSize: 12,
                     fontWeight: 500,
-                    fontFamily: 'var(--font-display)',
-                    color: '#6b5d48',
+                    fontFamily: tok.fontDisplay,
+                    color: tok.textSecondary,
                     marginBottom: 10,
                     letterSpacing: '0.05em',
                   }}
@@ -369,16 +370,16 @@ export function SearchPage() {
                         alignItems: 'center',
                         gap: 8,
                         fontSize: 13,
-                        color: '#2a2118',
+                        color: tok.text,
                         cursor: 'pointer',
-                        fontFamily: 'var(--font-body)',
+                        fontFamily: tok.fontBody,
                       }}
                     >
                       <input
                         type="checkbox"
                         defaultChecked
                         style={{
-                          accentColor: '#7a5c12',
+                          accentColor: tok.accent,
                           width: 16,
                           height: 16,
                           cursor: 'pointer',
@@ -397,8 +398,8 @@ export function SearchPage() {
                     display: 'block',
                     fontSize: 12,
                     fontWeight: 500,
-                    fontFamily: 'var(--font-display)',
-                    color: '#6b5d48',
+                    fontFamily: tok.fontDisplay,
+                    color: tok.textSecondary,
                     marginBottom: 10,
                     letterSpacing: '0.05em',
                   }}
@@ -409,10 +410,10 @@ export function SearchPage() {
                   style={{
                     padding: '8px 14px',
                     fontSize: 13,
-                    fontFamily: 'var(--font-body)',
-                    color: '#2a2118',
+                    fontFamily: tok.fontBody,
+                    color: tok.text,
                     background: 'var(--color-surface)',
-                    border: '1px solid rgba(139, 115, 75, 0.10)',
+                    border: `1px solid ${tok.border}`,
                     borderRadius: 4,
                     cursor: 'pointer',
                     transition: 'border-color 200ms',
@@ -433,8 +434,8 @@ export function SearchPage() {
                       display: 'block',
                       fontSize: 12,
                       fontWeight: 500,
-                      fontFamily: 'var(--font-display)',
-                      color: '#6b5d48',
+                      fontFamily: tok.fontDisplay,
+                      color: tok.textSecondary,
                       marginBottom: 10,
                       letterSpacing: '0.05em',
                     }}
@@ -447,9 +448,9 @@ export function SearchPage() {
                       min="0"
                       max="100"
                       defaultValue="70"
-                      style={{ width: 140, accentColor: '#7a5c12', cursor: 'pointer' }}
+                      style={{ width: 140, accentColor: tok.accent, cursor: 'pointer' }}
                     />
-                    <span style={{ fontSize: 13, color: '#2a2118', fontFamily: 'var(--font-body)', minWidth: 32 }}>
+                    <span style={{ fontSize: 13, color: tok.text, fontFamily: tok.fontBody, minWidth: 32 }}>
                       0.7
                     </span>
                   </div>
@@ -460,8 +461,8 @@ export function SearchPage() {
                       display: 'block',
                       fontSize: 12,
                       fontWeight: 500,
-                      fontFamily: 'var(--font-display)',
-                      color: '#6b5d48',
+                      fontFamily: tok.fontDisplay,
+                      color: tok.textSecondary,
                       marginBottom: 10,
                       letterSpacing: '0.05em',
                     }}
@@ -476,10 +477,10 @@ export function SearchPage() {
                     style={{
                       padding: '8px 14px',
                       fontSize: 13,
-                      fontFamily: 'var(--font-body)',
-                      color: '#2a2118',
+                      fontFamily: tok.fontBody,
+                      color: tok.text,
                       background: 'var(--color-surface)',
-                      border: '1px solid rgba(139, 115, 75, 0.10)',
+                      border: `1px solid ${tok.border}`,
                       borderRadius: 4,
                       width: 80,
                       transition: 'border-color 200ms',
@@ -495,8 +496,8 @@ export function SearchPage() {
                     display: 'block',
                     fontSize: 12,
                     fontWeight: 500,
-                    fontFamily: 'var(--font-display)',
-                    color: '#6b5d48',
+                    fontFamily: tok.fontDisplay,
+                    color: tok.textSecondary,
                     marginBottom: 10,
                     letterSpacing: '0.05em',
                   }}
@@ -516,10 +517,10 @@ export function SearchPage() {
                       style={{
                         padding: '6px 14px',
                         fontSize: 12,
-                        fontFamily: 'var(--font-body)',
-                        color: '#6b5d48',
+                        fontFamily: tok.fontBody,
+                        color: tok.textSecondary,
                         background: 'var(--color-surface)',
-                        border: '1px solid rgba(139, 115, 75, 0.10)',
+                        border: `1px solid ${tok.border}`,
                         borderRadius: 4,
                         cursor: 'pointer',
                         transition: 'background 200ms, color 200ms, border-color 200ms',
@@ -551,7 +552,7 @@ function ResultCard({
         borderRadius: 2,
         overflow: 'hidden',
         background: 'var(--color-surface)',
-        border: '1px solid rgba(139, 115, 75, 0.10)',
+        border: `1px solid ${tok.border}`,
         cursor: 'pointer',
         boxShadow:
           'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px',
@@ -568,7 +569,7 @@ function ResultCard({
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: 11,
-            color: '#a09480',
+            color: tok.textMuted,
           }}
         >
           {image.width}×{image.height}
@@ -583,7 +584,7 @@ function ResultCard({
         <p
           style={{
             fontSize: 12,
-            color: '#2a2118',
+            color: tok.text,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -595,10 +596,10 @@ function ResultCard({
           {image.prompt}
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 10, color: '#6b5d48', fontFamily: 'var(--font-body)' }}>
+          <span style={{ fontSize: 10, color: tok.textSecondary, fontFamily: tok.fontBody }}>
             {image.model}
           </span>
-          <span style={{ fontSize: 10, color: '#6b5d48', fontFamily: 'var(--font-body)' }}>
+          <span style={{ fontSize: 10, color: tok.textSecondary, fontFamily: tok.fontBody }}>
             {image.width} × {image.height}
           </span>
         </div>

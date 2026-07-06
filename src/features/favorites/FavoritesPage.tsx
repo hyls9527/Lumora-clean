@@ -5,6 +5,7 @@ import { ImageCard } from '../../components/ui/ImageCard';
 import { DetailModal } from '../../components/ui/DetailModal';
 import { listFavorites } from '../../lib/api/images';
 import { ErrorState } from '../../components/ui/ErrorState';
+import { t } from '../../lib/tokens';
 
 export function FavoritesPage() {
   const { toggleFavorite, setRating } = useImageActions();
@@ -73,7 +74,7 @@ export function FavoritesPage() {
       <div
         style={{
           padding: '14px 32px',
-          borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
+          borderBottom: `1px solid ${t.border}`,
           background: 'var(--color-bg)',
         }}
       >
@@ -81,8 +82,8 @@ export function FavoritesPage() {
           style={{
             fontSize: 20,
             fontWeight: 600,
-            fontFamily: 'var(--font-display)',
-            color: '#2a2118',
+            fontFamily: t.fontDisplay,
+            color: t.text,
             margin: 0,
           }}
         >
@@ -100,8 +101,8 @@ export function FavoritesPage() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#a09480',
-            fontFamily: 'var(--font-body)',
+            color: t.textMuted,
+            fontFamily: t.fontBody,
             fontSize: 13,
           }}
         >
@@ -116,13 +117,13 @@ export function FavoritesPage() {
             alignItems: 'center',
             justifyContent: 'center',
             gap: 16,
-            color: '#a09480',
-            fontFamily: 'var(--font-body)',
+            color: t.textMuted,
+            fontFamily: t.fontBody,
             fontSize: 13,
             }}
             >
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M24 8l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" stroke="#c4b89e" strokeWidth="1.5" fill="rgba(122,92,18,0.06)" strokeLinejoin="round" />
+            <path d="M24 8l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" stroke={t.textFaint} strokeWidth="1.5" fill="rgba(122,92,18,0.06)" strokeLinejoin="round" />
             </svg>
             暂无收藏图片
         </div>
@@ -152,12 +153,12 @@ export function FavoritesPage() {
       <div
         style={{
           padding: '14px 32px',
-          borderTop: '1px solid rgba(139, 115, 75, 0.10)',
+          borderTop: `1px solid ${t.border}`,
           marginTop: 'auto',
         }}
       >
         <span
-          style={{ fontSize: 11, color: '#6b5d48', fontFamily: 'var(--font-body)' }}
+          style={{ fontSize: 11, color: t.textSecondary, fontFamily: t.fontBody }}
         >
           {favorites.length} 张收藏
         </span>

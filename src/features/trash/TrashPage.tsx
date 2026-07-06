@@ -3,6 +3,7 @@ import { useTrashStore } from '../../stores/trashStore';
 import { GridSkeleton } from '../../components/ui/LoadingSkeleton';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { t } from '../../lib/tokens';
 
 function formatDeletedTime(iso: string): string {
   if (!iso) return '';
@@ -68,7 +69,7 @@ export function TrashPage() {
           zIndex: 10,
           padding: '12px 16px',
           background: 'var(--color-bg)',
-          borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
+          borderBottom: `1px solid ${t.border}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -78,8 +79,8 @@ export function TrashPage() {
           style={{
             fontSize: isMobile ? 18 : 20,
             fontWeight: 600,
-            fontFamily: 'var(--font-display)',
-            color: '#2a2118',
+            fontFamily: t.fontDisplay,
+            color: t.text,
             margin: 0,
           }}
         >
@@ -91,7 +92,7 @@ export function TrashPage() {
             onClick={() => setConfirmEmpty(true)}
             style={{
               fontSize: 11,
-              fontFamily: 'var(--font-display)',
+              fontFamily: t.fontDisplay,
               color: '#b33a3a',
               background: 'none',
               border: '1px solid rgba(179, 58, 58, 0.2)',
@@ -113,7 +114,7 @@ export function TrashPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
+          borderBottom: `1px solid ${t.border}`,
           background: 'var(--color-bg)',
         }}
       >
@@ -124,10 +125,10 @@ export function TrashPage() {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: loading ? '#d4a574' : '#a09480',
+              background: loading ? '#d4a574' : t.textMuted,
             }}
           />
-          <span style={{ fontSize: 10, color: '#a09480', fontFamily: 'var(--font-body)' }}>
+          <span style={{ fontSize: 10, color: t.textMuted, fontFamily: t.fontBody }}>
             {loading ? '加载中…' : `${total} 张已删除图片`}
           </span>
         </div>
@@ -152,8 +153,8 @@ export function TrashPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 8,
-                color: '#a09480',
-                fontFamily: 'var(--font-body)',
+                color: t.textMuted,
+                fontFamily: t.fontBody,
                 fontSize: 13,
               }}
             >
@@ -161,7 +162,7 @@ export function TrashPage() {
                 <path d="M12 16h24M18 16V12h12v4M16 16v20h16V16" stroke="#c4b89e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 <path d="M20 22v10M24 22v10M28 22v10" stroke="#c4b89e" strokeWidth="1" strokeLinecap="round" />
               </svg>
-              <span style={{ fontSize: 15, fontFamily: 'var(--font-display)', marginBottom: 4, color: 'var(--color-text-secondary)' }}>废纸成尘</span>
+              <span style={{ fontSize: 15, fontFamily: t.fontDisplay, marginBottom: 4, color: 'var(--color-text-secondary)' }}>废纸成尘</span>
               回收站为空
             </div>
           ) : (
@@ -170,7 +171,7 @@ export function TrashPage() {
                 style={{
                   width: '100%',
                   borderCollapse: 'collapse',
-                  fontFamily: 'var(--font-body)',
+                  fontFamily: t.fontBody,
                   fontSize: isMobile ? 11 : 12,
                   minWidth: isMobile ? 480 : 'auto',
                 }}
@@ -178,8 +179,8 @@ export function TrashPage() {
                 <thead>
                   <tr
                     style={{
-                      borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
-                      color: '#6b5d48',
+                      borderBottom: `1px solid ${t.border}`,
+                      color: t.textSecondary,
                       textAlign: 'left',
                     }}
                   >
@@ -209,7 +210,7 @@ export function TrashPage() {
                       <td
                         style={{
                           padding: '10px 12px',
-                          color: '#2a2118',
+                          color: t.text,
                           maxWidth: 300,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -218,10 +219,10 @@ export function TrashPage() {
                       >
                         {img.fileName}
                       </td>
-                      <td style={{ padding: '10px 12px', color: '#6b5d48' }}>
+                      <td style={{ padding: '10px 12px', color: t.textSecondary }}>
                         {img.width}×{img.height}
                       </td>
-                      <td style={{ padding: '10px 12px', color: '#a09480' }}>
+                      <td style={{ padding: '10px 12px', color: t.textMuted }}>
                         {formatDeletedTime(img.deletedAt ?? '')}
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'right' }}>
@@ -230,8 +231,8 @@ export function TrashPage() {
                           onClick={() => handleRestore(img.id)}
                           style={{
                             fontSize: 11,
-                            fontFamily: 'var(--font-display)',
-                            color: '#4a7a3a',
+                            fontFamily: t.fontDisplay,
+                            color: t.success,
                             background: 'none',
                             border: '1px solid rgba(74, 122, 58, 0.2)',
                             padding: '4px 10px',
@@ -250,8 +251,8 @@ export function TrashPage() {
                               onClick={() => handlePermanentDelete(img.id)}
                               style={{
                                 fontSize: 11,
-                                fontFamily: 'var(--font-display)',
-                                color: '#f2ede4',
+                                fontFamily: t.fontDisplay,
+                                color: t.bg,
                                 background: '#b33a3a',
                                 border: 'none',
                                 padding: '4px 10px',
@@ -266,10 +267,10 @@ export function TrashPage() {
                               onClick={() => setConfirmDeleteId(null)}
                               style={{
                                 fontSize: 11,
-                                fontFamily: 'var(--font-display)',
-                                color: '#6b5d48',
+                                fontFamily: t.fontDisplay,
+                                color: t.textSecondary,
                                 background: 'none',
-                                border: '1px solid rgba(139, 115, 75, 0.10)',
+                                border: `1px solid ${t.border}`,
                                 padding: '4px 10px',
                                 borderRadius: 3,
                                 cursor: 'pointer',
@@ -284,7 +285,7 @@ export function TrashPage() {
                             onClick={() => setConfirmDeleteId(img.id)}
                             style={{
                               fontSize: 11,
-                              fontFamily: 'var(--font-display)',
+                              fontFamily: t.fontDisplay,
                               color: '#b33a3a',
                               background: 'none',
                               border: '1px solid rgba(179, 58, 58, 0.15)',
@@ -325,10 +326,10 @@ export function TrashPage() {
                     width: 28,
                     height: 28,
                     fontSize: 11,
-                    fontFamily: 'var(--font-body)',
-                    color: p === page ? '#f2ede4' : '#6b5d48',
-                    background: p === page ? '#7a5c12' : 'transparent',
-                    border: p === page ? 'none' : '1px solid rgba(139, 115, 75, 0.10)',
+                    fontFamily: t.fontBody,
+                    color: p === page ? t.bg : t.textSecondary,
+                    background: p === page ? t.accent : 'transparent',
+                    border: p === page ? 'none' : `1px solid ${t.border}`,
                     borderRadius: 4,
                     cursor: 'pointer',
                     transition: 'background 200ms, color 200ms',
@@ -358,12 +359,12 @@ export function TrashPage() {
         >
           <div
             style={{
-              background: '#f2ede4',
+              background: t.bg,
               borderRadius: 6,
               padding: '24px 28px',
               maxWidth: 360,
               boxShadow: 'rgba(139, 115, 75, 0.12) 0px 0px 0px 1px, rgba(78, 50, 23, 0.12) 0px 8px 32px',
-              fontFamily: 'var(--font-body)',
+              fontFamily: t.fontBody,
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -371,14 +372,14 @@ export function TrashPage() {
               style={{
                 fontSize: 15,
                 fontWeight: 600,
-                fontFamily: 'var(--font-display)',
-                color: '#2a2118',
+                fontFamily: t.fontDisplay,
+                color: t.text,
                 margin: '0 0 8px',
               }}
             >
               清空回收站？
             </h3>
-            <p style={{ fontSize: 12, color: '#6b5d48', margin: '0 0 20px', lineHeight: 1.5 }}>
+            <p style={{ fontSize: 12, color: t.textSecondary, margin: '0 0 20px', lineHeight: 1.5 }}>
               永久删除回收站中的所有 {total} 张图片，此操作不可撤销。
             </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
@@ -387,10 +388,10 @@ export function TrashPage() {
                 onClick={() => setConfirmEmpty(false)}
                 style={{
                   fontSize: 11,
-                  fontFamily: 'var(--font-display)',
-                  color: '#6b5d48',
+                  fontFamily: t.fontDisplay,
+                  color: t.textSecondary,
                   background: 'none',
-                  border: '1px solid rgba(139, 115, 75, 0.10)',
+                  border: `1px solid ${t.border}`,
                   padding: '6px 14px',
                   borderRadius: 4,
                   cursor: 'pointer',
@@ -403,8 +404,8 @@ export function TrashPage() {
                 onClick={handleEmptyTrash}
                 style={{
                   fontSize: 11,
-                  fontFamily: 'var(--font-display)',
-                  color: '#f2ede4',
+                  fontFamily: t.fontDisplay,
+                  color: t.bg,
                   background: '#b33a3a',
                   border: 'none',
                   padding: '6px 14px',
@@ -426,14 +427,14 @@ export function TrashPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderTop: '1px solid rgba(139, 115, 75, 0.10)',
+          borderTop: `1px solid ${t.border}`,
           marginTop: 'auto',
         }}
       >
-        <span style={{ fontSize: 11, color: '#6b5d48', fontFamily: 'var(--font-body)' }}>
+        <span style={{ fontSize: 11, color: t.textSecondary, fontFamily: t.fontBody }}>
           {total} 张已删除图片
         </span>
-        <span style={{ fontSize: 11, color: '#6b5d48', fontFamily: 'var(--font-body)' }}>
+        <span style={{ fontSize: 11, color: t.textSecondary, fontFamily: t.fontBody }}>
           第 {page} / {totalPages} 页
         </span>
       </div>

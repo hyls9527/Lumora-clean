@@ -81,12 +81,14 @@ describe('UI 一致性 — DESIGN.md 合规', () => {
   describe('设计令牌检查', () => {
     it('使用正确的强调色 #7a5c12', () => {
       const rating = readFileSync(resolve(root, 'src/components/ui/Rating.tsx'), 'utf-8');
-      expect(rating).toContain('#7a5c12');
+      expect(rating).toMatch(/t\.accent|tok\.accent/);
     });
 
     it('使用正确的文字颜色 #2a2118', () => {
       const sidebar = readFileSync(resolve(root, 'src/components/ui/Sidebar.tsx'), 'utf-8');
-      expect(sidebar).toContain('#2a2118');
+      // Uses token reference instead of hardcoded value
+      expect(sidebar).toContain('tok.text');
+      expect(sidebar).toContain("from '../../lib/tokens'");
     });
 
     it('使用 200ms 过渡', () => {

@@ -1,3 +1,4 @@
+import { t as tok } from '../../../lib/tokens';
 import { useTranslation } from '../../../lib/i18n';
 
 interface ColorPaletteStripProps {
@@ -15,7 +16,7 @@ export function ColorPaletteStrip({ colors }: ColorPaletteStripProps) {
         style={{
           fontSize: 10,
           fontFamily: 'var(--font-display)',
-          color: '#a09480',
+          color: tok.textMuted,
           textTransform: 'uppercase',
           letterSpacing: '0.5px',
           marginBottom: 6,

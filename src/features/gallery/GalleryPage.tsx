@@ -13,6 +13,7 @@ import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 import { batchSoftDelete } from '../../lib/api/images';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { TabButton } from '../../components/ui/TabButton';
+import { t as tokens } from '../../lib/tokens';
 
 const sortOptions = [
   { key: 'time' as const, label: '生成时间 ↓' },
@@ -193,7 +194,7 @@ export function GalleryPage() {
           zIndex: 10,
           padding: '12px 16px',
           background: 'var(--color-bg)',
-          borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
+          borderBottom: `1px solid ${tokens.border}`,
         }}
       >
         {/* Row 1 */}
@@ -212,8 +213,8 @@ export function GalleryPage() {
               style={{
                 fontSize: isMobile ? 18 : 20,
                 fontWeight: 600,
-                fontFamily: 'var(--font-display)',
-                color: '#2a2118',
+                fontFamily: tokens.fontDisplay,
+                color: tokens.text,
                 margin: 0,
               }}
             >
@@ -228,12 +229,12 @@ export function GalleryPage() {
                 onClick={() => setColumnCount(columnCount === n ? 0 : n)}
                 style={{
                   fontSize: 11,
-                  fontFamily: 'var(--font-display)',
-                  color: columnCount === n ? '#7a5c12' : '#6b5d48',
+                  fontFamily: tokens.fontDisplay,
+                  color: columnCount === n ? tokens.accent : tokens.textSecondary,
                   background: 'none',
                   border: 'none',
                   padding: '0 0 2px',
-                  borderBottom: `2px solid ${columnCount === n ? '#7a5c12' : 'transparent'}`,
+                  borderBottom: `2px solid ${columnCount === n ? tokens.accent : 'transparent'}`,
                   cursor: 'pointer',
                   transition: 'color 200ms, border-color 200ms',
                 }}
@@ -300,7 +301,7 @@ export function GalleryPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
+          borderBottom: `1px solid ${tokens.border}`,
           background: 'var(--color-bg)',
         }}
       >
@@ -311,17 +312,17 @@ export function GalleryPage() {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: loading ? '#a09480' : '#4a7a3a',
+              background: loading ? tokens.textMuted : tokens.success,
             }}
           />
           <span
-            style={{ fontSize: 10, color: loading ? '#a09480' : '#4a7a3a', fontFamily: 'var(--font-body)' }}
+            style={{ fontSize: 10, color: loading ? tokens.textMuted : tokens.success, fontFamily: tokens.fontBody }}
           >
             {loading ? '加载中…' : '数据库已连接'}
           </span>
         </div>
         <span
-          style={{ fontSize: 10, color: '#a09480', fontFamily: 'var(--font-body)' }}
+          style={{ fontSize: 10, color: tokens.textMuted, fontFamily: tokens.fontBody }}
         >
           共 {total} 张
         </span>
@@ -339,13 +340,13 @@ export function GalleryPage() {
         images.length === 0 ? (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)', gap: 16, textAlign: 'center', padding: '0 32px' }}>
             <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="12" y="8" width="40" height="48" rx="3" stroke="#c4b89e" strokeWidth="1.5" fill="none" />
-              <path d="M20 20h24M20 28h16M20 36h20" stroke="#c4b89e" strokeWidth="1" strokeLinecap="round" />
-              <circle cx="44" cy="44" r="10" stroke="#7a5c12" strokeWidth="1.5" fill="rgba(122,92,18,0.06)" />
-              <path d="M41 44l2 2 4-4" stroke="#7a5c12" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <rect x="12" y="8" width="40" height="48" rx="3" stroke={tokens.textFaint} strokeWidth="1.5" fill="none" />
+              <path d="M20 20h24M20 28h16M20 36h20" stroke={tokens.textFaint} strokeWidth="1" strokeLinecap="round" />
+              <circle cx="44" cy="44" r="10" stroke={tokens.accent} strokeWidth="1.5" fill="rgba(122,92,18,0.06)" />
+              <path d="M41 44l2 2 4-4" stroke={tokens.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span style={{ fontSize: 15, fontFamily: 'var(--font-display)', color: 'var(--color-text-secondary)' }}>图库尚空</span>
-            <span style={{ fontSize: 13, fontFamily: 'var(--font-body)', color: 'var(--color-text-muted)' }}>导入图片，点亮属于你的灯火。</span>
+            <span style={{ fontSize: 15, fontFamily: tokens.fontDisplay, color: 'var(--color-text-secondary)' }}>图库尚空</span>
+            <span style={{ fontSize: 13, fontFamily: tokens.fontBody, color: 'var(--color-text-muted)' }}>导入图片，点亮属于你的灯火。</span>
           </div>
         ) : (
           <>
@@ -401,10 +402,10 @@ export function GalleryPage() {
                     width: 28,
                     height: 28,
                     fontSize: 11,
-                    fontFamily: 'var(--font-body)',
-                    color: p === page ? '#f2ede4' : '#6b5d48',
-                    background: p === page ? '#7a5c12' : 'transparent',
-                    border: p === page ? 'none' : '1px solid rgba(139, 115, 75, 0.10)',
+                    fontFamily: tokens.fontBody,
+                    color: p === page ? tokens.bg : tokens.textSecondary,
+                    background: p === page ? tokens.accent : 'transparent',
+                    border: p === page ? 'none' : `1px solid ${tokens.border}`,
                     borderRadius: 4,
                     cursor: 'pointer',
                     transition: 'background 200ms, color 200ms',
@@ -426,14 +427,14 @@ export function GalleryPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderTop: '1px solid rgba(139, 115, 75, 0.10)',
+          borderTop: `1px solid ${tokens.border}`,
           marginTop: 'auto',
         }}
       >
-        <span style={{ fontSize: 11, color: '#6b5d48', fontFamily: 'var(--font-body)' }}>
+        <span style={{ fontSize: 11, color: tokens.textSecondary, fontFamily: tokens.fontBody }}>
           {images.length} 张作品
         </span>
-        <span style={{ fontSize: 11, color: '#6b5d48', fontFamily: 'var(--font-body)' }}>
+        <span style={{ fontSize: 11, color: tokens.textSecondary, fontFamily: tokens.fontBody }}>
           第 {page} / {totalPages} 页
         </span>
       </div>
@@ -451,12 +452,12 @@ export function GalleryPage() {
             alignItems: 'center',
             gap: 12,
             padding: '10px 20px',
-            background: '#2a2118',
-            color: '#f2ede4',
+            background: tokens.text,
+            color: tokens.bg,
             borderRadius: 8,
             boxShadow: 'rgba(0,0,0,0.25) 0px 8px 32px',
             animation: 'slideUp 200ms ease-out',
-            fontFamily: 'var(--font-body)',
+            fontFamily: tokens.fontBody,
           }}
         >
           <style>{`@keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }`}</style>
@@ -470,9 +471,9 @@ export function GalleryPage() {
             disabled={batchDeleting}
             style={{
               fontSize: 12,
-              fontFamily: 'var(--font-display)',
-              color: '#f2ede4',
-              background: '#8b3030',
+              fontFamily: tokens.fontDisplay,
+              color: tokens.bg,
+              background: tokens.danger,
               border: 'none',
               padding: '6px 16px',
               borderRadius: 4,
@@ -488,8 +489,8 @@ export function GalleryPage() {
             onClick={clearSelection}
             style={{
               fontSize: 12,
-              fontFamily: 'var(--font-display)',
-              color: '#f2ede4',
+              fontFamily: tokens.fontDisplay,
+              color: tokens.bg,
               background: 'rgba(242,237,228,0.1)',
               border: 'none',
               padding: '6px 16px',

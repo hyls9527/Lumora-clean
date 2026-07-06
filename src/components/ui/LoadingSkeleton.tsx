@@ -1,3 +1,4 @@
+import { t } from '../../lib/tokens';
 /** 骨架屏占位块 */
 function Bone({ style }: { style?: React.CSSProperties }) {
   return (
@@ -37,7 +38,7 @@ export function GridSkeleton({ count = 8 }: { count?: number }) {
               }}
             >
               <Bone style={{ width: '100%', aspectRatio: '1' }} />
-              <div style={{ padding: '8px 10px', background: '#f2ede4' }}>
+              <div style={{ padding: '8px 10px', background: t.bg }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <Bone style={{ width: 60, height: 11 }} />
                   <Bone style={{ width: 48, height: 11 }} />

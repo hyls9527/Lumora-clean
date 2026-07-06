@@ -7,6 +7,7 @@ import {
 import { useEmbeddingStore } from '../../stores/embeddingStore';
 import { useTranslation } from '../../lib/i18n';
 import { formatFileSize } from '../../lib/format';
+import { t as tokens } from '../../lib/tokens';
 
 /** Dotted separator row for directory-style layout */
 function DotRow({
@@ -28,8 +29,8 @@ function DotRow({
       <span
         style={{
           fontSize: 12,
-          color: '#6b5d48',
-          fontFamily: 'var(--font-body)',
+          color: tokens.textSecondary,
+          fontFamily: tokens.fontBody,
           whiteSpace: 'nowrap',
           flexShrink: 0,
         }}
@@ -46,8 +47,8 @@ function DotRow({
       <span
         style={{
           fontSize: 12,
-          color: '#2a2118',
-          fontFamily: 'var(--font-body)',
+          color: tokens.text,
+          fontFamily: tokens.fontBody,
           fontWeight: 500,
           whiteSpace: 'nowrap',
           flexShrink: 0,
@@ -66,8 +67,8 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
       style={{
         fontSize: 11,
         fontWeight: 700,
-        fontFamily: 'var(--font-display)',
-        color: '#7a5c12',
+        fontFamily: tokens.fontDisplay,
+        color: tokens.accent,
         letterSpacing: '0.1em',
         textTransform: 'uppercase',
         margin: '0 0 14px',
@@ -148,7 +149,7 @@ export function DashboardPage() {
           zIndex: 10,
           padding: '12px 16px',
           background: 'var(--color-bg)',
-          borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
+          borderBottom: `1px solid ${tokens.border}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -158,8 +159,8 @@ export function DashboardPage() {
           style={{
             fontSize: 20,
             fontWeight: 600,
-            fontFamily: 'var(--font-display)',
-            color: '#2a2118',
+            fontFamily: tokens.fontDisplay,
+            color: tokens.text,
             margin: 0,
           }}
         >
@@ -169,8 +170,8 @@ export function DashboardPage() {
           <span
             style={{
               fontSize: 10,
-              color: '#a09480',
-              fontFamily: 'var(--font-body)',
+              color: tokens.textMuted,
+              fontFamily: tokens.fontBody,
             }}
           >
             {stats.totalImages} {t('dashboard.images')}
@@ -186,8 +187,8 @@ export function DashboardPage() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#a09480',
-            fontFamily: 'var(--font-body)',
+            color: tokens.textMuted,
+            fontFamily: tokens.fontBody,
             fontSize: 12,
           }}
         >
@@ -202,8 +203,8 @@ export function DashboardPage() {
             alignItems: 'center',
             justifyContent: 'center',
             gap: 12,
-            color: '#a09480',
-            fontFamily: 'var(--font-body)',
+            color: tokens.textMuted,
+            fontFamily: tokens.fontBody,
             fontSize: 12,
           }}
         >
@@ -213,8 +214,8 @@ export function DashboardPage() {
             onClick={load}
             style={{
               fontSize: 11,
-              fontFamily: 'var(--font-display)',
-              color: '#7a5c12',
+              fontFamily: tokens.fontDisplay,
+              color: tokens.accent,
               background: 'none',
               border: '1px solid rgba(122, 92, 18, 0.2)',
               padding: '4px 14px',
@@ -270,8 +271,8 @@ export function DashboardPage() {
                 <span
                   style={{
                     fontSize: 12,
-                    color: '#a09480',
-                    fontFamily: 'var(--font-body)',
+                    color: tokens.textMuted,
+                    fontFamily: tokens.fontBody,
                   }}
                 >
                   {t('dashboard.loading')}
@@ -303,8 +304,8 @@ export function DashboardPage() {
                 <span
                   style={{
                     fontSize: 12,
-                    color: '#a09480',
-                    fontFamily: 'var(--font-body)',
+                    color: tokens.textMuted,
+                    fontFamily: tokens.fontBody,
                   }}
                 >
                   {t('dashboard.noData')}
@@ -327,8 +328,8 @@ export function DashboardPage() {
                 <span
                   style={{
                     fontSize: 12,
-                    color: '#a09480',
-                    fontFamily: 'var(--font-body)',
+                    color: tokens.textMuted,
+                    fontFamily: tokens.fontBody,
                   }}
                 >
                   {t('dashboard.noData')}
@@ -383,8 +384,8 @@ export function DashboardPage() {
                 <span
                   style={{
                     fontSize: 12,
-                    color: '#a09480',
-                    fontFamily: 'var(--font-body)',
+                    color: tokens.textMuted,
+                    fontFamily: tokens.fontBody,
                   }}
                 >
                   {t('dashboard.noTags')}
@@ -404,8 +405,8 @@ export function DashboardPage() {
               <span
                 style={{
                   fontSize: 12,
-                  color: '#a09480',
-                  fontFamily: 'var(--font-body)',
+                  color: tokens.textMuted,
+                  fontFamily: tokens.fontBody,
                 }}
               >
                 {t('dashboard.noRecent')}
@@ -446,8 +447,8 @@ export function DashboardPage() {
                       <span
                         style={{
                           fontSize: 9,
-                          color: '#a09480',
-                          fontFamily: 'var(--font-body)',
+                          color: tokens.textMuted,
+                          fontFamily: tokens.fontBody,
                           textTransform: 'uppercase',
                         }}
                       >
@@ -463,8 +464,8 @@ export function DashboardPage() {
                       <div
                         style={{
                           fontSize: 12,
-                          color: '#2a2118',
-                          fontFamily: 'var(--font-body)',
+                          color: tokens.text,
+                          fontFamily: tokens.fontBody,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap',
@@ -475,8 +476,8 @@ export function DashboardPage() {
                       <div
                         style={{
                           fontSize: 10,
-                          color: '#a09480',
-                          fontFamily: 'var(--font-body)',
+                          color: tokens.textMuted,
+                          fontFamily: tokens.fontBody,
                           marginTop: 2,
                         }}
                       >
@@ -486,8 +487,8 @@ export function DashboardPage() {
                     <span
                       style={{
                         fontSize: 10,
-                        color: '#a09480',
-                        fontFamily: 'var(--font-body)',
+                        color: tokens.textMuted,
+                        fontFamily: tokens.fontBody,
                         whiteSpace: 'nowrap',
                         flexShrink: 0,
                       }}
@@ -506,15 +507,15 @@ export function DashboardPage() {
       <div
         style={{
           padding: '12px 16px',
-          borderTop: '1px solid rgba(139, 115, 75, 0.10)',
+          borderTop: `1px solid ${tokens.border}`,
           marginTop: 'auto',
         }}
       >
         <span
           style={{
             fontSize: 11,
-            color: '#6b5d48',
-            fontFamily: 'var(--font-body)',
+            color: tokens.textSecondary,
+            fontFamily: tokens.fontBody,
           }}
         >
           {stats

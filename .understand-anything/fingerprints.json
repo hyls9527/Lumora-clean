@@ -1,98 +1,8 @@
 {
   "version": "1.0.0",
-  "gitCommitHash": "3201d73a9e0b3a8ae32ac88c66f4b06366923958",
-  "generatedAt": "2026-07-05T10:28:08.907Z",
+  "gitCommitHash": "a96f2a592938aaf582d2fb6601f40ac9e7cf85b9",
+  "generatedAt": "2026-07-05T14:55:19.656Z",
   "files": {
-    ".github/CODEOWNERS": {
-      "filePath": ".github/CODEOWNERS",
-      "contentHash": "00e29cf5a98b0487de78ced3ac39a0fdd18f9ad0b7dc913ebf26ed57a3436610",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 3,
-      "hasStructuralAnalysis": false
-    },
-    ".github/dependabot.yml": {
-      "filePath": ".github/dependabot.yml",
-      "contentHash": "0de3d40ebf582982d644734f00b4fdda62810c63552d3a335fcd4c3fbf0d1d4d",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 19,
-      "hasStructuralAnalysis": true
-    },
-    ".github/ISSUE_TEMPLATE/bug_report.yml": {
-      "filePath": ".github/ISSUE_TEMPLATE/bug_report.yml",
-      "contentHash": "73924b337879072c8e6edc095c2141c67e8067b6919b104dfcabab0051a76690",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 80,
-      "hasStructuralAnalysis": true
-    },
-    ".github/ISSUE_TEMPLATE/feature_request.yml": {
-      "filePath": ".github/ISSUE_TEMPLATE/feature_request.yml",
-      "contentHash": "42e6f767bc1bc2a47b4b208fb6178663290fc71268e9686341604bfa11bbcd38",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 60,
-      "hasStructuralAnalysis": true
-    },
-    ".github/PULL_REQUEST_TEMPLATE.md": {
-      "filePath": ".github/PULL_REQUEST_TEMPLATE.md",
-      "contentHash": "e912ada0e59ef968702a7283e5e10154dd71f153f9f89b651518fae6d5d30a73",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 24,
-      "hasStructuralAnalysis": true
-    },
-    ".github/workflows/ci.yml": {
-      "filePath": ".github/workflows/ci.yml",
-      "contentHash": "62e3ba74f5d24608f6af73e837726e7144ee244c6decea9cc063df8383d082af",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 63,
-      "hasStructuralAnalysis": true
-    },
-    ".github/workflows/release.yml": {
-      "filePath": ".github/workflows/release.yml",
-      "contentHash": "9eca76b3fbda57124c5ffb9771c3dc01117a4c3f392d615e3ba7b904f7272c81",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 157,
-      "hasStructuralAnalysis": true
-    },
-    ".understand-anything/.understandignore": {
-      "filePath": ".understand-anything/.understandignore",
-      "contentHash": "a52d837838e522afba038486516acab08c297e68fc1726d23522a19b79cc8bfb",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 63,
-      "hasStructuralAnalysis": false
-    },
-    ".understand-anything/config.json": {
-      "filePath": ".understand-anything/config.json",
-      "contentHash": "8c3a9d19059e85bec2c97b88b9416907cb3febd8c157599ffd99684a17a954f9",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 5,
-      "hasStructuralAnalysis": true
-    },
     "ARCHITECTURE.md": {
       "filePath": "ARCHITECTURE.md",
       "contentHash": "f75a1a239ccfa2fac634180cce31fb5f3f6ecb9ae319175facd3c6080cc159c8",
@@ -153,26 +63,6 @@
       "totalLines": 114,
       "hasStructuralAnalysis": true
     },
-    "index.html": {
-      "filePath": "index.html",
-      "contentHash": "0c32aade171d86d21fb3eff95f87b4618dfd1e6f9e5a4df5ce6ad3d8ef0c1949",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 34,
-      "hasStructuralAnalysis": false
-    },
-    "package.json": {
-      "filePath": "package.json",
-      "contentHash": "e1aa70de22513cf40e994609a5469f18bb82038d8033544d862f5694bfab08b8",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 41,
-      "hasStructuralAnalysis": true
-    },
     "README.md": {
       "filePath": "README.md",
       "contentHash": "bc3ad56c3bbfd282304eac42f3987f241794a0b0a9f97036ccb15739787f7f27",
@@ -193,6 +83,66 @@
       "totalLines": 39,
       "hasStructuralAnalysis": true
     },
+    "index.html": {
+      "filePath": "index.html",
+      "contentHash": "0c32aade171d86d21fb3eff95f87b4618dfd1e6f9e5a4df5ce6ad3d8ef0c1949",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 34,
+      "hasStructuralAnalysis": false
+    },
+    "package.json": {
+      "filePath": "package.json",
+      "contentHash": "0459d388b53271e6e9826b3d92e1ca8f48a3efe8eb90fcb4ba58e7d9aeab9ad0",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 40,
+      "hasStructuralAnalysis": true
+    },
+    "tsconfig.json": {
+      "filePath": "tsconfig.json",
+      "contentHash": "0de1bb2f52856b5003aaabb322aa71a8a38756728943d0380e1e59168145cb6b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 23,
+      "hasStructuralAnalysis": true
+    },
+    ".github/CODEOWNERS": {
+      "filePath": ".github/CODEOWNERS",
+      "contentHash": "00e29cf5a98b0487de78ced3ac39a0fdd18f9ad0b7dc913ebf26ed57a3436610",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 3,
+      "hasStructuralAnalysis": false
+    },
+    ".understand-anything/.understandignore": {
+      "filePath": ".understand-anything/.understandignore",
+      "contentHash": "a52d837838e522afba038486516acab08c297e68fc1726d23522a19b79cc8bfb",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 63,
+      "hasStructuralAnalysis": false
+    },
+    "src-tauri/Lumora.exe.manifest": {
+      "filePath": "src-tauri/Lumora.exe.manifest",
+      "contentHash": "5131d552e0c99f705496dbae392c04b7183606c51f4e78ac35bfd9592d62589c",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 22,
+      "hasStructuralAnalysis": false
+    },
     "src-tauri/build.rs": {
       "filePath": "src-tauri/build.rs",
       "contentHash": "4419c8741947186103ef4b88ff0d085dd43a6c6306e5fb0f6121b7c638504e99",
@@ -210,46 +160,6 @@
       "totalLines": 7,
       "hasStructuralAnalysis": true
     },
-    "src-tauri/capabilities/default.json": {
-      "filePath": "src-tauri/capabilities/default.json",
-      "contentHash": "41bd758e61ca5b1b8b8243482d312f178b5f8e83807b35451da572c3f2c498d8",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 13,
-      "hasStructuralAnalysis": true
-    },
-    "src-tauri/Cargo.toml": {
-      "filePath": "src-tauri/Cargo.toml",
-      "contentHash": "ed61d2a95d4c041400ba46f34b495e8ab8ff1d213074f8c93b43dd63f1869ffd",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 36,
-      "hasStructuralAnalysis": true
-    },
-    "src-tauri/icons/android/mipmap-anydpi-v26/ic_launcher.xml": {
-      "filePath": "src-tauri/icons/android/mipmap-anydpi-v26/ic_launcher.xml",
-      "contentHash": "760d4b8a06bf7163dd010c33ad2cac9e4a75fa0177afaba042f83e311eef0c3e",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 5,
-      "hasStructuralAnalysis": false
-    },
-    "src-tauri/icons/android/values/ic_launcher_background.xml": {
-      "filePath": "src-tauri/icons/android/values/ic_launcher_background.xml",
-      "contentHash": "0687336f0ccc6f7ee09c7c95110667c63b75931238df779a21af401fb864cd34",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 4,
-      "hasStructuralAnalysis": false
-    },
     "src-tauri/icons/icon.icns": {
       "filePath": "src-tauri/icons/icon.icns",
       "contentHash": "3aa168f5d07c848c19a29d59c5ff0c6a2ac9c1d321fb5267d3a0bdd72500ac26",
@@ -258,16 +168,6 @@
       "imports": [],
       "exports": [],
       "totalLines": 10075,
-      "hasStructuralAnalysis": false
-    },
-    "src-tauri/Lumora.exe.manifest": {
-      "filePath": "src-tauri/Lumora.exe.manifest",
-      "contentHash": "5131d552e0c99f705496dbae392c04b7183606c51f4e78ac35bfd9592d62589c",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 22,
       "hasStructuralAnalysis": false
     },
     "src-tauri/nsis/installer-hooks.nsh": {
@@ -374,16 +274,6 @@
       ],
       "totalLines": 119,
       "hasStructuralAnalysis": true
-    },
-    "src-tauri/sidecar/requirements.txt": {
-      "filePath": "src-tauri/sidecar/requirements.txt",
-      "contentHash": "826eab374716db599775fcb0baedba9126dc975b9672590dc755bd133952a94c",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 4,
-      "hasStructuralAnalysis": false
     },
     "src-tauri/src/commands/ai.rs": {
       "filePath": "src-tauri/src/commands/ai.rs",
@@ -2615,13 +2505,13 @@
     },
     "src/App.tsx": {
       "filePath": "src/App.tsx",
-      "contentHash": "936be9a31007ad3e3251ced5720bb36ff69c7ad9f5bd6e235816e5c3043570f4",
+      "contentHash": "c9b0081e1188057e7b415b1dc42e3543507f96fab38ca9fb6b0c8e4adba6b31c",
       "functions": [
         {
           "name": "App",
           "params": [],
           "exported": false,
-          "lineCount": 81
+          "lineCount": 84
         },
         {
           "name": "Loading",
@@ -2705,7 +2595,7 @@
         }
       ],
       "exports": [],
-      "totalLines": 109,
+      "totalLines": 112,
       "hasStructuralAnalysis": true
     },
     "src/components/ui/__tests__/accessibility.test.ts": {
@@ -3351,7 +3241,7 @@
     },
     "src/components/ui/ImageCard.tsx": {
       "filePath": "src/components/ui/ImageCard.tsx",
-      "contentHash": "30445a91b4092fcde003696d7b0c946743efa91cec3b0eb6700e1430acdbc834",
+      "contentHash": "4b12e496c1c27ee018939d97b5fad5c03b448b770fd36eba02a4a74a5bfff060",
       "functions": [],
       "classes": [],
       "imports": [
@@ -3433,7 +3323,7 @@
       "exports": [
         "ImageCard"
       ],
-      "totalLines": 230,
+      "totalLines": 231,
       "hasStructuralAnalysis": true
     },
     "src/components/ui/InfiniteScroll.tsx": {
@@ -3977,13 +3867,13 @@
     },
     "src/features/favorites/FavoritesPage.tsx": {
       "filePath": "src/features/favorites/FavoritesPage.tsx",
-      "contentHash": "2c63021aa42ee1a117eb5b771f0274daafc806d8da20d0dfe4cf2ec14e6bdc45",
+      "contentHash": "4ed3284a774e97ecd1fe42b0cb4ac7df75a34673ac49800cc00af3eb5a7dfea3",
       "functions": [
         {
           "name": "FavoritesPage",
           "params": [],
           "exported": true,
-          "lineCount": 164
+          "lineCount": 169
         }
       ],
       "classes": [],
@@ -4036,12 +3926,12 @@
       "exports": [
         "FavoritesPage"
       ],
-      "totalLines": 175,
+      "totalLines": 180,
       "hasStructuralAnalysis": true
     },
     "src/features/gallery/GalleryPage.tsx": {
       "filePath": "src/features/gallery/GalleryPage.tsx",
-      "contentHash": "ab7e9f7b74e82718800b8616eb8b6c911af860d2cac18d65cb6fd98aee1ee5f7",
+      "contentHash": "84de30266b270291d55ced85e1152ba7668beb3f614fed6cbe4ef0ae935141d1",
       "functions": [
         {
           "name": "SortButton",
@@ -4071,7 +3961,7 @@
           "name": "GalleryPage",
           "params": [],
           "exported": true,
-          "lineCount": 445
+          "lineCount": 492
         }
       ],
       "classes": [],
@@ -4167,7 +4057,7 @@
       "exports": [
         "GalleryPage"
       ],
-      "totalLines": 561,
+      "totalLines": 608,
       "hasStructuralAnalysis": true
     },
     "src/features/import/ImportPage.tsx": {
@@ -4347,7 +4237,7 @@
     },
     "src/features/settings/SettingsPage.tsx": {
       "filePath": "src/features/settings/SettingsPage.tsx",
-      "contentHash": "dd004ca93511c42e1c422d094f8bdcacd457a62b8a7e673af0f0dcec7bc82822",
+      "contentHash": "f5b24a067f159c84880735ebb080d233a5f2b331bb383088a24f5921221c6f3e",
       "functions": [
         {
           "name": "SectionHeading",
@@ -4385,7 +4275,7 @@
           "name": "SettingsPage",
           "params": [],
           "exported": true,
-          "lineCount": 156
+          "lineCount": 188
         }
       ],
       "classes": [],
@@ -4412,18 +4302,18 @@
       "exports": [
         "SettingsPage"
       ],
-      "totalLines": 299,
+      "totalLines": 331,
       "hasStructuralAnalysis": true
     },
     "src/features/tags/TagManager.tsx": {
       "filePath": "src/features/tags/TagManager.tsx",
-      "contentHash": "9a510da9570d65a532dfb5a93ea743c459a1199b4ed1f0ce6cac7e7f4c5eace6",
+      "contentHash": "afceb71926d1c26053973d279db4a57bc2019b7826f508f5a57c87573cfd2b3e",
       "functions": [
         {
           "name": "TagManager",
           "params": [],
           "exported": true,
-          "lineCount": 353
+          "lineCount": 362
         }
       ],
       "classes": [],
@@ -4452,12 +4342,12 @@
       "exports": [
         "TagManager"
       ],
-      "totalLines": 380,
+      "totalLines": 389,
       "hasStructuralAnalysis": true
     },
     "src/features/trash/TrashPage.tsx": {
       "filePath": "src/features/trash/TrashPage.tsx",
-      "contentHash": "6d547c27424b1cb045a8a597cc39a386283d2b0b3c3cbc9a3bdc3be485b43c4e",
+      "contentHash": "af356a32d3279a25a40a3e5a939a6097070b5ffaee24eaf917064f138b76e6a6",
       "functions": [
         {
           "name": "formatDeletedTime",
@@ -4472,7 +4362,7 @@
           "name": "TrashPage",
           "params": [],
           "exported": true,
-          "lineCount": 416
+          "lineCount": 420
         }
       ],
       "classes": [],
@@ -4512,7 +4402,7 @@
       "exports": [
         "TrashPage"
       ],
-      "totalLines": 441,
+      "totalLines": 445,
       "hasStructuralAnalysis": true
     },
     "src/hooks/__tests__/useImageActions.test.ts": {
@@ -4739,7 +4629,7 @@
     },
     "src/hooks/useKeyboardNav.ts": {
       "filePath": "src/hooks/useKeyboardNav.ts",
-      "contentHash": "b9b89b784a9cd4cfc292a2c7a7ee4c19431ba7d816d7b22e1b20053c7ccea81d",
+      "contentHash": "f86e9445add3c3d3a220fb2dd6ce43e0a0fe79301d2bb7714b9020cad38e3ede",
       "functions": [
         {
           "name": "useKeyboardNav",
@@ -4747,7 +4637,7 @@
             "{\r\n  route,\r\n  onArrowUp,\r\n  onArrowDown,\r\n  onArrowLeft,\r\n  onArrowRight,\r\n  onEnter,\r\n  onSpace,\r\n  onEscape,\r\n  onDelete,\r\n  onFavorite,\r\n  onRate,\r\n}"
           ],
           "exported": true,
-          "lineCount": 81
+          "lineCount": 80
         }
       ],
       "classes": [],
@@ -4768,12 +4658,12 @@
       "exports": [
         "useKeyboardNav"
       ],
-      "totalLines": 101,
+      "totalLines": 100,
       "hasStructuralAnalysis": true
     },
     "src/hooks/useMediaQuery.ts": {
       "filePath": "src/hooks/useMediaQuery.ts",
-      "contentHash": "5734a17dac9e237ea393944ab7914047a6824c2d89f418bdcdb1f59da4e1494c",
+      "contentHash": "59ac47f26bf7322ab02b422ab73421c8778cc05ebc7ecf4ffe8ba6d43f98a61a",
       "functions": [
         {
           "name": "useMediaQuery",
@@ -4786,27 +4676,6 @@
         },
         {
           "name": "useIsMobile",
-          "params": [],
-          "returnType": "boolean",
-          "exported": true,
-          "lineCount": 3
-        },
-        {
-          "name": "useIsTablet",
-          "params": [],
-          "returnType": "boolean",
-          "exported": true,
-          "lineCount": 3
-        },
-        {
-          "name": "useIsDesktop",
-          "params": [],
-          "returnType": "boolean",
-          "exported": true,
-          "lineCount": 3
-        },
-        {
-          "name": "useIsSmallPhone",
           "params": [],
           "returnType": "boolean",
           "exported": true,
@@ -4825,12 +4694,9 @@
       ],
       "exports": [
         "useMediaQuery",
-        "useIsMobile",
-        "useIsTablet",
-        "useIsDesktop",
-        "useIsSmallPhone"
+        "useIsMobile"
       ],
-      "totalLines": 58,
+      "totalLines": 43,
       "hasStructuralAnalysis": true
     },
     "src/hooks/useOllamaStatus.ts": {
@@ -5073,7 +4939,7 @@
     },
     "src/lib/api/__tests__/semanticCache.test.ts": {
       "filePath": "src/lib/api/__tests__/semanticCache.test.ts",
-      "contentHash": "4b064d5d60342b84eb9b8b801fd5d14f43f0177f472b70d4eae651b5aa959c97",
+      "contentHash": "a85be4681a744f1a2caa8a3ecfaef5c1e30a9781bca2ef9526b143b7d83e06ac",
       "functions": [],
       "classes": [],
       "imports": [
@@ -5101,13 +4967,12 @@
             "invalidateSemanticCache",
             "getCachedResult",
             "setCachedResult",
-            "isCacheValid",
-            "getCacheStats"
+            "isCacheValid"
           ]
         }
       ],
       "exports": [],
-      "totalLines": 188,
+      "totalLines": 159,
       "hasStructuralAnalysis": true
     },
     "src/lib/api/__tests__/type-contract.test.ts": {
@@ -5256,7 +5121,7 @@
     },
     "src/lib/api/embeddings.ts": {
       "filePath": "src/lib/api/embeddings.ts",
-      "contentHash": "f53296124d891fc45e182389e79f3ed5136544ccd075db9b6503631623125dfe",
+      "contentHash": "20946edb0556efe335b630b7a93d14d2afa7d7b6d81d69b5621278f26b44239a",
       "functions": [
         {
           "name": "getEmbeddingStatus",
@@ -5275,16 +5140,6 @@
           "returnType": "Promise<void>",
           "exported": true,
           "lineCount": 21
-        },
-        {
-          "name": "storeEmbedding",
-          "params": [
-            "imageId",
-            "embedding"
-          ],
-          "returnType": "Promise<void>",
-          "exported": true,
-          "lineCount": 6
         },
         {
           "name": "getEmbeddingStats",
@@ -5312,10 +5167,9 @@
       "exports": [
         "getEmbeddingStatus",
         "generateEmbeddings",
-        "storeEmbedding",
         "getEmbeddingStats"
       ],
-      "totalLines": 92,
+      "totalLines": 81,
       "hasStructuralAnalysis": true
     },
     "src/lib/api/images.ts": {
@@ -5627,7 +5481,7 @@
     },
     "src/lib/api/semanticCache.ts": {
       "filePath": "src/lib/api/semanticCache.ts",
-      "contentHash": "b366bd30ce21ba16500d126b95903994905d501b132b6c93a61904940d9a6eab",
+      "contentHash": "9c676631cf638fbba073c6cbe9363c914b0b677097ffd875dbe76d130dda1d18",
       "functions": [
         {
           "name": "normalizeQuery",
@@ -5637,23 +5491,6 @@
           "returnType": "string",
           "exported": false,
           "lineCount": 3
-        },
-        {
-          "name": "estimateBytes",
-          "params": [
-            "key",
-            "results"
-          ],
-          "returnType": "number",
-          "exported": false,
-          "lineCount": 9
-        },
-        {
-          "name": "evict",
-          "params": [],
-          "returnType": "void",
-          "exported": false,
-          "lineCount": 12
         },
         {
           "name": "isExpired",
@@ -5669,14 +5506,14 @@
           "params": [],
           "returnType": "void",
           "exported": false,
-          "lineCount": 19
+          "lineCount": 14
         },
         {
           "name": "persist",
           "params": [],
           "returnType": "void",
           "exported": false,
-          "lineCount": 26
+          "lineCount": 12
         },
         {
           "name": "getCachedResult",
@@ -5685,7 +5522,7 @@
           ],
           "returnType": "{ id: string; similarity: number }[] | null",
           "exported": true,
-          "lineCount": 16
+          "lineCount": 15
         },
         {
           "name": "setCachedResult",
@@ -5695,7 +5532,7 @@
           ],
           "returnType": "void",
           "exported": true,
-          "lineCount": 22
+          "lineCount": 18
         },
         {
           "name": "isCacheValid",
@@ -5709,14 +5546,7 @@
           "params": [],
           "returnType": "void",
           "exported": true,
-          "lineCount": 11
-        },
-        {
-          "name": "getCacheStats",
-          "params": [],
-          "returnType": "{ entries: number; bytes: number; maxBytes: number }",
-          "exported": true,
-          "lineCount": 4
+          "lineCount": 9
         },
         {
           "name": "searchSemanticCached",
@@ -5726,7 +5556,7 @@
           ],
           "returnType": "Promise<{ id: string; similarity: number }[]>",
           "exported": true,
-          "lineCount": 30
+          "lineCount": 24
         }
       ],
       "classes": [],
@@ -5743,10 +5573,9 @@
         "setCachedResult",
         "isCacheValid",
         "invalidateSemanticCache",
-        "getCacheStats",
         "searchSemanticCached"
       ],
-      "totalLines": 238,
+      "totalLines": 137,
       "hasStructuralAnalysis": true
     },
     "src/lib/format.ts": {
@@ -6184,7 +6013,7 @@
     },
     "src/stores/__tests__/smartCollectionStore.test.ts": {
       "filePath": "src/stores/__tests__/smartCollectionStore.test.ts",
-      "contentHash": "2a3caf9cd2caadd7cb1cd79fec61270fe95d7fe9a53410b97a07540215386d93",
+      "contentHash": "e9668143f8a0b82ada636b8073804bb54948111383fee0207c380047758343db",
       "functions": [
         {
           "name": "makeCollection",
@@ -6194,7 +6023,7 @@
           ],
           "returnType": "SmartCollection",
           "exported": false,
-          "lineCount": 6
+          "lineCount": 4
         }
       ],
       "classes": [],
@@ -6229,7 +6058,7 @@
         }
       ],
       "exports": [],
-      "totalLines": 176,
+      "totalLines": 68,
       "hasStructuralAnalysis": true
     },
     "src/stores/__tests__/trashStore.test.ts": {
@@ -6506,7 +6335,7 @@
     },
     "src/stores/smartCollectionStore.ts": {
       "filePath": "src/stores/smartCollectionStore.ts",
-      "contentHash": "df0b1a6acbd8c7d4a45c2205944ccd86942288979a6ce537f7dab358273f4cdc",
+      "contentHash": "2f218c386d22a3017372559962d782ae5fa1be915aa0133380241c1224bf1644",
       "functions": [],
       "classes": [],
       "imports": [
@@ -6526,7 +6355,7 @@
       "exports": [
         "useSmartCollectionStore"
       ],
-      "totalLines": 67,
+      "totalLines": 39,
       "hasStructuralAnalysis": true
     },
     "src/stores/trashStore.ts": {
@@ -6578,16 +6407,6 @@
       "imports": [],
       "exports": [],
       "totalLines": 2,
-      "hasStructuralAnalysis": true
-    },
-    "tsconfig.json": {
-      "filePath": "tsconfig.json",
-      "contentHash": "0de1bb2f52856b5003aaabb322aa71a8a38756728943d0380e1e59168145cb6b",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 23,
       "hasStructuralAnalysis": true
     },
     "vite.config.ts": {

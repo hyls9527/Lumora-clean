@@ -1,3 +1,4 @@
+import { t } from '../../lib/tokens';
 interface TabButtonProps {
   active: boolean;
   onClick: () => void;
@@ -5,15 +6,15 @@ interface TabButtonProps {
   color?: string;
 }
 
-export function TabButton({ active, onClick, children, color = '#7a5c12' }: TabButtonProps) {
+export function TabButton({ active, onClick, children, color = t.accent }: TabButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
       style={{
         fontSize: 11,
-        fontFamily: 'var(--font-display)',
-        color: active ? color : '#6b5d48',
+        fontFamily: t.fontDisplay,
+        color: active ? color : t.textSecondary,
         background: 'none',
         border: 'none',
         padding: '0 0 2px',

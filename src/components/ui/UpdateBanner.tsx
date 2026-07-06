@@ -4,6 +4,7 @@
  */
 
 import { useUpdater } from '../../hooks/useUpdater';
+import { t } from '../../lib/tokens';
 
 export function UpdateBanner() {
   const { available, checking, installing, downloaded, error, updateInfo, installUpdate } = useUpdater();
@@ -17,11 +18,11 @@ export function UpdateBanner() {
         margin: '0 12px 8px',
         padding: '8px 10px',
         fontSize: 10,
-        fontFamily: 'var(--font-body)',
+        fontFamily: t.fontBody,
         background: 'rgba(122, 92, 18, 0.08)',
         border: '1px solid rgba(122, 92, 18, 0.15)',
         borderRadius: 4,
-        color: '#7a5c12',
+        color: t.accent,
       }}
     >
       <div style={{ marginBottom: 4 }}>
@@ -33,9 +34,9 @@ export function UpdateBanner() {
         disabled={installing}
         style={{
           fontSize: 10,
-          fontFamily: 'var(--font-display)',
-          color: '#f2ede4',
-          background: installing ? '#a09480' : '#7a5c12',
+          fontFamily: t.fontDisplay,
+          color: t.bg,
+          background: installing ? t.textMuted : t.accent,
           border: 'none',
           borderRadius: 4,
           padding: '4px 12px',
@@ -46,7 +47,7 @@ export function UpdateBanner() {
         {installing ? '安装中…' : '更新并重启'}
       </button>
       {error && (
-        <div style={{ marginTop: 4, color: '#8b3030', fontSize: 9 }}>
+        <div style={{ marginTop: 4, color: t.danger, fontSize: 9 }}>
           {error}
         </div>
       )}

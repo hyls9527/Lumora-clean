@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useSemanticSearchStore, type SearchMode } from '../../stores/semanticSearchStore';
 import { useTranslation } from '../../lib/i18n';
+import { t as tok } from '../../lib/tokens';
 
 export function SemanticSearchBar() {
   const { t } = useTranslation('search');
@@ -130,8 +131,8 @@ export function SemanticSearchBar() {
               width: '100%',
               padding: '14px 110px 14px 20px',
               fontSize: 15,
-              fontFamily: 'var(--font-body)',
-              color: '#2a2118',
+              fontFamily: tok.fontBody,
+              color: tok.text,
               background: 'var(--color-surface)',
               border: '1px solid rgba(139, 115, 75, 0.10)',
               borderRadius: 4,
@@ -158,7 +159,7 @@ export function SemanticSearchBar() {
                   width: 32,
                   height: 32,
                   fontSize: 16,
-                  color: '#6b5d48',
+                  color: tok.textSecondary,
                   background: 'none',
                   border: '1px solid rgba(139, 115, 75, 0.10)',
                   borderRadius: 4,
@@ -182,9 +183,9 @@ export function SemanticSearchBar() {
                 padding: '8px 20px',
                 fontSize: 13,
                 fontWeight: 500,
-                fontFamily: 'var(--font-display)',
-                color: '#f2ede4',
-                background: loading ? '#a09480' : '#7a5c12',
+                fontFamily: tok.fontDisplay,
+                color: tok.bg,
+                background: loading ? tok.textMuted : tok.accent,
                 border: 'none',
                 borderRadius: 4,
                 cursor: loading ? 'wait' : 'pointer',
@@ -229,8 +230,8 @@ export function SemanticSearchBar() {
                 style={{
                   padding: '10px 20px',
                   fontSize: 13,
-                  fontFamily: 'var(--font-body)',
-                  color: '#2a2118',
+                  fontFamily: tok.fontBody,
+                  color: tok.text,
                   cursor: 'pointer',
                   borderBottom:
                     i < suggestions.length - 1
@@ -258,8 +259,8 @@ export function SemanticSearchBar() {
         <p
           style={{
             fontSize: 12,
-            color: '#a09480',
-            fontFamily: 'var(--font-body)',
+            color: tok.textMuted,
+            fontFamily: tok.fontBody,
             marginTop: 12,
             textAlign: 'center',
             transition: 'opacity 200ms',
@@ -291,11 +292,11 @@ function ModeButton({
         padding: '0 0 8px',
         fontSize: 13,
         fontWeight: 500,
-        fontFamily: 'var(--font-display)',
-        color: active ? '#7a5c12' : '#6b5d48',
+        fontFamily: tok.fontDisplay,
+        color: active ? tok.accent : tok.textSecondary,
         background: 'none',
         border: 'none',
-        borderBottom: `2px solid ${active ? '#7a5c12' : 'transparent'}`,
+        borderBottom: `2px solid ${active ? tok.accent : 'transparent'}`,
         cursor: 'pointer',
         transition: 'color 200ms, border-color 200ms',
         marginRight: 24,

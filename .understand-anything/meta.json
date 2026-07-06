@@ -1,6 +1,18 @@
 {
-  "lastAnalyzedAt": "2026-07-05T18:30:00Z",
-  "gitCommitHash": "3201d73a9e0b3a8ae32ac88c66f4b06366923958",
-  "version": "1.0.0",
-  "analyzedFiles": 145
+  "schemaVersion": 1,
+  "commitHash": "a96f2a592938aaf582d2fb6601f40ac9e7cf85b9",
+  "projectName": "Lumora",
+  "totalFiles": 133,
+  "totalNodes": 321,
+  "totalEdges": 318,
+  "totalLayers": 14,
+  "tourSteps": 7,
+  "generatedAt": "2026-07-05T00:00:00Z",
+  "language": "zh",
+  "batches": 7,
+  "validation": {
+    "passed": true,
+    "errorCount": 0,
+    "warningCount": 1
+  }
 }

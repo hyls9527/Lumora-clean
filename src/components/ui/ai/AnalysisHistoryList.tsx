@@ -1,5 +1,6 @@
 import type { AnalysisHistoryItem } from '../../../lib/api/ai';
 import { useTranslation } from '../../../lib/i18n';
+import { t as tok } from '../../../lib/tokens';
 
 interface AnalysisHistoryListProps {
   items: AnalysisHistoryItem[];
@@ -24,8 +25,8 @@ export function AnalysisHistoryList({ items }: AnalysisHistoryListProps) {
       <div
         style={{
           fontSize: 10,
-          fontFamily: 'var(--font-display)',
-          color: '#a09480',
+          fontFamily: tok.fontDisplay,
+          color: tok.textMuted,
           textTransform: 'uppercase',
           letterSpacing: '0.5px',
           marginBottom: 6,
@@ -48,8 +49,8 @@ export function AnalysisHistoryList({ items }: AnalysisHistoryListProps) {
             <span
               style={{
                 fontSize: 11,
-                fontFamily: 'var(--font-body)',
-                color: '#6b5d48',
+                fontFamily: tok.fontBody,
+                color: tok.textSecondary,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -63,7 +64,7 @@ export function AnalysisHistoryList({ items }: AnalysisHistoryListProps) {
               style={{
                 fontSize: 10,
                 fontFamily: 'var(--font-mono, "JetBrains Mono", monospace)',
-                color: '#a09480',
+                color: tok.textMuted,
                 flexShrink: 0,
                 marginLeft: 8,
               }}

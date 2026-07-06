@@ -1,3 +1,4 @@
+import { t } from '../../lib/tokens';
 interface DropOverlayProps {
   isVisible: boolean;
 }
@@ -39,7 +40,7 @@ export function DropOverlay({ isVisible }: DropOverlayProps) {
         <div
           style={{
             fontSize: 32,
-            color: '#7a5c12',
+            color: t.accent,
           }}
         >
           ↓
@@ -47,8 +48,8 @@ export function DropOverlay({ isVisible }: DropOverlayProps) {
         <div
           style={{
             fontSize: 16,
-            fontFamily: 'var(--font-display)',
-            color: '#2a2118',
+            fontFamily: t.fontDisplay,
+            color: t.text,
           }}
         >
           松开以导入图片
@@ -56,8 +57,8 @@ export function DropOverlay({ isVisible }: DropOverlayProps) {
         <div
           style={{
             fontSize: 12,
-            fontFamily: 'var(--font-body)',
-            color: '#a09480',
+            fontFamily: t.fontBody,
+            color: t.textMuted,
           }}
         >
           支持文件和文件夹

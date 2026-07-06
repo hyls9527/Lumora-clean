@@ -1,3 +1,4 @@
+import { t } from '../../lib/tokens';
 /** Plum-blossom stamp SVG for rating display (梅花印) */
 export function PlumStamp({ filled }: { filled: boolean }) {
   return (
@@ -10,12 +11,12 @@ export function PlumStamp({ filled }: { filled: boolean }) {
       aria-hidden="true"
     >
       {/* Five-petal plum blossom */}
-      <circle cx="9" cy="5" r="3" fill={filled ? '#7a5c12' : '#c4b89e'} />
-      <circle cx="5.5" cy="8.5" r="3" fill={filled ? '#7a5c12' : '#c4b89e'} />
-      <circle cx="12.5" cy="8.5" r="3" fill={filled ? '#7a5c12' : '#c4b89e'} />
-      <circle cx="6.5" cy="13" r="3" fill={filled ? '#7a5c12' : '#c4b89e'} />
-      <circle cx="11.5" cy="13" r="3" fill={filled ? '#7a5c12' : '#c4b89e'} />
-      <circle cx="9" cy="9.5" r="1.5" fill={filled ? '#f2ede4' : '#ebe5d8'} />
+      <circle cx="9" cy="5" r="3" fill={filled ? t.accent : t.textFaint} />
+      <circle cx="5.5" cy="8.5" r="3" fill={filled ? t.accent : t.textFaint} />
+      <circle cx="12.5" cy="8.5" r="3" fill={filled ? t.accent : t.textFaint} />
+      <circle cx="6.5" cy="13" r="3" fill={filled ? t.accent : t.textFaint} />
+      <circle cx="11.5" cy="13" r="3" fill={filled ? t.accent : t.textFaint} />
+      <circle cx="9" cy="9.5" r="1.5" fill={filled ? t.bg : '#ebe5d8'} />
     </svg>
   );
 }

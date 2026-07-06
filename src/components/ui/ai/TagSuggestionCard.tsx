@@ -1,5 +1,6 @@
 import { useTranslation } from '../../../lib/i18n';
 import type { AnalysisTag } from '../../../lib/api/ai';
+import { t as tok } from '../../../lib/tokens';
 
 interface TagSuggestionCardProps {
   tag: AnalysisTag;
@@ -38,8 +39,8 @@ export function TagSuggestionCard({
         <span
           style={{
             fontSize: 12,
-            fontFamily: 'var(--font-body)',
-            color: '#a09480',
+            fontFamily: tok.fontBody,
+            color: tok.textMuted,
             textDecoration: 'line-through',
           }}
         >
@@ -48,8 +49,8 @@ export function TagSuggestionCard({
         <span
           style={{
             fontSize: 10,
-            fontFamily: 'var(--font-body)',
-            color: '#c4b89e',
+            fontFamily: tok.fontBody,
+            color: tok.textFaint,
           }}
         >
           {t('rejected')}
@@ -65,7 +66,7 @@ export function TagSuggestionCard({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '6px 10px',
-        border: `1px solid ${accepted ? 'rgba(74, 122, 58, 0.25)' : 'rgba(139, 115, 75, 0.10)'}`,
+        border: `1px solid ${accepted ? 'rgba(74, 122, 58, 0.25)' : tok.border}`,
         borderRadius: 4,
         background: accepted ? 'rgba(74, 122, 58, 0.06)' : 'rgba(139, 115, 75, 0.04)',
         transition: 'background 200ms, border-color 200ms',
@@ -75,8 +76,8 @@ export function TagSuggestionCard({
         <span
           style={{
             fontSize: 12,
-            fontFamily: 'var(--font-body)',
-            color: '#2a2118',
+            fontFamily: tok.fontBody,
+            color: tok.text,
             fontWeight: 500,
           }}
         >
@@ -86,7 +87,7 @@ export function TagSuggestionCard({
           style={{
             fontSize: 10,
             fontFamily: 'var(--font-mono, "JetBrains Mono", monospace)',
-            color: '#a09480',
+            color: tok.textMuted,
           }}
         >
           {confidencePercent}%
@@ -104,8 +105,8 @@ export function TagSuggestionCard({
               borderRadius: 4,
               padding: '2px 8px',
               fontSize: 10,
-              fontFamily: 'var(--font-body)',
-              color: '#4a7a3a',
+              fontFamily: tok.fontBody,
+              color: tok.success,
               cursor: 'pointer',
               transition: 'background 200ms',
             }}
@@ -128,8 +129,8 @@ export function TagSuggestionCard({
               borderRadius: 4,
               padding: '2px 8px',
               fontSize: 10,
-              fontFamily: 'var(--font-body)',
-              color: '#8b3030',
+              fontFamily: tok.fontBody,
+              color: tok.danger,
               cursor: 'pointer',
               transition: 'background 200ms',
             }}
@@ -150,8 +151,8 @@ export function TagSuggestionCard({
         <span
           style={{
             fontSize: 10,
-            fontFamily: 'var(--font-body)',
-            color: '#4a7a3a',
+            fontFamily: tok.fontBody,
+            color: tok.success,
           }}
         >
           {t('accepted')}

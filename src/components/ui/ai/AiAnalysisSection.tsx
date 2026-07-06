@@ -6,6 +6,7 @@ import { useTranslation } from '../../../lib/i18n';
 import { TagSuggestionCard } from './TagSuggestionCard';
 import { ColorPaletteStrip } from './ColorPaletteStrip';
 import { AnalysisHistoryList } from './AnalysisHistoryList';
+import { t as tok } from '../../../lib/tokens';
 
 interface AiAnalysisSectionProps {
   imageId: string;
@@ -13,8 +14,8 @@ interface AiAnalysisSectionProps {
 
 const labelStyle: React.CSSProperties = {
   fontSize: 10,
-  fontFamily: 'var(--font-display)',
-  color: '#a09480',
+  fontFamily: tok.fontDisplay,
+  color: tok.textMuted,
   textTransform: 'uppercase',
   letterSpacing: '0.5px',
   marginBottom: 2,
@@ -22,8 +23,8 @@ const labelStyle: React.CSSProperties = {
 
 const valueStyle: React.CSSProperties = {
   fontSize: 13,
-  fontFamily: 'var(--font-body)',
-  color: '#2a2118',
+  fontFamily: tok.fontBody,
+  color: tok.text,
 };
 
 export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
@@ -104,8 +105,8 @@ export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
         <div
           style={{
             fontSize: 10,
-            fontFamily: 'var(--font-display)',
-            color: '#a09480',
+            fontFamily: tok.fontDisplay,
+            color: tok.textMuted,
             textTransform: 'uppercase',
             letterSpacing: '0.5px',
           }}
@@ -122,8 +123,8 @@ export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
             borderRadius: 4,
             padding: '3px 10px',
             fontSize: 11,
-            fontFamily: 'var(--font-body)',
-            color: isAnalyzing ? '#a09480' : '#7a5c12',
+            fontFamily: tok.fontBody,
+            color: isAnalyzing ? tok.textMuted : tok.accent,
             cursor: isAnalyzing ? 'default' : 'pointer',
             transition: 'background 200ms, color 200ms',
           }}
@@ -149,8 +150,8 @@ export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
             padding: '12px 0',
             textAlign: 'center',
             fontSize: 12,
-            fontFamily: 'var(--font-body)',
-            color: '#a09480',
+            fontFamily: tok.fontBody,
+            color: tok.textMuted,
           }}
         >
           {t('analyzingHint')}
@@ -168,7 +169,7 @@ export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
                 ...valueStyle,
                 fontSize: 12,
                 lineHeight: 1.6,
-                color: '#6b5d48',
+                color: tok.textSecondary,
               }}
             >
               {result.description}
@@ -202,8 +203,8 @@ export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
                   borderRadius: 4,
                   padding: '5px 12px',
                   fontSize: 11,
-                  fontFamily: 'var(--font-body)',
-                  color: applied ? '#5a7a3a' : '#7a5c12',
+                  fontFamily: tok.fontBody,
+                  color: applied ? '#5a7a3a' : tok.accent,
                   cursor: applying ? 'default' : 'pointer',
                   transition: 'background 200ms, color 200ms',
                   width: '100%',
@@ -254,7 +255,7 @@ export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
                 ...valueStyle,
                 fontSize: 12,
                 lineHeight: 1.6,
-                color: '#6b5d48',
+                color: tok.textSecondary,
               }}
             >
               {result.composition}

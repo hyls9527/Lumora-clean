@@ -4,6 +4,7 @@ import { useImageStore } from '../../stores/imageStore';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { Collapsible } from '../../components/ui/Collapsible';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { t } from '../../lib/tokens';
 
 export function ImportPage() {
   const [dragOver, setDragOver] = useState(false);
@@ -85,8 +86,8 @@ export function ImportPage() {
             style={{
               fontSize: isMobile ? 18 : 20,
               fontWeight: 600,
-              fontFamily: 'var(--font-display)',
-              color: '#2a2118',
+              fontFamily: t.fontDisplay,
+              color: t.text,
               margin: 0,
             }}
           >
@@ -101,9 +102,9 @@ export function ImportPage() {
               fontWeight: 500,
               letterSpacing: '0.05em',
               textTransform: 'uppercase' as const,
-              fontFamily: 'var(--font-display)',
-              color: '#f2ede4',
-              background: '#7a5c12',
+              fontFamily: t.fontDisplay,
+              color: t.bg,
+              background: t.accent,
               border: 'none',
               borderRadius: 4,
               cursor: 'pointer',
@@ -125,7 +126,7 @@ export function ImportPage() {
           tabIndex={0}
           aria-label="选择文件夹导入"
           style={{
-            border: `2px dashed ${dragOver ? '#7a5c12' : 'rgba(139, 115, 75, 0.10)'}`,
+            border: `2px dashed ${dragOver ? t.accent : t.border}`,
             borderRadius: 4,
             background: dragOver ? 'rgba(122, 92, 18, 0.04)' : 'var(--color-surface)',
             height: isMobile ? 120 : 140,
@@ -142,8 +143,8 @@ export function ImportPage() {
           <p
             style={{
               fontSize: isMobile ? 13 : 14,
-              fontFamily: 'var(--font-display)',
-              color: '#6b5d48',
+              fontFamily: t.fontDisplay,
+              color: t.textSecondary,
               marginBottom: 8,
               textAlign: 'center',
             }}
@@ -151,7 +152,7 @@ export function ImportPage() {
             拖拽文件夹到此处，或点击选择
           </p>
           <p
-            style={{ fontSize: isMobile ? 10 : 11, fontFamily: 'var(--font-body)', color: '#a09480', textAlign: 'center' }}
+            style={{ fontSize: isMobile ? 10 : 11, fontFamily: t.fontBody, color: t.textMuted, textAlign: 'center' }}
           >
             支持 PNG、JPG、WEBP 格式
           </p>
@@ -166,8 +167,8 @@ export function ImportPage() {
             <span
               style={{
                 fontSize: 12,
-                fontFamily: 'var(--font-body)',
-                color: '#6b5d48',
+                fontFamily: t.fontBody,
+                color: t.textSecondary,
               }}
             >
               正在导入，请稍候…
@@ -188,7 +189,7 @@ export function ImportPage() {
               alignItems: 'center',
               gap: 16,
               fontSize: 12,
-              fontFamily: 'var(--font-body)',
+              fontFamily: t.fontBody,
               color: '#3b5635',
             }}
           >
@@ -199,7 +200,7 @@ export function ImportPage() {
                 跳过 <strong>{importResult.skipped}</strong> 张（已存在）
               </span>
             )}
-            <span style={{ color: '#a09480' }}>
+            <span style={{ color: t.textMuted }}>
               共扫描 {importResult.total} 个文件
             </span>
           </div>
@@ -238,9 +239,9 @@ export function ImportPage() {
               letterSpacing: '0.1em',
               textTransform: 'uppercase' as const,
               marginBottom: 24,
-              fontFamily: 'var(--font-display)',
-              color: '#6b5d48',
-              borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
+              fontFamily: t.fontDisplay,
+              color: t.textSecondary,
+              borderBottom: `1px solid ${t.border}`,
               paddingBottom: 12,
             }}
           >
@@ -250,7 +251,7 @@ export function ImportPage() {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              border: '1px solid rgba(139, 115, 75, 0.10)',
+              border: `1px solid ${t.border}`,
               borderRadius: 2,
             }}
           >
@@ -265,7 +266,7 @@ export function ImportPage() {
                   transition: 'background 200ms',
                   borderBottom:
                     i < recentImports.length - 1
-                      ? '1px solid rgba(139, 115, 75, 0.10)'
+                      ? `1px solid ${t.border}`
                       : 'none',
                 }}
               >
@@ -285,7 +286,7 @@ export function ImportPage() {
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap' as const,
-                      color: '#2a2118',
+                      color: t.text,
                     }}
                   >
                     {item.name}
@@ -298,7 +299,7 @@ export function ImportPage() {
         </section>
 
         {/* Advanced settings (expandable) */}
-        <section aria-label="高级设置" style={{ borderTop: '1px dotted rgba(139, 115, 75, 0.10)', padding: '12px 0' }}>
+        <section aria-label="高级设置" style={{ borderTop: `1px dotted ${t.border}`, padding: '12px 0' }}>
           <Collapsible title="高级设置">
             <div>
               {/* ComfyUI Config */}
@@ -327,7 +328,7 @@ export function ImportPage() {
                             gap: 6,
                             cursor: 'pointer',
                             fontSize: 12,
-                            color: '#2a2118',
+                            color: t.text,
                           }}
                         >
                           <input
@@ -336,7 +337,7 @@ export function ImportPage() {
                             style={{
                               width: 14,
                               height: 14,
-                              accentColor: '#7a5c12',
+                              accentColor: t.accent,
                             }}
                           />
                           {fmt}
@@ -372,7 +373,7 @@ export function ImportPage() {
                     <Toggle defaultChecked />
                   </SettingRow>
                   <SettingRow label="支持格式">
-                    <span style={{ fontSize: 12, color: '#6b5d48' }}>
+                    <span style={{ fontSize: 12, color: t.textSecondary }}>
                       PNG（含 metadata）、JPG、WEBP
                     </span>
                   </SettingRow>
@@ -403,7 +404,7 @@ function StatCard({
     <div
       style={{
         background: 'var(--color-surface)',
-        border: '1px solid rgba(139, 115, 75, 0.10)',
+        border: `1px solid ${t.border}`,
         borderRadius: 2,
         padding: 20,
         boxShadow:
@@ -427,12 +428,12 @@ function StatCard({
             background: dotColor,
           }}
         />
-        <span style={{ fontSize: 12, fontWeight: 500, color: '#2a2118' }}>
+        <span style={{ fontSize: 12, fontWeight: 500, color: t.text }}>
           {title}
         </span>
       </div>
-      <div style={{ fontSize: 14, color: '#6b5d48' }}>{status}</div>
-      <div style={{ fontSize: 12, marginTop: 4, color: '#6b5d48' }}>{detail}</div>
+      <div style={{ fontSize: 14, color: t.textSecondary }}>{status}</div>
+      <div style={{ fontSize: 12, marginTop: 4, color: t.textSecondary }}>{detail}</div>
     </div>
   );
 }
@@ -466,9 +467,9 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
         letterSpacing: '0.1em',
         textTransform: 'uppercase' as const,
         marginBottom: 24,
-        fontFamily: 'var(--font-display)',
-        color: '#6b5d48',
-        borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
+        fontFamily: t.fontDisplay,
+        color: t.textSecondary,
+        borderBottom: `1px solid ${t.border}`,
         paddingBottom: 12,
       }}
     >
@@ -491,7 +492,7 @@ function SettingRow({
           fontSize: 12,
           width: 128,
           flexShrink: 0,
-          color: '#2a2118',
+          color: t.text,
         }}
       >
         {label}
@@ -515,7 +516,7 @@ function Toggle({ defaultChecked }: { defaultChecked?: boolean }) {
         borderRadius: 10,
         position: 'relative',
         cursor: 'pointer',
-        background: on ? '#7a5c12' : '#a09480',
+        background: on ? t.accent : t.textMuted,
         border: 'none',
         transition: 'background 200ms',
         padding: 0,
@@ -529,7 +530,7 @@ function Toggle({ defaultChecked }: { defaultChecked?: boolean }) {
           position: 'absolute',
           top: 2,
           left: on ? 18 : 2,
-          background: on ? '#f2ede4' : '#f7f2ea',
+          background: on ? t.bg : '#f7f2ea',
           transition: 'left 200ms',
         }}
       />
@@ -543,10 +544,10 @@ const inputStyle: React.CSSProperties = {
   fontSize: 14,
   outline: 'none',
   background: 'var(--color-surface)',
-  border: '1px solid rgba(139, 115, 75, 0.10)',
+  border: `1px solid ${t.border}`,
   borderRadius: 4,
-  color: '#2a2118',
-  fontFamily: 'var(--font-body)',
+  color: t.text,
+  fontFamily: t.fontBody,
   transition: 'border-color 200ms',
 };
 
@@ -555,9 +556,9 @@ const selectStyle: React.CSSProperties = {
   fontSize: 14,
   outline: 'none',
   background: 'var(--color-surface)',
-  border: '1px solid rgba(139, 115, 75, 0.10)',
+  border: `1px solid ${t.border}`,
   borderRadius: 4,
-  color: '#2a2118',
+  color: t.text,
 };
 
 export default ImportPage;

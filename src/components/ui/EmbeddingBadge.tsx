@@ -1,5 +1,6 @@
 import { useTranslation } from '../../lib/i18n';
 import type { EmbeddingStatus } from '../../lib/api/embeddings';
+import { t as tok } from '../../lib/tokens';
 
 interface EmbeddingBadgeProps {
   status: EmbeddingStatus;
@@ -7,9 +8,9 @@ interface EmbeddingBadgeProps {
 }
 
 const STATUS_COLORS: Record<EmbeddingStatus, string> = {
-  embedded: '#4a7a3a',   // success
-  pending: '#a09480',    // muted
-  error: '#8b3030',      // danger
+  embedded: tok.success,   // success
+  pending: tok.textMuted,    // muted
+  error: tok.danger,      // danger
 };
 
 export function EmbeddingBadge({ status, size = 12 }: EmbeddingBadgeProps) {
@@ -35,10 +36,10 @@ export function EmbeddingBadge({ status, size = 12 }: EmbeddingBadgeProps) {
         height: size,
         borderRadius: '50%',
         backgroundColor: STATUS_COLORS[status],
-        color: '#f2ede4',
+        color: tok.bg,
         fontSize: size * 0.6,
         lineHeight: 1,
-        fontFamily: 'var(--font-body)',
+        fontFamily: tok.fontBody,
         transition: 'background-color 200ms ease-out',
         flexShrink: 0,
       }}

@@ -10,6 +10,7 @@ import { SimilarityBadge } from './SimilarityBadge';
 import { EmbeddingBadge } from './EmbeddingBadge';
 import { useImageSrc } from '../../hooks/useImageSrc';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { t } from '../../lib/tokens';
 
 interface ImageCardProps {
   image: ImageRecord;
@@ -104,8 +105,8 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
           <span
             style={{
               fontSize: '11px',
-              color: '#a09480',
-              fontFamily: 'var(--font-body)',
+              color: t.textMuted,
+              fontFamily: t.fontBody,
             }}
           >
             {image.width}×{image.height}
@@ -119,7 +120,7 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
       </div>
 
       {/* Card body */}
-      <div style={{ padding: isMobile ? '10px 12px' : '8px 10px', background: '#f2ede4' }}>
+      <div style={{ padding: isMobile ? '10px 12px' : '8px 10px', background: t.bg }}>
         {/* Model + Favorite + Rating */}
         <div
           style={{
@@ -132,8 +133,8 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
           <span
             style={{
               fontSize: isMobile ? '12px' : '11px',
-              color: '#7a5c12',
-              fontFamily: 'var(--font-display)',
+              color: t.accent,
+              fontFamily: t.fontDisplay,
             }}
           >
             {image.model}
@@ -151,7 +152,7 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
                 padding: isMobile ? '4px' : '0',
                 cursor: 'pointer',
                 fontSize: isMobile ? '14px' : '11px',
-                color: image.favorite ? '#7a5c12' : '#c4b89e',
+                color: image.favorite ? t.accent : t.textFaint,
                 transition: 'color 200ms',
                 lineHeight: 1,
                 minWidth: isMobile ? '28px' : 'auto',
@@ -177,7 +178,7 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
                 padding: isMobile ? '4px' : '0',
                 cursor: 'pointer',
                 fontSize: isMobile ? '14px' : '11px',
-                color: '#c4b89e',
+                color: t.textFaint,
                 transition: 'color 200ms',
                 lineHeight: 1,
                 minWidth: isMobile ? '28px' : 'auto',
@@ -198,8 +199,8 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
         <p
           style={{
             fontSize: isMobile ? '11px' : '10px',
-            color: '#a09480',
-            fontFamily: 'var(--font-body)',
+            color: t.textMuted,
+            fontFamily: t.fontBody,
             lineHeight: 1.4,
             overflow: 'hidden',
             display: '-webkit-box',

@@ -1,3 +1,4 @@
+import { t } from '../../lib/tokens';
 interface ErrorStateProps {
   message: string;
   onRetry?: () => void;
@@ -18,8 +19,8 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
       <div
         style={{
           fontSize: 14,
-          fontFamily: 'var(--font-display)',
-          color: '#8b3030',
+          fontFamily: t.fontDisplay,
+          color: t.danger,
           marginBottom: 8,
         }}
       >
@@ -28,8 +29,8 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
       <div
         style={{
           fontSize: 12,
-          fontFamily: 'var(--font-body)',
-          color: '#6b5d48',
+          fontFamily: t.fontBody,
+          color: t.textSecondary,
           marginBottom: 16,
           maxWidth: 400,
           lineHeight: 1.6,
@@ -45,9 +46,9 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
             padding: '8px 20px',
             fontSize: 12,
             fontWeight: 500,
-            fontFamily: 'var(--font-display)',
-            color: '#f2ede4',
-            background: '#7a5c12',
+            fontFamily: t.fontDisplay,
+            color: t.bg,
+            background: t.accent,
             border: 'none',
             borderRadius: 4,
             cursor: 'pointer',

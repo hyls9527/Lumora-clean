@@ -3,6 +3,7 @@ import { useImageStore } from '../../stores/imageStore';
 import { useSelection } from '../../hooks/useSelection';
 import { useTranslation } from '../../lib/i18n';
 import type { ExportResult } from '../../lib/api/images';
+import { t as tokens } from '../../lib/tokens';
 
 export function ExportPage() {
   const { images, fetchImages, exportImages } = useImageStore();
@@ -56,8 +57,8 @@ export function ExportPage() {
             style={{
               fontSize: 20,
               fontWeight: 600,
-              fontFamily: 'var(--font-display)',
-              color: '#2a2118',
+              fontFamily: tokens.fontDisplay,
+              color: tokens.text,
               margin: 0,
             }}
           >
@@ -66,9 +67,9 @@ export function ExportPage() {
           <p
             style={{
               fontSize: 12,
-              color: '#a09480',
+              color: tokens.textMuted,
               marginTop: 8,
-              fontFamily: 'var(--font-body)',
+              fontFamily: tokens.fontBody,
             }}
           >
             {t('export.subtitle')}
@@ -80,12 +81,11 @@ export function ExportPage() {
           aria-label={t('export.selection')}
           style={{
             background: 'var(--color-surface)',
-            border: '1px solid rgba(139, 115, 75, 0.10)',
+            border: `1px solid ${tokens.border}`,
             borderRadius: 2,
             padding: 20,
             marginBottom: 24,
-            boxShadow:
-              'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px',
+            boxShadow: tokens.shadow,
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -95,10 +95,10 @@ export function ExportPage() {
                 height: 8,
                 borderRadius: '50%',
                 flexShrink: 0,
-                background: selectedIds.size > 0 ? '#7a5c12' : '#a09480',
+                background: selectedIds.size > 0 ? tokens.accent : tokens.textMuted,
               }}
             />
-            <span style={{ fontSize: 14, color: '#2a2118', fontFamily: 'var(--font-body)' }}>
+            <span style={{ fontSize: 14, color: tokens.text, fontFamily: tokens.fontBody }}>
               {selectedIds.size > 0
                 ? t('export.selectedCount', { count: String(selectedIds.size) })
                 : t('export.allCount', { count: String(images.length) })}
@@ -122,10 +122,10 @@ export function ExportPage() {
                 fontSize: 14,
                 outline: 'none',
                 background: 'var(--color-surface)',
-                border: '1px solid rgba(139, 115, 75, 0.10)',
+                border: `1px solid ${tokens.border}`,
                 borderRadius: 4,
-                color: '#2a2118',
-                fontFamily: 'var(--font-body)',
+                color: tokens.text,
+                fontFamily: tokens.fontBody,
               }}
             />
             <button
@@ -137,9 +137,9 @@ export function ExportPage() {
                 fontWeight: 500,
                 letterSpacing: '0.05em',
                 textTransform: 'uppercase' as const,
-                fontFamily: 'var(--font-display)',
-                color: '#f2ede4',
-                background: '#7a5c12',
+                fontFamily: tokens.fontDisplay,
+                color: tokens.bg,
+                background: tokens.accent,
                 border: 'none',
                 borderRadius: 4,
                 cursor: 'pointer',
@@ -181,19 +181,19 @@ export function ExportPage() {
               fontSize: 14,
               outline: 'none',
               background: 'var(--color-surface)',
-              border: '1px solid rgba(139, 115, 75, 0.10)',
+              border: `1px solid ${tokens.border}`,
               borderRadius: 4,
-              color: '#2a2118',
-              fontFamily: 'var(--font-body)',
+              color: tokens.text,
+              fontFamily: tokens.fontBody,
               transition: 'border-color 200ms',
             }}
           />
           <p
             style={{
               fontSize: 11,
-              color: '#a09480',
+              color: tokens.textMuted,
               marginTop: 8,
-              fontFamily: 'var(--font-body)',
+              fontFamily: tokens.fontBody,
             }}
           >
             {t('export.templateHint')}
@@ -212,11 +212,11 @@ export function ExportPage() {
               fontWeight: 600,
               letterSpacing: '0.05em',
               textTransform: 'uppercase' as const,
-              fontFamily: 'var(--font-display)',
-              color: !destDir || exporting || exportCount === 0 ? '#a09480' : '#f2ede4',
+              fontFamily: tokens.fontDisplay,
+              color: !destDir || exporting || exportCount === 0 ? tokens.textMuted : tokens.bg,
               background: !destDir || exporting || exportCount === 0
-                ? 'rgba(139, 115, 75, 0.10)'
-                : '#7a5c12',
+                ? tokens.border
+                : tokens.accent,
               border: 'none',
               borderRadius: 4,
               cursor: !destDir || exporting || exportCount === 0 ? 'not-allowed' : 'pointer',
@@ -234,7 +234,7 @@ export function ExportPage() {
               marginBottom: 32,
               padding: 20,
               background: 'var(--color-surface)',
-              border: '1px solid rgba(139, 115, 75, 0.10)',
+              border: `1px solid ${tokens.border}`,
               borderRadius: 2,
               textAlign: 'center',
             }}
@@ -242,8 +242,8 @@ export function ExportPage() {
             <span
               style={{
                 fontSize: 12,
-                fontFamily: 'var(--font-body)',
-                color: '#6b5d48',
+                fontFamily: tokens.fontBody,
+                color: tokens.textSecondary,
               }}
             >
               {t('export.exportingProgress', { count: String(exportCount) })}
@@ -260,8 +260,8 @@ export function ExportPage() {
               border: '1px solid rgba(139, 48, 48, 0.15)',
               borderRadius: 2,
               fontSize: 13,
-              color: '#8b3030',
-              fontFamily: 'var(--font-body)',
+              color: tokens.danger,
+              fontFamily: tokens.fontBody,
             }}
           >
             {error}
@@ -273,11 +273,10 @@ export function ExportPage() {
             aria-label={t('export.result')}
             style={{
               background: 'var(--color-surface)',
-              border: '1px solid rgba(139, 115, 75, 0.10)',
+              border: `1px solid ${tokens.border}`,
               borderRadius: 2,
               padding: 24,
-              boxShadow:
-                'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px',
+              boxShadow: tokens.shadow,
             }}
           >
             <SectionHeader>{t('export.result')}</SectionHeader>
@@ -290,9 +289,9 @@ export function ExportPage() {
               <p
                 style={{
                   fontSize: 12,
-                  color: '#4a7a3a',
+                  color: tokens.success,
                   marginTop: 16,
-                  fontFamily: 'var(--font-body)',
+                  fontFamily: tokens.fontBody,
                 }}
               >
                 {t('export.complete')}
@@ -316,9 +315,9 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
         letterSpacing: '0.1em',
         textTransform: 'uppercase' as const,
         marginBottom: 16,
-        fontFamily: 'var(--font-display)',
-        color: '#6b5d48',
-        borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
+        fontFamily: tokens.fontDisplay,
+        color: tokens.textSecondary,
+        borderBottom: `1px solid ${tokens.border}`,
         paddingBottom: 12,
       }}
     >
@@ -344,10 +343,10 @@ function FormatOption({
         padding: '8px 16px',
         fontSize: 12,
         fontWeight: active ? 600 : 400,
-        fontFamily: 'var(--font-body)',
-        color: active ? '#f2ede4' : '#6b5d48',
-        background: active ? '#7a5c12' : 'var(--color-surface)',
-        border: `1px solid ${active ? '#7a5c12' : 'rgba(139, 115, 75, 0.10)'}`,
+        fontFamily: tokens.fontBody,
+        color: active ? tokens.bg : tokens.textSecondary,
+        background: active ? tokens.accent : 'var(--color-surface)',
+        border: `1px solid ${active ? tokens.accent : tokens.border}`,
         borderRadius: 4,
         cursor: 'pointer',
         transition: 'background 200ms, color 200ms, border-color 200ms',
@@ -367,14 +366,14 @@ function ResultRow({ label, value }: { label: string; value: string }) {
         alignItems: 'center',
         gap: 16,
         fontSize: 13,
-        fontFamily: 'var(--font-body)',
+        fontFamily: tokens.fontBody,
       }}
     >
-      <span style={{ width: 100, flexShrink: 0, color: '#6b5d48' }}>{label}</span>
+      <span style={{ width: 100, flexShrink: 0, color: tokens.textSecondary }}>{label}</span>
       <span
         style={{
           flex: 1,
-          color: '#2a2118',
+          color: tokens.text,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap' as const,

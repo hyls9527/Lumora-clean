@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { t } from '../../lib/tokens';
 
 interface InfiniteScrollProps {
   onLoadMore: () => void;
@@ -53,8 +54,8 @@ export function InfiniteScroll({
             display: 'flex',
             justifyContent: 'center',
             padding: '24px 0',
-            color: '#a09480',
-            fontFamily: 'var(--font-body)',
+            color: t.textMuted,
+            fontFamily: t.fontBody,
             fontSize: 13,
           }}
         >

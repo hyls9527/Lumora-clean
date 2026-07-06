@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { t } from '../../lib/tokens';
 
 interface CollapsibleProps {
   title: string;
@@ -35,7 +36,7 @@ export function Collapsible({ title, children, defaultOpen = false }: Collapsibl
             display: 'inline-block',
             transition: 'transform 200ms',
             fontSize: 10,
-            color: '#6b5d48',
+            color: t.textSecondary,
             transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
           }}
         >
@@ -45,8 +46,8 @@ export function Collapsible({ title, children, defaultOpen = false }: Collapsibl
           style={{
             fontSize: 13,
             fontWeight: 500,
-            fontFamily: 'var(--font-display)',
-            color: open ? '#2a2118' : '#6b5d48',
+            fontFamily: t.fontDisplay,
+            color: open ? t.text : t.textSecondary,
           }}
         >
           {title}

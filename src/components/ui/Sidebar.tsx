@@ -5,6 +5,7 @@ import { useSmartCollectionStore } from '../../stores/smartCollectionStore';
 import { useTranslation } from '../../lib/i18n';
 import { UpdateBanner } from './UpdateBanner';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { t as tok } from '../../lib/tokens';
 
 interface SidebarProps {
   activeRoute: string;
@@ -31,7 +32,7 @@ const navItems: NavItem[] = [
 export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
   const { available, checking, error, recheck } = useOllamaStatus();
   const { collections, load } = useSmartCollectionStore();
-  const { t } = useTranslation('smartCollections');
+  const { t: tI18n } = useTranslation('smartCollections');
   const isCollapsed = useIsMobile();
 
   useEffect(() => { void load(); }, [load]);
@@ -45,7 +46,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
         display: 'flex',
         flexDirection: 'column',
         background: 'var(--color-bg)',
-        borderRight: '1px solid rgba(139, 115, 75, 0.10)',
+        borderRight: `1px solid ${tok.border}`,
         width: isCollapsed ? '56px' : undefined,
         transition: 'width 200ms ease-out',
       }}
@@ -56,8 +57,8 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
           style={{
             fontSize: isCollapsed ? 20 : 28,
             fontWeight: 700,
-            fontFamily: 'var(--font-display)',
-            color: '#7a5c12',
+            fontFamily: tok.fontDisplay,
+            color: tok.accent,
             lineHeight: 1,
             margin: 0,
             textAlign: 'center',
@@ -99,14 +100,14 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
           <p
             style={{
               fontSize: 10,
-              fontFamily: 'var(--font-body)',
-              color: '#a09480',
+              fontFamily: tok.fontBody,
+              color: tok.textMuted,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               margin: '0 0 6px',
             }}
           >
-            {t('title')}
+            {tI18n('title')}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {collections.map((col) => (
@@ -139,8 +140,8 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
             margin: '0 12px 8px',
             padding: '6px 10px',
             fontSize: 10,
-            fontFamily: 'var(--font-body)',
-            color: '#8b3030',
+            fontFamily: tok.fontBody,
+            color: tok.danger,
             background: 'rgba(139, 48, 48, 0.06)',
             border: '1px solid rgba(139, 48, 48, 0.12)',
             borderRadius: 4,
@@ -153,7 +154,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: '#8b3030',
+              background: tok.danger,
               flexShrink: 0,
             }}
           />
@@ -171,8 +172,8 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
             margin: '0 12px 8px',
             padding: '6px 10px',
             fontSize: 10,
-            fontFamily: 'var(--font-body)',
-            color: '#4a7a3a',
+            fontFamily: tok.fontBody,
+            color: tok.success,
           }}
         >
           <span
@@ -180,7 +181,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: '#4a7a3a',
+              background: tok.success,
               flexShrink: 0,
             }}
           />
@@ -199,10 +200,10 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
             width: '100%',
             padding: isCollapsed ? '8px' : '10px 12px',
             fontSize: isCollapsed ? 14 : 11,
-            fontFamily: 'var(--font-display)',
-            color: '#6b5d48',
+            fontFamily: tok.fontDisplay,
+            color: tok.textSecondary,
             background: 'none',
-            border: '1px solid rgba(139, 115, 75, 0.10)',
+            border: `1px solid ${tok.border}`,
             borderRadius: 4,
             cursor: 'pointer',
             transition: 'color 200ms, border-color 200ms',
@@ -241,12 +242,12 @@ function NavButton({
         padding: collapsed ? '10px 8px' : '10px 12px',
         fontSize: collapsed ? 0 : 11,
         fontWeight: active ? 700 : 500,
-        fontFamily: 'var(--font-display)',
-        color: active ? '#2a2118' : '#6b5d48',
+        fontFamily: tok.fontDisplay,
+        color: active ? tok.text : tok.textSecondary,
         background: 'none',
         border: 'none',
-        borderLeft: collapsed ? 'none' : `3px solid ${active ? '#7a5c12' : 'transparent'}`,
-        borderBottom: collapsed ? `2px solid ${active ? '#7a5c12' : 'transparent'}` : 'none',
+        borderLeft: collapsed ? 'none' : `3px solid ${active ? tok.accent : 'transparent'}`,
+        borderBottom: collapsed ? `2px solid ${active ? tok.accent : 'transparent'}` : 'none',
         letterSpacing: '0.1em',
         textTransform: 'uppercase',
         cursor: 'pointer',

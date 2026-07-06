@@ -110,10 +110,10 @@ describe('可访问性 — WCAG AA 合规', () => {
 
     it('使用设计令牌中的文字颜色', () => {
       const sidebar = readFileSync(resolve(root, 'src/components/ui/Sidebar.tsx'), 'utf-8');
-      // 主文字颜色 #2a2118
-      expect(sidebar).toContain('#2a2118');
-      // 次要文字颜色 #6b5d48
-      expect(sidebar).toContain('#6b5d48');
+      // 主文字颜色 via token reference
+      expect(sidebar).toContain('tok.text');
+      // 次要文字颜色 via token reference
+      expect(sidebar).toContain('tok.textSecondary');
     });
   });
 

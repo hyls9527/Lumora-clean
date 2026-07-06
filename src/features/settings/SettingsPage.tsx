@@ -1,5 +1,6 @@
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useTranslation } from '../../lib/i18n';
+import { t as tok } from '../../lib/tokens';
 import type { Language } from '../../stores/settingsStore';
 
 /* ───────────────────────── colour tokens ───────────────────────── */
@@ -8,7 +9,7 @@ const token = {
   surface: 'var(--color-surface)',
   text: 'var(--color-text)',
   accent: 'var(--color-accent)',
-  muted: '#6b5d48',
+  muted: tok.textSecondary,
   border: 'rgba(139, 115, 75, 0.10)',
 };
 
@@ -225,7 +226,7 @@ export function SettingsPage() {
             }}
           >
             <div style={{ display: 'flex', gap: 6 }}>
-              {['#f2ede4', '#f7f2ea', '#2a2118', '#6b5d48', '#7a5c12', '#4a7a3a', '#8b3030'].map((c) => (
+              {['#f2ede4', '#f7f2ea', tok.text, tok.textSecondary, tok.accent, '#4a7a3a', '#8b3030'].map((c) => (
                 <div
                   key={c}
                   style={{
@@ -239,7 +240,7 @@ export function SettingsPage() {
                 />
               ))}
             </div>
-            <span style={{ fontSize: 11, color: '#a09480', fontFamily: 'var(--font-body)' }}>
+            <span style={{ fontSize: 11, color: tok.textMuted, fontFamily: 'var(--font-body)' }}>
               {theme === 'light' ? '古卷·灯火' : '暗夜（开发中）'}
             </span>
           </div>

@@ -5,6 +5,7 @@ import { TagBadge } from './TagBadge';
 import { formatDate, formatFileSize } from '../../lib/format';
 import { useImageSrc } from '../../hooks/useImageSrc';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { t, labelStyle, valueStyle } from '../../lib/tokens';
 
 interface DetailModalProps {
   image: ImageRecord | null;
@@ -34,7 +35,7 @@ const panelStyle: React.CSSProperties = {
   display: 'flex',
   borderRadius: 6,
   background: 'var(--color-surface)',
-  border: '1px solid rgba(139, 115, 75, 0.10)',
+  border: `1px solid ${t.border}`,
   boxShadow: 'rgba(139,115,75,0.12) 0px 0px 0px 1px, rgba(78,50,23,0.12) 0px 8px 32px, rgba(78,50,23,0.06) 0px 2px 8px',
   overflow: 'hidden',
   animation: 'slideUp 200ms ease-out',
@@ -72,7 +73,7 @@ const metaPanelStyle: React.CSSProperties = {
   flexDirection: 'column',
   gap: 16,
   overflowY: 'auto',
-  borderLeft: '1px solid rgba(139, 115, 75, 0.10)',
+  borderLeft: `1px solid ${t.border}`,
   background: 'var(--color-surface)',
 };
 
@@ -82,22 +83,7 @@ const mobileMetaPanelStyle: React.CSSProperties = {
   width: '100%',
   maxHeight: '40vh',
   borderLeft: 'none',
-  borderTop: '1px solid rgba(139, 115, 75, 0.10)',
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 10,
-  fontFamily: 'var(--font-display)',
-  color: '#a09480',
-  textTransform: 'uppercase',
-  letterSpacing: '0.5px',
-  marginBottom: 2,
-};
-
-const valueStyle: React.CSSProperties = {
-  fontSize: 13,
-  fontFamily: 'var(--font-body)',
-  color: '#2a2118',
+  borderTop: `1px solid ${t.border}`,
 };
 
 const navBtnStyle: React.CSSProperties = {
@@ -110,11 +96,11 @@ const navBtnStyle: React.CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   background: 'var(--color-surface)',
-  border: '1px solid rgba(139, 115, 75, 0.10)',
+  border: `1px solid ${t.border}`,
   borderRadius: 4,
   cursor: 'pointer',
   fontSize: 14,
-  color: '#6b5d48',
+  color: t.textSecondary,
   transition: 'background 200ms, color 200ms',
   zIndex: 2,
 };
@@ -202,8 +188,8 @@ export function DetailModal({
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 13,
-                color: '#a09480',
-                fontFamily: 'var(--font-body)',
+                color: t.textMuted,
+                fontFamily: t.fontBody,
               }}
             >
               {image.width} × {image.height}
@@ -225,7 +211,7 @@ export function DetailModal({
               border: 'none',
               cursor: 'pointer',
               fontSize: 16,
-              color: '#a09480',
+              color: t.textMuted,
               padding: 4,
               lineHeight: 1,
             }}
@@ -237,9 +223,9 @@ export function DetailModal({
           <h3
             style={{
               fontSize: 16,
-              fontFamily: 'var(--font-display)',
+              fontFamily: t.fontDisplay,
               fontWeight: 600,
-              color: '#2a2118',
+              color: t.text,
               margin: 0,
               paddingRight: 24,
               wordBreak: 'break-all',
@@ -250,7 +236,7 @@ export function DetailModal({
 
           <div>
             <div style={labelStyle}>路径</div>
-            <div style={{ ...valueStyle, fontSize: 11, color: '#6b5d48', wordBreak: 'break-all' }}>
+            <div style={{ ...valueStyle, fontSize: 11, color: t.textSecondary, wordBreak: 'break-all' }}>
               {image.filePath}
             </div>
           </div>
@@ -270,7 +256,7 @@ export function DetailModal({
             </div>
             <div>
               <div style={labelStyle}>模型</div>
-              <div style={{ ...valueStyle, color: '#7a5c12' }}>{image.model}</div>
+              <div style={{ ...valueStyle, color: t.accent }}>{image.model}</div>
             </div>
           </div>
 
@@ -293,7 +279,7 @@ export function DetailModal({
                 padding: 0,
                 cursor: 'pointer',
                 fontSize: 14,
-                color: image.favorite ? '#7a5c12' : '#c4b89e',
+                color: image.favorite ? t.accent : t.textFaint,
                 transition: 'color 200ms',
               }}
               aria-label={image.favorite ? '取消收藏' : '收藏'}

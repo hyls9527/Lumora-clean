@@ -1,3 +1,4 @@
+import { t } from '../../lib/tokens';
 /**
  * SimilarityBadge — displays a 0–100% similarity score.
  * Uses the project's warm design language: no icons, 4px radius, 200ms transitions.
@@ -19,9 +20,9 @@ export function SimilarityBadge({ value }: SimilarityBadgeProps) {
         padding: '3px 8px',
         fontSize: 11,
         fontWeight: 600,
-        fontFamily: 'var(--font-body)',
-        color: '#f2ede4',
-        background: isHigh ? '#4a7a3a' : '#7a5c12',
+        fontFamily: t.fontBody,
+        color: t.bg,
+        background: isHigh ? t.success : t.accent,
         borderRadius: 4,
         lineHeight: 1.2,
         transition: 'background 200ms, color 200ms',
