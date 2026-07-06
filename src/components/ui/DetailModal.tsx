@@ -4,8 +4,9 @@ import { Rating } from './Rating';
 import { TagBadge } from './TagBadge';
 import { formatDate, formatFileSize } from '../../lib/format';
 import { useImageSrc } from '../../hooks/useImageSrc';
+import { t } from '../../lib/i18n';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import { t, labelStyle, valueStyle } from '../../lib/tokens';
+import { t as tok, labelStyle, valueStyle } from '../../lib/tokens';
 
 interface DetailModalProps {
   image: ImageRecord | null;
@@ -35,7 +36,7 @@ const panelStyle: React.CSSProperties = {
   display: 'flex',
   borderRadius: 6,
   background: 'var(--color-surface)',
-  border: `1px solid ${t.border}`,
+  border: `1px solid ${tok.border}`,
   boxShadow: 'rgba(139,115,75,0.12) 0px 0px 0px 1px, rgba(78,50,23,0.12) 0px 8px 32px, rgba(78,50,23,0.06) 0px 2px 8px',
   overflow: 'hidden',
   animation: 'slideUp 200ms ease-out',
@@ -73,7 +74,7 @@ const metaPanelStyle: React.CSSProperties = {
   flexDirection: 'column',
   gap: 16,
   overflowY: 'auto',
-  borderLeft: `1px solid ${t.border}`,
+  borderLeft: `1px solid ${tok.border}`,
   background: 'var(--color-surface)',
 };
 
@@ -83,7 +84,7 @@ const mobileMetaPanelStyle: React.CSSProperties = {
   width: '100%',
   maxHeight: '40vh',
   borderLeft: 'none',
-  borderTop: `1px solid ${t.border}`,
+  borderTop: `1px solid ${tok.border}`,
 };
 
 const navBtnStyle: React.CSSProperties = {
@@ -96,11 +97,11 @@ const navBtnStyle: React.CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   background: 'var(--color-surface)',
-  border: `1px solid ${t.border}`,
+  border: `1px solid ${tok.border}`,
   borderRadius: 4,
   cursor: 'pointer',
   fontSize: 14,
-  color: t.textSecondary,
+  color: tok.textSecondary,
   transition: 'background 200ms, color 200ms',
   zIndex: 2,
 };
@@ -144,7 +145,7 @@ export function DetailModal({
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="图片详情"
+      aria-label={t("common.imageDetail")}
     >
       <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -156,7 +157,7 @@ export function DetailModal({
           type="button"
           onClick={onPrev}
           style={{ ...navBtnStyle, left: 12 }}
-          aria-label="上一张"
+          aria-label={t("common.prevImage")}
         >
           ‹
         </button>
@@ -188,8 +189,8 @@ export function DetailModal({
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 13,
-                color: t.textMuted,
-                fontFamily: t.fontBody,
+                color: tok.textMuted,
+                fontFamily: tok.fontBody,
               }}
             >
               {image.width} × {image.height}
@@ -211,11 +212,11 @@ export function DetailModal({
               border: 'none',
               cursor: 'pointer',
               fontSize: 16,
-              color: t.textMuted,
+              color: tok.textMuted,
               padding: 4,
               lineHeight: 1,
             }}
-            aria-label="关闭"
+            aria-label={t("common.close")}
           >
             ✕
           </button>
@@ -223,9 +224,9 @@ export function DetailModal({
           <h3
             style={{
               fontSize: 16,
-              fontFamily: t.fontDisplay,
+              fontFamily: tok.fontDisplay,
               fontWeight: 600,
-              color: t.text,
+              color: tok.text,
               margin: 0,
               paddingRight: 24,
               wordBreak: 'break-all',
@@ -236,7 +237,7 @@ export function DetailModal({
 
           <div>
             <div style={labelStyle}>路径</div>
-            <div style={{ ...valueStyle, fontSize: 11, color: t.textSecondary, wordBreak: 'break-all' }}>
+            <div style={{ ...valueStyle, fontSize: 11, color: tok.textSecondary, wordBreak: 'break-all' }}>
               {image.filePath}
             </div>
           </div>
@@ -256,7 +257,7 @@ export function DetailModal({
             </div>
             <div>
               <div style={labelStyle}>模型</div>
-              <div style={{ ...valueStyle, color: t.accent }}>{image.model}</div>
+              <div style={{ ...valueStyle, color: tok.accent }}>{image.model}</div>
             </div>
           </div>
 
@@ -279,7 +280,7 @@ export function DetailModal({
                 padding: 0,
                 cursor: 'pointer',
                 fontSize: 14,
-                color: image.favorite ? t.accent : t.textFaint,
+                color: image.favorite ? tok.accent : tok.textFaint,
                 transition: 'color 200ms',
               }}
               aria-label={image.favorite ? '取消收藏' : '收藏'}
@@ -311,7 +312,7 @@ export function DetailModal({
           type="button"
           onClick={onNext}
           style={{ ...navBtnStyle, right: 12 }}
-          aria-label="下一张"
+          aria-label={t("common.nextImage")}
         >
           ›
         </button>

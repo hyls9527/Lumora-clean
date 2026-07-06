@@ -114,7 +114,7 @@ export function SearchPage() {
               <select
                 value={filters.searchField}
                 onChange={(e) => setSearchField(e.target.value)}
-                aria-label="搜索字段"
+                aria-label={tT("search.searchField")}
                 style={{
                   padding: isMobile ? '12px 10px' : '14px 12px',
                   fontSize: 13,
@@ -296,7 +296,7 @@ export function SearchPage() {
             >
               尝试使用更具体的画面描述，如风格、色调、构图。
               <br />
-              也可以降低相似度阈值，或切换到以图搜图模式。
+              也可以降低{tT("search.similarityThreshold")}，或切换到以图搜图模式。
             </div>
           </div>
         )}
@@ -311,7 +311,7 @@ export function SearchPage() {
 
         {/* Results grid */}
         {!loading && !error && filteredResults.length > 0 && (
-          <section aria-label="搜索结果">
+          <section aria-label={tT("search.searchResults")}>
             <div
               style={{
                 display: 'grid',
@@ -331,11 +331,11 @@ export function SearchPage() {
 
         {/* High similarity compare */}
         {filteredResults.some((r) => (r.similarity ?? 0) >= 90) && (
-          <section aria-label="高相似度对比" style={{ marginTop: 32, borderTop: `1px solid ${tok.border}`, borderBottom: `1px solid ${tok.border}`, padding: '12px 0' }}>
-            <Collapsible title="高相似度对比">
+          <section aria-label={tT("search.highSimilarityCompare")} style={{ marginTop: 32, borderTop: `1px solid ${tok.border}`, borderBottom: `1px solid ${tok.border}`, padding: '12px 0' }}>
+            <Collapsible title={tT("search.highSimilarityCompare")}>
               <div style={{ padding: '32px 0', textAlign: 'center' }}>
                 <p style={{ fontSize: 13, color: tok.textSecondary }}>
-                  选择两张图片进行详细对比
+                  {tT("search.selectTwoImages")}
                 </p>
               </div>
             </Collapsible>
@@ -344,7 +344,7 @@ export function SearchPage() {
 
         {/* Advanced settings */}
         <div style={{ marginTop: 48, borderTop: `1px solid ${tok.border}`, paddingTop: 24 }}>
-          <Collapsible title="高级设置">
+          <Collapsible title={tT("search.advancedSettings")}>
             <div style={{ paddingTop: 24 }}>
               {/* Search scope */}
               <div style={{ marginBottom: 24 }}>
@@ -359,10 +359,10 @@ export function SearchPage() {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  搜索范围
+                  {tT("search.searchScope")}
                 </label>
                 <div style={{ display: 'flex', gap: 20 }}>
-                  {['创作者图库', '普通图库'].map((label) => (
+                  {[tT('search.creatorGallery'), tT('search.normalGallery')].map((label) => (
                     <label
                       key={label}
                       style={{
@@ -404,7 +404,7 @@ export function SearchPage() {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  嵌入模型
+                  {tT("search.embeddingModel")}
                 </label>
                 <select
                   style={{
@@ -440,7 +440,7 @@ export function SearchPage() {
                       letterSpacing: '0.05em',
                     }}
                   >
-                    相似度阈值
+                    {tT("search.similarityThreshold")}
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <input
@@ -467,7 +467,7 @@ export function SearchPage() {
                       letterSpacing: '0.05em',
                     }}
                   >
-                    最大结果数
+                    {tT("search.maxResults")}
                   </label>
                   <input
                     type="number"
@@ -502,7 +502,7 @@ export function SearchPage() {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  搜索历史
+                  {tT("search.searchHistory")}
                 </label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {searchHistory.map((term) => (

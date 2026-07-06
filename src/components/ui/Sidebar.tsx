@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { useOllamaStatus } from '../../hooks/useOllamaStatus';
 import { useSmartCollectionStore } from '../../stores/smartCollectionStore';
-import { useTranslation } from '../../lib/i18n';
+import { useTranslation, t } from '../../lib/i18n';
 import { UpdateBanner } from './UpdateBanner';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { t as tok } from '../../lib/tokens';
@@ -40,7 +40,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
   return (
     <aside
       role="navigation"
-      aria-label="主导航"
+      aria-label={t("common.mainNav")}
       className="app-sidebar"
       style={{
         display: 'flex',
@@ -77,7 +77,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
           gap: 4,
           padding: isCollapsed ? '0 8px' : '0 12px',
         }}
-        aria-label="主导航"
+        aria-label={t("common.mainNav")}
       >
         {navItems.map((item) => {
           const isActive = activeRoute === item.key;

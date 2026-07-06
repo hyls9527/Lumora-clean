@@ -48,7 +48,7 @@ describe('可访问性 — WCAG AA 合规', () => {
 
     it('导航元素有 aria-label', () => {
       const sidebar = readFileSync(resolve(root, 'src/components/ui/Sidebar.tsx'), 'utf-8');
-      expect(sidebar).toContain('aria-label="主导航"');
+      expect(sidebar).toMatch(/aria-label.*common\.mainNav/);
     });
 
     it('对话框有 role=dialog', () => {

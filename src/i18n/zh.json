@@ -29,7 +29,15 @@
     "themeToggle": "切换暗色",
     "searchShortcut": "搜索 ⌘K",
     "loading": "加载中…",
-    "pageNotFound": "页面开发中…"
+    "pageNotFound": "页面开发中…",
+    "imageDetail": "图片详情",
+    "prevImage": "上一张",
+    "nextImage": "下一张",
+    "close": "关闭",
+    "moveToTrash": "移到回收站",
+    "mainNav": "主导航",
+    "ollamaOffline": "Ollama 状态：离线，点击重试",
+    "ollamaOnline": "Ollama 状态：在线"
   },
   "gallery": {
     "title": "创作者图库",
@@ -152,7 +160,14 @@
     "maxResults": "最大结果数",
     "searchHistory": "搜索历史",
     "emptyTitle": "未找到相似结果",
-    "emptyDesc": "尝试使用更具体的画面描述，如风格、色调、构图。也可以降低相似度阈值，或切换到以图搜图模式。"
+    "emptyDesc": "尝试使用更具体的画面描述，如风格、色调、构图。也可以降低相似度阈值，或切换到以图搜图模式。",
+    "searchField": "搜索字段",
+    "searchResults": "搜索结果",
+    "creatorGallery": "创作者图库",
+    "normalGallery": "普通图库",
+    "selectTwoImages": "选择两张图片进行详细对比",
+    "noResults": "灯影未寻得",
+    "noResultsHint": "尝试使用更具体的画面描述，如风格、色调、构图。也可以降低相似度阈值，或切换到以图搜图模式。"
   },
   "tags": {
     "title": "标签管理",

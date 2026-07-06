@@ -66,8 +66,6 @@ function App() {
       if (imagePaths.length > 0) {
         // Navigate to import page with dropped files
         setRoute('/import');
-        // Store dropped paths for ImportPage to pick up
-        (window as unknown as Record<string, unknown>).__droppedPaths = imagePaths;
       }
     },
     [setRoute],

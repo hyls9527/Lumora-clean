@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { invoke } from '../../lib/tauri';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import { t } from '../../lib/tokens';
+import { t as tok } from '../../lib/tokens';
+import { t } from '../../lib/i18n';
 
 interface Tag {
   id: string;
@@ -82,7 +83,7 @@ export function TagManager() {
         display: 'flex',
         flexDirection: 'column',
         padding: isMobile ? '20px 16px' : '32px',
-        fontFamily: t.fontBody,
+        fontFamily: tok.fontBody,
         color: 'var(--color-text)',
         overflow: 'auto',
       }}
@@ -93,8 +94,8 @@ export function TagManager() {
           style={{
             fontSize: isMobile ? '18px' : '20px',
             fontWeight: 600,
-            fontFamily: t.fontDisplay,
-            color: t.text,
+            fontFamily: tok.fontDisplay,
+            color: tok.text,
             margin: '0 0 4px',
           }}
         >
@@ -103,7 +104,7 @@ export function TagManager() {
         <p
           style={{
             fontSize: '12px',
-            color: t.textMuted,
+            color: tok.textMuted,
             margin: 0,
           }}
         >
@@ -143,14 +144,14 @@ export function TagManager() {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="输入标签名称..."
+          placeholder={t("tags.inputPlaceholder")}
           style={{
             flex: 1,
             maxWidth: isMobile ? '100%' : '240px',
             minWidth: isMobile ? '100%' : 'auto',
             padding: '10px 12px',
             fontSize: isMobile ? '14px' : '12px',
-            fontFamily: t.fontBody,
+            fontFamily: tok.fontBody,
             border: '1px solid rgba(139, 115, 75, 0.15)',
             borderRadius: '2px',
             background: 'var(--color-surface)',
@@ -181,7 +182,7 @@ export function TagManager() {
                 borderRadius: '2px',
                 border:
                   newColor === c
-                    ? `2px solid ${t.accent}`
+                    ? `2px solid ${tok.accent}`
                     : '1px solid rgba(139, 115, 75, 0.15)',
                 background: c,
                 cursor: 'pointer',
@@ -199,9 +200,9 @@ export function TagManager() {
           style={{
             padding: '8px 16px',
             fontSize: '11px',
-            fontFamily: t.fontDisplay,
+            fontFamily: tok.fontDisplay,
             fontWeight: 600,
-            color: newName.trim() ? t.text : t.textMuted,
+            color: newName.trim() ? tok.text : tok.textMuted,
             background: newName.trim()
               ? 'var(--color-surface)'
               : 'rgba(139, 115, 75, 0.06)',
@@ -230,14 +231,14 @@ export function TagManager() {
               flexDirection: 'column',
               alignItems: 'center',
               gap: 12,
-              color: t.textMuted,
+              color: tok.textMuted,
               textAlign: 'center',
               padding: '32px 0',
             }}
           >
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 20l6-12h12l6 12-6 12H14z" stroke={t.textFaint} strokeWidth="1.5" fill="none" />
-              <circle cx="20" cy="20" r="3" stroke={t.accent} strokeWidth="1.5" fill="rgba(122,92,18,0.06)" />
+              <path d="M8 20l6-12h12l6 12-6 12H14z" stroke={tok.textFaint} strokeWidth="1.5" fill="none" />
+              <circle cx="20" cy="20" r="3" stroke={tok.accent} strokeWidth="1.5" fill="rgba(122,92,18,0.06)" />
             </svg>
             <p style={{ fontSize: '12px', margin: 0 }}>
             暂无标签，创建一个开始使用吧
@@ -273,7 +274,7 @@ export function TagManager() {
                   height: '12px',
                   borderRadius: '2px',
                   background: tag.color ?? 'rgba(139, 115, 75, 0.15)',
-                  border: `1px solid ${t.border}`,
+                  border: `1px solid ${tok.border}`,
                   flexShrink: 0,
                 }}
               />
@@ -283,8 +284,8 @@ export function TagManager() {
                 style={{
                   flex: 1,
                   fontSize: '12px',
-                  fontFamily: t.fontBody,
-                  color: t.text,
+                  fontFamily: tok.fontBody,
+                  color: tok.text,
                 }}
               >
                 {tag.name}
@@ -303,7 +304,7 @@ export function TagManager() {
                             id: tag.id,
                             color: c,
                           });
-                        } catch {}
+                        } catch (e) { console.warn('Failed to update tag color:', e); }
                         setEditingId(null);
                         loadTags();
                       }}
@@ -325,7 +326,7 @@ export function TagManager() {
                       border: 'none',
                       cursor: 'pointer',
                       fontSize: '11px',
-                      color: t.textMuted,
+                      color: tok.textMuted,
                       padding: '0 4px',
                     }}
                   >
@@ -341,15 +342,15 @@ export function TagManager() {
                     border: 'none',
                     cursor: 'pointer',
                     fontSize: '11px',
-                    color: t.textMuted,
+                    color: tok.textMuted,
                     padding: '4px 8px',
                     transition: 'color 200ms',
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.color = t.accent;
+                    (e.currentTarget as HTMLElement).style.color = tok.accent;
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.color = t.textMuted;
+                    (e.currentTarget as HTMLElement).style.color = tok.textMuted;
                   }}
                 >
                   编辑颜色
@@ -365,7 +366,7 @@ export function TagManager() {
                   border: 'none',
                   cursor: 'pointer',
                   fontSize: '11px',
-                  color: t.textMuted,
+                  color: tok.textMuted,
                   padding: '4px 8px',
                   transition: 'color 200ms',
                 }}
@@ -373,7 +374,7 @@ export function TagManager() {
                   (e.currentTarget as HTMLElement).style.color = '#8a4040';
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.color = t.textMuted;
+                  (e.currentTarget as HTMLElement).style.color = tok.textMuted;
                 }}
               >
                 删除
