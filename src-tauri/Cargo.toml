@@ -1,6 +1,6 @@
 [package]
 name = "Lumora"
-version = "0.3.4"
+version = "0.4.0"
 description = "Lumora — AI-powered image gallery by hyls9527"
 authors = ["you"]
 license = "MIT"
