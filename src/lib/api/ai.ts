@@ -112,3 +112,46 @@ export async function getAnalysisHistory(imageId: string): Promise<AnalysisHisto
     };
   });
 }
+
+export interface BatchTagProgress {
+  current: number;
+  total: number;
+  imageId: string;
+  error?: string;
+}
+
+export interface BatchTagResult {
+  processed: number;
+  failed: number;
+}
+
+/** Batch auto-tag: analyze each image with AI and apply tags. */
+export async function batchAutoTag(
+  imageIds: string[],
+  onProgress?: (progress: BatchTagProgress) => void,
+): Promise<BatchTagResult> {
+  if (imageIds.length === 0) return { processed: 0, failed: 0 };
+
+  let processed = 0;
+  let failed = 0;
+
+  for (let i = 0; i < imageIds.length; i++) {
+    const imageId = imageIds[i];
+    try {
+      await invoke('analyze_image_cmd', { imageId });
+      await invoke('apply_ai_tags_cmd', { imageId });
+      processed++;
+      onProgress?.({ current: i + 1, total: imageIds.length, imageId });
+    } catch (e) {
+      failed++;
+      onProgress?.({
+        current: i + 1,
+        total: imageIds.length,
+        imageId,
+        error: e instanceof Error ? e.message : '未知错误',
+      });
+    }
+  }
+
+  return { processed, failed };
+}
