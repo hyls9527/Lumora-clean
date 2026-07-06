@@ -1,60 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   getDashboardStats,
+  toImageRecord,
   type DashboardStats,
 } from '../../lib/api/images';
-import type { ImageRecord } from '../../types/image';
 import { useEmbeddingStore } from '../../stores/embeddingStore';
 import { useTranslation } from '../../lib/i18n';
 import { formatFileSize } from '../../lib/format';
-
-/** Convert TauriImageRecord → ImageRecord for display */
-function toImageRecord(raw: {
-  id: string;
-  filePath: string;
-  fileHash: string;
-  fileSizeKb: number;
-  width: number | null;
-  height: number | null;
-  format: string;
-  createdAt: string;
-  importedAt: string;
-  deleted: boolean;
-  deletedAt: string | null;
-  rating: number;
-  favorite: boolean;
-  metadataJson: string | null;
-}): ImageRecord {
-  let model = '';
-  let prompt = '';
-  let tags: string[] = [];
-  if (raw.metadataJson) {
-    try {
-      const meta = JSON.parse(raw.metadataJson);
-      model = meta.model ?? '';
-      prompt = meta.prompt ?? '';
-      tags = Array.isArray(meta.tags) ? meta.tags : [];
-    } catch {
-      /* ignore */
-    }
-  }
-  return {
-    id: raw.id,
-    filePath: raw.filePath,
-    fileName: raw.filePath.split(/[/\\]/).pop() ?? raw.filePath,
-    fileSizeKb: raw.fileSizeKb,
-    width: raw.width ?? 0,
-    height: raw.height ?? 0,
-    format: raw.format as ImageRecord['format'],
-    createdAt: raw.createdAt,
-    rating: raw.rating,
-    favorite: raw.favorite,
-    deletedAt: raw.deletedAt ?? undefined,
-    model,
-    prompt,
-    tags,
-  };
-}
 
 /** Dotted separator row for directory-style layout */
 function DotRow({

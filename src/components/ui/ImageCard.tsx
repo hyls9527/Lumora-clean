@@ -1,4 +1,4 @@
-import { useEffect, memo, useState } from 'react';
+import { useEffect, memo } from 'react';
 import { useImageStore } from '../../stores/imageStore';
 import { useImageActions } from '../../hooks/useImageActions';
 import type { ImageRecord } from '../../types/image';
@@ -8,7 +8,7 @@ import { Rating } from './Rating';
 import { TagBadge } from './TagBadge';
 import { SimilarityBadge } from './SimilarityBadge';
 import { EmbeddingBadge } from './EmbeddingBadge';
-import { convertFileSrc } from '../../lib/tauri';
+import { useImageSrc } from '../../hooks/useImageSrc';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 
 interface ImageCardProps {
@@ -26,16 +26,12 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
   const embeddingStatus = useEmbeddingStore((s) => s.statusMap[image.id]);
   const fetchStatus = useEmbeddingStore((s) => s.fetchStatus);
 
-  const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const imgSrc = useImageSrc(image.filePath);
   const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!embeddingStatus) fetchStatus(image.id);
   }, [image.id, embeddingStatus, fetchStatus]);
-
-  useEffect(() => {
-    convertFileSrc(image.filePath).then(setImgSrc).catch(() => setImgSrc(null));
-  }, [image.filePath]);
 
   return (
     <div

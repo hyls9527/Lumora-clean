@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { ImageRecord } from '../../types/image';
 import { Rating } from './Rating';
 import { TagBadge } from './TagBadge';
 import { formatDate, formatFileSize } from '../../lib/format';
-import { convertFileSrc } from '../../lib/tauri';
+import { useImageSrc } from '../../hooks/useImageSrc';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 
 interface DetailModalProps {
@@ -127,13 +127,8 @@ export function DetailModal({
   onToggleFavorite,
   onSetRating,
 }: DetailModalProps) {
-  const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const imgSrc = useImageSrc(image?.filePath ?? null);
   const isMobile = useIsMobile();
-
-  useEffect(() => {
-    if (!image) { setImgSrc(null); return; }
-    convertFileSrc(image.filePath).then(setImgSrc).catch(() => setImgSrc(null));
-  }, [image?.filePath]);
 
   useEffect(() => {
     if (!image) return;

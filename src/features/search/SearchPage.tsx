@@ -4,6 +4,7 @@ import { SearchSkeleton } from '../../components/ui/LoadingSkeleton';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { SemanticSearchBar } from '../../components/ui/SemanticSearchBar';
 import { SimilarityBadge } from '../../components/ui/SimilarityBadge';
+import { Collapsible } from '../../components/ui/Collapsible';
 import { useSemanticSearchStore } from '../../stores/semanticSearchStore';
 import { useTranslation } from '../../lib/i18n';
 import { useIsMobile, useMediaQuery } from '../../hooks/useMediaQuery';
@@ -51,8 +52,6 @@ export function SearchPage() {
   const isTablet = useMediaQuery('(max-width: 1024px)');
 
   const [activeFilter, setActiveFilter] = useState('all');
-  const [compareOpen, setCompareOpen] = useState(false);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [inputValue, setInputValue] = useState(filters.searchQuery);
 
   const results = getSearchResults();
@@ -331,107 +330,20 @@ export function SearchPage() {
 
         {/* High similarity compare */}
         {filteredResults.some((r) => (r.similarity ?? 0) >= 90) && (
-          <section aria-label="高相似度对比" style={{ marginTop: 32 }}>
-            <div
-              onClick={() => setCompareOpen(!compareOpen)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setCompareOpen(!compareOpen);
-                }
-              }}
-              role="button"
-              tabIndex={0}
-              aria-expanded={compareOpen}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                cursor: 'pointer',
-                padding: '12px 0',
-                borderTop: '1px solid rgba(139, 115, 75, 0.10)',
-                borderBottom: '1px solid rgba(139, 115, 75, 0.10)',
-                transition: 'color 200ms',
-              }}
-            >
-              <span
-                style={{
-                  display: 'inline-block',
-                  transition: 'transform 200ms',
-                  fontSize: 10,
-                  color: '#6b5d48',
-                  transform: compareOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-                }}
-              >
-                ▶
-              </span>
-              <span
-                style={{
-                  fontSize: 13,
-                  fontWeight: 500,
-                  fontFamily: 'var(--font-display)',
-                  color: '#2a2118',
-                }}
-              >
-                高相似度对比
-              </span>
-            </div>
-
-            {compareOpen && (
+          <section aria-label="高相似度对比" style={{ marginTop: 32, borderTop: '1px solid rgba(139, 115, 75, 0.10)', borderBottom: '1px solid rgba(139, 115, 75, 0.10)', padding: '12px 0' }}>
+            <Collapsible title="高相似度对比">
               <div style={{ padding: '32px 0', textAlign: 'center' }}>
                 <p style={{ fontSize: 13, color: '#6b5d48' }}>
                   选择两张图片进行详细对比
                 </p>
               </div>
-            )}
+            </Collapsible>
           </section>
         )}
 
         {/* Advanced settings */}
         <div style={{ marginTop: 48, borderTop: '1px solid rgba(139, 115, 75, 0.10)', paddingTop: 24 }}>
-          <div
-            onClick={() => setAdvancedOpen(!advancedOpen)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setAdvancedOpen(!advancedOpen);
-              }
-            }}
-            role="button"
-            tabIndex={0}
-            aria-expanded={advancedOpen}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              cursor: 'pointer',
-              transition: 'color 200ms',
-            }}
-          >
-            <span
-              style={{
-                display: 'inline-block',
-                transition: 'transform 200ms',
-                fontSize: 10,
-                color: '#6b5d48',
-                transform: advancedOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-              }}
-            >
-              ▶
-            </span>
-            <span
-              style={{
-                fontSize: 13,
-                fontWeight: 500,
-                fontFamily: 'var(--font-display)',
-                color: '#6b5d48',
-              }}
-            >
-              高级设置
-            </span>
-          </div>
-
-          {advancedOpen && (
+          <Collapsible title="高级设置">
             <div style={{ paddingTop: 24 }}>
               {/* Search scope */}
               <div style={{ marginBottom: 24 }}>
@@ -619,7 +531,7 @@ export function SearchPage() {
                 </div>
               </div>
             </div>
-          )}
+          </Collapsible>
         </div>
       </div>
     </div>

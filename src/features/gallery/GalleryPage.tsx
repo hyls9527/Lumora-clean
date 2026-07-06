@@ -12,6 +12,7 @@ import { InfiniteScroll } from '../../components/ui/InfiniteScroll';
 import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 import { batchSoftDelete } from '../../lib/api/images';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { TabButton } from '../../components/ui/TabButton';
 
 const sortOptions = [
   { key: 'time' as const, label: '生成时间 ↓' },
@@ -21,97 +22,6 @@ const sortOptions = [
 ];
 
 const modelFilters = ['all', 'SDXL 1.0', 'Flux', 'Midjourney', 'ComfyUI'];
-
-function SortButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        fontSize: 11,
-        fontFamily: 'var(--font-display)',
-        color: active ? '#7a5c12' : '#6b5d48',
-        background: 'none',
-        border: 'none',
-        padding: '0 0 2px',
-        borderBottom: `2px solid ${active ? '#7a5c12' : 'transparent'}`,
-        cursor: 'pointer',
-        transition: 'color 200ms, border-color 200ms',
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-function FilterButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        fontSize: 11,
-        fontFamily: 'var(--font-display)',
-        color: active ? 'var(--color-accent)' : 'var(--color-text-secondary)',
-        background: 'none',
-        border: 'none',
-        padding: '0 0 2px',
-        borderBottom: `2px solid ${active ? 'var(--color-accent)' : 'transparent'}`,
-        whiteSpace: 'nowrap',
-        cursor: 'pointer',
-        transition: 'color 200ms, border-color 200ms',
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-function ViewButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        fontSize: 11,
-        fontFamily: 'var(--font-display)',
-        color: active ? '#7a5c12' : '#6b5d48',
-        background: 'none',
-        border: 'none',
-        padding: '0 0 2px',
-        borderBottom: `2px solid ${active ? '#7a5c12' : 'transparent'}`,
-        cursor: 'pointer',
-        transition: 'color 200ms',
-      }}
-    >
-      {children}
-    </button>
-  );
-}
 
 export function GalleryPage() {
   const {
@@ -333,18 +243,18 @@ export function GalleryPage() {
               </button>
             ))}
             <span style={{ width: 1, height: 14, background: 'rgba(139,115,75,0.15)', margin: '0 4px' }} />
-            <ViewButton
+            <TabButton
               active={filters.view === 'grid'}
               onClick={() => setView('grid')}
             >
               网格
-            </ViewButton>
-            <ViewButton
+            </TabButton>
+            <TabButton
               active={filters.view === 'list'}
               onClick={() => setView('list')}
             >
               列表
-            </ViewButton>
+            </TabButton>
           </div>
         </div>
 
@@ -360,24 +270,24 @@ export function GalleryPage() {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 16, flexWrap: 'wrap' }}>
             {sortOptions.map((opt) => (
-              <SortButton
+              <TabButton
                 key={opt.key}
                 active={filters.sortBy === opt.key}
                 onClick={() => setSortBy(opt.key)}
               >
                 {opt.label}
-              </SortButton>
+              </TabButton>
             ))}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 12, flexWrap: 'wrap' }}>
             {modelFilters.map((m) => (
-              <FilterButton
+              <TabButton
                 key={m}
                 active={filters.modelFilter === m}
                 onClick={() => setModelFilter(m)}
               >
                 {m === 'all' ? '全部' : m}
-              </FilterButton>
+              </TabButton>
             ))}
           </div>
         </div>

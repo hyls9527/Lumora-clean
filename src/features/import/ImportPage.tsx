@@ -2,11 +2,11 @@ import { useState, useCallback } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { useImageStore } from '../../stores/imageStore';
 import { ErrorState } from '../../components/ui/ErrorState';
+import { Collapsible } from '../../components/ui/Collapsible';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 
 export function ImportPage() {
   const [dragOver, setDragOver] = useState(false);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [recentImports, setRecentImports] = useState<
     { name: string; status: 'done' | 'processing' }[]
   >([]);
@@ -298,46 +298,8 @@ export function ImportPage() {
         </section>
 
         {/* Advanced settings (expandable) */}
-        <section aria-label="高级设置">
-          <div
-            onClick={() => setAdvancedOpen(!advancedOpen)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setAdvancedOpen(!advancedOpen);
-              }
-            }}
-            role="button"
-            tabIndex={0}
-            aria-expanded={advancedOpen}
-            style={{
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '12px 0',
-              transition: 'color 200ms',
-              borderTop: '1px dotted rgba(139, 115, 75, 0.10)',
-            }}
-          >
-            <span style={{ fontSize: 12, color: '#6b5d48' }}>
-              {advancedOpen ? '▾' : '▸'}
-            </span>
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase' as const,
-                fontFamily: 'var(--font-display)',
-                color: '#6b5d48',
-              }}
-            >
-              高级设置
-            </span>
-          </div>
-
-          {advancedOpen && (
+        <section aria-label="高级设置" style={{ borderTop: '1px dotted rgba(139, 115, 75, 0.10)', padding: '12px 0' }}>
+          <Collapsible title="高级设置">
             <div>
               {/* ComfyUI Config */}
               <div style={{ marginTop: 24, marginBottom: 40 }}>
@@ -417,7 +379,7 @@ export function ImportPage() {
                 </div>
               </div>
             </div>
-          )}
+          </Collapsible>
         </section>
       </div>
     </div>
