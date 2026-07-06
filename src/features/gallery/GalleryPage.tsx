@@ -12,6 +12,7 @@ import { LazyLoad } from '../../components/ui/LazyLoad';
 import { InfiniteScroll } from '../../components/ui/InfiniteScroll';
 import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 import { batchSoftDelete } from '../../lib/api/images';
+import { batchAutoTag } from '../../lib/api/ai';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { TabButton } from '../../components/ui/TabButton';
 import { t as tokens } from '../../lib/tokens';
@@ -46,6 +47,7 @@ export function GalleryPage() {
   const isMobile = useIsMobile();
 
   const [batchDeleting, setBatchDeleting] = useState(false);
+  const [batchTagging, setBatchTagging] = useState(false);
   const [columnCount, setColumnCount] = useState(0); // 0 = auto (CSS responsive)
 
   const images = getFilteredImages();
@@ -148,6 +150,20 @@ export function GalleryPage() {
       // error handled by store
     } finally {
       setBatchDeleting(false);
+    }
+  }, [selectedIds, clearSelection, fetchImages, page]);
+
+  const handleBatchTag = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+    setBatchTagging(true);
+    try {
+      await batchAutoTag([...selectedIds]);
+      clearSelection();
+      await fetchImages(page);
+    } catch {
+      // error handled by batchAutoTag
+    } finally {
+      setBatchTagging(false);
     }
   }, [selectedIds, clearSelection, fetchImages, page]);
 
@@ -484,6 +500,25 @@ export function GalleryPage() {
             }}
           >
             {batchDeleting ? '删除中…' : '批量删除'}
+          </button>
+          <button
+            type="button"
+            onClick={handleBatchTag}
+            disabled={batchTagging}
+            style={{
+              fontSize: 12,
+              fontFamily: tokens.fontDisplay,
+              color: tokens.bg,
+              background: tokens.accent,
+              border: 'none',
+              padding: '6px 16px',
+              borderRadius: 4,
+              cursor: batchTagging ? 'not-allowed' : 'pointer',
+              opacity: batchTagging ? 0.5 : 1,
+              transition: 'background 200ms',
+            }}
+          >
+            {batchTagging ? '分析中…' : 'AI 标签'}
           </button>
           <button
             type="button"
