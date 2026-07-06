@@ -15,6 +15,7 @@ interface DetailModalProps {
   onNext?: () => void;
   onToggleFavorite?: (id: string) => void;
   onSetRating?: (id: string, rating: number) => void;
+  onSearchSimilar?: (id: string) => void;
 }
 
 const overlayStyle: React.CSSProperties = {
@@ -113,6 +114,7 @@ export function DetailModal({
   onNext,
   onToggleFavorite,
   onSetRating,
+  onSearchSimilar,
 }: DetailModalProps) {
   const imgSrc = useImageSrc(image?.filePath ?? null);
   const isMobile = useIsMobile();
@@ -297,6 +299,28 @@ export function DetailModal({
                   <TagBadge key={tag} name={tag} />
                 ))}
               </div>
+            </div>
+          )}
+
+          {onSearchSimilar && (
+            <div>
+              <button
+                type="button"
+                onClick={() => onSearchSimilar(image.id)}
+                style={{
+                  fontSize: 12,
+                  fontFamily: tok.fontBody,
+                  color: tok.accent,
+                  background: tok.accentSubtle,
+                  border: `1px solid ${tok.accent}`,
+                  borderRadius: 4,
+                  padding: '6px 14px',
+                  cursor: 'pointer',
+                  transition: 'background 200ms',
+                }}
+              >
+                以图搜图
+              </button>
             </div>
           )}
 

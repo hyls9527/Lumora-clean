@@ -6,6 +6,7 @@ import { GalleryPage } from './features/gallery/GalleryPage';
 import { useSettingsStore } from './stores/settingsStore';
 import { useCommandStore } from './stores/commandStore';
 import { useDragDrop } from './hooks/useDragDrop';
+import { useImageSearchStore } from './stores/imageSearchStore';
 import { useTranslation, t } from './lib/i18n';
 import { t as tok } from './lib/tokens';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
@@ -25,6 +26,12 @@ function App() {
   const hydrate = useSettingsStore((s) => s.hydrate);
   const { toggle, registerCommands } = useCommandStore();
   const { t } = useTranslation();
+
+  // Auto-navigate to search when image search is triggered
+  const imageSearchSource = useImageSearchStore((s) => s.sourceImageId);
+  useEffect(() => {
+    if (imageSearchSource) setRoute('/search');
+  }, [imageSearchSource]);
 
   useEffect(() => { void hydrate(); }, [hydrate]);
 

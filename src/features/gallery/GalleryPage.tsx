@@ -3,6 +3,7 @@ import { useImageStore } from '../../stores/imageStore';
 import { useSelection } from '../../hooks/useSelection';
 import { useImageActions } from '../../hooks/useImageActions';
 import { useTrashStore } from '../../stores/trashStore';
+import { useImageSearchStore } from '../../stores/imageSearchStore';
 import { ImageCard } from '../../components/ui/ImageCard';
 import { DetailModal } from '../../components/ui/DetailModal';
 import { GridSkeleton } from '../../components/ui/LoadingSkeleton';
@@ -512,6 +513,13 @@ export function GalleryPage() {
         onNext={handleDetailNext}
         onToggleFavorite={toggleFavorite}
         onSetRating={setRating}
+        onSearchSimilar={(id) => {
+          const img = imagesRef.current.find((i) => i.id === id);
+          if (img) {
+            setDetailImage(null);
+            useImageSearchStore.getState().search(img.id, img.filePath);
+          }
+        }}
       />
     </div>
   );
