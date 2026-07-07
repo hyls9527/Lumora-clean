@@ -198,7 +198,7 @@ export function SettingsPage() {
       style={{
         flex: 1,
         display: 'flex',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         padding: '32px 16px',
         background: token.bg,
         overflowY: 'auto',
