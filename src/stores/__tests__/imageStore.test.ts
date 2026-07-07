@@ -175,3 +175,58 @@ describe('filters', () => {
     expect(useImageStore.getState().filters.modelFilter).toBe('SDXL');
   });
 });
+
+describe('importImages', () => {
+  it('calls api.importImages and prepends new images', async () => {
+    const newImage = { ...mockImage, id: 'new-1' };
+    vi.mocked(api.importImages).mockResolvedValue({
+      items: [newImage],
+      imported: 1,
+      skipped: 0,
+      totalScanned: 1,
+    });
+
+    const result = await useImageStore.getState().importImages('/photos');
+    expect(api.importImages).toHaveBeenCalledWith('/photos');
+    expect(result.imported).toBe(1);
+    expect(useImageStore.getState().images[0].id).toBe('new-1');
+    expect(useImageStore.getState().total).toBe(1);
+  });
+
+  it('sets loading state during import', async () => {
+    let resolvePromise: (value: unknown) => void;
+    vi.mocked(api.importImages).mockReturnValue(new Promise((resolve) => { resolvePromise = resolve; }));
+
+    const importPromise = useImageStore.getState().importImages('/photos');
+    expect(useImageStore.getState().loading).toBe(true);
+
+    resolvePromise!({ items: [], imported: 0, skipped: 0, totalScanned: 0 });
+    await importPromise;
+    expect(useImageStore.getState().loading).toBe(false);
+  });
+
+  it('sets error on failure', async () => {
+    vi.mocked(api.importImages).mockRejectedValue(new Error('Import failed'));
+
+    await expect(useImageStore.getState().importImages('/bad')).rejects.toThrow('Import failed');
+    expect(useImageStore.getState().error).toBe('Import failed');
+    expect(useImageStore.getState().loading).toBe(false);
+  });
+});
+
+describe('exportImages', () => {
+  it('calls api.exportImages with correct params', async () => {
+    vi.mocked(api.exportImages).mockResolvedValue({ success: 2, failed: 0 });
+
+    const result = await useImageStore.getState().exportImages(['1', '2'], '/output', 'png');
+    expect(api.exportImages).toHaveBeenCalledWith(['1', '2'], '/output', 'png', undefined);
+    expect(result.success).toBe(2);
+  });
+
+  it('sets error on failure', async () => {
+    vi.mocked(api.exportImages).mockRejectedValue(new Error('Export failed'));
+
+    await expect(useImageStore.getState().exportImages(['1'], '/output', 'png')).rejects.toThrow('Export failed');
+    expect(useImageStore.getState().error).toBe('Export failed');
+  });
+});
