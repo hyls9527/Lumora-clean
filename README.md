@@ -2,6 +2,12 @@
 
 Desktop image gallery for AI-generated art. Everything stays on your machine.
 
+## What it does
+
+Browse, search, and organize images from Stable Diffusion, Midjourney, ComfyUI, and other tools. Filter by model, rating, size, or generation time. Search by text description or visual similarity. Auto-tag and describe images using local AI models.
+
+Import by dragging folders or files into the window. Export with custom filename templates. Soft-delete to trash, restore when needed.
+
 ## Quick start
 
 ```bash
@@ -15,12 +21,6 @@ For search and AI features, install [Ollama](https://ollama.com/download) and pu
 ollama pull nomic-embed-text
 ollama pull llava
 ```
-
-## What it does
-
-Browse, search, and organize images from Stable Diffusion, Midjourney, ComfyUI, and other tools. Filter by model, rating, size, or generation time. Search by text description or visual similarity. Auto-tag and describe images using local AI models.
-
-Import by dragging folders or files into the window. Export with custom filename templates. Soft-delete to trash, restore when needed.
 
 ## Keyboard shortcuts
 
