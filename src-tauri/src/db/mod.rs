@@ -11,6 +11,7 @@ use std::sync::Mutex;
 /// WAL mode + `Mutex` keeps it safe under concurrent Tauri command calls.
 pub struct DbHandle {
     conn: Mutex<Connection>,
+    path: std::path::PathBuf,
 }
 
 impl DbHandle {
@@ -31,6 +32,7 @@ impl DbHandle {
         migrations::run_migrations(&conn)?;
         Ok(Self {
             conn: Mutex::new(conn),
+            path: path.to_path_buf(),
         })
     }
 
@@ -46,16 +48,21 @@ impl DbHandle {
         let conn = Connection::open_in_memory()?;
         conn.execute_batch(
             "PRAGMA journal_mode = WAL;
+             PRAGMA synchronous  = NORMAL;
              PRAGMA foreign_keys = ON;",
         )?;
         migrations::run_migrations(&conn)?;
         Ok(Self {
             conn: Mutex::new(conn),
+            path: std::path::PathBuf::from(":memory:"),
         })
     }
 
-    /// Access the underlying connection behind the mutex.
     pub fn conn(&self) -> &Mutex<Connection> {
         &self.conn
+    }
+
+    pub fn path(&self) -> &std::path::Path {
+        &self.path
     }
 }

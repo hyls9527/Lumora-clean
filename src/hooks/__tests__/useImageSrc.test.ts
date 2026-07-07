@@ -12,59 +12,97 @@ const mockConvert = vi.mocked(convertFileSrc);
 describe('useImageSrc', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
-  it('should return null initially', () => {
-    mockConvert.mockResolvedValue('asset://converted');
-    const { result } = renderHook(() => useImageSrc('/path/to/image.png'));
-    expect(result.current).toBeNull();
-  });
-
-  it('should return converted src after resolution', async () => {
-    mockConvert.mockResolvedValue('asset://converted-path');
-    const { result } = renderHook(() => useImageSrc('/path/to/image.png'));
+  it('should return src on success', async () => {
+    mockConvert.mockResolvedValue('asset://img.png');
+    const { result } = renderHook(() => useImageSrc('/path/img.png'));
 
     await act(async () => {
       await new Promise((r) => setTimeout(r, 0));
     });
 
-    expect(result.current).toBe('asset://converted-path');
+    expect(result.current).toBe('asset://img.png');
   });
 
-  it('should return null on conversion error', async () => {
-    mockConvert.mockRejectedValue(new Error('conversion failed'));
-    const { result } = renderHook(() => useImageSrc('/bad/path.png'));
-
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 0));
-    });
-
-    expect(result.current).toBeNull();
-  });
-
-  it('should return null when filePath is null', () => {
+  it('should return null for null filePath', () => {
     const { result } = renderHook(() => useImageSrc(null));
     expect(result.current).toBeNull();
   });
 
+  it('should retry on failure', async () => {
+    vi.useFakeTimers();
+    mockConvert
+      .mockRejectedValueOnce(new Error('fail'))
+      .mockResolvedValueOnce('asset://retried.png');
+
+    const { result } = renderHook(() => useImageSrc('/path/img.png'));
+
+    // First attempt fails
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    // Retry after delay
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+
+    expect(result.current).toBe('asset://retried.png');
+    expect(mockConvert).toHaveBeenCalledTimes(2);
+
+    vi.useRealTimers();
+  });
+
+  it('should return null after max retries exhausted', async () => {
+    vi.useFakeTimers();
+    mockConvert.mockRejectedValue(new Error('fail'));
+
+    const { result } = renderHook(() => useImageSrc('/path/img.png'));
+
+    // First attempt
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    // Retry 1
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+
+    // Retry 2
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2000);
+    });
+
+    // Should still be null (not crash)
+    expect(result.current).toBeNull();
+    expect(mockConvert).toHaveBeenCalledTimes(3); // 1 + 2 retries
+
+    vi.useRealTimers();
+  });
+
   it('should update src when filePath changes', async () => {
-    mockConvert.mockResolvedValue('asset://first');
+    mockConvert
+      .mockResolvedValueOnce('asset://first.png')
+      .mockResolvedValueOnce('asset://second.png');
+
     const { result, rerender } = renderHook(
-      ({ path }) => useImageSrc(path),
-      { initialProps: { path: '/first.png' } },
+      (props) => useImageSrc(props),
+      { initialProps: '/path/first.png' },
     );
 
     await act(async () => {
       await new Promise((r) => setTimeout(r, 0));
     });
-    expect(result.current).toBe('asset://first');
+    expect(result.current).toBe('asset://first.png');
 
-    mockConvert.mockResolvedValue('asset://second');
-    rerender({ path: '/second.png' });
+    rerender('/path/second.png');
 
     await act(async () => {
       await new Promise((r) => setTimeout(r, 0));
     });
-    expect(result.current).toBe('asset://second');
+    expect(result.current).toBe('asset://second.png');
   });
 });

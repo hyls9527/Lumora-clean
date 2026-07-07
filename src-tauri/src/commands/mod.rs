@@ -7,3 +7,4 @@ pub mod export;
 pub mod embeddings;
 pub mod ai;
 pub mod clip;
+pub mod backup;

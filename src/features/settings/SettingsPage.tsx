@@ -1,4 +1,7 @@
 import { useSettingsStore } from '../../stores/settingsStore';
+import { exportDatabase, importDatabase } from '../../lib/api/backup';
+import { open, save } from '@tauri-apps/plugin-dialog';
+import { useState } from 'react';
 import { useTranslation } from '../../lib/i18n';
 import { t as tok } from '../../lib/tokens';
 import type { Language } from '../../stores/settingsStore';
@@ -156,6 +159,33 @@ export function SettingsPage() {
     { key: 'dark' as const, label: t('darkTheme') },
   ];
 
+  const [backupMsg, setBackupMsg] = useState('');
+
+  const handleExport = async () => {
+    try {
+      const dest = await save({ defaultPath: 'lumora-backup.db', filters: [{ name: 'SQLite', extensions: ['db'] }] });
+      if (dest) {
+        await exportDatabase(dest);
+        setBackupMsg('导出成功');
+        setTimeout(() => setBackupMsg(''), 3000);
+      }
+    } catch {
+      setBackupMsg('导出失败');
+    }
+  };
+
+  const handleImport = async () => {
+    try {
+      const selected = await open({ filters: [{ name: 'SQLite', extensions: ['db'] }] });
+      if (selected) {
+        await importDatabase(selected as string);
+        setBackupMsg('导入成功，请重启应用');
+      }
+    } catch {
+      setBackupMsg('导入失败');
+    }
+  };
+
   const shortcuts: { action: string; key: string }[] = [
     { action: t('shortcutSearch'), key: t('shortcutSearchKey') },
     { action: t('shortcutSelectAll'), key: t('shortcutSelectAllKey') },
@@ -287,6 +317,58 @@ export function SettingsPage() {
         </section>
 
         {/* ── About ── */}
+        <section>
+          <SectionHeading>{t('backup')}</SectionHeading>
+          <div
+            style={{
+              background: token.surface,
+              borderRadius: 6,
+              border: `1px solid ${token.border}`,
+              padding: '20px 16px',
+              display: 'flex',
+              gap: 12,
+            }}
+          >
+            <button
+              type="button"
+              onClick={handleExport}
+              style={{
+                fontSize: 12,
+                fontFamily: 'var(--font-display)',
+                color: token.bg,
+                background: token.accent,
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: 4,
+                cursor: 'pointer',
+              }}
+            >
+              {t('exportDb')}
+            </button>
+            <button
+              type="button"
+              onClick={handleImport}
+              style={{
+                fontSize: 12,
+                fontFamily: 'var(--font-display)',
+                color: token.text,
+                background: 'none',
+                border: `1px solid ${token.border}`,
+                padding: '8px 16px',
+                borderRadius: 4,
+                cursor: 'pointer',
+              }}
+            >
+              {t('importDb')}
+            </button>
+            {backupMsg && (
+              <span style={{ fontSize: 12, color: tok.success, alignSelf: 'center' }}>
+                {backupMsg}
+              </span>
+            )}
+          </div>
+        </section>
+
         <section>
           <SectionHeading>{t('about')}</SectionHeading>
           <div

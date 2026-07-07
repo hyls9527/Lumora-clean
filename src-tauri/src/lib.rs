@@ -88,6 +88,8 @@ pub fn run() {
             commands::clip::clip_embed_text_cmd,
             ollama::get_ollama_host,
             ollama::check_ollama_status,
+            commands::backup::export_database,
+            commands::backup::import_database,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
