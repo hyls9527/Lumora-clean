@@ -63,6 +63,18 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
     }
   }, [droppedPaths, onPathsConsumed, handleImport]);
 
+  const handleBrowseFiles = useCallback(async () => {
+    const selected = await open({
+      multiple: true,
+      filters: [{ name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff'] }],
+      title: '选择图片文件',
+    });
+    if (selected) {
+      const paths = Array.isArray(selected) ? selected : [selected];
+      paths.forEach(p => handleImport(p));
+    }
+  }, [handleImport]);
+
   const handleBrowseFolder = useCallback(async () => {
     const selected = await open({ directory: true, title: '选择导入文件夹' });
     if (selected) handleImport(selected);
@@ -113,27 +125,50 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
           >
             导入管理
           </h2>
-          <button
-            type="button"
-            onClick={handleBrowseFolder}
-            style={{
-              padding: isMobile ? '10px 20px' : '8px 16px',
-              fontSize: isMobile ? 13 : 12,
-              fontWeight: 500,
-              letterSpacing: '0.05em',
-              textTransform: 'uppercase' as const,
-              fontFamily: tok.fontDisplay,
-              color: tok.bg,
-              background: tok.accent,
-              border: 'none',
-              borderRadius: 4,
-              cursor: 'pointer',
-              transition: 'background 200ms',
-              minHeight: '44px',
-            }}
-          >
-            选择文件夹
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              type="button"
+              onClick={handleBrowseFolder}
+              style={{
+                padding: isMobile ? '10px 20px' : '8px 16px',
+                fontSize: isMobile ? 13 : 12,
+                fontWeight: 500,
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase' as const,
+                fontFamily: tok.fontDisplay,
+                color: tok.bg,
+                background: tok.accent,
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer',
+                transition: 'background 200ms',
+                minHeight: '44px',
+              }}
+            >
+              选择文件夹
+            </button>
+            <button
+              type="button"
+              onClick={handleBrowseFiles}
+              style={{
+                padding: isMobile ? '10px 20px' : '8px 16px',
+                fontSize: isMobile ? 13 : 12,
+                fontWeight: 500,
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase' as const,
+                fontFamily: tok.fontDisplay,
+                color: tok.text,
+                background: 'none',
+                border: `1px solid ${tok.border}`,
+                borderRadius: 4,
+                cursor: 'pointer',
+                transition: 'background 200ms',
+                minHeight: '44px',
+              }}
+            >
+              选择文件
+            </button>
+          </div>
         </div>
 
         {/* Folder picker / Drop zone */}
