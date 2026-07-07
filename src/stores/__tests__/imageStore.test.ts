@@ -194,7 +194,7 @@ describe('importImages', () => {
   });
 
   it('sets loading state during import', async () => {
-    let resolvePromise: (value: unknown) => void;
+    let resolvePromise: (value: any) => void;
     vi.mocked(api.importImages).mockReturnValue(new Promise((resolve) => { resolvePromise = resolve; }));
 
     const importPromise = useImageStore.getState().importImages('/photos');
@@ -216,7 +216,7 @@ describe('importImages', () => {
 
 describe('exportImages', () => {
   it('calls api.exportImages with correct params', async () => {
-    vi.mocked(api.exportImages).mockResolvedValue({ success: 2, failed: 0 });
+    vi.mocked(api.exportImages).mockResolvedValue({ success: 2, failed: 0, destDir: "/output" });
 
     const result = await useImageStore.getState().exportImages(['1', '2'], '/output', 'png');
     expect(api.exportImages).toHaveBeenCalledWith(['1', '2'], '/output', 'png', undefined);
