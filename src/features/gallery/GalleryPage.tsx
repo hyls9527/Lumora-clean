@@ -389,7 +389,7 @@ export function GalleryPage() {
                     marginBottom: 12,
                   }}
                 >
-                  <LazyLoad height={200}>
+                  <LazyLoad height={img.height || 200}>
                     <ImageCard
                       image={img}
                       focused={focusedIndex === index}
