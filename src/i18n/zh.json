@@ -37,7 +37,14 @@
     "moveToTrash": "移到回收站",
     "mainNav": "主导航",
     "ollamaOffline": "Ollama 状态：离线，点击重试",
-    "ollamaOnline": "Ollama 状态：在线"
+    "ollamaOnline": "Ollama 状态：在线",
+    "loadingMore": "加载中…",
+    "dbConnected": "数据库已连接",
+    "totalImages": "共 {total} 张",
+    "artworks": "{count} 张作品",
+    "pageInfo": "第 {page} / {totalPages} 页",
+    "unfavorite": "取消收藏",
+    "favorite": "收藏"
   },
   "gallery": {
     "title": "创作者图库",
@@ -117,7 +124,7 @@
     "emptyTrashConfirm": "清空回收站？",
     "emptyTrashDesc": "永久删除回收站中的所有 {count} 张图片，此操作不可撤销。",
     "confirmEmpty": "确认清空",
-    "deletedCount": "{count} 张已删除图片",
+    "deletedCount": "{total} 张已删除图片",
     "deletedAt": "删除时间",
     "fileName": "文件名",
     "dimensions": "尺寸",
@@ -181,7 +188,9 @@
     "removeFromImage": "移除标签",
     "createSuccess": "标签创建成功",
     "deleteSuccess": "标签已删除",
-    "inputPlaceholder": "输入标签名称..."
+    "inputPlaceholder": "输入标签名称...",
+    "confirmDelete": "确定要删除标签\"{name}\"吗？关联的图片将失去此标签。",
+    "empty": "暂无标签，创建一个开始使用吧"
   },
   "settings": {
     "title": "设置",
@@ -347,5 +356,19 @@
     "ollamaOfflineAria": "Ollama 状态：离线，点击重试",
     "ollamaOnlineAria": "Ollama 状态：在线",
     "searchShortcut": "搜索 ⌘K"
+  },
+  "batch": {
+    "selected": "已选 {count} 张",
+    "deleting": "删除中…",
+    "delete": "批量删除",
+    "tagging": "分析中…",
+    "aiTag": "AI 标签",
+    "cancel": "取消"
+  },
+  "favorites": {
+    "empty": "暂无收藏图片",
+    "title": "收藏",
+    "count": "{count} 张收藏",
+    "loadError": "加载收藏失败"
   }
 }

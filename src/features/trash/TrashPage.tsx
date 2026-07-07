@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from '../../lib/i18n';
 import { useTrashStore } from '../../stores/trashStore';
 import { GridSkeleton } from '../../components/ui/LoadingSkeleton';
 import { ErrorState } from '../../components/ui/ErrorState';
@@ -37,6 +38,7 @@ export function TrashPage() {
 
   const isMobile = useIsMobile();
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const { t } = useTranslation();
   const [confirmEmpty, setConfirmEmpty] = useState(false);
 
   const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -129,7 +131,7 @@ export function TrashPage() {
             }}
           />
           <span style={{ fontSize: 10, color: tok.textMuted, fontFamily: tok.fontBody }}>
-            {loading ? '加载中…' : `${total} 张已删除图片`}
+            {loading ? '加载中…' : `${t('trash.deletedCount', { total })}`}
           </span>
         </div>
       </div>
@@ -276,7 +278,7 @@ export function TrashPage() {
                                 cursor: 'pointer',
                               }}
                             >
-                              取消
+                              {t('common.cancel')}
                             </button>
                           </span>
                         ) : (
@@ -397,7 +399,7 @@ export function TrashPage() {
                   cursor: 'pointer',
                 }}
               >
-                取消
+                {t('common.cancel')}
               </button>
               <button
                 type="button"
@@ -432,10 +434,10 @@ export function TrashPage() {
         }}
       >
         <span style={{ fontSize: 11, color: tok.textSecondary, fontFamily: tok.fontBody }}>
-          {total} 张已删除图片
+          {t('trash.deletedCount', { total })}
         </span>
         <span style={{ fontSize: 11, color: tok.textSecondary, fontFamily: tok.fontBody }}>
-          第 {page} / {totalPages} 页
+          {t('common.pageInfo', { page, totalPages })}
         </span>
       </div>
     </div>

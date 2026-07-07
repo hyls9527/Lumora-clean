@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { invoke } from '../../lib/tauri';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { t as tok } from '../../lib/tokens';
-import { t } from '../../lib/i18n';
+import { useTranslation } from '../../lib/i18n';
 
 interface Tag {
   id: string;
@@ -26,6 +26,7 @@ const PRESET_COLORS = [
 
 export function TagManager() {
   const [tags, setTags] = useState<Tag[]>([]);
+  const { t } = useTranslation();
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -60,7 +61,7 @@ export function TagManager() {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`确定要删除标签\"${name}\"吗？关联的图片将失去此标签。`)) return;
+    if (!window.confirm(t("tags.confirmDelete", { name }))) return;
     try {
       await invoke('delete_tag', { id });
       setError(null);
@@ -241,7 +242,7 @@ export function TagManager() {
               <circle cx="20" cy="20" r="3" stroke={tok.accent} strokeWidth="1.5" fill="rgba(122,92,18,0.06)" />
             </svg>
             <p style={{ fontSize: '12px', margin: 0 }}>
-            暂无标签，创建一个开始使用吧
+            {t('tags.empty')}
             </p>
           </div>
         ) : (
@@ -330,7 +331,7 @@ export function TagManager() {
                       padding: '0 4px',
                     }}
                   >
-                    取消
+                    {t('common.cancel')}
                   </button>
                 </div>
               ) : (

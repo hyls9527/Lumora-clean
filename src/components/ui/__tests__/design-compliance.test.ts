@@ -122,7 +122,8 @@ describe('UI 一致性 — DESIGN.md 合规', () => {
     it('收藏使用藏书印 ◆', () => {
       const imageCard = readFileSync(resolve(root, 'src/components/ui/ImageCard.tsx'), 'utf-8');
       expect(imageCard).toContain('◆');
-      expect(imageCard).toContain('收藏');
+      // i18n: '收藏' replaced with t('common.favorite')
+      expect(imageCard).toContain('common.favorite');
     });
   });
 

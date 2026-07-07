@@ -1,3 +1,4 @@
+import { useTranslation } from '../../lib/i18n';
 import { t as tokens } from '../../lib/tokens';
 
 interface BatchToolbarProps {
@@ -10,6 +11,7 @@ interface BatchToolbarProps {
 }
 
 export function BatchToolbar({ count, onDelete, onAiTag, onCancel, deleting, tagging }: BatchToolbarProps) {
+  const { t } = useTranslation('batch');
   if (count === 0) return null;
   return (
     <div
@@ -33,7 +35,7 @@ export function BatchToolbar({ count, onDelete, onAiTag, onCancel, deleting, tag
     >
       <style>{`@keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }`}</style>
       <span style={{ fontSize: 13, fontWeight: 500 }}>
-        已选 {count} 张
+        {t('selected', { count })}
       </span>
       <span style={{ width: 1, height: 20, background: 'rgba(242,237,228,0.2)' }} />
       <button
@@ -47,7 +49,7 @@ export function BatchToolbar({ count, onDelete, onAiTag, onCancel, deleting, tag
           opacity: deleting ? 0.5 : 1, transition: 'background 200ms',
         }}
       >
-        {deleting ? '删除中…' : '批量删除'}
+        {deleting ? t('deleting') : t('delete')}
       </button>
       <button
         type="button"
@@ -60,7 +62,7 @@ export function BatchToolbar({ count, onDelete, onAiTag, onCancel, deleting, tag
           opacity: tagging ? 0.5 : 1, transition: 'background 200ms',
         }}
       >
-        {tagging ? '分析中…' : 'AI 标签'}
+        {tagging ? t('tagging') : t('aiTag')}
       </button>
       <button
         type="button"
@@ -72,7 +74,7 @@ export function BatchToolbar({ count, onDelete, onAiTag, onCancel, deleting, tag
           transition: 'background 200ms',
         }}
       >
-        取消
+        {t('cancel')}
       </button>
     </div>
   );

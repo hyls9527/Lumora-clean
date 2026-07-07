@@ -1,14 +1,16 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from '../../lib/i18n';
 import { useImageActions } from '../../hooks/useImageActions';
 import type { ImageRecord } from '../../types/image';
 import { ImageCard } from '../../components/ui/ImageCard';
 import { DetailModal } from '../../components/ui/DetailModal';
 import { listFavorites } from '../../lib/api/images';
 import { ErrorState } from '../../components/ui/ErrorState';
-import { t } from '../../lib/tokens';
+import { t as tok } from '../../lib/tokens';
 
 export function FavoritesPage() {
   const { toggleFavorite, setRating } = useImageActions();
+  const { t } = useTranslation();
 
   const [favorites, setFavorites] = useState<ImageRecord[]>([]);
   const [detailImage, setDetailImage] = useState<ImageRecord | null>(null);
@@ -22,7 +24,7 @@ export function FavoritesPage() {
       const items = await listFavorites();
       setFavorites(items);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '加载收藏失败');
+      setError(err instanceof Error ? err.message : t('favorites.loadError'));
     } finally {
       setLoading(false);
     }
@@ -74,7 +76,7 @@ export function FavoritesPage() {
       <div
         style={{
           padding: '14px 32px',
-          borderBottom: `1px solid ${t.border}`,
+          borderBottom: `1px solid ${tok.border}`,
           background: 'var(--color-bg)',
         }}
       >
@@ -82,12 +84,12 @@ export function FavoritesPage() {
           style={{
             fontSize: 20,
             fontWeight: 600,
-            fontFamily: t.fontDisplay,
-            color: t.text,
+            fontFamily: tok.fontDisplay,
+            color: tok.text,
             margin: 0,
           }}
         >
-          收藏
+          {t('favorites.title')}
         </h2>
       </div>
 
@@ -101,12 +103,12 @@ export function FavoritesPage() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: t.textMuted,
-            fontFamily: t.fontBody,
+            color: tok.textMuted,
+            fontFamily: tok.fontBody,
             fontSize: 13,
           }}
         >
-          加载中…
+          {t('common.loadingMore')}
         </div>
       ) : favorites.length === 0 ? (
         <div
@@ -117,15 +119,15 @@ export function FavoritesPage() {
             alignItems: 'center',
             justifyContent: 'center',
             gap: 16,
-            color: t.textMuted,
-            fontFamily: t.fontBody,
+            color: tok.textMuted,
+            fontFamily: tok.fontBody,
             fontSize: 13,
             }}
             >
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M24 8l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" stroke={t.textFaint} strokeWidth="1.5" fill="rgba(122,92,18,0.06)" strokeLinejoin="round" />
+            <path d="M24 8l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" stroke={tok.textFaint} strokeWidth="1.5" fill="rgba(122,92,18,0.06)" strokeLinejoin="round" />
             </svg>
-            暂无收藏图片
+            {t('favorites.empty')}
         </div>
       ) : (
         <div
@@ -153,14 +155,14 @@ export function FavoritesPage() {
       <div
         style={{
           padding: '14px 32px',
-          borderTop: `1px solid ${t.border}`,
+          borderTop: `1px solid ${tok.border}`,
           marginTop: 'auto',
         }}
       >
         <span
-          style={{ fontSize: 11, color: t.textSecondary, fontFamily: t.fontBody }}
+          style={{ fontSize: 11, color: tok.textSecondary, fontFamily: tok.fontBody }}
         >
-          {favorites.length} 张收藏
+          {t('favorites.count', { count: favorites.length })}
         </span>
       </div>
 

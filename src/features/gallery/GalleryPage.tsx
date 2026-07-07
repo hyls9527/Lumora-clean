@@ -14,6 +14,7 @@ import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 import { batchSoftDelete } from '../../lib/api/images';
 import { batchAutoTag } from '../../lib/api/ai';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { useTranslation } from '../../lib/i18n';
 import { TabButton } from '../../components/ui/TabButton';
 import { BatchToolbar } from './BatchToolbar';
 import { t as tokens } from '../../lib/tokens';
@@ -46,6 +47,7 @@ export function GalleryPage() {
   const { toggleFavorite, setRating } = useImageActions();
   const softDelete = useTrashStore((s) => s.softDeleteImage);
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
 
   const [batchDeleting, setBatchDeleting] = useState(false);
   const [batchTagging, setBatchTagging] = useState(false);
@@ -336,13 +338,13 @@ export function GalleryPage() {
           <span
             style={{ fontSize: 10, color: loading ? tokens.textMuted : tokens.success, fontFamily: tokens.fontBody }}
           >
-            {loading ? '加载中…' : '数据库已连接'}
+            {loading ? t('common.loadingMore') : t('common.dbConnected')}
           </span>
         </div>
         <span
           style={{ fontSize: 10, color: tokens.textMuted, fontFamily: tokens.fontBody }}
         >
-          共 {total} 张
+          {t('common.totalImages', { total })}
         </span>
       </div>
 
@@ -450,10 +452,10 @@ export function GalleryPage() {
         }}
       >
         <span style={{ fontSize: 11, color: tokens.textSecondary, fontFamily: tokens.fontBody }}>
-          {images.length} 张作品
+          {t('common.artworks', { count: images.length })}
         </span>
         <span style={{ fontSize: 11, color: tokens.textSecondary, fontFamily: tokens.fontBody }}>
-          第 {page} / {totalPages} 页
+          {t('common.pageInfo', { page, totalPages })}
         </span>
       </div>
 

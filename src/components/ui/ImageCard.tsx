@@ -162,7 +162,7 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
-              aria-label={image.favorite ? '取消收藏' : '收藏'}
+              aria-label={image.favorite ? t('common.unfavorite') : t('common.favorite')}
             >
               ◆
             </button>

@@ -59,7 +59,7 @@ export function InfiniteScroll({
             fontSize: 13,
           }}
         >
-          加载中…
+          Loading...
         </div>
       )}
     </>

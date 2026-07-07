@@ -272,7 +272,7 @@ export function DetailModal({
           </div>
 
           <div>
-            <div style={labelStyle}>收藏</div>
+            <div style={labelStyle}>{t('common.favorite')}</div>
             <button
               type="button"
               onClick={() => onToggleFavorite?.(image.id)}
@@ -285,7 +285,7 @@ export function DetailModal({
                 color: image.favorite ? tok.accent : tok.textFaint,
                 transition: 'color 200ms',
               }}
-              aria-label={image.favorite ? '取消收藏' : '收藏'}
+              aria-label={image.favorite ? t('common.unfavorite') : t('common.favorite')}
             >
               ◆
             </button>

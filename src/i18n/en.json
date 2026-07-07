@@ -37,7 +37,14 @@
     "moveToTrash": "Move to trash",
     "mainNav": "Main navigation",
     "ollamaOffline": "Ollama status: offline, click to retry",
-    "ollamaOnline": "Ollama status: online"
+    "ollamaOnline": "Ollama status: online",
+    "loadingMore": "Loading…",
+    "dbConnected": "Database connected",
+    "totalImages": "{total} total",
+    "artworks": "{count} artworks",
+    "pageInfo": "Page {page} / {totalPages}",
+    "unfavorite": "Unfavorite",
+    "favorite": "Favorite"
   },
   "gallery": {
     "title": "Creator Gallery",
@@ -163,7 +170,7 @@
     "emptyTrashConfirm": "Empty Trash?",
     "emptyTrashDesc": "Permanently delete all {count} images in trash. This action cannot be undone.",
     "confirmEmpty": "Confirm Empty",
-    "deletedCount": "{count} deleted images",
+    "deletedCount": "{total} deleted images",
     "deletedAt": "Deleted At",
     "fileName": "File Name",
     "dimensions": "Dimensions",
@@ -181,7 +188,9 @@
     "removeFromImage": "Remove tag",
     "createSuccess": "Tag created",
     "deleteSuccess": "Tag deleted",
-    "inputPlaceholder": "Enter tag name..."
+    "inputPlaceholder": "Enter tag name...",
+    "confirmDelete": "Delete tag \"{name}\"? Associated images will lose this tag.",
+    "empty": "No tags yet. Create one to get started."
   },
   "settings": {
     "title": "Settings",
@@ -347,5 +356,19 @@
     "ollamaOfflineAria": "Ollama status: offline, click to retry",
     "ollamaOnlineAria": "Ollama status: online",
     "searchShortcut": "Search ⌘K"
+  },
+  "batch": {
+    "selected": "{count} selected",
+    "deleting": "Deleting…",
+    "delete": "Batch Delete",
+    "tagging": "Analyzing…",
+    "aiTag": "AI Tag",
+    "cancel": "Cancel"
+  },
+  "favorites": {
+    "empty": "No favorite images yet",
+    "title": "Favorites",
+    "count": "{count} favorites",
+    "loadError": "Failed to load favorites"
   }
 }
