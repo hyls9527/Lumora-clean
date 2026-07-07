@@ -1,12 +1,12 @@
 # Lumora
 
-Desktop image gallery for AI-generated art. Everything stays on your machine.
+Desktop image gallery for your generated artwork. Local, fast, private.
 
 ## What it does
 
-Browse, search, and organize images from Stable Diffusion, Midjourney, ComfyUI, and other tools. Filter by model, rating, size, or generation time. Search by text description or visual similarity. Auto-tag and describe images using local AI models.
+Organize images from Stable Diffusion, Midjourney, ComfyUI, and similar tools. Search by text or visual similarity. Auto-tag and describe images. Rate, favorite, tag, and export with custom filename templates.
 
-Import by dragging folders or files into the window. Export with custom filename templates. Soft-delete to trash, restore when needed.
+Import by dragging folders or files into the window. Soft-delete to trash, restore when needed. Back up your entire library from Settings.
 
 ## Quick start
 
@@ -15,7 +15,7 @@ npm ci
 npm run dev
 ```
 
-For search and AI features, install [Ollama](https://ollama.com/download) and pull the models:
+For search and image analysis, install [Ollama](https://ollama.com/download) and pull the models:
 
 ```bash
 ollama pull nomic-embed-text
