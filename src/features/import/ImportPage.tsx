@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { useImageStore } from '../../stores/imageStore';
 import { ErrorState } from '../../components/ui/ErrorState';
@@ -7,7 +7,12 @@ import { StatCard, StatusBadge, SectionHeader, SettingRow, Toggle, inputStyle, s
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { t as tok } from '../../lib/tokens';
 
-export function ImportPage() {
+interface ImportPageProps {
+  droppedPaths?: string[];
+  onPathsConsumed?: () => void;
+}
+
+export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = {}) {
   const [dragOver, setDragOver] = useState(false);
   const [recentImports, setRecentImports] = useState<
     { name: string; status: 'done' | 'processing' }[]
@@ -43,6 +48,20 @@ export function ImportPage() {
     },
     [importImages],
   );
+
+  // Auto-import dropped files from App.tsx
+  useEffect(() => {
+    if (droppedPaths && droppedPaths.length > 0) {
+      // Get parent folders of dropped files
+      const folders = [...new Set(droppedPaths.map(p => {
+        const parts = p.split(/[/\\]/);
+        parts.pop();
+        return parts.join('/');
+      }))];
+      folders.forEach(folder => handleImport(folder));
+      onPathsConsumed?.();
+    }
+  }, [droppedPaths, onPathsConsumed, handleImport]);
 
   const handleBrowseFolder = useCallback(async () => {
     const selected = await open({ directory: true, title: '选择导入文件夹' });

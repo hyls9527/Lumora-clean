@@ -23,6 +23,7 @@ const FavoritesPage = lazy(() => import('./features/favorites/FavoritesPage'));
 
 function App() {
   const [route, setRoute] = useState('/gallery');
+  const [droppedPaths, setDroppedPaths] = useState<string[]>([]);
   const hydrate = useSettingsStore((s) => s.hydrate);
   const { toggle, registerCommands } = useCommandStore();
   const { t } = useTranslation();
@@ -71,7 +72,7 @@ function App() {
       });
 
       if (imagePaths.length > 0) {
-        // Navigate to import page with dropped files
+        setDroppedPaths(imagePaths);
         setRoute('/import');
       }
     },
@@ -85,7 +86,7 @@ function App() {
       case '/trash': return <ErrorBoundary key="trash"><Suspense fallback={<Loading />}><TrashPage /></Suspense></ErrorBoundary>;
       case '/dashboard': return <ErrorBoundary key="dashboard"><Suspense fallback={<Loading />}><DashboardPage /></Suspense></ErrorBoundary>;
       case '/gallery': return <ErrorBoundary key="gallery"><GalleryPage /></ErrorBoundary>;
-      case '/import': return <ErrorBoundary key="import"><Suspense fallback={<Loading />}><ImportPage /></Suspense></ErrorBoundary>;
+      case '/import': return <ErrorBoundary key="import"><Suspense fallback={<Loading />}><ImportPage droppedPaths={droppedPaths} onPathsConsumed={() => setDroppedPaths([])} /></Suspense></ErrorBoundary>;
       case '/search': return <ErrorBoundary key="search"><Suspense fallback={<Loading />}><SearchPage /></Suspense></ErrorBoundary>;
       case '/tags': return <ErrorBoundary key="tags"><Suspense fallback={<Loading />}><TagManager /></Suspense></ErrorBoundary>;
       case '/export': return <ErrorBoundary key="export"><Suspense fallback={<Loading />}><ExportPage /></Suspense></ErrorBoundary>;
