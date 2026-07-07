@@ -1,84 +1,278 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-/**
- * Frontend WRITE_COMMANDS ↔ Rust command registry cross-check.
- *
- * Maintains ALL_COMMANDS (from lib.rs generate_handler!) and classifies each
- * as read or write. If a new Rust command is added without updating this file,
- * the "every command is classified" test fails — a CI safety net.
- */
+const mockInvoke = vi.fn();
+vi.mock('../../tauri', () => ({
+  invoke: (...args: unknown[]) => mockInvoke(...args),
+  isTauriAvailable: true,
+}));
 
-// Complete command list from src-tauri/src/lib.rs generate_handler![]
-const ALL_COMMANDS = [
-  // images
-  'import_images', 'list_images', 'search_images', 'search_images_advanced',
-  'update_rating', 'toggle_favorite', 'list_favorites', 'rebuild_fts_index', 'get_variant_group_images',
-  // tags
-  'create_tag', 'list_tags', 'delete_tag',
-  'add_tag_to_image', 'remove_tag_from_image', 'get_image_tags',
-  // settings
-  'get_setting', 'set_setting',
-  // trash
-  'soft_delete_image', 'restore_image', 'permanent_delete_image',
-  'list_trash', 'empty_trash',
-  'batch_soft_delete', 'batch_restore', 'batch_permanent_delete',
-  'batch_add_tag', 'batch_remove_tag',
-  // dashboard & export
-  'get_dashboard_stats', 'export_images',
-  // embeddings
-  'generate_embedding', 'get_embedding_status_cmd', 'search_semantic_cmd',
-  'get_embedding_stats_cmd', 'embed_text_cmd', 'generate_embedding_for_image_cmd',
-  // ai
-  'analyze_image_cmd', 'get_analysis_result_cmd', 'get_analysis_history_cmd',
-  'apply_ai_tags_cmd',
-  // clip
-  'clip_embed_image_cmd', 'clip_embed_text_cmd',
-  // ollama
-  'get_ollama_host',
-];
+import {
+  importImages,
+  listImages,
+  searchImages,
+  searchImagesAdvanced,
+  updateRating,
+  toggleFavorite,
+  softDeleteImage,
+  restoreImage,
+  permanentDeleteImage,
+  listFavorites,
+  listTrash,
+  emptyTrash,
+  exportImages,
+  type TauriImageRecord,
+} from '../images';
 
-// Must match WRITE_COMMANDS in src/lib/tauri.ts
-const WRITE_COMMANDS = new Set([
-  'import_images', 'update_rating', 'toggle_favorite',
-  'soft_delete_image', 'restore_image', 'permanent_delete_image',
-  'empty_trash', 'create_tag', 'delete_tag',
-  'add_tag_to_image', 'remove_tag_from_image',
-  'batch_soft_delete', 'batch_restore', 'batch_permanent_delete',
-  'batch_add_tag', 'batch_remove_tag',
-]);
+const SAMPLE_RAW: TauriImageRecord = {
+  id: 'img-1',
+  filePath: '/photos/test.png',
+  fileHash: 'abc123',
+  fileSizeKb: 1024,
+  width: 512,
+  height: 512,
+  format: 'png',
+  createdAt: '2024-01-01T00:00:00Z',
+  importedAt: '2024-01-02T00:00:00Z',
+  deleted: false,
+  deletedAt: null,
+  rating: 3,
+  favorite: false,
+  metadataJson: '{"model":"sdxl","prompt":"a cat","tags":["animal"]}',
+};
 
-// Everything else is a read command
-const READ_COMMANDS = new Set(
-  ALL_COMMANDS.filter((cmd) => !WRITE_COMMANDS.has(cmd)),
-);
-
-describe('WRITE_COMMANDS integrity', () => {
-  it('every write command exists in ALL_COMMANDS', () => {
-    for (const cmd of WRITE_COMMANDS) {
-      expect(ALL_COMMANDS).toContain(cmd);
-    }
+describe('Core write commands — full lifecycle', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('every command is classified as read or write (no遗漏)', () => {
-    for (const cmd of ALL_COMMANDS) {
-      const classified = WRITE_COMMANDS.has(cmd) || READ_COMMANDS.has(cmd);
-      expect(classified).toBe(true);
-    }
+  // ── Import ──
+  describe('import', () => {
+    it('importImages sends path and returns mapped result', async () => {
+      mockInvoke.mockResolvedValue({
+        items: [SAMPLE_RAW],
+        imported: 1,
+        skipped: 0,
+        totalScanned: 1,
+      });
+
+      const result = await importImages('/photos');
+      expect(mockInvoke).toHaveBeenCalledWith('import_images', { path: '/photos' });
+      expect(result.imported).toBe(1);
+      expect(result.items[0].id).toBe('img-1');
+      expect(result.items[0].model).toBe('sdxl');
+    });
+
+    it('importImages handles empty folder', async () => {
+      mockInvoke.mockResolvedValue({
+        items: [],
+        imported: 0,
+        skipped: 0,
+        totalScanned: 0,
+      });
+
+      const result = await importImages('/empty');
+      expect(result.imported).toBe(0);
+      expect(result.items).toEqual([]);
+    });
+
+    it('importImages propagates errors', async () => {
+      mockInvoke.mockRejectedValue(new Error('Folder not found'));
+      await expect(importImages('/bad')).rejects.toThrow('Folder not found');
+    });
   });
 
-  it('read and write sets do not overlap', () => {
-    for (const cmd of WRITE_COMMANDS) {
-      expect(READ_COMMANDS.has(cmd)).toBe(false);
-    }
+  // ── List ──
+  describe('list', () => {
+    it('listImages sends pagination params', async () => {
+      mockInvoke.mockResolvedValue({
+        items: [SAMPLE_RAW],
+        total: 1,
+        page: 1,
+        perPage: 40,
+      });
+
+      const result = await listImages(1, 40);
+      expect(mockInvoke).toHaveBeenCalledWith('list_images', { page: 1, perPage: 40 });
+      expect(result.total).toBe(1);
+      expect(result.items[0].id).toBe('img-1');
+    });
+
+    it('listImages handles page 2', async () => {
+      mockInvoke.mockResolvedValue({
+        items: [],
+        total: 1,
+        page: 2,
+        perPage: 40,
+      });
+
+      const result = await listImages(2, 40);
+      expect(result.items).toEqual([]);
+    });
   });
 
-  it('no phantom commands outside ALL_COMMANDS', () => {
-    const allSet = new Set(ALL_COMMANDS);
-    for (const cmd of WRITE_COMMANDS) {
-      expect(allSet.has(cmd)).toBe(true);
-    }
-    for (const cmd of READ_COMMANDS) {
-      expect(allSet.has(cmd)).toBe(true);
-    }
+  // ── Search ──
+  describe('search', () => {
+    it('searchImages sends query', async () => {
+      mockInvoke.mockResolvedValue([SAMPLE_RAW]);
+
+      const results = await searchImages('cat');
+      expect(mockInvoke).toHaveBeenCalledWith('search_images', { query: 'cat' });
+      expect(results).toHaveLength(1);
+    });
+
+    it('searchImagesAdvanced sends query and field', async () => {
+      mockInvoke.mockResolvedValue([SAMPLE_RAW]);
+
+      const results = await searchImagesAdvanced('cat', 'prompt');
+      expect(mockInvoke).toHaveBeenCalledWith('search_images_advanced', { query: 'cat', field: 'prompt' });
+      expect(results).toHaveLength(1);
+    });
+
+    it('searchImagesAdvanced handles empty results', async () => {
+      mockInvoke.mockResolvedValue([]);
+      const results = await searchImagesAdvanced('nonexistent', 'all');
+      expect(results).toEqual([]);
+    });
+  });
+
+  // ── Rating ──
+  describe('rating', () => {
+    it('updateRating sends id and rating', async () => {
+      mockInvoke.mockResolvedValue(undefined);
+      await updateRating('img-1', 4);
+      expect(mockInvoke).toHaveBeenCalledWith('update_rating', { id: 'img-1', rating: 4 });
+    });
+
+    it('updateRating accepts 0 (clear rating)', async () => {
+      mockInvoke.mockResolvedValue(undefined);
+      await updateRating('img-1', 0);
+      expect(mockInvoke).toHaveBeenCalledWith('update_rating', { id: 'img-1', rating: 0 });
+    });
+  });
+
+  // ── Favorite ──
+  describe('favorite', () => {
+    it('toggleFavorite sends id', async () => {
+      mockInvoke.mockResolvedValue(undefined);
+      await toggleFavorite('img-1');
+      expect(mockInvoke).toHaveBeenCalledWith('toggle_favorite', { id: 'img-1' });
+    });
+
+    it('listFavorites returns mapped results', async () => {
+      mockInvoke.mockResolvedValue([{ ...SAMPLE_RAW, favorite: true }]);
+
+      const results = await listFavorites();
+      expect(mockInvoke).toHaveBeenCalledWith('list_favorites');
+      expect(results).toHaveLength(1);
+      expect(results[0].favorite).toBe(true);
+    });
+  });
+
+  // ── Delete / Restore / Permanent Delete ──
+  describe('trash lifecycle', () => {
+    it('softDeleteImage sends id', async () => {
+      mockInvoke.mockResolvedValue(undefined);
+      await softDeleteImage('img-1');
+      expect(mockInvoke).toHaveBeenCalledWith('soft_delete_image', { id: 'img-1' });
+    });
+
+    it('restoreImage sends id', async () => {
+      mockInvoke.mockResolvedValue(undefined);
+      await restoreImage('img-1');
+      expect(mockInvoke).toHaveBeenCalledWith('restore_image', { id: 'img-1' });
+    });
+
+    it('permanentDeleteImage sends id', async () => {
+      mockInvoke.mockResolvedValue(undefined);
+      await permanentDeleteImage('img-1');
+      expect(mockInvoke).toHaveBeenCalledWith('permanent_delete_image', { id: 'img-1' });
+    });
+
+    it('listTrash sends pagination params', async () => {
+      mockInvoke.mockResolvedValue({
+        items: [{ ...SAMPLE_RAW, deleted: true, deletedAt: '2024-06-01' }],
+        total: 1,
+        page: 1,
+        perPage: 40,
+      });
+
+      const result = await listTrash(1, 40);
+      expect(mockInvoke).toHaveBeenCalledWith('list_trash', { page: 1, perPage: 40 });
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].id).toBe('img-1');
+    });
+
+    it('emptyTrash sends no params', async () => {
+      mockInvoke.mockResolvedValue(undefined);
+      await emptyTrash();
+      expect(mockInvoke).toHaveBeenCalledWith('empty_trash');
+    });
+  });
+
+  // ── Export ──
+  describe('export', () => {
+    it('exportImages sends ids, destDir, format', async () => {
+      mockInvoke.mockResolvedValue({ success: 2, failed: 0 });
+
+      const result = await exportImages(['img-1', 'img-2'], '/output', 'png');
+      expect(mockInvoke).toHaveBeenCalledWith('export_images', {
+        ids: ['img-1', 'img-2'],
+        destDir: '/output',
+        format: 'png',
+        renameTemplate: undefined,
+      });
+      expect(result.success).toBe(2);
+    });
+
+    it('exportImages with rename template', async () => {
+      mockInvoke.mockResolvedValue({ success: 1, failed: 0 });
+
+      await exportImages(['img-1'], '/output', 'jpg', '{prompt}_{seed}');
+      expect(mockInvoke).toHaveBeenCalledWith('export_images', {
+        ids: ['img-1'],
+        destDir: '/output',
+        format: 'jpg',
+        renameTemplate: '{prompt}_{seed}',
+      });
+    });
+  });
+
+  // ── Full lifecycle: import → rate → favorite → delete → restore → permanent delete ──
+  describe('full lifecycle', () => {
+    it('import → rate → favorite → soft delete → restore → permanent delete', async () => {
+      // 1. Import
+      mockInvoke.mockResolvedValue({
+        items: [SAMPLE_RAW],
+        imported: 1,
+        skipped: 0,
+        totalScanned: 1,
+      });
+      const imported = await importImages('/photos');
+      expect(imported.items[0].id).toBe('img-1');
+
+      // 2. Rate
+      mockInvoke.mockResolvedValue(undefined);
+      await updateRating('img-1', 5);
+      expect(mockInvoke).toHaveBeenCalledWith('update_rating', { id: 'img-1', rating: 5 });
+
+      // 3. Favorite
+      await toggleFavorite('img-1');
+      expect(mockInvoke).toHaveBeenCalledWith('toggle_favorite', { id: 'img-1' });
+
+      // 4. Soft delete
+      await softDeleteImage('img-1');
+      expect(mockInvoke).toHaveBeenCalledWith('soft_delete_image', { id: 'img-1' });
+
+      // 5. Restore
+      await restoreImage('img-1');
+      expect(mockInvoke).toHaveBeenCalledWith('restore_image', { id: 'img-1' });
+
+      // 6. Permanent delete
+      await permanentDeleteImage('img-1');
+      expect(mockInvoke).toHaveBeenCalledWith('permanent_delete_image', { id: 'img-1' });
+
+      // Verify all 6 calls were made
+      expect(mockInvoke).toHaveBeenCalledTimes(6);
+    });
   });
 });
