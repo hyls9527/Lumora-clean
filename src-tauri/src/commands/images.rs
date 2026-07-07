@@ -273,6 +273,49 @@ struct ImportEntry {
 }
 
 fn scan_folder(root: &str) -> std::io::Result<Vec<ImportEntry>> {
+    // Handle single file path
+    let root_path = std::path::Path::new(root);
+    if root_path.is_file() {
+        let ext = root.rsplit('.').next().unwrap_or("").to_ascii_lowercase();
+        if !IMAGE_EXTENSIONS.contains(&ext.as_str()) {
+            return Ok(vec![]);
+        }
+        let meta = fs::metadata(root)?;
+        let hash = file_hash(root, meta.len());
+        let (w, h, meta_json) = if ext == "gif" {
+            let (w, h) = probe_gif(root);
+            (w, h, None)
+        } else {
+            let mut buf = vec![0u8; 65536];
+            let n = std::fs::File::open(root)
+                .and_then(|f| {
+                    use std::io::Read;
+                    let mut r = std::io::BufReader::new(f);
+                    r.read(&mut buf)
+                })
+                .unwrap_or(0);
+            buf.truncate(n);
+            let (w, h) = probe_dimensions_from_bytes(&buf, &ext);
+            let meta_json = metadata::probe_metadata_from_bytes(&buf, &ext);
+            (w, h, meta_json)
+        };
+        let created = chrono::DateTime::<chrono::Utc>::from(
+            meta.modified().unwrap_or(meta.created().unwrap()),
+        )
+        .to_rfc3339();
+        return Ok(vec![ImportEntry {
+            id: Uuid::new_v4().to_string(),
+            file_path: root.to_string(),
+            file_hash: hash,
+            width: w,
+            height: h,
+            file_size_kb: meta.len() as i64,
+            format: ext,
+            created_at: created,
+            metadata_json: meta_json,
+        }]);
+    }
+
     let mut entries = Vec::new();
     for entry in walk_dir(root)? {
         let ext = entry.rsplit('.').next().unwrap_or("").to_ascii_lowercase();
