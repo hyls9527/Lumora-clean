@@ -86,7 +86,7 @@ export function SearchPage() {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto' }}>
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: isMobile ? '24px 16px 40px' : '48px 48px 64px' }}>
+      <div style={{ padding: isMobile ? '24px 16px 40px' : '48px 48px 64px' }}>
         {/* Header */}
         <header style={{ marginBottom: isMobile ? 20 : 32 }}>
           <h2

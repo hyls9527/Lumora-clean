@@ -71,7 +71,7 @@ export function ImportPage() {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto' }}>
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: isMobile ? 16 : 32 }}>
+      <div style={{ padding: isMobile ? 16 : 32 }}>
         {/* Page header */}
         <div
           style={{

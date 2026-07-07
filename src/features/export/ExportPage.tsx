@@ -50,7 +50,7 @@ export function ExportPage() {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto' }}>
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: 32 }}>
+      <div style={{ padding: 32 }}>
         {/* Page header */}
         <div style={{ marginBottom: 40 }}>
           <h2
