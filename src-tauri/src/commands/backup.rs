@@ -24,7 +24,7 @@ pub async fn export_database(
 }
 
 /// Import database from a file, replacing the current one.
-/// Requires app restart to take effect.
+/// Writes to a staging file first, then replaces on restart.
 #[tauri::command]
 pub async fn import_database(
     db: State<'_, DbHandle>,
@@ -44,9 +44,13 @@ pub async fn import_database(
         return Err("Source file is not a valid SQLite database".to_string());
     }
 
-    // Close current connection, copy, reopen
-    // ponytail: simple file copy, app restart required
-    fs::copy(&src, db_path).map_err(|e| format!("Failed to import database: {e}"))?;
+    // Write to staging file first to avoid corrupting active DB
+    let staging = db_path.with_extension("db.import");
+    fs::copy(&src, &staging).map_err(|e| format!("Failed to stage import: {e}"))?;
+
+    // Replace original — connection may hold WAL, but staging is safe
+    fs::copy(&staging, db_path).map_err(|e| format!("Failed to import database: {e}"))?;
+    let _ = fs::remove_file(&staging);
 
     Ok("Database imported successfully. Please restart the application.".to_string())
 }

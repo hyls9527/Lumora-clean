@@ -215,7 +215,10 @@
     "about": "关于",
     "aboutDesc": "Lumora — 光之韵律，AI 创作者的图片管理器",
     "version": "版本",
-    "license": "许可"
+    "license": "许可",
+    "backup": "数据备份",
+    "exportDb": "导出数据库",
+    "importDb": "导入数据库"
   },
   "dashboard": {
     "overview": "概览",

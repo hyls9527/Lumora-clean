@@ -215,7 +215,10 @@
     "about": "About",
     "aboutDesc": "Lumora — Light Rhythm, AI Creator's Image Manager",
     "version": "Version",
-    "license": "License"
+    "license": "License",
+    "backup": "Data Backup",
+    "exportDb": "Export Database",
+    "importDb": "Import Database"
   },
   "dashboard": {
     "overview": "Overview",
