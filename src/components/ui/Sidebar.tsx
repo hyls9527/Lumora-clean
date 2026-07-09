@@ -47,7 +47,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
         flexDirection: 'column',
         background: 'var(--color-bg)',
         borderRight: `1px solid ${tok.border}`,
-        width: isCollapsed ? '56px' : undefined,
+        width: isCollapsed ? '56px' : '220px',
         transition: 'width 200ms ease-out',
       }}
     >
