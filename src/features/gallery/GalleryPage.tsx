@@ -13,6 +13,7 @@ import { InfiniteScroll } from '../../components/ui/InfiniteScroll';
 import { useKeyboardNav } from '../../hooks/useKeyboardNav';
 import { batchSoftDelete } from '../../lib/api/images';
 import { batchAutoTag } from '../../lib/api/ai';
+import { useEmbeddingStore } from '../../stores/embeddingStore';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useTranslation } from '../../lib/i18n';
 import { TabButton } from '../../components/ui/TabButton';
@@ -51,6 +52,7 @@ export function GalleryPage() {
 
   const [batchDeleting, setBatchDeleting] = useState(false);
   const [batchTagging, setBatchTagging] = useState(false);
+  const [batchEmbedding, setBatchEmbedding] = useState(false);
   const [columnCount, setColumnCount] = useState(0); // 0 = auto (CSS responsive)
 
   const images = getFilteredImages();
@@ -169,6 +171,20 @@ export function GalleryPage() {
       setBatchTagging(false);
     }
   }, [selectedIds, clearSelection, fetchImages, page]);
+
+  const handleBatchEmbed = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+    setBatchEmbedding(true);
+    try {
+      const selected = images.filter((img) => selectedIds.has(img.id));
+      await useEmbeddingStore.getState().generate(selected);
+      clearSelection();
+    } catch {
+      // error handled by embeddingStore
+    } finally {
+      setBatchEmbedding(false);
+    }
+  }, [selectedIds, clearSelection, images]);
 
   const handleDetailPrev = useCallback(() => {
     setDetailImage((prev) => {
@@ -464,9 +480,11 @@ export function GalleryPage() {
         count={selectedIds.size}
         onDelete={handleBatchDelete}
         onAiTag={handleBatchTag}
+        onEmbed={handleBatchEmbed}
         onCancel={clearSelection}
         deleting={batchDeleting}
         tagging={batchTagging}
+        embedding={batchEmbedding}
       />
 
       {/* Detail Modal */}

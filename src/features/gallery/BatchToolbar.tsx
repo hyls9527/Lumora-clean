@@ -5,12 +5,14 @@ interface BatchToolbarProps {
   count: number;
   onDelete: () => void;
   onAiTag: () => void;
+  onEmbed: () => void;
   onCancel: () => void;
   deleting: boolean;
   tagging: boolean;
+  embedding: boolean;
 }
 
-export function BatchToolbar({ count, onDelete, onAiTag, onCancel, deleting, tagging }: BatchToolbarProps) {
+export function BatchToolbar({ count, onDelete, onAiTag, onEmbed, onCancel, deleting, tagging, embedding }: BatchToolbarProps) {
   const { t } = useTranslation('batch');
   if (count === 0) return null;
   return (
@@ -63,6 +65,19 @@ export function BatchToolbar({ count, onDelete, onAiTag, onCancel, deleting, tag
         }}
       >
         {tagging ? t('tagging') : t('aiTag')}
+      </button>
+      <button
+        type="button"
+        onClick={onEmbed}
+        disabled={embedding}
+        style={{
+          fontSize: 12, fontFamily: tokens.fontDisplay, color: tokens.bg,
+          background: tokens.success, border: 'none', padding: '6px 16px',
+          borderRadius: 4, cursor: embedding ? 'not-allowed' : 'pointer',
+          opacity: embedding ? 0.5 : 1, transition: 'background 200ms',
+        }}
+      >
+        {embedding ? t('embedding') : t('embed')}
       </button>
       <button
         type="button"
