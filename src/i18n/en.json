@@ -111,7 +111,8 @@
     "importProgress": "Import Progress",
     "importing": "Importing...",
     "importComplete": "Import Complete",
-    "filesProcessed": "{count} files processed"
+    "filesProcessed": "{count} files processed",
+    "selectFiles": "Select Files"
   },
   "search": {
     "title": "Semantic Search",

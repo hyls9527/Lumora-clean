@@ -6,6 +6,8 @@
 
 ## Color Palette
 
+### 古卷·灯火（亮色）
+
 ```css
 /* 象牙纸页 */
 --color-bg: #f2ede4;
@@ -33,6 +35,37 @@
 /* 语义色 */
 --color-danger: #8b3030;
 --color-success: #4a7a3a;
+```
+
+### 暗夜（暗色）
+
+```css
+/* 深色纸页 */
+--color-bg: #1a1612;
+--color-bg-alt: #201c17;
+
+/* 卡片/面板 */
+--color-surface: #262119;
+--color-surface-hover: #2e281f;
+
+/* 边框 */
+--color-border: rgba(200, 180, 140, 0.10);
+--color-border-subtle: rgba(200, 180, 140, 0.05);
+
+/* 文字 — 柔和羊皮纸 */
+--color-text: #e8e0d0;
+--color-text-secondary: #b0a088;
+--color-text-muted: #786850;
+--color-text-faint: #504838;
+
+/* 强调 — 烛光金 */
+--color-accent: #c49a30;
+--color-accent-hover: #d4aa40;
+--color-accent-subtle: rgba(196, 154, 48, 0.10);
+
+/* 语义色 */
+--color-danger: #c85050;
+--color-success: #6a9a50;
 ```
 
 ## Shadows

@@ -27,3 +27,29 @@ Vite + React 19 + TypeScript + Tailwind CSS v4。
 **Rule 11 – Convention Over Novelty**: Match existing patterns. Introducing new patterns is the worst outcome.
 
 **Rule 12 – Fail Visibly**: The most expensive failures look like success. A function that "works" but returns wrong data. A migration that "completed" but skipped records.
+
+---
+
+## 八耻八荣（行为准则）
+
+### 1、AI协作与开发版
+
+| 以 … 为荣 | 以 … 为耻 |
+|---|---|
+| 认真查阅 | 暗猜接口 |
+| 寻求确认 | 模糊执行 |
+| 人类确认 | 盲想业务 |
+| 复用现有 | 创造接口 |
+| 主动测试 | 跳过验证 |
+| 遵循规范 | 破坏架构 |
+| 诚实无知 | 假装理解 |
+| 谨慎重构 | 盲目修改 |
+
+### 2、内容创作与日常使用版
+
+| 以 … 为荣 | 以 … 为耻 |
+|---|---|
+| 诚实标注「AI辅助」 | 谎称原创 |
+| 认真校对与事实查核 | 闭眼直接复制贴上 |
+| 厘清边界与详细提问 | 凭空臆想与瞎猜需求 |
+| 适度引导发挥创意 | 过度依赖大脑停转 |

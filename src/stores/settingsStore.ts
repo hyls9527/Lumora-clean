@@ -31,8 +31,6 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   },
 
   setTheme: (theme) => {
-    // Only light is functional for now
-    if (theme === 'dark') return;
     set({ theme });
     void invoke('set_setting', { key: 'theme', value: theme });
     document.documentElement.setAttribute('data-theme', theme);

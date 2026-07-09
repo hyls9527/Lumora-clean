@@ -22,16 +22,15 @@
 
 ### 后端 (Rust)
 
-- Domain 层零外部依赖（纯函数，无 IO）
-- Commands 层 ≤30 行/函数（薄适配器）
-- 每个模块文件 ≤500 行
-- 每个模块 ≤5 个 pub 函数
+- Domain 层尽量减少外部依赖（数据结构优先使用标准库类型）
+- Commands 层保持薄适配器模式（复杂逻辑下沉到 Domain 层）
+- 每个模块文件保持合理长度（超过 500 行考虑拆分）
 - 所有写操作在事务内
 - Clippy 零警告
 
 ### Python Sidecar
 
-- JSON-RPC 2.0 line-delimited 协议
+- JSON line-delimited 协议（stdin/stdout）
 - pytest 测试覆盖
 
 ## 代码审查清单
@@ -64,4 +63,4 @@
 - **Clean Architecture**：Commands → Domain ← Infra
 - **深模块优先**：接口简单 > 文件数少
 - **数据优先**：SQLite 单文件，FTS5 同源
-- **集成点隔离**：所有外部调用有超时和降级路径
+- **集成点隔离**：外部调用（Ollama）有超时和错误处理

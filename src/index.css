@@ -3,13 +3,20 @@
 @theme {
   /* Build origin: 69983af6ad7b350a */
   --color-bg: #f2ede4;
+  --color-bg-alt: #ebe5d8;
   --color-surface: #f7f2ea;
+  --color-surface-hover: #f0ebe0;
   --color-border: rgba(139, 115, 75, 0.10);
+  --color-border-subtle: rgba(139, 115, 75, 0.05);
   --color-text: #2a2118;
   --color-text-secondary: #6b5d48;
   --color-text-muted: #a09480;
+  --color-text-faint: #c4b89e;
   --color-accent: #7a5c12;
+  --color-accent-hover: #8b6914;
+  --color-accent-subtle: rgba(139, 105, 20, 0.06);
   --color-danger: #8b3030;
+  --color-danger-bg: rgba(179, 58, 58, 0.2);
   --color-success: #4a7a3a;
 
   /* 别名 */
@@ -29,6 +36,36 @@
   --font-body: "DM Sans", "Noto Sans SC", sans-serif;
   --font-serif: var(--font-display);
   --font-sans: var(--font-body);
+}
+
+/* ── 暗色主题：暗夜 ────────────────────────────── */
+[data-theme="dark"] {
+  --color-bg: #1a1612;
+  --color-bg-alt: #201c17;
+  --color-surface: #262119;
+  --color-surface-hover: #2e281f;
+  --color-border: rgba(200, 180, 140, 0.10);
+  --color-border-subtle: rgba(200, 180, 140, 0.05);
+  --color-text: #e8e0d0;
+  --color-text-secondary: #b0a088;
+  --color-text-muted: #786850;
+  --color-text-faint: #504838;
+  --color-accent: #c49a30;
+  --color-accent-hover: #d4aa40;
+  --color-accent-subtle: rgba(196, 154, 48, 0.10);
+  --color-danger: #c85050;
+  --color-danger-bg: rgba(200, 80, 80, 0.15);
+  --color-success: #6a9a50;
+
+  --color-parchment: #1a1612;
+  --color-ink: #e8e0d0;
+  --color-bronze: #c49a30;
+  --color-warm-gray: #685840;
+  --color-warm-brown: #a08060;
+
+  --shadow-card: rgba(0, 0, 0, 0.3) 0px 0px 0px 1px, rgba(0, 0, 0, 0.2) 0px 1px 3px;
+  --shadow-card-hover: rgba(0, 0, 0, 0.4) 0px 0px 0px 1px, rgba(0, 0, 0, 0.3) 0px 4px 16px;
+  --shadow-elevated: rgba(0, 0, 0, 0.5) 0px 0px 0px 1px, rgba(0, 0, 0, 0.4) 0px 8px 32px;
 }
 
 html, body {

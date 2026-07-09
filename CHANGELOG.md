@@ -4,6 +4,11 @@ All notable changes to Lumora are documented here.
 
 ## v0.5.1 (2026-07-07)
 
+### Added
+- Dark theme: "暗夜" palette with warm candlelight accents
+- `tokens.ts` unified to CSS variables (theme-responsive)
+- DESIGN.md documents both light and dark color palettes
+
 ### Fixed
 - Drag-and-drop import now actually imports files
 - Manual import supports selecting individual files, not just folders

@@ -79,12 +79,22 @@ describe('setTheme', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
 
-  it('rejects dark theme — returns early without changing state', () => {
-    mockInvoke.mockClear();
+  it('sets theme state for dark', () => {
     useSettingsStore.getState().setTheme('dark');
-    expect(useSettingsStore.getState().theme).toBe('light');
-    expect(mockInvoke).not.toHaveBeenCalled();
-    expect(document.documentElement.getAttribute('data-theme')).not.toBe('dark');
+    expect(useSettingsStore.getState().theme).toBe('dark');
+  });
+
+  it('sets data-theme attribute to dark', () => {
+    useSettingsStore.getState().setTheme('dark');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  });
+
+  it('invokes set_setting with dark theme', () => {
+    useSettingsStore.getState().setTheme('dark');
+    expect(mockInvoke).toHaveBeenCalledWith('set_setting', {
+      key: 'theme',
+      value: 'dark',
+    });
   });
 });
 

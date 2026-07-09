@@ -78,6 +78,22 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
           padding: isCollapsed ? '0 8px' : '0 12px',
         }}
         aria-label={t("common.mainNav")}
+        onKeyDown={(e) => {
+          const buttons = Array.from(e.currentTarget.querySelectorAll('button'));
+          const idx = buttons.indexOf(document.activeElement as HTMLButtonElement);
+          if (idx === -1) return;
+
+          let next = -1;
+          if (e.key === 'ArrowDown') next = (idx + 1) % buttons.length;
+          else if (e.key === 'ArrowUp') next = (idx - 1 + buttons.length) % buttons.length;
+          else if (e.key === 'Home') next = 0;
+          else if (e.key === 'End') next = buttons.length - 1;
+
+          if (next !== -1) {
+            e.preventDefault();
+            (buttons[next] as HTMLButtonElement).focus();
+          }
+        }}
       >
         {navItems.map((item) => {
           const isActive = activeRoute === item.key;

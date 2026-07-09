@@ -239,7 +239,6 @@ export function SettingsPage() {
               options={themeOptions}
               value={theme}
               onChange={setTheme}
-              disabled={(v) => v === 'dark'}
             />
           </Row>
           {/* Theme preview card */}
@@ -271,7 +270,7 @@ export function SettingsPage() {
               ))}
             </div>
             <span style={{ fontSize: 11, color: tok.textMuted, fontFamily: 'var(--font-body)' }}>
-              {theme === 'light' ? '古卷·灯火' : '暗夜（开发中）'}
+              {theme === 'light' ? '古卷·灯火' : '暗夜'}
             </span>
           </div>
         </section>

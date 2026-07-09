@@ -47,12 +47,12 @@ Lumora 是一个 Tauri 2 桌面应用，采用前后端分离架构：
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │              Tauri Commands                            │   │
 │  │  images | ai | embeddings | tags | trash | dashboard  │   │
-│  │  export | settings                                     │   │
+│  │  export | settings | backup | clip | ollama          │   │
 │  └──────────────────────────────────────────────────────┘   │
 │         │                                                    │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │              Database Layer (db/)                      │   │
-│  │  SQLite + FTS5 + sqlite-vec | Migrations v1-v5       │   │
+│  │  SQLite + FTS5 + sqlite-vec | Migrations v1-v6       │   │
 │  └──────────────────────────────────────────────────────┘   │
 │         │                                                    │
 │  ┌──────────────────────────────────────────────────────┐   │
@@ -149,12 +149,15 @@ CREATE VIRTUAL TABLE images_fts USING fts5(
 
 | Command | 参数 | 返回值 | 说明 |
 |---------|------|--------|------|
-| `import_images` | `{ path: string }` | `TauriImageRecord[]` | 导入文件夹图片 |
+| `import_images` | `{ path: string }` | `ImportResult` | 导入文件夹/单文件图片 |
 | `list_images` | `{ page: number, perPage: number }` | `{ items, total, page, perPage }` | 分页列表 |
 | `search_images` | `{ query: string }` | `TauriImageRecord[]` | FTS5 全文搜索 |
 | `update_rating` | `{ id: string, rating: number }` | `void` | 更新评分 |
 | `toggle_favorite` | `{ id: string }` | `void` | 切换收藏 |
 | `get_variant_group_images` | `{ variantGroupId: string }` | `TauriImageRecord[]` | 获取变体组图片 |
+| `search_images_advanced` | `{ query: string, field?: string }` | `TauriImageRecord[]` | 字段范围搜索 |
+| `list_favorites` | `{}` | `TauriImageRecord[]` | 收藏列表 |
+| `rebuild_fts_index` | `{}` | `void` | 重建 FTS5 索引 |
 
 ### 标签
 
@@ -163,6 +166,7 @@ CREATE VIRTUAL TABLE images_fts USING fts5(
 | `create_tag` | `{ name: string, color: string? }` | `TagRecord` | 创建标签 |
 | `list_tags` | `{}` | `TagRecord[]` | 列出所有标签 |
 | `delete_tag` | `{ id: string }` | `void` | 删除标签 |
+| `update_tag` | `{ id: string, name?: string, color?: string }` | `void` | 更新标签 |
 | `add_tag_to_image` | `{ imageId: string, tagId: string }` | `void` | 添加标签到图片 |
 | `remove_tag_from_image` | `{ imageId: string, tagId: string }` | `void` | 移除图片标签 |
 | `get_image_tags` | `{ imageId: string }` | `TagRecord[]` | 获取图片标签 |
@@ -176,6 +180,11 @@ CREATE VIRTUAL TABLE images_fts USING fts5(
 | `permanent_delete_image` | `{ id: string }` | `void` | 永久删除 |
 | `list_trash` | `{ page: number, perPage: number }` | `{ items, total, page, perPage }` | 回收站列表 |
 | `empty_trash` | `{}` | `number` | 清空回收站 |
+| `batch_soft_delete` | `{ ids: string[] }` | `number` | 批量软删除 |
+| `batch_restore` | `{ ids: string[] }` | `number` | 批量恢复 |
+| `batch_permanent_delete` | `{ ids: string[] }` | `number` | 批量永久删除 |
+| `batch_add_tag` | `{ imageIds: string[], tagId: string }` | `number` | 批量添加标签 |
+| `batch_remove_tag` | `{ imageIds: string[], tagId: string }` | `number` | 批量移除标签 |
 
 ### AI 分析
 
@@ -184,6 +193,7 @@ CREATE VIRTUAL TABLE images_fts USING fts5(
 | `analyze_image_cmd` | `{ imageId, imagePath, model? }` | `AnalysisResult` | AI 分析图片 |
 | `get_analysis_result_cmd` | `{ imageId: string }` | `AnalysisResult?` | 获取最新分析 |
 | `get_analysis_history_cmd` | `{ imageId: string }` | `AnalysisHistoryItem[]` | 分析历史 |
+| `apply_ai_tags_cmd` | `{ imageId: string }` | `number` | AI 自动标注 |
 
 ### 嵌入与语义搜索
 
@@ -195,6 +205,8 @@ CREATE VIRTUAL TABLE images_fts USING fts5(
 | `get_embedding_stats_cmd` | `{}` | `EmbeddingStats` | 嵌入统计 |
 | `embed_text_cmd` | `{ text: string, model? }` | `number[]` | 文本→向量 |
 | `generate_embedding_for_image_cmd` | `{ imageId, description, model? }` | `void` | 生成图片嵌入 |
+| `clip_embed_image_cmd` | `{ imagePath: string }` | `number[]` | CLIP 图片嵌入 |
+| `clip_embed_text_cmd` | `{ text: string }` | `number[]` | CLIP 文本嵌入 |
 
 ### 其他
 
@@ -204,27 +216,40 @@ CREATE VIRTUAL TABLE images_fts USING fts5(
 | `export_images` | `{ ids, destDir, format, renameTemplate? }` | `ExportResult` | 导出图片 |
 | `get_setting` | `{ key: string }` | `string?` | 获取设置 |
 | `set_setting` | `{ key: string, value: string }` | `void` | 设置值 |
+| `check_ollama_status` | `{}` | `[boolean, string?]` | Ollama 状态检查 |
+| `get_ollama_host` | `{}` | `string` | 获取 Ollama 地址 |
+| `export_database` | `{ destination: string }` | `string` | 导出数据库 |
+| `import_database` | `{ source: string }` | `string` | 导入数据库 |
 
 ## 测试架构
 
 ```
 前端测试 (vitest + jsdom)
 ├── stores/__tests__/
-│   ├── imageStore.test.ts        (30 tests)
-│   ├── trashStore.test.ts        (11 tests)
-│   ├── settingsStore.test.ts     (13 tests)
-│   ├── aiAnalysisStore.test.ts   (11 tests)
-│   ├── embeddingStore.test.ts    (7 tests)
-│   └── semanticSearchStore.test.ts (11 tests)
+│   ├── imageStore.test.ts         (18 tests)
+│   ├── trashStore.test.ts         (15 tests)
+│   ├── settingsStore.test.ts      (16 tests)
+│   ├── aiAnalysisStore.test.ts    (11 tests)
+│   ├── embeddingStore.test.ts     (9 tests)
+│   ├── semanticSearchStore.test.ts (12 tests)
+│   ├── imageSearchStore.test.ts   (6 tests)
+│   ├── imageTagsStore.test.ts     (7 tests)
+│   └── smartCollectionStore.test.ts (4 tests)
 ├── lib/api/__tests__/
-│   └── images.test.ts            (15 tests)
+│   ├── images.test.ts             (16 tests)
+│   ├── semanticCache.test.ts      (8 tests)
+│   ├── write-commands.test.ts     (20 tests)
+│   ├── type-contract.test.ts      (10 tests)
+│   ├── toImageRecord.test.ts      (7 tests)
+│   ├── searchByImage.test.ts      (5 tests)
+│   └── batchAutoTag.test.ts       (5 tests)
 └── components/ui/__tests__/
-    ├── ErrorState.test.tsx        (4 tests)
-    ├── ImageCard.test.tsx         (10 tests)
-    ├── CommandPalette.test.tsx    (9 tests)
-    ├── DetailModal.test.tsx       (10 tests)
-    ├── design-compliance.test.ts  (16 tests)
-    └── accessibility.test.ts      (12 tests)
+    ├── ErrorState.test.tsx         (4 tests)
+    ├── ImageCard.test.tsx          (12 tests)
+    ├── CommandPalette.test.tsx     (9 tests)
+    ├── DetailModal.test.tsx        (12 tests)
+    ├── design-compliance.test.ts   (16 tests)
+    └── accessibility.test.ts       (12 tests)
 
 Rust 测试 (cargo test --lib)
 ├── commands::images::tests       (10 tests)
@@ -241,5 +266,4 @@ Rust 测试 (cargo test --lib)
 
 ## 构建产物
 
-- `lumora_0.1.0_x64_en-US.msi` — Windows MSI 安装包
-- `lumora_0.1.0_x64-setup.exe` — Windows NSIS 安装包
+构建产物通过 GitHub Actions 自动生成，文件名包含版本号（如 `lumora_0.5.1_x64-setup.exe`）。

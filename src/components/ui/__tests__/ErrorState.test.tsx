@@ -37,6 +37,6 @@ describe('ErrorState', () => {
 
     const errorTitle = screen.getByText('出现错误');
     // jsdom converts hex to rgb
-    expect(errorTitle.style.color).toMatch(/#8b3030|rgb\(139, 48, 48\)/);
+    expect(errorTitle.style.color).toBe('var(--color-danger)');
   });
 });

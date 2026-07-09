@@ -128,7 +128,7 @@ describe('ImageCard', () => {
     const { container } = render(<ImageCard image={MOCK_IMAGE} focused />);
 
     const card = container.firstChild as HTMLElement;
-    expect(card.style.border).toContain('rgb(122, 92, 18)');
+    expect(card.style.border).toContain('var(--color-accent)');
   });
 
   it('renders an img element with asset protocol src', async () => {

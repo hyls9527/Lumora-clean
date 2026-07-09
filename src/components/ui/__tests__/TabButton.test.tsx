@@ -11,7 +11,7 @@ describe('TabButton', () => {
   it('should apply active styles when active', () => {
     render(<TabButton active={true} onClick={() => {}}>时间</TabButton>);
     const btn = screen.getByText('时间') as HTMLButtonElement;
-    expect(btn.style.borderBottom).toMatch(/#7a5c12|rgb\(122, 92, 18\)/);
+    expect(btn.style.borderBottom).toMatch(/var\(--color-accent\)|#7a5c12|rgb\(122, 92, 18\)/);
   });
 
   it('should apply inactive styles when not active', () => {

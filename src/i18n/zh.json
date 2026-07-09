@@ -111,7 +111,8 @@
     "importProgress": "导入进度",
     "importing": "正在导入...",
     "importComplete": "导入完成",
-    "filesProcessed": "已处理 {count} 个文件"
+    "filesProcessed": "已处理 {count} 个文件",
+    "selectFiles": "选择文件"
   },
   "trash": {
     "title": "回收站",

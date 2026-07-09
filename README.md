@@ -24,7 +24,7 @@ ollama pull llava
 
 ## Keyboard shortcuts
 
-`⌘K` opens the command palette. Arrow keys navigate the gallery. Everything works without a mouse.
+`⌘K` opens the command palette. Arrow keys navigate the gallery and sidebar. All operations support keyboard shortcuts.
 
 ## Testing
 
