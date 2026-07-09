@@ -3,6 +3,7 @@ use tauri::Manager;
 mod commands;
 mod db;
 mod error;
+mod lan_server;
 mod metadata;
 mod ollama;
 mod schema;
@@ -41,6 +42,15 @@ pub fn run() {
 
             app.manage(db);
             app.manage(ollama::OllamaConfig::from_env());
+
+            // Start LAN web server for mobile access
+            let db_path_for_lan = app_dir.join("lumora.db");
+            if let Ok(lan_conn) = rusqlite::Connection::open(&db_path_for_lan) {
+                let shared_conn = std::sync::Arc::new(std::sync::Mutex::new(lan_conn));
+                let port = lan_server::start_server(shared_conn, app_dir.clone());
+                log::info!("LAN server started on port {}", port);
+                app.manage(lan_server::LanPort(port));
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -90,6 +100,7 @@ pub fn run() {
             ollama::check_ollama_status,
             commands::backup::export_database,
             commands::backup::import_database,
+            lan_server::get_lan_info,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

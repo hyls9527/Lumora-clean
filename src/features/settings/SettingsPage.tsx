@@ -1,7 +1,8 @@
 import { useSettingsStore } from '../../stores/settingsStore';
 import { exportDatabase, importDatabase } from '../../lib/api/backup';
+import { getLanInfo } from '../../lib/api/lan';
 import { open, save } from '@tauri-apps/plugin-dialog';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from '../../lib/i18n';
 import { t as tok } from '../../lib/tokens';
 import type { Language } from '../../stores/settingsStore';
@@ -160,6 +161,9 @@ export function SettingsPage() {
   ];
 
   const [backupMsg, setBackupMsg] = useState('');
+  const [lanInfo, setLanInfo] = useState<{ ip: string; port: number } | null>(null);
+
+  useEffect(() => { getLanInfo().then(setLanInfo).catch(() => {}); }, []);
 
   const handleExport = async () => {
     try {
@@ -367,6 +371,43 @@ export function SettingsPage() {
             )}
           </div>
         </section>
+
+        {/* ── LAN Access ── */}
+        {lanInfo && (
+          <section style={{ marginBottom: 36 }}>
+            <SectionHeading>{t('lanAccess') || '局域网访问'}</SectionHeading>
+            <div
+              style={{
+                background: token.surface,
+                borderRadius: 6,
+                border: `1px solid ${token.border}`,
+                padding: '16px',
+              }}
+            >
+              <p style={{ margin: '0 0 8px', fontSize: 13, color: token.text }}>
+                在同一 WiFi 下的手机或平板浏览器访问：
+              </p>
+              <a
+                href={`http://${lanInfo.ip}:${lanInfo.port}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-block',
+                  fontSize: 14,
+                  fontFamily: 'var(--font-body)',
+                  color: token.accent,
+                  textDecoration: 'none',
+                  padding: '8px 16px',
+                  background: 'var(--color-accent-subtle)',
+                  borderRadius: 4,
+                  border: `1px solid ${token.accent}`,
+                }}
+              >
+                http://{lanInfo.ip}:{lanInfo.port}
+              </a>
+            </div>
+          </section>
+        )}
 
         <section>
           <SectionHeading>{t('about')}</SectionHeading>

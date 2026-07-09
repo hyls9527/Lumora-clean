@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Lumora</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;background:#1a1612;color:#e8e0d0;padding:12px}
+.header{display:flex;align-items:center;justify-content:space-between;padding:8px 0;margin-bottom:12px;border-bottom:1px solid rgba(200,180,140,.1)}
+.header h1{font-size:18px;font-weight:600;color:#c49a30}
+.header .info{font-size:11px;color:#786850}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr)}}
+.card{background:#262119;border-radius:6px;overflow:hidden;border:1px solid rgba(200,180,140,.08)}
+.card img{width:100%;height:auto;display:block;aspect-ratio:1;object-fit:cover;background:#201c17}
+.card .meta{padding:8px;font-size:11px;color:#b0a088}
+.card .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+.card .tags{display:flex;gap:4px;flex-wrap:wrap}
+.card .tag{font-size:9px;background:rgba(196,154,48,.12);color:#c49a30;padding:2px 6px;border-radius:3px}
+.card .rating{color:#c49a30;font-size:10px}
+.loading{text-align:center;padding:40px;color:#786850;font-size:13px}
+.empty{text-align:center;padding:60px 20px;color:#786850;font-size:14px}
+.search-bar{display:flex;gap:8px;margin-bottom:12px}
+.search-bar input{flex:1;background:#262119;border:1px solid rgba(200,180,140,.1);border-radius:4px;padding:8px 12px;color:#e8e0d0;font-size:14px;outline:none}
+.search-bar input:focus{border-color:#c49a30}
+.search-bar button{background:#c49a30;border:none;color:#1a1612;padding:8px 16px;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Lumora</h1>
+  <span class="info" id="status">连接中…</span>
+</div>
+<div class="search-bar">
+  <input id="search" type="search" placeholder="搜索图片…" autocomplete="off">
+  <button onclick="doSearch()">搜索</button>
+</div>
+<div id="content" class="loading">加载中…</div>
+
+<script>
+const API = '';
+let page = 1;
+let loading = false;
+let allLoaded = false;
+
+async function loadImages(p) {
+  if (loading || allLoaded) return;
+  loading = true;
+  document.getElementById('content').className = 'loading';
+  try {
+    const r = await fetch(`${API}/api/images?page=${p}&per_page=40`);
+    if (!r.ok) throw new Error(r.status);
+    const data = await r.json();
+    const grid = document.getElementById('content');
+    if (p === 1) {
+      grid.className = 'grid';
+      grid.innerHTML = '';
+    }
+    if (data.items.length === 0 && p === 1) {
+      grid.className = 'empty';
+      grid.textContent = '暂无图片';
+      return;
+    }
+    data.items.forEach(img => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${API}/api/images/${img.id}/file" alt="${img.file_name}" loading="lazy">
+        <div class="meta">
+          <div class="name">${img.file_name}</div>
+          ${img.rating > 0 ? `<span class="rating">${'★'.repeat(img.rating)}</span>` : ''}
+          ${img.favorite ? '<span class="tag">收藏</span>' : ''}
+        </div>`;
+      grid.appendChild(card);
+    });
+    if (data.items.length < 40) allLoaded = true;
+    page = p;
+  } catch(e) {
+    document.getElementById('content').className = 'empty';
+    document.getElementById('content').textContent = '加载失败: ' + e.message;
+  }
+  loading = false;
+}
+
+function doSearch() {
+  // Simple client-side: just reload (search not implemented in API yet)
+  allLoaded = false;
+  page = 1;
+  loadImages(1);
+}
+
+// Infinite scroll
+window.addEventListener('scroll', () => {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+    loadImages(page + 1);
+  }
+});
+
+// Health check
+fetch(`${API}/health`).then(r => r.json()).then(d => {
+  document.getElementById('status').textContent = `${d.local_ip}:${d.port || '8079'}`;
+}).catch(() => {
+  document.getElementById('status').textContent = '离线';
+});
+
+loadImages(1);
+</script>
+</body>
+</html>

@@ -33,3 +33,6 @@ chrono = { version = "0.4", default-features = false, features = ["clock", "serd
 image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "avif", "bmp", "gif", "tiff"] }
 reqwest = { version = "0.12", features = ["json"] }
 base64 = "0.22"
+axum = "0.8"
+tokio = { version = "1", features = ["rt-multi-thread", "net"] }
+local-ip-address = "0.6"
