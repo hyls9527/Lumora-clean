@@ -85,15 +85,18 @@ pub fn start_server(conn: SharedConn, app_dir: PathBuf) -> u16 {
         .route("/api/tags", get(tags_handler))
         .with_state(state);
 
-    tokio::spawn(async move {
-        let addr = format!("0.0.0.0:{}", port);
-        let listener = tokio::net::TcpListener::bind(&addr)
-            .await
-            .expect("Failed to bind LAN server");
-        log::info!("LAN server listening on {}:{}", local_ip(), port);
-        axum::serve(listener, app)
-            .await
-            .expect("LAN server error");
+    std::thread::spawn(move || {
+        let rt = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
+        rt.block_on(async move {
+            let addr = format!("0.0.0.0:{}", port);
+            let listener = tokio::net::TcpListener::bind(&addr)
+                .await
+                .expect("Failed to bind LAN server");
+            log::info!("LAN server listening on {}:{}", local_ip(), port);
+            axum::serve(listener, app)
+                .await
+                .expect("LAN server error");
+        });
     });
 
     port
