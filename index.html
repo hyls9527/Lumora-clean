@@ -12,13 +12,15 @@
       /* Prevent white flash — match DESIGN.md --color-bg */
       html, body { background: #f2ede4; margin: 0; padding: 0; }
       #root {
-        display: flex;
-        align-items: center;
-        justify-content: center;
         min-height: 100vh;
         font-family: 'DM Sans', sans-serif;
         color: #a09480;
         font-size: 13px;
+      }
+      #root:empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       #root:empty::after {
         content: '正在加载 Lumora…';

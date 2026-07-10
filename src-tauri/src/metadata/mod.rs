@@ -1,8 +1,6 @@
 pub mod png;
 pub mod sd;
 
-use std::path::Path;
-
 /// Probe PNG metadata from an already-loaded byte buffer.
 /// Avoids a second file read when combined with probe_dimensions.
 pub fn probe_metadata_from_bytes(buf: &[u8], ext: &str) -> Option<String> {
