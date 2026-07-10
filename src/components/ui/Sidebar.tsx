@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
-import { useEffect } from 'react';
 import { useOllamaStatus } from '../../hooks/useOllamaStatus';
-import { useSmartCollectionStore } from '../../stores/smartCollectionStore';
-import { useTranslation, t } from '../../lib/i18n';
+import { t } from '../../lib/i18n';
 import { UpdateBanner } from './UpdateBanner';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { t as tok } from '../../lib/tokens';
@@ -31,11 +29,8 @@ const navItems: NavItem[] = [
 
 export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
   const { available, checking, error, recheck } = useOllamaStatus();
-  const { collections, load } = useSmartCollectionStore();
-  const { t: tI18n } = useTranslation('smartCollections');
   const isCollapsed = useIsMobile();
 
-  useEffect(() => { void load(); }, [load]);
 
   return (
     <aside
@@ -110,34 +105,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
         })}
       </nav>
 
-      {/* Smart Collections */}
-      {collections.length > 0 && (
-        <div style={{ padding: '12px 12px 0' }}>
-          <p
-            style={{
-              fontSize: 10,
-              fontFamily: tok.fontBody,
-              color: tok.textMuted,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              margin: '0 0 6px',
-            }}
-          >
-            {tI18n('title')}
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {collections.map((col) => (
-              <NavButton
-                key={col.id}
-                active={activeRoute === `/smart/${col.id}`}
-                onClick={() => onNavigate(`/smart/${col.id}`)}
-              >
-                {col.name}
-              </NavButton>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {/* Auto-update banner */}
       <UpdateBanner />

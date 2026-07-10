@@ -64,8 +64,7 @@
     "exportCsv": "导出元数据 (CSV)",
     "batchDelete": "批量删除",
     "batchFavorite": "批量收藏",
-    "batchMove": "批量移动",
-    "emptyTitle": "开始你的创作之旅",
+
     "emptyDesc": "通过 ComfyUI 自动导入你的 AI 作品，或手动添加图片。Lumora 会自动解析生成参数并建立向量索引。",
     "configComfyUI": "配置 ComfyUI",
     "statusConnected": "ComfyUI 已连接",

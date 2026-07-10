@@ -64,8 +64,7 @@
     "exportCsv": "Export Metadata (CSV)",
     "batchDelete": "Batch Delete",
     "batchFavorite": "Batch Favorite",
-    "batchMove": "Batch Move",
-    "emptyTitle": "Begin Your Creative Journey",
+
     "emptyDesc": "Import your AI works via ComfyUI or add images manually. Lumora will automatically parse generation parameters and build vector indexes.",
     "configComfyUI": "Configure ComfyUI",
     "statusConnected": "ComfyUI Connected",

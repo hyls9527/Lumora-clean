@@ -185,7 +185,7 @@ pub fn create_tag_impl(
     Ok(id)
 }
 
-/// Internal: associate a tag with an image.
+#[allow(dead_code)]
 pub fn add_tag_to_image_impl(
     conn: &rusqlite::Connection,
     image_id: &str,

@@ -1,5 +1,4 @@
 use std::net::TcpListener;
-use std::path::PathBuf;
 use std::sync::Arc;
 
 use axum::{
@@ -28,7 +27,6 @@ pub fn get_lan_info(port: tauri::State<'_, LanPort>) -> (String, u16) {
 #[derive(Clone)]
 pub struct ServerState {
     pub conn: SharedConn,
-    pub app_dir: PathBuf,
 }
 
 #[derive(Serialize)]
@@ -74,9 +72,9 @@ pub struct PaginationParams {
 
 /// Start the LAN web server on an available port.
 /// Returns the bound port on success.
-pub fn start_server(conn: SharedConn, app_dir: PathBuf) -> u16 {
+pub fn start_server(conn: SharedConn) -> u16 {
     let port = find_available_port();
-    let state = ServerState { conn, app_dir };
+    let state = ServerState { conn };
     let app = Router::new()
         .route("/health", get(health_handler))
         .route("/", get(mobile_ui_handler))

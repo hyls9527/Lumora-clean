@@ -47,7 +47,7 @@ pub fn run() {
             let db_path_for_lan = app_dir.join("lumora.db");
             if let Ok(lan_conn) = rusqlite::Connection::open(&db_path_for_lan) {
                 let shared_conn = std::sync::Arc::new(std::sync::Mutex::new(lan_conn));
-                let port = lan_server::start_server(shared_conn, app_dir.clone());
+                let port = lan_server::start_server(shared_conn);
                 log::info!("LAN server started on port {}", port);
                 app.manage(lan_server::LanPort(port));
             }

@@ -282,7 +282,7 @@ mod tests {
 
     #[test]
     fn test_non_png_returns_none() {
-        let result = super::super::probe_metadata(std::path::Path::new("/fake/image.jpg"), "jpg");
+        let result = super::super::probe_metadata_from_bytes(&[0u8; 10], "jpg");
         assert!(result.is_none());
     }
 

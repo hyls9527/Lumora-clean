@@ -3,16 +3,6 @@ pub mod sd;
 
 use std::path::Path;
 
-/// Probe PNG metadata from a file, returning a JSON string if found.
-/// Returns `None` for non-PNG files or files without relevant tEXt chunks.
-pub fn probe_metadata(path: &Path, ext: &str) -> Option<String> {
-    if ext != "png" {
-        return None;
-    }
-    let chunks = png::read_text_chunks(path)?;
-    sd::parse_metadata(&chunks)
-}
-
 /// Probe PNG metadata from an already-loaded byte buffer.
 /// Avoids a second file read when combined with probe_dimensions.
 pub fn probe_metadata_from_bytes(buf: &[u8], ext: &str) -> Option<String> {
@@ -95,9 +85,9 @@ mod tests {
 
     #[test]
     fn test_non_png_returns_none() {
-        let result = probe_metadata(Path::new("/fake/image.jpg"), "jpg");
+        let result = probe_metadata_from_bytes(&[0u8; 10], "jpg");
         assert!(result.is_none());
-        let result = probe_metadata(Path::new("/fake/image.webp"), "webp");
+        let result = probe_metadata_from_bytes(&[0u8; 10], "webp");
         assert!(result.is_none());
     }
 }

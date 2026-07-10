@@ -1,10 +1,4 @@
-use std::fs::File;
-use std::io::Read;
-use std::path::Path;
 
-/// Maximum bytes to read from a PNG file for metadata extraction.
-/// PNG tEXt chunks appear after IHDR and before IDAT, so 64KB is generous.
-const MAX_READ: usize = 65_536;
 
 /// Read all tEXt and iTXt chunks from a PNG byte buffer (already loaded).
 /// Returns a Vec of (keyword, text_value) pairs.
@@ -51,17 +45,6 @@ pub fn read_text_chunks_from_bytes(buf: &[u8]) -> Option<Vec<(String, String)>> 
     } else {
         Some(chunks)
     }
-}
-
-/// Read all tEXt and iTXt chunks from a PNG file.
-/// Returns a Vec of (keyword, text_value) pairs.
-pub fn read_text_chunks(path: &Path) -> Option<Vec<(String, String)>> {
-    let mut buf = vec![0u8; MAX_READ];
-    let file = File::open(path).ok()?;
-    let mut reader = std::io::BufReader::new(file);
-    let n = reader.read(&mut buf).ok()?;
-    buf.truncate(n);
-    read_text_chunks_from_bytes(&buf)
 }
 
 /// Parse a tEXt chunk: keyword (null-terminated) + raw text (Latin-1).
@@ -170,27 +153,15 @@ mod tests {
 
     #[test]
     fn read_text_chunks_from_real_png() {
-        use std::io::Write;
         let data = build_png_with_text(b"parameters", b"Steps: 20, Seed: 42");
-        let dir = std::env::temp_dir().join("lumora_test_meta");
-        std::fs::create_dir_all(&dir).ok();
-        let path = dir.join("test_meta.png");
-        let mut f = File::create(&path).unwrap();
-        f.write_all(&data).unwrap();
-        f.flush().unwrap();
-        drop(f);
-
-        let chunks = read_text_chunks(&path).unwrap();
+        let chunks = read_text_chunks_from_bytes(&data).unwrap();
         assert_eq!(chunks.len(), 1);
         assert_eq!(chunks[0].0, "parameters");
         assert_eq!(chunks[0].1, "Steps: 20, Seed: 42");
-
-        std::fs::remove_file(&path).ok();
     }
 
     #[test]
     fn no_text_chunks_returns_none() {
-        use std::io::Write;
         // PNG with only IHDR + IEND
         let mut png = Vec::new();
         png.extend_from_slice(b"\x89PNG\r\n\x1a\n");
@@ -211,15 +182,6 @@ mod tests {
         let crc = crc32_chunk(b"IEND", &[]);
         png.extend_from_slice(&crc.to_be_bytes());
 
-        let dir = std::env::temp_dir().join("lumora_test_meta");
-        std::fs::create_dir_all(&dir).ok();
-        let path = dir.join("no_text.png");
-        let mut f = File::create(&path).unwrap();
-        f.write_all(&png).unwrap();
-        f.flush().unwrap();
-        drop(f);
-
-        assert!(read_text_chunks(&path).is_none());
-        std::fs::remove_file(&path).ok();
+        assert!(read_text_chunks_from_bytes(&png).is_none());
     }
 }

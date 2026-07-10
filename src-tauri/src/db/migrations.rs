@@ -120,6 +120,7 @@ fn apply_v6(conn: &Connection) -> Result<(), rusqlite::Error> {
 /// Roll back migrations from the current version down to `target`.
 /// Each revert runs inside its own transaction so partial progress is
 /// preserved if an intermediate step fails.
+#[allow(dead_code)]
 pub fn downgrade_to(conn: &Connection, target: i64) -> Result<(), rusqlite::Error> {
     let current = current_version(conn)?;
     if current <= target {
@@ -134,6 +135,7 @@ pub fn downgrade_to(conn: &Connection, target: i64) -> Result<(), rusqlite::Erro
     Ok(())
 }
 
+#[allow(dead_code)]
 fn revert_migration(conn: &Connection, version: i64) -> Result<(), rusqlite::Error> {
     match version {
         1 => {
