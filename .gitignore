@@ -28,6 +28,10 @@ src-tauri/sidecar/__pycache__/
 
 # Build artifacts
 *.msi
+
+# Tool-generated
+.understand-anything/
+.planning/
 *.exe
 *.dmg
 *.AppImage
