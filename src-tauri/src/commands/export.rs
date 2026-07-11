@@ -89,13 +89,38 @@ fn build_filename(
         .next()
         .unwrap_or(&record.created_at);
 
+    // Parse metadata for template variables
+    let (model, prompt, seed) = parse_metadata_fields(record.metadata_json.as_deref());
+    let w = record.width.map(|v| v.to_string()).unwrap_or_default();
+    let h = record.height.map(|v| v.to_string()).unwrap_or_default();
+
     sanitize_filename(
         &tpl.replace("{name}", &stem)
             .replace("{id}", &record.id)
             .replace("{date}", date)
             .replace("{rating}", &record.rating.to_string())
-            .replace("{tags}", &tags.join(",")),
+            .replace("{tags}", &tags.join(","))
+            .replace("{model}", &model)
+            .replace("{prompt}", &prompt)
+            .replace("{seed}", &seed)
+            .replace("{width}", &w)
+            .replace("{height}", &h)
+            .replace("{format}", &record.format),
     )
+}
+
+/// Extract model, prompt, seed from metadata_json.
+fn parse_metadata_fields(json: Option<&str>) -> (String, String, String) {
+    let Some(raw) = json else {
+        return (String::new(), String::new(), String::new());
+    };
+    let Ok(obj) = serde_json::from_str::<serde_json::Value>(raw) else {
+        return (String::new(), String::new(), String::new());
+    };
+    let model = obj.get("model").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let prompt = obj.get("prompt").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let seed = obj.get("seed").map(|v| v.to_string()).unwrap_or_default();
+    (model, prompt, seed)
 }
 
 /// Strip path separators and traversal sequences from template-generated filenames.

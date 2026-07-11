@@ -257,7 +257,7 @@
     "browse": "浏览",
     "outputFormat": "输出格式",
     "renameTemplate": "重命名模板",
-    "templateHint": "可用变量: {name} 文件名、{id} 编号、{date} 日期、{rating} 评分、{tags} 标签",
+    "templateHint": "可用变量: {name} 文件名、{id} 编号、{date} 日期、{rating} 评分、{tags} 标签、{model} 模型、{prompt} 提示词、{seed} 种子、{width} 宽、{height} 高、{format} 格式",
     "startExport": "开始导出",
     "exporting": "导出中…",
     "exportingProgress": "正在导出 {count} 张图片…",

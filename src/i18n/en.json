@@ -257,7 +257,7 @@
     "browse": "Browse",
     "outputFormat": "Output Format",
     "renameTemplate": "Rename Template",
-    "templateHint": "Available: {name} filename, {id} id, {date} date, {rating} rating, {tags} tags",
+    "templateHint": "Available: {name} filename, {id} id, {date} date, {rating} rating, {tags} tags, {model} model, {prompt} prompt, {seed} seed, {width} width, {height} height, {format} format",
     "startExport": "Start Export",
     "exporting": "Exporting…",
     "exportingProgress": "Exporting {count} images…",
