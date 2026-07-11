@@ -18,9 +18,9 @@ jobs:
       - name: Check version matches tag
         run: |
           TAG_VERSION="${GITHUB_REF_NAME#v}"
-          CARGO_VERSION=$(grep '^version' src-tauri/Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
-          PACKAGE_VERSION=$(grep '"version"' package.json | head -1 | sed 's/.*"\(.*\)"/\1/')
-          TAURI_VERSION=$(grep '"version"' src-tauri/tauri.conf.json | head -1 | sed 's/.*"\(.*\)"/\1/')
+          CARGO_VERSION=$(grep '^version' src-tauri/Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          PACKAGE_VERSION=$(grep '"version"' package.json | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          TAURI_VERSION=$(grep '"version"' src-tauri/tauri.conf.json | head -1 | sed 's/.*"\(.*\)".*/\1/')
 
           echo "Tag: $TAG_VERSION"
           echo "Cargo.toml: $CARGO_VERSION"
