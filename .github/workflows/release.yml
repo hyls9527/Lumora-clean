@@ -9,8 +9,72 @@ permissions:
   contents: write
 
 jobs:
+  verify:
+    name: Verify version sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check version matches tag
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          CARGO_VERSION=$(grep '^version' src-tauri/Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
+          PACKAGE_VERSION=$(grep '"version"' package.json | head -1 | sed 's/.*"\(.*\)"/\1/')
+          TAURI_VERSION=$(grep '"version"' src-tauri/tauri.conf.json | head -1 | sed 's/.*"\(.*\)"/\1/')
+
+          echo "Tag: $TAG_VERSION"
+          echo "Cargo.toml: $CARGO_VERSION"
+          echo "package.json: $PACKAGE_VERSION"
+          echo "tauri.conf.json: $TAURI_VERSION"
+
+          if [ "$TAG_VERSION" != "$CARGO_VERSION" ] || [ "$TAG_VERSION" != "$PACKAGE_VERSION" ] || [ "$TAG_VERSION" != "$TAURI_VERSION" ]; then
+            echo "::error::Version mismatch! Tag=$TAG_VERSION but Cargo=$CARGO_VERSION, package=$PACKAGE_VERSION, tauri=$TAURI_VERSION"
+            exit 1
+          fi
+          echo "✓ All versions match $TAG_VERSION"
+
+  test:
+    name: Tests
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: actions/cache@v6
+        with:
+          path: src-tauri/target
+          key: ${{ runner.os }}-cargo-test-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-test-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Frontend tests
+        run: npx vitest run
+
+      - name: Rust tests
+        working-directory: src-tauri
+        run: cargo test --lib
+
   build:
     name: Build Release
+    needs: test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -52,8 +116,22 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      - name: Extract changelog
+        id: changelog
+        shell: bash
+        run: |
+          TAG="${{ github.ref_name }}"
+          # Extract section between current tag header and next tag header (or EOF)
+          NOTES=$(awk "/^## ${TAG}/{found=1; next} /^## v[0-9]/{if(found) exit} found{print}" CHANGELOG.md)
+          if [ -z "$NOTES" ]; then
+            NOTES="No changelog entry found for ${TAG}."
+          fi
+          # Write to file to avoid shell escaping issues
+          echo "$NOTES" > /tmp/release-notes.md
+          echo "Extracted $(wc -l < /tmp/release-notes.md) lines of release notes"
+
       - name: Build Tauri
-        uses: tauri-apps/tauri-action@v1
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -61,16 +139,7 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Lumora ${{ github.ref_name }}
-          releaseBody: |
-            ## Lumora ${{ github.ref_name }}
-
-            ### 下载
-            - **Windows**: 下载 `lumora_*_x64-setup.exe` 安装
-            - **macOS**: 下载 `.dmg` 文件安装
-            - **Linux**: 下载 `.AppImage` 或 `.deb` 文件
-
-            ### 自动更新
-            已安装用户会在侧边栏收到更新提示。
+          releaseBodyFile: /tmp/release-notes.md
           releaseDraft: true
           prerelease: false
 
@@ -81,76 +150,62 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '20'
-
       - name: Generate latest.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          node --input-type=module <<'NODESCRIPT'
-          import { execSync } from "child_process";
-          import { readFileSync, writeFileSync, mkdtempSync } from "fs";
-          import { join } from "path";
-          import { tmpdir } from "os";
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          REPO="${{ github.repository }}"
 
-          const tag = "${{ github.ref_name }}";
-          const version = tag.replace(/^v/, "");
-          const repo = "${{ github.repository }}";
-          const dir = mkdtempSync(join(tmpdir(), "updater-"));
+          # Get release assets
+          ASSETS_JSON=$(gh release view "$TAG" -R "$REPO" --json assets)
+          echo "Release assets:"
+          echo "$ASSETS_JSON" | jq '.assets[].name'
 
-          function gh(args) {
-            return execSync(`gh ${args}`, { encoding: "utf-8" }).trim();
-          }
+          # Build platforms object with signatures
+          PLATFORMS="{}"
 
-          const assetsJson = gh(`release view ${tag} -R ${repo} --json assets`);
-          const assets = JSON.parse(assetsJson).assets;
-          const platforms = {};
+          # Windows: NSIS exe + .sig
+          NSIS_EXE=$(echo "$ASSETS_JSON" | jq -r '.assets[] | select(.name | endswith("setup.exe")) | .name' | head -1)
+          if [ -n "$NSIS_EXE" ]; then
+            SIG_URL="https://github.com/${REPO}/releases/download/${TAG}/${NSIS_EXE}.sig"
+            SIG=$(curl -sL "$SIG_URL" 2>/dev/null || echo "")
+            PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "https://github.com/${REPO}/releases/download/${TAG}/${NSIS_EXE}" --arg sig "$SIG" '. + {"windows-x86_64": {signature: $sig, url: $url}}')
+          fi
 
-          // Windows: NSIS exe
-          const nsisExe = assets.find(a => a.name.endsWith("setup.exe"));
-          if (nsisExe) {
-            platforms["windows-x86_64"] = {
-              signature: "",
-              url: `https://github.com/${repo}/releases/download/${tag}/${nsisExe.name}`
-            };
-          }
+          # macOS: app.tar.gz + .sig
+          MAC_TAR=$(echo "$ASSETS_JSON" | jq -r '.assets[] | select(.name | endswith("app.tar.gz")) | .name' | head -1)
+          if [ -n "$MAC_TAR" ]; then
+            SIG_URL="https://github.com/${REPO}/releases/download/${TAG}/${MAC_TAR}.sig"
+            SIG=$(curl -sL "$SIG_URL" 2>/dev/null || echo "")
+            PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "https://github.com/${REPO}/releases/download/${TAG}/${MAC_TAR}" --arg sig "$SIG" '. + {"darwin-aarch64": {signature: $sig, url: $url}}')
+          fi
 
-          // macOS: app.tar.gz
-          const macTar = assets.find(a => a.name.endsWith("app.tar.gz"));
-          if (macTar) {
-            platforms["darwin-aarch64"] = {
-              signature: "",
-              url: `https://github.com/${repo}/releases/download/${tag}/${macTar.name}`
-            };
-          }
+          # Linux: AppImage + .sig
+          APPIMAGE=$(echo "$ASSETS_JSON" | jq -r '.assets[] | select(.name | endswith(".AppImage")) | .name' | head -1)
+          if [ -n "$APPIMAGE" ]; then
+            SIG_URL="https://github.com/${REPO}/releases/download/${TAG}/${APPIMAGE}.sig"
+            SIG=$(curl -sL "$SIG_URL" 2>/dev/null || echo "")
+            PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "https://github.com/${REPO}/releases/download/${TAG}/${APPIMAGE}" --arg sig "$SIG" '. + {"linux-x86_64": {signature: $sig, url: $url}}')
+          fi
 
-          // Linux: AppImage
-          const appImage = assets.find(a => a.name.endsWith(".AppImage"));
-          if (appImage) {
-            platforms["linux-x86_64"] = {
-              signature: "",
-              url: `https://github.com/${repo}/releases/download/${tag}/${appImage.name}`
-            };
-          }
+          # Build latest.json
+          LATEST_JSON=$(jq -n \
+            --arg version "$VERSION" \
+            --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson platforms "$PLATFORMS" \
+            '{version: $version, notes: "", pub_date: $date, platforms: $platforms}')
 
-          const latestJson = {
-            version,
-            notes: "",
-            pub_date: new Date().toISOString(),
-            platforms
-          };
+          echo "$LATEST_JSON" | jq .
 
-          if (Object.keys(platforms).length === 0) {
-            console.log("ERROR: No platforms found!");
-            process.exit(1);
-          }
+          PLATFORM_COUNT=$(echo "$PLATFORMS" | jq 'length')
+          if [ "$PLATFORM_COUNT" -eq 0 ]; then
+            echo "::error::No platforms found in release assets!"
+            exit 1
+          fi
 
-          const outputPath = join(dir, "latest.json");
-          writeFileSync(outputPath, JSON.stringify(latestJson, null, 2));
-          console.log(JSON.stringify(latestJson, null, 2));
-
-          gh(`release upload ${tag} ${outputPath} --clobber -R ${repo}`);
-          console.log("Uploaded latest.json ✓");
-          NODESCRIPT
+          # Upload to release
+          echo "$LATEST_JSON" > /tmp/latest.json
+          gh release upload "$TAG" /tmp/latest.json --clobber -R "$REPO"
+          echo "✓ Uploaded latest.json with $PLATFORM_COUNT platforms"
