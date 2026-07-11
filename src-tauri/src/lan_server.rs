@@ -91,9 +91,7 @@ pub fn start_server(conn: SharedConn) -> u16 {
                 .await
                 .expect("Failed to bind LAN server");
             log::info!("LAN server listening on {}:{}", local_ip(), port);
-            axum::serve(listener, app)
-                .await
-                .expect("LAN server error");
+            axum::serve(listener, app).await.expect("LAN server error");
         });
     });
 
@@ -140,10 +138,15 @@ async fn images_handler(
     let per_page = params.per_page.unwrap_or(40).min(200);
     let offset = (page - 1) * per_page;
 
-    let conn = state.conn.lock().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let conn = state
+        .conn
+        .lock()
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let total: i64 = conn
-        .query_row("SELECT COUNT(*) FROM images WHERE deleted = 0", [], |r| r.get(0))
+        .query_row("SELECT COUNT(*) FROM images WHERE deleted = 0", [], |r| {
+            r.get(0)
+        })
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let mut stmt = conn
@@ -188,7 +191,10 @@ async fn image_file_handler(
     State(state): State<ServerState>,
     Path(id): Path<String>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let conn = state.conn.lock().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let conn = state
+        .conn
+        .lock()
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let file_path: String = conn
         .query_row(
@@ -225,10 +231,11 @@ async fn image_file_handler(
     Ok(([(axum::http::header::CONTENT_TYPE, mime)], data))
 }
 
-async fn tags_handler(
-    State(state): State<ServerState>,
-) -> Result<Json<Vec<TagItem>>, StatusCode> {
-    let conn = state.conn.lock().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+async fn tags_handler(State(state): State<ServerState>) -> Result<Json<Vec<TagItem>>, StatusCode> {
+    let conn = state
+        .conn
+        .lock()
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let mut stmt = conn
         .prepare("SELECT id, name, color FROM tags ORDER BY name")

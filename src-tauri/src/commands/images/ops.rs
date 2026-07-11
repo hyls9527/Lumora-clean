@@ -17,22 +17,16 @@ pub fn list_images(
 ) -> AppResult<PaginatedResult> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let offset = page.saturating_sub(1) * per_page;
-    let total: i64 = conn
-        .query_row("SELECT COUNT(*) FROM images WHERE deleted = 0", [], |r| {
-            r.get(0)
-        })
-        ?;
-    let mut stmt = conn
-        .prepare(
-            "SELECT * FROM images WHERE deleted = 0
+    let total: i64 = conn.query_row("SELECT COUNT(*) FROM images WHERE deleted = 0", [], |r| {
+        r.get(0)
+    })?;
+    let mut stmt = conn.prepare(
+        "SELECT * FROM images WHERE deleted = 0
              ORDER BY imported_at DESC LIMIT ?1 OFFSET ?2",
-        )
-        ?;
+    )?;
     let items = stmt
-        .query_map(params![per_page, offset], row_to_record)
-        ?
-        .collect::<Result<Vec<_>, _>>()
-        ?;
+        .query_map(params![per_page, offset], row_to_record)?
+        .collect::<Result<Vec<_>, _>>()?;
     Ok(PaginatedResult {
         items,
         total,
@@ -43,18 +37,13 @@ pub fn list_images(
 
 /// Set rating (0-5) for an image.
 #[tauri::command]
-pub fn update_rating(
-    db: tauri::State<'_, DbHandle>,
-    id: String,
-    rating: u32,
-) -> AppResult<()> {
+pub fn update_rating(db: tauri::State<'_, DbHandle>, id: String, rating: u32) -> AppResult<()> {
     let clamped = rating.min(5);
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     conn.execute(
         "UPDATE images SET rating = ?1 WHERE id = ?2",
         params![clamped, id],
-    )
-    ?;
+    )?;
     Ok(())
 }
 
@@ -65,8 +54,7 @@ pub fn toggle_favorite(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<
     conn.execute(
         "UPDATE images SET favorite = CASE WHEN favorite = 0 THEN 1 ELSE 0 END WHERE id = ?1",
         params![id],
-    )
-    ?;
+    )?;
     Ok(())
 }
 
@@ -332,7 +320,9 @@ mod tests {
         ).unwrap();
 
         let mut stmt = conn
-            .prepare("SELECT * FROM images WHERE favorite = 1 AND deleted = 0 ORDER BY imported_at DESC")
+            .prepare(
+                "SELECT * FROM images WHERE favorite = 1 AND deleted = 0 ORDER BY imported_at DESC",
+            )
             .unwrap();
         let items: Vec<crate::schema::types::ImageRecord> = stmt
             .query_map([], crate::schema::types::row_to_record)
@@ -354,7 +344,11 @@ mod tests {
             [],
         ).unwrap();
         let count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM images WHERE favorite = 1 AND deleted = 0", [], |r| r.get(0))
+            .query_row(
+                "SELECT COUNT(*) FROM images WHERE favorite = 1 AND deleted = 0",
+                [],
+                |r| r.get(0),
+            )
             .unwrap();
         assert_eq!(count, 0);
     }

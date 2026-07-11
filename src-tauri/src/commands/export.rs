@@ -117,8 +117,16 @@ fn parse_metadata_fields(json: Option<&str>) -> (String, String, String) {
     let Ok(obj) = serde_json::from_str::<serde_json::Value>(raw) else {
         return (String::new(), String::new(), String::new());
     };
-    let model = obj.get("model").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let prompt = obj.get("prompt").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let model = obj
+        .get("model")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+    let prompt = obj
+        .get("prompt")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
     let seed = obj.get("seed").map(|v| v.to_string()).unwrap_or_default();
     (model, prompt, seed)
 }
@@ -164,6 +172,5 @@ fn export_single(src: &str, dest: &Path, format: &str) -> AppResult<()> {
     let mut cursor = std::io::Cursor::new(Vec::new());
     img.write_to(&mut cursor, img_format)
         .map_err(|e| AppError::External(format!("编码失败: {e}")))?;
-    fs::write(dest, cursor.into_inner())
-        .map_err(|e| AppError::Io(format!("写入文件失败: {e}")))
+    fs::write(dest, cursor.into_inner()).map_err(|e| AppError::Io(format!("写入文件失败: {e}")))
 }

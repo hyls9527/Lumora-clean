@@ -1,10 +1,10 @@
+pub mod ai;
+pub mod backup;
+pub mod clip;
+pub mod dashboard;
+pub mod embeddings;
+pub mod export;
 pub mod images;
-pub mod trash;
 pub mod settings;
 pub mod tags;
-pub mod dashboard;
-pub mod export;
-pub mod embeddings;
-pub mod ai;
-pub mod clip;
-pub mod backup;
+pub mod trash;

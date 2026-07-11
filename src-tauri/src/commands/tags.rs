@@ -19,13 +19,11 @@ pub fn create_tag(
 ) -> AppResult<Tag> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let id = create_tag_impl(&conn, &name, color.as_deref())?;
-    let tag = conn
-        .query_row(
-            "SELECT id, name, color, created_at FROM tags WHERE id = ?1",
-            params![id],
-            row_to_tag,
-        )
-        ?;
+    let tag = conn.query_row(
+        "SELECT id, name, color, created_at FROM tags WHERE id = ?1",
+        params![id],
+        row_to_tag,
+    )?;
     Ok(tag)
 }
 
@@ -33,14 +31,10 @@ pub fn create_tag(
 #[tauri::command]
 pub fn list_tags(db: tauri::State<'_, DbHandle>) -> AppResult<Vec<Tag>> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-    let mut stmt = conn
-        .prepare("SELECT id, name, color, created_at FROM tags ORDER BY name")
-        ?;
+    let mut stmt = conn.prepare("SELECT id, name, color, created_at FROM tags ORDER BY name")?;
     let tags = stmt
-        .query_map([], row_to_tag)
-        ?
-        .collect::<Result<Vec<_>, _>>()
-        ?;
+        .query_map([], row_to_tag)?
+        .collect::<Result<Vec<_>, _>>()?;
     Ok(tags)
 }
 
@@ -104,8 +98,7 @@ pub fn add_tag_to_image(
     conn.execute(
         "INSERT OR IGNORE INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
         params![image_id, tag_id],
-    )
-    ?;
+    )?;
     Ok(())
 }
 
@@ -120,32 +113,24 @@ pub fn remove_tag_from_image(
     conn.execute(
         "DELETE FROM image_tags WHERE image_id = ?1 AND tag_id = ?2",
         params![image_id, tag_id],
-    )
-    ?;
+    )?;
     Ok(())
 }
 
 /// Get all tags associated with an image.
 #[tauri::command]
-pub fn get_image_tags(
-    db: tauri::State<'_, DbHandle>,
-    image_id: String,
-) -> AppResult<Vec<Tag>> {
+pub fn get_image_tags(db: tauri::State<'_, DbHandle>, image_id: String) -> AppResult<Vec<Tag>> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-    let mut stmt = conn
-        .prepare(
-            "SELECT t.id, t.name, t.color, t.created_at
+    let mut stmt = conn.prepare(
+        "SELECT t.id, t.name, t.color, t.created_at
              FROM tags t
              JOIN image_tags it ON it.tag_id = t.id
              WHERE it.image_id = ?1
              ORDER BY t.name",
-        )
-        ?;
+    )?;
     let tags = stmt
-        .query_map(params![image_id], row_to_tag)
-        ?
-        .collect::<Result<Vec<_>, _>>()
-        ?;
+        .query_map(params![image_id], row_to_tag)?
+        .collect::<Result<Vec<_>, _>>()?;
     Ok(tags)
 }
 
@@ -174,14 +159,15 @@ pub fn create_tag_impl(
 ) -> AppResult<String> {
     let trimmed = name.trim();
     if trimmed.is_empty() {
-        return Err(AppError::InvalidInput("Tag name cannot be empty".to_string()));
+        return Err(AppError::InvalidInput(
+            "Tag name cannot be empty".to_string(),
+        ));
     }
     let id = Uuid::new_v4().to_string();
     conn.execute(
         "INSERT INTO tags (id, name, color) VALUES (?1, ?2, ?3)",
         params![id, trimmed, color],
-    )
-    ?;
+    )?;
     Ok(id)
 }
 
@@ -195,8 +181,7 @@ pub fn add_tag_to_image_impl(
     conn.execute(
         "INSERT INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
         params![image_id, tag_id],
-    )
-    ?;
+    )?;
     Ok(())
 }
 
@@ -229,7 +214,11 @@ mod tests {
         let mut stmt = conn
             .prepare("SELECT id, name, color, created_at FROM tags ORDER BY name")
             .unwrap();
-        let tags: Vec<Tag> = stmt.query_map([], row_to_tag).unwrap().filter_map(|r| r.ok()).collect();
+        let tags: Vec<Tag> = stmt
+            .query_map([], row_to_tag)
+            .unwrap()
+            .filter_map(|r| r.ok())
+            .collect();
 
         assert_eq!(tags.len(), 2);
         assert_eq!(tags[0].name, "art"); // sorted by name
@@ -247,15 +236,26 @@ mod tests {
         add_tag_to_image_impl(&conn, "img-1", &tag_id).unwrap();
 
         let count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'img-1'", [], |r| r.get(0))
+            .query_row(
+                "SELECT COUNT(*) FROM image_tags WHERE image_id = 'img-1'",
+                [],
+                |r| r.get(0),
+            )
             .unwrap();
         assert_eq!(count, 1);
 
         // Remove
-        conn.execute("DELETE FROM image_tags WHERE image_id = 'img-1' AND tag_id = ?1", params![tag_id])
-            .unwrap();
+        conn.execute(
+            "DELETE FROM image_tags WHERE image_id = 'img-1' AND tag_id = ?1",
+            params![tag_id],
+        )
+        .unwrap();
         let count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'img-1'", [], |r| r.get(0))
+            .query_row(
+                "SELECT COUNT(*) FROM image_tags WHERE image_id = 'img-1'",
+                [],
+                |r| r.get(0),
+            )
             .unwrap();
         assert_eq!(count, 0);
     }
@@ -285,7 +285,11 @@ mod tests {
         assert!(result.is_err()); // UNIQUE constraint violation
 
         let count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'img-1'", [], |r| r.get(0))
+            .query_row(
+                "SELECT COUNT(*) FROM image_tags WHERE image_id = 'img-1'",
+                [],
+                |r| r.get(0),
+            )
             .unwrap();
         assert_eq!(count, 1);
     }

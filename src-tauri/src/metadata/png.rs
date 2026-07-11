@@ -1,5 +1,3 @@
-
-
 /// Read all tEXt and iTXt chunks from a PNG byte buffer (already loaded).
 /// Returns a Vec of (keyword, text_value) pairs.
 pub fn read_text_chunks_from_bytes(buf: &[u8]) -> Option<Vec<(String, String)>> {

@@ -8,7 +8,7 @@ use crate::error::{AppError, AppResult};
 /// Embedding status returned to frontend.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct EmbeddingInfo {
-    pub status: String,       // "embedded" | "pending" | "error"
+    pub status: String, // "embedded" | "pending" | "error"
     pub dimensions: Option<i64>,
     pub generated_at: Option<String>,
 }
@@ -65,9 +65,8 @@ pub fn get_embedding_status_db(
     conn: &Connection,
     image_id: &str,
 ) -> Result<Option<EmbeddingInfo>, rusqlite::Error> {
-    let mut stmt = conn.prepare(
-        "SELECT status, dimensions, generated_at FROM embeddings WHERE image_id = ?1",
-    )?;
+    let mut stmt = conn
+        .prepare("SELECT status, dimensions, generated_at FROM embeddings WHERE image_id = ?1")?;
     let mut rows = stmt.query_map(rusqlite::params![image_id], |row| {
         Ok(EmbeddingInfo {
             status: row.get(0)?,
@@ -141,7 +140,11 @@ pub async fn search_semantic_cmd(
     limit: Option<i64>,
 ) -> AppResult<Vec<SemanticSearchResult>> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-    Ok(search_semantic_db(&conn, &query_embedding, limit.unwrap_or(20))?)
+    Ok(search_semantic_db(
+        &conn,
+        &query_embedding,
+        limit.unwrap_or(20),
+    )?)
 }
 
 /// Aggregate embedding statistics.
@@ -180,15 +183,17 @@ pub fn get_embedding_stats_db(conn: &Connection) -> Result<EmbeddingStats, rusql
 }
 
 #[command]
-pub async fn get_embedding_stats_cmd(
-    db: tauri::State<'_, DbHandle>,
-) -> AppResult<EmbeddingStats> {
+pub async fn get_embedding_stats_cmd(db: tauri::State<'_, DbHandle>) -> AppResult<EmbeddingStats> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     Ok(get_embedding_stats_db(&conn)?)
 }
 
 /// Generate text embedding using Ollama.
-async fn embed_text_ollama(cfg: &crate::ollama::OllamaConfig, text: &str, model: &str) -> AppResult<Vec<f64>> {
+async fn embed_text_ollama(
+    cfg: &crate::ollama::OllamaConfig,
+    text: &str,
+    model: &str,
+) -> AppResult<Vec<f64>> {
     let client = reqwest::Client::new();
     let response = client
         .post(cfg.url("/api/embed"))
@@ -201,7 +206,10 @@ async fn embed_text_ollama(cfg: &crate::ollama::OllamaConfig, text: &str, model:
         .map_err(|e| format!("Ollama request failed: {}", e))?;
 
     if !response.status().is_success() {
-        return Err(AppError::External(format!("Ollama returned status: {}", response.status())));
+        return Err(AppError::External(format!(
+            "Ollama returned status: {}",
+            response.status()
+        )));
     }
 
     let body: serde_json::Value = response

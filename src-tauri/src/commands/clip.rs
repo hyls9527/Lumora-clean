@@ -1,7 +1,7 @@
 use crate::error::{AppError, AppResult};
-use std::process::Command;
-use serde::{Deserialize, Serialize};
 use rusqlite;
+use serde::{Deserialize, Serialize};
+use std::process::Command;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ClipEmbeddingResponse {
@@ -21,7 +21,10 @@ pub fn clip_embed_image(image_path: &str) -> AppResult<Vec<f64>> {
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(AppError::External(format!("CLIP sidecar failed: {}", stderr)));
+        return Err(AppError::External(format!(
+            "CLIP sidecar failed: {}",
+            stderr
+        )));
     }
 
     let response: ClipEmbeddingResponse = serde_json::from_slice(&output.stdout)
@@ -45,7 +48,10 @@ pub fn clip_embed_text(text: &str) -> AppResult<Vec<f64>> {
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(AppError::External(format!("CLIP sidecar failed: {}", stderr)));
+        return Err(AppError::External(format!(
+            "CLIP sidecar failed: {}",
+            stderr
+        )));
     }
 
     let response: ClipEmbeddingResponse = serde_json::from_slice(&output.stdout)

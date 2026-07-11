@@ -32,7 +32,7 @@ describe('Sidebar keyboard navigation', () => {
   }
 
   it('should focus next button on ArrowDown', () => {
-    render(<Sidebar activeRoute="/gallery" onNavigate={vi.fn()} />);
+    render(<Sidebar activeRoute="/gallery" onNavigate={vi.fn()} onSearch={vi.fn()} />);
     const navButtons = getNavButtons();
     expect(navButtons.length).toBeGreaterThan(1);
 
@@ -44,7 +44,7 @@ describe('Sidebar keyboard navigation', () => {
   });
 
   it('should focus previous button on ArrowUp', () => {
-    render(<Sidebar activeRoute="/favorites" onNavigate={vi.fn()} />);
+    render(<Sidebar activeRoute="/favorites" onNavigate={vi.fn()} onSearch={vi.fn()} />);
     const navButtons = getNavButtons();
 
     navButtons[1].focus();
@@ -53,7 +53,7 @@ describe('Sidebar keyboard navigation', () => {
   });
 
   it('should wrap to first button on ArrowDown from last', () => {
-    render(<Sidebar activeRoute="/trash" onNavigate={vi.fn()} />);
+    render(<Sidebar activeRoute="/trash" onNavigate={vi.fn()} onSearch={vi.fn()} />);
     const navButtons = getNavButtons();
 
     navButtons[navButtons.length - 1].focus();
@@ -62,7 +62,7 @@ describe('Sidebar keyboard navigation', () => {
   });
 
   it('should focus first button on Home', () => {
-    render(<Sidebar activeRoute="/settings" onNavigate={vi.fn()} />);
+    render(<Sidebar activeRoute="/settings" onNavigate={vi.fn()} onSearch={vi.fn()} />);
     const navButtons = getNavButtons();
 
     navButtons[4].focus();
@@ -71,7 +71,7 @@ describe('Sidebar keyboard navigation', () => {
   });
 
   it('should focus last button on End', () => {
-    render(<Sidebar activeRoute="/gallery" onNavigate={vi.fn()} />);
+    render(<Sidebar activeRoute="/gallery" onNavigate={vi.fn()} onSearch={vi.fn()} />);
     const navButtons = getNavButtons();
 
     navButtons[0].focus();

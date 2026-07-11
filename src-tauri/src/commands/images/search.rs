@@ -10,26 +10,19 @@ use crate::schema::types::{row_to_record, ImageRecord};
 
 /// Full-text search via FTS5 on file_path + metadata_json.
 #[tauri::command]
-pub fn search_images(
-    db: tauri::State<'_, DbHandle>,
-    query: String,
-) -> AppResult<Vec<ImageRecord>> {
+pub fn search_images(db: tauri::State<'_, DbHandle>, query: String) -> AppResult<Vec<ImageRecord>> {
     let conn = db.conn().lock().map_err(|_| crate::error::AppError::Lock)?;
-    let mut stmt = conn
-        .prepare(
-            "SELECT i.* FROM images i
+    let mut stmt = conn.prepare(
+        "SELECT i.* FROM images i
              JOIN images_fts f ON f.rowid = i.rowid
              WHERE images_fts MATCH ?1 AND i.deleted = 0
              ORDER BY rank
              LIMIT 200",
-        )
-        ?;
+    )?;
     let escaped = escape_fts5(&query);
     let items = stmt
-        .query_map(params![escaped], row_to_record)
-        ?
-        .collect::<Result<Vec<_>, _>>()
-        ?;
+        .query_map(params![escaped], row_to_record)?
+        .collect::<Result<Vec<_>, _>>()?;
     Ok(items)
 }
 
@@ -44,14 +37,13 @@ pub fn search_images_advanced(
     let conn = db.conn().lock().map_err(|_| crate::error::AppError::Lock)?;
 
     if field == "all" || field.is_empty() {
-        let mut stmt = conn
-            .prepare(
-                "SELECT i.* FROM images i
+        let mut stmt = conn.prepare(
+            "SELECT i.* FROM images i
                  JOIN images_fts f ON f.rowid = i.rowid
                  WHERE images_fts MATCH ?1 AND i.deleted = 0
                  ORDER BY rank
                  LIMIT 200",
-            )?;
+        )?;
         let escaped = escape_fts5(&query);
         let items = stmt
             .query_map(params![escaped], row_to_record)?
@@ -172,7 +164,9 @@ mod tests {
             )
             .unwrap();
         let rows: Vec<String> = stmt
-            .query_map(rusqlite::params![12345i64], |row| Ok(row.get::<_, String>(0)?))
+            .query_map(rusqlite::params![12345i64], |row| {
+                Ok(row.get::<_, String>(0)?)
+            })
             .unwrap()
             .filter_map(|r| r.ok())
             .collect();
@@ -203,7 +197,9 @@ mod tests {
             )
             .unwrap();
         let rows: Vec<String> = stmt
-            .query_map(rusqlite::params![pattern], |row| Ok(row.get::<_, String>(0)?))
+            .query_map(rusqlite::params![pattern], |row| {
+                Ok(row.get::<_, String>(0)?)
+            })
             .unwrap()
             .filter_map(|r| r.ok())
             .collect();
@@ -234,7 +230,9 @@ mod tests {
             )
             .unwrap();
         let rows: Vec<String> = stmt
-            .query_map(rusqlite::params![pattern], |row| Ok(row.get::<_, String>(0)?))
+            .query_map(rusqlite::params![pattern], |row| {
+                Ok(row.get::<_, String>(0)?)
+            })
             .unwrap()
             .filter_map(|r| r.ok())
             .collect();

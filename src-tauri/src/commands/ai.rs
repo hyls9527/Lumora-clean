@@ -65,10 +65,14 @@ async fn check_ollama_available(cfg: &crate::ollama::OllamaConfig) -> AppResult<
         .timeout(std::time::Duration::from_secs(5))
         .send()
         .await
-        .map_err(|_| "Ollama is not running. Please start Ollama to use AI features.".to_string())?;
+        .map_err(|_| {
+            "Ollama is not running. Please start Ollama to use AI features.".to_string()
+        })?;
 
     if !response.status().is_success() {
-        return Err(AppError::External("Ollama is not responding correctly.".to_string()));
+        return Err(AppError::External(
+            "Ollama is not responding correctly.".to_string(),
+        ));
     }
 
     Ok(())
@@ -85,8 +89,8 @@ async fn call_ollama_analyze(
     check_ollama_available(cfg).await?;
 
     // Read image and encode as base64
-    let image_bytes = std::fs::read(image_path)
-        .map_err(|e| format!("Failed to read image: {}", e))?;
+    let image_bytes =
+        std::fs::read(image_path).map_err(|e| format!("Failed to read image: {}", e))?;
     use base64::Engine;
     let image_base64 = base64::engine::general_purpose::STANDARD.encode(&image_bytes);
 
@@ -121,7 +125,10 @@ Return ONLY valid JSON, no other text."#;
         .map_err(|e| format!("Ollama request failed: {}", e))?;
 
     if !response.status().is_success() {
-        return Err(AppError::External(format!("Ollama returned status: {}", response.status())));
+        return Err(AppError::External(format!(
+            "Ollama returned status: {}",
+            response.status()
+        )));
     }
 
     let ollama_resp: OllamaResponse = response
@@ -136,7 +143,6 @@ Return ONLY valid JSON, no other text."#;
 
     Ok(result)
 }
-
 
 // ---------------------------------------------------------------------------
 // Database operations
@@ -264,6 +270,8 @@ pub async fn analyze_image_cmd(
     let model_name = model.unwrap_or_else(|| "llava:latest".to_string());
 
     // Validate that image_path belongs to image_id (prevents arbitrary file read)
+    // NOTE: Lock scope is minimal — released before any network I/O (Ollama API call).
+    // This prevents blocking other DB operations during the potentially slow AI analysis.
     {
         let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
         let stored_path: String = conn
@@ -274,7 +282,9 @@ pub async fn analyze_image_cmd(
             )
             .map_err(|_| AppError::NotFound("Image not found".into()))?;
         if stored_path != image_path {
-            return Err(AppError::InvalidInput("Path does not match image ID".into()));
+            return Err(AppError::InvalidInput(
+                "Path does not match image ID".into(),
+            ));
         }
     }
 
@@ -325,7 +335,9 @@ pub async fn apply_ai_tags_cmd(
             auto_tag_from_analysis(&conn, &image_id, &result.tags)?;
             Ok(tag_names)
         }
-        None => Err(AppError::NotFound("No analysis found for this image".into())),
+        None => Err(AppError::NotFound(
+            "No analysis found for this image".into(),
+        )),
     }
 }
 
@@ -452,21 +464,35 @@ mod tests {
         .unwrap();
 
         let tags = vec![
-            AnalysisTag { name: "Nature".to_string(), confidence: 0.9 },
-            AnalysisTag { name: "Landscape".to_string(), confidence: 0.8 },
+            AnalysisTag {
+                name: "Nature".to_string(),
+                confidence: 0.9,
+            },
+            AnalysisTag {
+                name: "Landscape".to_string(),
+                confidence: 0.8,
+            },
         ];
 
         auto_tag_from_analysis(&conn, "tag-img", &tags).unwrap();
 
         // Verify tags were created (lowercased)
         let tag_count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM tags WHERE name IN ('nature', 'landscape')", [], |r| r.get(0))
+            .query_row(
+                "SELECT COUNT(*) FROM tags WHERE name IN ('nature', 'landscape')",
+                [],
+                |r| r.get(0),
+            )
             .unwrap();
         assert_eq!(tag_count, 2);
 
         // Verify associations
         let assoc_count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'tag-img'", [], |r| r.get(0))
+            .query_row(
+                "SELECT COUNT(*) FROM image_tags WHERE image_id = 'tag-img'",
+                [],
+                |r| r.get(0),
+            )
             .unwrap();
         assert_eq!(assoc_count, 2);
     }
@@ -483,9 +509,10 @@ mod tests {
         )
         .unwrap();
 
-        let tags = vec![
-            AnalysisTag { name: "cat".to_string(), confidence: 0.95 },
-        ];
+        let tags = vec![AnalysisTag {
+            name: "cat".to_string(),
+            confidence: 0.95,
+        }];
 
         // Call twice
         auto_tag_from_analysis(&conn, "tag-img2", &tags).unwrap();
@@ -493,12 +520,18 @@ mod tests {
 
         // Should still be 1 tag and 1 association (idempotent)
         let tag_count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM tags WHERE name = 'cat'", [], |r| r.get(0))
+            .query_row("SELECT COUNT(*) FROM tags WHERE name = 'cat'", [], |r| {
+                r.get(0)
+            })
             .unwrap();
         assert_eq!(tag_count, 1);
 
         let assoc_count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM image_tags WHERE image_id = 'tag-img2'", [], |r| r.get(0))
+            .query_row(
+                "SELECT COUNT(*) FROM image_tags WHERE image_id = 'tag-img2'",
+                [],
+                |r| r.get(0),
+            )
             .unwrap();
         assert_eq!(assoc_count, 1);
     }

@@ -9,8 +9,8 @@ pub struct OllamaConfig {
 
 impl OllamaConfig {
     pub fn from_env() -> Self {
-        let host = std::env::var("OLLAMA_HOST")
-            .unwrap_or_else(|_| "http://localhost:11434".to_string());
+        let host =
+            std::env::var("OLLAMA_HOST").unwrap_or_else(|_| "http://localhost:11434".to_string());
         Self { host }
     }
 

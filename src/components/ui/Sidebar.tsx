@@ -8,6 +8,7 @@ import { t as tok } from '../../lib/tokens';
 interface SidebarProps {
   activeRoute: string;
   onNavigate: (route: string) => void;
+  onSearch: () => void;
 }
 
 interface NavItem {
@@ -27,7 +28,7 @@ const navItems: NavItem[] = [
   { key: '/trash', i18nKey: 'sidebar.trash' },
 ];
 
-export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
+export function Sidebar({ activeRoute, onNavigate, onSearch }: SidebarProps) {
   const { available, checking, error, recheck } = useOllamaStatus();
   const isCollapsed = useIsMobile();
 
@@ -177,6 +178,7 @@ export function Sidebar({ activeRoute, onNavigate }: SidebarProps) {
       <div style={{ padding: isCollapsed ? '0 8px 16px' : '0 12px 24px' }}>
         <button
           type="button"
+          onClick={onSearch}
           style={{
             display: 'flex',
             alignItems: 'center',

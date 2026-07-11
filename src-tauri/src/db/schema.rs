@@ -78,8 +78,7 @@ pub const V2_INDEX_IMAGE_TAGS_TAG: &str =
 // V3 — deleted_at column for trash
 // ---------------------------------------------------------------------------
 
-pub const V3_ADD_DELETED_AT: &str =
-    "ALTER TABLE images ADD COLUMN deleted_at TEXT;";
+pub const V3_ADD_DELETED_AT: &str = "ALTER TABLE images ADD COLUMN deleted_at TEXT;";
 
 pub const V3_INDEX_DELETED_AT: &str =
     "CREATE INDEX IF NOT EXISTS idx_images_deleted_at ON images(deleted_at) WHERE deleted = 1;";

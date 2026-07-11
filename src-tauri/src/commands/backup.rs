@@ -26,10 +26,7 @@ pub async fn export_database(
 /// Import database from a file, replacing the current one.
 /// Writes to a staging file first, then replaces on restart.
 #[tauri::command]
-pub async fn import_database(
-    db: State<'_, DbHandle>,
-    source: String,
-) -> Result<String, String> {
+pub async fn import_database(db: State<'_, DbHandle>, source: String) -> Result<String, String> {
     let db_path = db.path();
     let src = PathBuf::from(&source);
 
@@ -38,8 +35,7 @@ pub async fn import_database(
     }
 
     // Validate it's a SQLite file (magic bytes)
-    let header = fs::read(&src)
-        .map_err(|e| format!("Failed to read source file: {e}"))?;
+    let header = fs::read(&src).map_err(|e| format!("Failed to read source file: {e}"))?;
     if header.len() < 16 || &header[0..16] != b"SQLite format 3\0" {
         return Err("Source file is not a valid SQLite database".to_string());
     }
