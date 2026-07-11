@@ -4,8 +4,9 @@ import { Rating } from './Rating';
 import { TagBadge } from './TagBadge';
 import { formatDate, formatFileSize } from '../../lib/format';
 import { useImageSrc } from '../../hooks/useImageSrc';
-import { t } from '../../lib/i18n';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { useTouchGesture } from '../../hooks/useTouchGesture';
+import { t } from '../../lib/i18n';
 import { t as tok, labelStyle, valueStyle } from '../../lib/tokens';
 
 interface DetailModalProps {
@@ -118,6 +119,20 @@ export function DetailModal({
 }: DetailModalProps) {
   const imgSrc = useImageSrc(image?.filePath ?? null);
   const isMobile = useIsMobile();
+
+  // Add touch gesture support for mobile
+  useTouchGesture({
+    onSwipe: (direction) => {
+      if (direction.horizontal === 'left') {
+        onNext?.();
+      } else if (direction.horizontal === 'right') {
+        onPrev?.();
+      }
+    },
+    onDoubleTap: () => {
+      onToggleFavorite?.(image?.id ?? '');
+    },
+  });
 
   useEffect(() => {
     if (!image) return;
