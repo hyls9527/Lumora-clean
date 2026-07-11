@@ -2,7 +2,6 @@ import { useEffect, useState, lazy, Suspense, useCallback } from 'react';
 import { Sidebar } from './components/ui/Sidebar';
 import { CommandPalette } from './components/ui/CommandPalette';
 import { DropOverlay } from './components/ui/DropOverlay';
-import { GalleryPage } from './features/gallery/GalleryPage';
 import { useSettingsStore } from './stores/settingsStore';
 import { useCommandStore } from './stores/commandStore';
 import { useDragDrop } from './hooks/useDragDrop';
@@ -12,6 +11,8 @@ import { t as tok } from './lib/tokens';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import type { Command } from './stores/commandStore';
 
+// Lazy load all pages
+const GalleryPage = lazy(() => import('./features/gallery/GalleryPage'));
 const ImportPage = lazy(() => import('./features/import/ImportPage'));
 const SearchPage = lazy(() => import('./features/search/SearchPage'));
 const SettingsPage = lazy(() => import('./features/settings/SettingsPage'));
@@ -85,7 +86,7 @@ function App() {
     switch (route) {
       case '/trash': return <ErrorBoundary key="trash"><Suspense fallback={<Loading />}><TrashPage /></Suspense></ErrorBoundary>;
       case '/dashboard': return <ErrorBoundary key="dashboard"><Suspense fallback={<Loading />}><DashboardPage /></Suspense></ErrorBoundary>;
-      case '/gallery': return <ErrorBoundary key="gallery"><GalleryPage /></ErrorBoundary>;
+      case '/gallery': return <ErrorBoundary key="gallery"><Suspense fallback={<Loading />}><GalleryPage /></Suspense></ErrorBoundary>;
       case '/import': return <ErrorBoundary key="import"><Suspense fallback={<Loading />}><ImportPage droppedPaths={droppedPaths} onPathsConsumed={() => setDroppedPaths([])} /></Suspense></ErrorBoundary>;
       case '/search': return <ErrorBoundary key="search"><Suspense fallback={<Loading />}><SearchPage /></Suspense></ErrorBoundary>;
       case '/tags': return <ErrorBoundary key="tags"><Suspense fallback={<Loading />}><TagManager /></Suspense></ErrorBoundary>;

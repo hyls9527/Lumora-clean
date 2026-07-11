@@ -506,3 +506,5 @@ export function GalleryPage() {
     </div>
   );
 }
+
+export default GalleryPage;
