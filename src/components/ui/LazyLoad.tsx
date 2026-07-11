@@ -4,43 +4,85 @@ interface LazyLoadProps {
   children: ReactNode;
   /** Placeholder height in px when not yet visible */
   height?: number;
-  /** Root margin for IntersectionObserver (pre-load distance) */
-  rootMargin?: string;
+  /** Root margin for entering viewport (pre-load distance) */
+  enterMargin?: string;
+  /** Root margin for leaving viewport (unload distance) */
+  leaveMargin?: string;
 }
 
 /**
- * LazyLoad — renders children only when they enter the viewport.
- * Uses IntersectionObserver for efficient scroll-based loading.
- * Follows DESIGN.md: 200ms transition, no scale animations.
+ * LazyLoad — renders children when visible, unmounts when far away.
+ * Caps DOM nodes at ~3 viewport heights of content.
  */
-export function LazyLoad({ children, height = 200, rootMargin = '200px' }: LazyLoadProps) {
+export function LazyLoad({
+  children,
+  height = 200,
+  enterMargin = '200px',
+  leaveMargin = '1000px',
+}: LazyLoadProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [state, setState] = useState<'placeholder' | 'rendered' | 'exited'>('placeholder');
+  const [renderedHeight, setRenderedHeight] = useState(height);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin },
-    );
+    if (state === 'placeholder') {
+      // Wait for element to enter viewport
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setState('rendered');
+            observer.disconnect();
+          }
+        },
+        { rootMargin: enterMargin },
+      );
+      observer.observe(el);
+      return () => observer.disconnect();
+    }
 
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [rootMargin]);
+    if (state === 'rendered') {
+      // Track when element leaves the extended viewport
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry.isIntersecting) {
+            // Capture height before unmounting
+            if (el.offsetHeight > 0) {
+              setRenderedHeight(el.offsetHeight);
+            }
+            setState('exited');
+          }
+        },
+        { rootMargin: leaveMargin },
+      );
+      observer.observe(el);
+      return () => observer.disconnect();
+    }
 
-  if (!isVisible) {
+    if (state === 'exited') {
+      // Wait for element to re-enter viewport
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setState('rendered');
+            observer.disconnect();
+          }
+        },
+        { rootMargin: enterMargin },
+      );
+      observer.observe(el);
+      return () => observer.disconnect();
+    }
+  }, [state, enterMargin, leaveMargin]);
+
+  if (state !== 'rendered') {
     return (
       <div
         ref={ref}
         style={{
-          minHeight: height,
+          minHeight: renderedHeight,
           background: 'rgba(139, 115, 75, 0.04)',
           borderRadius: 2,
         }}
@@ -48,5 +90,5 @@ export function LazyLoad({ children, height = 200, rootMargin = '200px' }: LazyL
     );
   }
 
-  return <>{children}</>;
+  return <div ref={ref}>{children}</div>;
 }
