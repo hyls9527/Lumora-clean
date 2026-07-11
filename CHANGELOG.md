@@ -2,6 +2,29 @@
 
 All notable changes to Lumora are documented here.
 
+## v0.6.0 (2026-07-10)
+
+### Added
+- LAN web server for mobile browsing (axum, port 8079)
+- Batch embedding generation UI
+- Export template variables: {model} {prompt} {seed} {width} {height} {format}
+- Bidirectional LazyLoad for 10K+ image performance
+- Sidebar keyboard navigation (ArrowUp/Down/Home/End)
+- Release workflow: version sync check, test gate, signature download
+
+### Fixed
+- UI centering caused by #root flex centering
+- Sidebar width: explicit 220px when expanded
+- LAN server crash: Tokio runtime in synchronous setup
+- Page transition animation removed (too much movement)
+
+### Removed
+- smartCollectionStore stub (no CRUD, no UI)
+- 5 unused i18n keys, smartCollections section
+- Dead Rust code: probe_metadata, read_text_chunks, MAX_READ
+- app_dir field from ServerState (never read)
+- images.rs split: 1195 lines → import(590) + search(260) + ops(370)
+
 ## v0.5.1 (2026-07-07)
 
 ### Added
