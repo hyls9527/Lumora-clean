@@ -2,6 +2,59 @@
 
 All notable changes to Lumora are documented here.
 
+## v1.0.0 (2026-07-11)
+
+### Added
+- SE lifecycle documentation (16 documents)
+- Comprehensive audit reports
+- Development plans for v0.7.0, v0.8.0, v0.9.0, v1.0.0
+
+### Improved
+- README updated with latest test counts
+- Code quality verified (zero TODO/FIXME)
+
+## v0.9.0 (2026-07-11)
+
+### Added
+- Search history: useSearchHistory hook with localStorage persistence
+- Search suggestions: SearchSuggestions component with keyboard navigation
+- Toast notifications: global notification system (success/error/warning/info)
+- Error retry: withRetry utility with exponential backoff
+
+### Improved
+- Search UX with history and suggestions
+- User feedback with toast notifications
+- Error handling with retry mechanism
+
+## v0.8.0 (2026-07-11)
+
+### Added
+- Touch gesture support: useTouchGesture hook (swipe, long press, double tap)
+- Virtual grid: VirtualGrid component for large dataset performance
+- Mobile navigation: MobileNav component with bottom tab bar
+- DetailModal touch gestures: swipe to navigate, double tap to favorite
+
+### Improved
+- Mobile responsiveness
+- Large dataset rendering performance
+- Touch interaction support
+
+## v0.7.0 (2026-07-10)
+
+### Added
+- 50 new tests across 18 test files
+- Page test coverage: 23% → 100%
+- UI component test coverage: 56% → 100%
+
+### Fixed
+- Sidebar search button onClick handler
+- Cascade delete documentation
+- Mutex usage documentation
+
+### Improved
+- Test coverage from 350 to 400 tests
+- Documentation completeness
+
 ## v0.6.0 (2026-07-10)
 
 ### Added
