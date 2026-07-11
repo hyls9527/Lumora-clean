@@ -440,7 +440,7 @@ export function SettingsPage() {
                 gap: 24,
               }}
             >
-              <span>{t('version')}: 0.1.0</span>
+              <span>{t('version')}: 0.6.0</span>
               <span>{t('license')}: MIT</span>
             </div>
           </div>
