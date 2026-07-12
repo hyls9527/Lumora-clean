@@ -10,6 +10,7 @@ import { SearchAdvancedSettings } from './SearchAdvancedSettings';
 import { useSemanticSearchStore } from '../../stores/semanticSearchStore';
 import { useImageSearchStore } from '../../stores/imageSearchStore';
 import { useSearchHistory } from '../../hooks/useSearchHistory';
+import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { useTranslation } from '../../lib/i18n';
 import { useIsMobile, useMediaQuery } from '../../hooks/useMediaQuery';
 import { t as tok } from '../../lib/tokens';
@@ -44,6 +45,8 @@ export function SearchPage() {
 
   const { mode: searchMode } =
     useSemanticSearchStore();
+
+  usePerformanceMonitor('SearchPage');
 
   // Image search results (from "以图搜图")
   const imageSearch = useImageSearchStore();

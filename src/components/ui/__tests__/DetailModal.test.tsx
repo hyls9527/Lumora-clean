@@ -7,6 +7,11 @@ vi.mock('../../../lib/tauri', () => ({
   convertFileSrc: vi.fn((path: string) => Promise.resolve(`asset://localhost/${encodeURIComponent(path)}`)),
 }));
 
+// Mock AiAnalysisSection to avoid store infinite loop in tests
+vi.mock('../ai/AiAnalysisSection', () => ({
+  AiAnalysisSection: () => null,
+}));
+
 const MOCK_IMAGE = {
   id: 'img-1',
   filePath: '/test/image.png',

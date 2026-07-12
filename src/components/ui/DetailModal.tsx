@@ -8,6 +8,7 @@ import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useTouchGesture } from '../../hooks/useTouchGesture';
 import { t } from '../../lib/i18n';
 import { t as tok, labelStyle, valueStyle } from '../../lib/tokens';
+import { AiAnalysisSection } from './ai/AiAnalysisSection';
 
 interface DetailModalProps {
   image: ImageRecord | null;
@@ -338,6 +339,9 @@ export function DetailModal({
               </button>
             </div>
           )}
+
+          {/* AI Analysis Section */}
+          <AiAnalysisSection imageId={image.id} />
 
           <div>
             <div style={labelStyle}>创建时间</div>

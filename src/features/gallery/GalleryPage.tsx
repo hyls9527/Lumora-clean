@@ -4,6 +4,7 @@ import { useSelection } from '../../hooks/useSelection';
 import { useImageActions } from '../../hooks/useImageActions';
 import { useTrashStore } from '../../stores/trashStore';
 import { useImageSearchStore } from '../../stores/imageSearchStore';
+import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { ImageCard } from '../../components/ui/ImageCard';
 import { DetailModal } from '../../components/ui/DetailModal';
 import { GridSkeleton } from '../../components/ui/LoadingSkeleton';
@@ -49,6 +50,7 @@ export function GalleryPage() {
   const softDelete = useTrashStore((s) => s.softDeleteImage);
   const isMobile = useIsMobile();
   const { t } = useTranslation();
+  usePerformanceMonitor('GalleryPage');
 
   const [batchDeleting, setBatchDeleting] = useState(false);
   const [batchTagging, setBatchTagging] = useState(false);
