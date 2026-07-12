@@ -1,11 +1,13 @@
 import { useEffect, useState, lazy, Suspense, useCallback } from 'react';
 import { Sidebar } from './components/ui/Sidebar';
+import { MobileNav } from './components/ui/MobileNav';
 import { CommandPalette } from './components/ui/CommandPalette';
 import { DropOverlay } from './components/ui/DropOverlay';
 import { useSettingsStore } from './stores/settingsStore';
 import { useCommandStore } from './stores/commandStore';
 import { useDragDrop } from './hooks/useDragDrop';
 import { useImageSearchStore } from './stores/imageSearchStore';
+import { useIsMobile } from './hooks/useMediaQuery';
 import { useTranslation, t } from './lib/i18n';
 import { t as tok } from './lib/tokens';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
@@ -28,6 +30,7 @@ function App() {
   const hydrate = useSettingsStore((s) => s.hydrate);
   const { toggle, registerCommands } = useCommandStore();
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
 
   // Auto-navigate to search when image search is triggered
   const imageSearchSource = useImageSearchStore((s) => s.sourceImageId);
@@ -99,14 +102,15 @@ function App() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
-      <Sidebar activeRoute={route} onNavigate={setRoute} onSearch={toggle} />
-      <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {!isMobile && <Sidebar activeRoute={route} onNavigate={setRoute} onSearch={toggle} />}
+      <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingBottom: isMobile ? 56 : 0 }}>
         <div key={route} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {renderPage()}
         </div>
       </main>
       <CommandPalette />
       <DropOverlay isVisible={isDragging} />
+      {isMobile && <MobileNav activeRoute={route} onNavigate={setRoute} />}
     </div>
   );
 }

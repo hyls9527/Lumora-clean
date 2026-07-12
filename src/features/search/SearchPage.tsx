@@ -5,9 +5,11 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { SemanticSearchBar } from '../../components/ui/SemanticSearchBar';
 import { SimilarityBadge } from '../../components/ui/SimilarityBadge';
 import { Collapsible } from '../../components/ui/Collapsible';
+import { SearchSuggestions } from '../../components/ui/SearchSuggestions';
 import { SearchAdvancedSettings } from './SearchAdvancedSettings';
 import { useSemanticSearchStore } from '../../stores/semanticSearchStore';
 import { useImageSearchStore } from '../../stores/imageSearchStore';
+import { useSearchHistory } from '../../hooks/useSearchHistory';
 import { useTranslation } from '../../lib/i18n';
 import { useIsMobile, useMediaQuery } from '../../hooks/useMediaQuery';
 import { t as tok } from '../../lib/tokens';
@@ -26,14 +28,6 @@ const searchFieldOptions = [
   { key: 'seed', label: 'Seed' },
   { key: 'model', label: 'Model' },
   { key: 'sampler', label: 'Sampler' },
-];
-
-const searchHistory = [
-  '月光下的森林',
-  '东方女性角色',
-  '雪山日出',
-  '抽象流体色彩',
-  '未来城市建筑',
 ];
 
 export function SearchPage() {
@@ -58,9 +52,11 @@ export function SearchPage() {
 
   const isMobile = useIsMobile();
   const isTablet = useMediaQuery('(max-width: 1024px)');
+  const { history: searchHistory, addHistory } = useSearchHistory();
 
   const [activeFilter, setActiveFilter] = useState('all');
   const [inputValue, setInputValue] = useState(filters.searchQuery);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const normalResults = getSearchResults();
   const results = isImageSearch ? imageSearch.results : normalResults;
@@ -70,7 +66,9 @@ export function SearchPage() {
   const handleSearch = useCallback(() => {
     setSearchQuery(inputValue);
     searchImagesApi(inputValue);
-  }, [inputValue, setSearchQuery, searchImagesApi]);
+    addHistory(inputValue);
+    setShowSuggestions(false);
+  }, [inputValue, setSearchQuery, searchImagesApi, addHistory]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -161,8 +159,13 @@ export function SearchPage() {
               <input
                 type="text"
                 value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                  setShowSuggestions(true);
+                }}
                 onKeyDown={handleKeyDown}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 placeholder={tT('textDescription')}
                 aria-label={tT('textDescription')}
                 style={{
@@ -176,6 +179,17 @@ export function SearchPage() {
                   borderRadius: 4,
                   outline: 'none',
                   transition: 'border-color 200ms, box-shadow 200ms',
+                }}
+              />
+              <SearchSuggestions
+                query={inputValue}
+                suggestions={searchHistory}
+                visible={showSuggestions && searchHistory.length > 0}
+                onSelect={(suggestion) => {
+                  setInputValue(suggestion);
+                  setSearchQuery(suggestion);
+                  searchImagesApi(suggestion);
+                  setShowSuggestions(false);
                 }}
               />
               <div
