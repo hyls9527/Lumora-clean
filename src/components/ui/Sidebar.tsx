@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useOllamaStatus } from '../../hooks/useOllamaStatus';
+import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { t } from '../../lib/i18n';
 import { UpdateBanner } from './UpdateBanner';
 import { useIsMobile } from '../../hooks/useMediaQuery';
@@ -31,6 +32,8 @@ const navItems: NavItem[] = [
 export function Sidebar({ activeRoute, onNavigate, onSearch }: SidebarProps) {
   const { available, checking, error, recheck } = useOllamaStatus();
   const isCollapsed = useIsMobile();
+
+  usePerformanceMonitor('Sidebar');
 
 
   return (

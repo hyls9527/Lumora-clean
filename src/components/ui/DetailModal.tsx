@@ -6,6 +6,7 @@ import { formatDate, formatFileSize } from '../../lib/format';
 import { useImageSrc } from '../../hooks/useImageSrc';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useTouchGesture } from '../../hooks/useTouchGesture';
+import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { t } from '../../lib/i18n';
 import { t as tok, labelStyle, valueStyle } from '../../lib/tokens';
 import { AiAnalysisSection } from './ai/AiAnalysisSection';
@@ -120,6 +121,8 @@ export function DetailModal({
 }: DetailModalProps) {
   const imgSrc = useImageSrc(image?.filePath ?? null);
   const isMobile = useIsMobile();
+
+  usePerformanceMonitor('DetailModal');
 
   // Add touch gesture support for mobile
   useTouchGesture({

@@ -8,6 +8,7 @@ import { useCommandStore } from './stores/commandStore';
 import { useDragDrop } from './hooks/useDragDrop';
 import { useImageSearchStore } from './stores/imageSearchStore';
 import { useIsMobile } from './hooks/useMediaQuery';
+import { usePerformanceMonitor } from './hooks/usePerformance';
 import { useTranslation, t } from './lib/i18n';
 import { t as tok } from './lib/tokens';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
@@ -31,6 +32,8 @@ function App() {
   const { toggle, registerCommands } = useCommandStore();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
+
+  usePerformanceMonitor('App');
 
   // Auto-navigate to search when image search is triggered
   const imageSearchSource = useImageSearchStore((s) => s.sourceImageId);

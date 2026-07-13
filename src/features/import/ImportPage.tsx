@@ -5,6 +5,7 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { Collapsible } from '../../components/ui/Collapsible';
 import { StatCard, StatusBadge, SectionHeader, SettingRow, Toggle, inputStyle, selectStyle } from './ImportComponents';
 import { useIsMobile } from '../../hooks/useMediaQuery';
+import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { t as tok } from '../../lib/tokens';
 
 interface ImportPageProps {
@@ -23,6 +24,8 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
     total: number;
   } | null>(null);
   const isMobile = useIsMobile();
+
+  usePerformanceMonitor('ImportPage');
 
   const { loading, error, importImages } = useImageStore();
 
