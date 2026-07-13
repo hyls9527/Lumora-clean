@@ -9,15 +9,16 @@ All notable changes to Lumora are documented here.
 - Search suggestions: SearchSuggestions component with keyboard navigation
 - Search history: useSearchHistory hook with localStorage persistence
 - Touch gesture support: useTouchGesture hook (swipe, long press, double tap)
-- Virtual grid: VirtualGrid component for large dataset performance
 - Toast notifications: global notification system (success/error/warning/info)
 - Error retry: withRetry utility with exponential backoff
 - Performance monitoring: usePerformanceMonitor hook
+- AI analysis: AiAnalysisSection integrated into DetailModal
 
 ### Improved
 - Mobile responsiveness: conditional rendering of Sidebar/MobileNav
 - Search UX: integrated search history and suggestions
 - Code splitting: GalleryPage lazy loading
+- Performance monitoring: GalleryPage and SearchPage render tracking
 - Test coverage: 350 → 445 tests
 
 ### Fixed
@@ -28,6 +29,7 @@ All notable changes to Lumora are documented here.
 ### Removed
 - 16 redundant documentation files
 - Over-engineered documents (market analysis, strategy, etc.)
+- VirtualGrid: not compatible with masonry layout (kept as utility)
 
 ## v0.6.0 (2026-07-10)
 
