@@ -7,6 +7,7 @@ import { StatCard, StatusBadge, SectionHeader, SettingRow, Toggle, inputStyle, s
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { t as tok } from '../../lib/tokens';
+import { detectComfyuiPath } from '../../lib/api/comfyui';
 
 interface ImportPageProps {
   droppedPaths?: string[];
@@ -23,6 +24,8 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
     skipped: number;
     total: number;
   } | null>(null);
+  const [comfyuiPath, setComfyuiPath] = useState<string | null>(null);
+  const [comfyuiDetecting, setComfyuiDetecting] = useState(false);
   const isMobile = useIsMobile();
 
   usePerformanceMonitor('ImportPage');
@@ -102,6 +105,18 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
     },
     [handleImport],
   );
+
+  const handleDetectComfyui = useCallback(async () => {
+    setComfyuiDetecting(true);
+    try {
+      const path = await detectComfyuiPath();
+      setComfyuiPath(path);
+    } catch {
+      setComfyuiPath(null);
+    } finally {
+      setComfyuiDetecting(false);
+    }
+  }, []);
 
   return (
     <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -281,10 +296,10 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
             detail={recentImports.length > 0 ? `最近导入 ${recentImports.length} 张` : '选择文件夹开始导入'}
           />
           <StatCard
-            dotColor={tok.textMuted}
+            dotColor={comfyuiPath ? tok.success : tok.textMuted}
             title="ComfyUI"
-            status="未连接"
-            detail="即将推出"
+            status={comfyuiDetecting ? '检测中...' : comfyuiPath ? '已连接' : '未连接'}
+            detail={comfyuiPath || '点击下方按钮自动检测'}
           />
         </section>
 
@@ -365,12 +380,36 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
                 <SectionHeader>ComfyUI 配置</SectionHeader>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                   <SettingRow label="监控文件夹路径">
-                    <input
-                      type="text"
-                      defaultValue="D:\ComfyUI\output"
-                      aria-label="监控文件夹路径"
-                      style={inputStyle}
-                    />
+                    <div style={{ display: 'flex', gap: 8, flex: 1 }}>
+                      <input
+                        type="text"
+                        value={comfyuiPath || ''}
+                        placeholder="点击右侧按钮自动检测"
+                        readOnly
+                        aria-label="监控文件夹路径"
+                        style={{ ...inputStyle, flex: 1 }}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleDetectComfyui}
+                        disabled={comfyuiDetecting}
+                        style={{
+                          padding: '8px 16px',
+                          fontSize: 12,
+                          fontWeight: 500,
+                          fontFamily: tok.fontDisplay,
+                          color: tok.bg,
+                          background: comfyuiDetecting ? tok.textMuted : tok.accent,
+                          border: 'none',
+                          borderRadius: 4,
+                          cursor: comfyuiDetecting ? 'wait' : 'pointer',
+                          transition: 'background 200ms',
+                          whiteSpace: 'nowrap' as const,
+                        }}
+                      >
+                        {comfyuiDetecting ? '检测中...' : '自动检测'}
+                      </button>
+                    </div>
                   </SettingRow>
                   <SettingRow label="自动导入">
                     <Toggle defaultChecked />

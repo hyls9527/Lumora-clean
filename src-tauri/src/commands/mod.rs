@@ -1,6 +1,7 @@
 pub mod ai;
 pub mod backup;
 pub mod clip;
+pub mod comfyui;
 pub mod dashboard;
 pub mod embeddings;
 pub mod export;

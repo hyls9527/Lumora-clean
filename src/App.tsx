@@ -106,7 +106,7 @@ function App() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
       {!isMobile && <Sidebar activeRoute={route} onNavigate={setRoute} onSearch={toggle} />}
-      <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingBottom: isMobile ? 56 : 0 }}>
+      <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'auto', paddingBottom: isMobile ? 56 : 0 }}>
         <div key={route} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {renderPage()}
         </div>

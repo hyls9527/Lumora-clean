@@ -22,4 +22,5 @@ export interface ImageRecord {
   similarity?: number;   // 0-100, used by search
   deleted?: boolean;
   deletedAt?: string;
+  variantGroupId?: string | null;
 }

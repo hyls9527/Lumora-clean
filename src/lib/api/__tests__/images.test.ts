@@ -18,6 +18,7 @@ import {
   permanentDeleteImage,
   listTrash,
   emptyTrash,
+  getVariantGroupImages,
   toImageRecord,
   type TauriImageRecord,
 } from '../images';
@@ -126,6 +127,22 @@ describe('API calls', () => {
     const result = await emptyTrash();
     expect(mockInvoke).toHaveBeenCalledWith('empty_trash');
     expect(result).toBe(3);
+  });
+
+  it('getVariantGroupImages → get_variant_group_images', async () => {
+    mockInvoke.mockResolvedValue([SAMPLE_RAW]);
+    const result = await getVariantGroupImages('group-123');
+    expect(mockInvoke).toHaveBeenCalledWith('get_variant_group_images', {
+      variantGroupId: 'group-123',
+    });
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe('1');
+  });
+
+  it('getVariantGroupImages returns empty array for no images', async () => {
+    mockInvoke.mockResolvedValue([]);
+    const result = await getVariantGroupImages('empty-group');
+    expect(result).toEqual([]);
   });
 });
 

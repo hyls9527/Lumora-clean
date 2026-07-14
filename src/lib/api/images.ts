@@ -17,6 +17,7 @@ export interface TauriImageRecord {
   rating: number;
   favorite: boolean;
   metadataJson: string | null;
+  variantGroupId?: string | null;
 }
 
 interface TauriPaginatedResult {
@@ -60,6 +61,7 @@ export function toImageRecord(raw: TauriImageRecord): ImageRecord {
     rating: raw.rating,
     favorite: raw.favorite,
     deletedAt: raw.deletedAt ?? undefined,
+    variantGroupId: raw.variantGroupId ?? undefined,
     model,
     prompt,
     tags,
@@ -139,6 +141,16 @@ export async function toggleFavorite(id: string): Promise<void> {
 
 export async function listFavorites(): Promise<ImageRecord[]> {
   const raw = await invoke<TauriImageRecord[]>('list_favorites');
+  return raw.map(toImageRecord);
+}
+
+export async function getVariantGroupImages(
+  variantGroupId: string,
+): Promise<ImageRecord[]> {
+  const raw = await invoke<TauriImageRecord[]>(
+    'get_variant_group_images',
+    { variantGroupId },
+  );
   return raw.map(toImageRecord);
 }
 

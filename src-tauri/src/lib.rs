@@ -100,6 +100,7 @@ pub fn run() {
             ollama::check_ollama_status,
             commands::backup::export_database,
             commands::backup::import_database,
+            commands::comfyui::detect_comfyui_path,
             lan_server::get_lan_info,
         ])
         .run(tauri::generate_context!())

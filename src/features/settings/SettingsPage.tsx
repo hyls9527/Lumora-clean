@@ -5,6 +5,7 @@ import { open, save } from '@tauri-apps/plugin-dialog';
 import { useState, useEffect } from 'react';
 import { useTranslation } from '../../lib/i18n';
 import { t as tok } from '../../lib/tokens';
+import { useUpdater } from '../../hooks/useUpdater';
 import type { Language } from '../../stores/settingsStore';
 
 /* ───────────────────────── colour tokens ───────────────────────── */
@@ -162,6 +163,7 @@ export function SettingsPage() {
 
   const [backupMsg, setBackupMsg] = useState('');
   const [lanInfo, setLanInfo] = useState<{ ip: string; port: number } | null>(null);
+  const { available, checking, installing, downloaded, error: updateError, updateInfo, checkForUpdates, installUpdate } = useUpdater();
 
   useEffect(() => { getLanInfo().then(setLanInfo).catch(() => {}); }, []);
 
@@ -440,8 +442,68 @@ export function SettingsPage() {
                 gap: 24,
               }}
             >
-              <span>{t('version')}: 0.6.0</span>
+              <span>{t('version')}: 0.7.0</span>
               <span>{t('license')}: MIT</span>
+            </div>
+
+            {/* Update section */}
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${token.border}` }}>
+              {available && !downloaded && (
+                <div style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(122, 92, 18, 0.08)', borderRadius: 4 }}>
+                  <span style={{ fontSize: 12, color: token.text }}>
+                    新版本 {updateInfo?.version ?? ''} 可用
+                  </span>
+                </div>
+              )}
+              {downloaded && (
+                <div style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(74, 122, 58, 0.08)', borderRadius: 4 }}>
+                  <span style={{ fontSize: 12, color: tok.success }}>
+                    更新已下载，重启应用生效
+                  </span>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {available && !downloaded ? (
+                  <button
+                    type="button"
+                    onClick={installUpdate}
+                    disabled={installing}
+                    style={{
+                      fontSize: 12,
+                      fontFamily: 'var(--font-display)',
+                      color: token.bg,
+                      background: installing ? tok.textMuted : tok.accent,
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: 4,
+                      cursor: installing ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    {installing ? '安装中...' : '更新并重启'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={checkForUpdates}
+                    disabled={checking}
+                    style={{
+                      fontSize: 12,
+                      fontFamily: 'var(--font-display)',
+                      color: token.text,
+                      background: 'none',
+                      border: `1px solid ${token.border}`,
+                      padding: '8px 16px',
+                      borderRadius: 4,
+                      cursor: checking ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    {checking ? '检查中...' : '检查更新'}
+                  </button>
+                )}
+                {updateError && (
+                  <span style={{ fontSize: 11, color: tok.danger }}>{updateError}</span>
+                )}
+              </div>
             </div>
           </div>
         </section>
