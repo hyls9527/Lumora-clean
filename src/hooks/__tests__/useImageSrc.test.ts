@@ -29,7 +29,24 @@ describe('useImageSrc', () => {
     expect(mockInvoke).toHaveBeenCalledWith('get_image_base64_cmd', { filePath: '/path/img.png' });
   });
 
-  it('should fall back to convertFileSrc if base64 fails', async () => {
+  it('should use thumbnail command when thumbnailMaxWidth is set', async () => {
+    mockInvoke.mockResolvedValue('thumbData');
+    const { result } = renderHook(() =>
+      useImageSrc('/path/img.png', { thumbnailMaxWidth: 128 }),
+    );
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    expect(result.current).toBe('data:image/png;base64,thumbData');
+    expect(mockInvoke).toHaveBeenCalledWith('get_thumbnail_base64_cmd', {
+      filePath: '/path/img.png',
+      maxWidth: 128,
+    });
+  });
+
+  it('should fall back to convertFileSrc if base64 fails (full-size)', async () => {
     mockInvoke.mockRejectedValue(new Error('no cmd'));
     mockConvert.mockResolvedValue('asset://img.png');
     const { result } = renderHook(() => useImageSrc('/path/img.png'));
@@ -39,6 +56,22 @@ describe('useImageSrc', () => {
     });
 
     expect(result.current).toBe('asset://img.png');
+  });
+
+  it('should NOT fall back to convertFileSrc for thumbnails', async () => {
+    mockInvoke.mockRejectedValue(new Error('no cmd'));
+    mockConvert.mockResolvedValue('asset://img.png');
+    const { result } = renderHook(() =>
+      useImageSrc('/path/img.png', { thumbnailMaxWidth: 128 }),
+    );
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    // Thumbnails should NOT fall back to asset protocol (would be full-size)
+    expect(result.current).toBeNull();
+    expect(mockConvert).not.toHaveBeenCalled();
   });
 
   it('should return null for null filePath', () => {

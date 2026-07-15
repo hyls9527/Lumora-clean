@@ -63,6 +63,7 @@ pub fn run() {
             commands::images::list_favorites,
             commands::images::rebuild_fts_index,
             commands::images::get_image_base64_cmd,
+            commands::images::get_thumbnail_base64_cmd,
             commands::images::get_variant_group_images,
             commands::tags::create_tag,
             commands::tags::list_tags,

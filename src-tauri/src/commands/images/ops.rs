@@ -6,11 +6,82 @@ use crate::schema::types::{row_to_record, ImageRecord, PaginatedResult};
 
 /// Return base64-encoded image data for a given file_path.
 /// Falls back when Tauri's asset protocol is not available.
+/// SECURITY: Only allows reading files under the app's images directory.
 #[tauri::command]
-pub fn get_image_base64_cmd(file_path: String) -> AppResult<String> {
+pub fn get_image_base64_cmd(db: tauri::State<'_, DbHandle>, file_path: String) -> AppResult<String> {
     use base64::Engine;
-    let data = std::fs::read(&file_path)?;
+    use std::path::Path;
+
+    // Derive allowed directory: <app_data_dir>/images/
+    let db_path = db.path();
+    let images_dir = db_path
+        .parent()
+        .ok_or_else(|| AppError::InvalidInput("Cannot resolve app data directory".into()))?
+        .join("images");
+
+    // Canonicalize to prevent ../ traversal
+    let canonical = Path::new(&file_path)
+        .canonicalize()
+        .map_err(|_| AppError::NotFound(format!("File not found: {}", file_path)))?;
+
+    if !canonical.starts_with(&images_dir) {
+        return Err(AppError::InvalidInput(format!(
+            "Access denied: {} is outside images directory",
+            file_path
+        )));
+    }
+
+    let data = std::fs::read(&canonical)?;
     Ok(base64::engine::general_purpose::STANDARD.encode(&data))
+}
+
+/// Return base64-encoded THUMBNAIL for a given file_path.
+/// Resizes to fit within  pixels (preserving aspect ratio).
+/// SECURITY: Same path validation as get_image_base64_cmd.
+#[tauri::command]
+pub fn get_thumbnail_base64_cmd(
+    db: tauri::State<'_, DbHandle>,
+    file_path: String,
+    max_width: u32,
+) -> AppResult<String> {
+    use base64::Engine;
+    use image::GenericImageView;
+    use std::path::Path;
+
+    let db_path = db.path();
+    let images_dir = db_path
+        .parent()
+        .ok_or_else(|| AppError::InvalidInput("Cannot resolve app data directory".into()))?
+        .join("images");
+
+    let canonical = Path::new(&file_path)
+        .canonicalize()
+        .map_err(|_| AppError::NotFound(format!("File not found: {}", file_path)))?;
+
+    if !canonical.starts_with(&images_dir) {
+        return Err(AppError::InvalidInput(format!(
+            "Access denied: {} is outside images directory",
+            file_path
+        )));
+    }
+
+    let img = image::open(&canonical)
+        .map_err(|e| AppError::Io(format!("Failed to decode image: {}", e)))?;
+
+    let (w, h) = img.dimensions();
+    let thumb = if w > max_width {
+        let new_h = (h as f64 * max_width as f64 / w as f64) as u32;
+        img.resize(max_width, new_h, image::imageops::FilterType::Triangle)
+    } else {
+        img
+    };
+
+    let mut buf = std::io::Cursor::new(Vec::new());
+    thumb
+        .write_to(&mut buf, image::ImageFormat::Png)
+        .map_err(|e| AppError::Io(format!("Failed to encode thumbnail: {}", e)))?;
+
+    Ok(base64::engine::general_purpose::STANDARD.encode(buf.into_inner()))
 }
 
 // ---------------------------------------------------------------------------

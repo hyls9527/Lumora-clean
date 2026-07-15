@@ -20,7 +20,7 @@ function VariantThumb({
   index: number;
   onClick: () => void;
 }) {
-  const src = useImageSrc(image.filePath);
+  const src = useImageSrc(image.filePath, { thumbnailMaxWidth: 128 });
 
   return (
     <button

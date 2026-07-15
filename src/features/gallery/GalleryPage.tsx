@@ -208,6 +208,16 @@ export function GalleryPage() {
     });
   }, []);
 
+  // Listen for variant selection events from DetailModal
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail) setDetailImage(detail);
+    };
+    window.addEventListener('lumora:selectImage', handler);
+    return () => window.removeEventListener('lumora:selectImage', handler);
+  }, []);
+
   useKeyboardNav({
     route: '/gallery',
     onArrowUp: handleArrowUp,
