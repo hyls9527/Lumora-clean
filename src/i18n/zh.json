@@ -64,7 +64,6 @@
     "exportCsv": "导出元数据 (CSV)",
     "batchDelete": "批量删除",
     "batchFavorite": "批量收藏",
-
     "emptyDesc": "通过 ComfyUI 自动导入你的 AI 作品，或手动添加图片。Lumora 会自动解析生成参数并建立向量索引。",
     "configComfyUI": "配置 ComfyUI",
     "statusConnected": "ComfyUI 已连接",
@@ -370,5 +369,9 @@
     "title": "收藏",
     "count": "{count} 张收藏",
     "loadError": "加载收藏失败"
+  },
+  "variants": {
+    "title": "变体",
+    "count": "{count} 个变体"
   }
 }

@@ -2,7 +2,17 @@
 
 All notable changes to Lumora are documented here.
 
-## v0.7.0 (2026-07-13)
+## v0.7.1 (2026-07-15)
+
+### Fixed
+- Image display: Tauri asset protocol not registered — added base64 fallback command
+- useImageSrc now tries `get_image_base64_cmd` first, falls back to `convertFileSrc`
+
+### Added
+- VariantGroup component: display image variants in DetailModal
+- i18n strings for variants section (en/zh)
+
+## v0.7.0
 
 ### Added
 - Mobile navigation: MobileNav component for mobile devices

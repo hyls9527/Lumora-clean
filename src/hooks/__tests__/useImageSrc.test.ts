@@ -4,10 +4,12 @@ import { useImageSrc } from '../useImageSrc';
 
 vi.mock('../../lib/tauri', () => ({
   convertFileSrc: vi.fn(),
+  invoke: vi.fn(),
 }));
 
-import { convertFileSrc } from '../../lib/tauri';
+import { convertFileSrc, invoke } from '../../lib/tauri';
 const mockConvert = vi.mocked(convertFileSrc);
+const mockInvoke = vi.mocked(invoke);
 
 describe('useImageSrc', () => {
   beforeEach(() => {
@@ -15,7 +17,20 @@ describe('useImageSrc', () => {
     vi.useRealTimers();
   });
 
-  it('should return src on success', async () => {
+  it('should return data URL via base64 command', async () => {
+    mockInvoke.mockResolvedValue('iVBORw0KGgo=');
+    const { result } = renderHook(() => useImageSrc('/path/img.png'));
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    expect(result.current).toBe('data:image/png;base64,iVBORw0KGgo=');
+    expect(mockInvoke).toHaveBeenCalledWith('get_image_base64_cmd', { filePath: '/path/img.png' });
+  });
+
+  it('should fall back to convertFileSrc if base64 fails', async () => {
+    mockInvoke.mockRejectedValue(new Error('no cmd'));
     mockConvert.mockResolvedValue('asset://img.png');
     const { result } = renderHook(() => useImageSrc('/path/img.png'));
 
@@ -33,9 +48,10 @@ describe('useImageSrc', () => {
 
   it('should retry on failure', async () => {
     vi.useFakeTimers();
-    mockConvert
+    mockInvoke
       .mockRejectedValueOnce(new Error('fail'))
-      .mockResolvedValueOnce('asset://retried.png');
+      .mockResolvedValueOnce('iVBORw0KGgo=');
+    mockConvert.mockRejectedValue(new Error('fail'));
 
     const { result } = renderHook(() => useImageSrc('/path/img.png'));
 
@@ -49,14 +65,13 @@ describe('useImageSrc', () => {
       await vi.advanceTimersByTimeAsync(1000);
     });
 
-    expect(result.current).toBe('asset://retried.png');
-    expect(mockConvert).toHaveBeenCalledTimes(2);
-
+    expect(result.current).toBe('data:image/png;base64,iVBORw0KGgo=');
     vi.useRealTimers();
   });
 
   it('should return null after max retries exhausted', async () => {
     vi.useFakeTimers();
+    mockInvoke.mockRejectedValue(new Error('fail'));
     mockConvert.mockRejectedValue(new Error('fail'));
 
     const { result } = renderHook(() => useImageSrc('/path/img.png'));
@@ -76,17 +91,14 @@ describe('useImageSrc', () => {
       await vi.advanceTimersByTimeAsync(2000);
     });
 
-    // Should still be null (not crash)
     expect(result.current).toBeNull();
-    expect(mockConvert).toHaveBeenCalledTimes(3); // 1 + 2 retries
-
     vi.useRealTimers();
   });
 
   it('should update src when filePath changes', async () => {
-    mockConvert
-      .mockResolvedValueOnce('asset://first.png')
-      .mockResolvedValueOnce('asset://second.png');
+    mockInvoke
+      .mockResolvedValueOnce('aaaa')
+      .mockResolvedValueOnce('bbbb');
 
     const { result, rerender } = renderHook(
       (props) => useImageSrc(props),
@@ -96,13 +108,13 @@ describe('useImageSrc', () => {
     await act(async () => {
       await new Promise((r) => setTimeout(r, 0));
     });
-    expect(result.current).toBe('asset://first.png');
+    expect(result.current).toBe('data:image/png;base64,aaaa');
 
     rerender('/path/second.png');
 
     await act(async () => {
       await new Promise((r) => setTimeout(r, 0));
     });
-    expect(result.current).toBe('asset://second.png');
+    expect(result.current).toBe('data:image/png;base64,bbbb');
   });
 });

@@ -64,7 +64,6 @@
     "exportCsv": "Export Metadata (CSV)",
     "batchDelete": "Batch Delete",
     "batchFavorite": "Batch Favorite",
-
     "emptyDesc": "Import your AI works via ComfyUI or add images manually. Lumora will automatically parse generation parameters and build vector indexes.",
     "configComfyUI": "Configure ComfyUI",
     "statusConnected": "ComfyUI Connected",
@@ -370,5 +369,9 @@
     "title": "Favorites",
     "count": "{count} favorites",
     "loadError": "Failed to load favorites"
+  },
+  "variants": {
+    "title": "Variants",
+    "count": "{count} variants"
   }
 }

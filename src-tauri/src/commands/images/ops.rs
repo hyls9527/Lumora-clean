@@ -4,6 +4,15 @@ use crate::db::DbHandle;
 use crate::error::{AppError, AppResult};
 use crate::schema::types::{row_to_record, ImageRecord, PaginatedResult};
 
+/// Return base64-encoded image data for a given file_path.
+/// Falls back when Tauri's asset protocol is not available.
+#[tauri::command]
+pub fn get_image_base64_cmd(file_path: String) -> AppResult<String> {
+    use base64::Engine;
+    let data = std::fs::read(&file_path)?;
+    Ok(base64::engine::general_purpose::STANDARD.encode(&data))
+}
+
 // ---------------------------------------------------------------------------
 // Commands
 // ---------------------------------------------------------------------------

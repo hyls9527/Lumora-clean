@@ -10,6 +10,7 @@ import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { t } from '../../lib/i18n';
 import { t as tok, labelStyle, valueStyle } from '../../lib/tokens';
 import { AiAnalysisSection } from './ai/AiAnalysisSection';
+import { VariantGroup } from './VariantGroup';
 
 interface DetailModalProps {
   image: ImageRecord | null;
@@ -319,6 +320,18 @@ export function DetailModal({
                 ))}
               </div>
             </div>
+          )}
+
+          {/* Variant Group */}
+          {image.variantGroupId && (
+            <VariantGroup
+              groupId={image.variantGroupId}
+              currentImageId={image.id}
+              onSelect={(variant) => {
+                // Navigate to variant by dispatching a custom event
+                window.dispatchEvent(new CustomEvent('lumora:selectImage', { detail: variant }));
+              }}
+            />
           )}
 
           {onSearchSimilar && (

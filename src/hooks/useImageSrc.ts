@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { convertFileSrc } from '../lib/tauri';
+import { invoke } from '../lib/tauri';
 
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1000;
 
 /**
- * Convert file path to displayable src with automatic retry on failure.
- * Returns null while loading or on final failure.
+ * Convert file path to displayable src.
+ * Strategy: try base64 command first (works without asset protocol),
+ * fall back to convertFileSrc (asset protocol).
  */
 export function useImageSrc(filePath: string | null): string | null {
   const [src, setSrc] = useState<string | null>(null);
@@ -27,18 +29,35 @@ export function useImageSrc(filePath: string | null): string | null {
 
     const load = async () => {
       try {
-        const result = await convertFileSrc(filePath);
-        if (!cancelled) setSrc(result);
-      } catch {
-        if (!cancelled && attemptRef.current < MAX_RETRIES) {
-          attemptRef.current += 1;
-          // ponytail: simple retry with delay
-          setTimeout(() => {
-            if (!cancelled && filePathRef.current === filePath) {
-              void load();
-            }
-          }, RETRY_DELAY_MS * attemptRef.current);
+        // Strategy 1: base64 command (no asset protocol needed)
+        const b64 = await invoke<string>('get_image_base64_cmd', { filePath });
+        if (!cancelled && b64) {
+          const ext = filePath.split('.').pop()?.toLowerCase() ?? 'png';
+          const mime = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
+          setSrc(`data:${mime};base64,${b64}`);
+          return;
         }
+      } catch {
+        // Strategy 2: asset protocol fallback
+        try {
+          const result = await convertFileSrc(filePath);
+          if (!cancelled) {
+            setSrc(result);
+            return;
+          }
+        } catch {
+          // both failed
+        }
+      }
+
+      // Retry on failure
+      if (!cancelled && attemptRef.current < MAX_RETRIES) {
+        attemptRef.current += 1;
+        setTimeout(() => {
+          if (!cancelled && filePathRef.current === filePath) {
+            void load();
+          }
+        }, RETRY_DELAY_MS * attemptRef.current);
       }
     };
 
