@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as api from '../lib/api/images';
+
 import type { ExportResult } from '../lib/api/images';
 import type { ImageRecord } from '../types/image';
 
@@ -83,7 +84,7 @@ export const useImageStore = create<ImageStore>((set, get) => ({
       set({
         loading: false,
         error: err instanceof Error ? err.message : '加载失败',
-      });
+              });
     }
   },
 
@@ -106,7 +107,7 @@ export const useImageStore = create<ImageStore>((set, get) => ({
       set({
         loading: false,
         error: err instanceof Error ? err.message : '加载更多失败',
-      });
+              });
     }
   },
 

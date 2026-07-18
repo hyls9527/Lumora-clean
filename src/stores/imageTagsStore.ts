@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import * as api from '../lib/api/images';
 
+
 interface ImageTagsStore {
   imageTags: Record<string, string[]>;
   error: string | null;

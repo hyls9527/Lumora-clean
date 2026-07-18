@@ -19,6 +19,7 @@ import {
   listTrash,
   emptyTrash,
   getVariantGroupImages,
+  updateTag,
   toImageRecord,
   type TauriImageRecord,
 } from '../images';
@@ -190,5 +191,44 @@ describe('toImageRecord transform', () => {
     const record = result.items[0];
     expect(record.width).toBe(0);
     expect(record.height).toBe(0);
+  });
+});
+
+describe('updateTag', () => {
+  it('updateTag → update_tag with name', async () => {
+    mockInvoke.mockResolvedValue(undefined);
+    await updateTag('tag-1', { name: 'new name' });
+    expect(mockInvoke).toHaveBeenCalledWith('update_tag', { id: 'tag-1', name: 'new name' });
+  });
+
+  it('updateTag → update_tag with color', async () => {
+    mockInvoke.mockResolvedValue(undefined);
+    await updateTag('tag-1', { color: '#ff0000' });
+    expect(mockInvoke).toHaveBeenCalledWith('update_tag', { id: 'tag-1', color: '#ff0000' });
+  });
+
+  it('updateTag → update_tag with both name and color', async () => {
+    mockInvoke.mockResolvedValue(undefined);
+    await updateTag('tag-1', { name: 'renamed', color: '#00ff00' });
+    expect(mockInvoke).toHaveBeenCalledWith('update_tag', { id: 'tag-1', name: 'renamed', color: '#00ff00' });
+  });
+});
+
+describe('toImageRecord format validation', () => {
+  it('accepts valid formats: png, jpg, webp, avif', () => {
+    for (const fmt of ['png', 'jpg', 'webp', 'avif'] as const) {
+      const raw: TauriImageRecord = { ...SAMPLE_RAW, format: fmt };
+      expect(toImageRecord(raw).format).toBe(fmt);
+    }
+  });
+
+  it('falls back to png for unknown format', () => {
+    const raw: TauriImageRecord = { ...SAMPLE_RAW, format: 'bmp' };
+    expect(toImageRecord(raw).format).toBe('png');
+  });
+
+  it('falls back to png for empty format', () => {
+    const raw: TauriImageRecord = { ...SAMPLE_RAW, format: '' };
+    expect(toImageRecord(raw).format).toBe('png');
   });
 });

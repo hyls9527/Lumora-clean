@@ -7,6 +7,13 @@ import { useSettingsStore } from './stores/settingsStore';
 import { useCommandStore } from './stores/commandStore';
 import { useDragDrop } from './hooks/useDragDrop';
 import { useImageSearchStore } from './stores/imageSearchStore';
+import { useAutoClearError } from './hooks/useAutoClearError';
+import { useImageStore } from './stores/imageStore';
+import { useTrashStore } from './stores/trashStore';
+import { useImageTagsStore } from './stores/imageTagsStore';
+import { useAiAnalysisStore } from './stores/aiAnalysisStore';
+import { useEmbeddingStore } from './stores/embeddingStore';
+import { useSemanticSearchStore } from './stores/semanticSearchStore';
 import { useIsMobile } from './hooks/useMediaQuery';
 import { usePerformanceMonitor } from './hooks/usePerformance';
 import { useTranslation, t } from './lib/i18n';
@@ -34,6 +41,14 @@ function App() {
   const isMobile = useIsMobile();
 
   usePerformanceMonitor('App');
+  useAutoClearError(useImageStore);
+  useAutoClearError(useTrashStore);
+  useAutoClearError(useSettingsStore);
+  useAutoClearError(useImageTagsStore);
+  useAutoClearError(useAiAnalysisStore);
+  useAutoClearError(useEmbeddingStore);
+  useAutoClearError(useSemanticSearchStore);
+  useAutoClearError(useImageSearchStore);
 
   // Auto-navigate to search when image search is triggered
   const imageSearchSource = useImageSearchStore((s) => s.sourceImageId);

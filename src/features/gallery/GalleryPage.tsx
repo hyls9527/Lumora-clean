@@ -3,6 +3,7 @@ import { useImageStore } from '../../stores/imageStore';
 import { useSelection } from '../../hooks/useSelection';
 import { useImageActions } from '../../hooks/useImageActions';
 import { useTrashStore } from '../../stores/trashStore';
+import { useToastStore } from '../../stores/toastStore';
 import { useImageSearchStore } from '../../stores/imageSearchStore';
 import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { ImageCard } from '../../components/ui/ImageCard';
@@ -12,7 +13,6 @@ import { ErrorState } from '../../components/ui/ErrorState';
 import { LazyLoad } from '../../components/ui/LazyLoad';
 import { InfiniteScroll } from '../../components/ui/InfiniteScroll';
 import { useKeyboardNav } from '../../hooks/useKeyboardNav';
-import { batchSoftDelete } from '../../lib/api/images';
 import { batchAutoTag } from '../../lib/api/ai';
 import { useEmbeddingStore } from '../../stores/embeddingStore';
 import { useIsMobile } from '../../hooks/useMediaQuery';
@@ -48,6 +48,7 @@ export function GalleryPage() {
   const { selectedIds, toggleSelect, clearSelection } = useSelection();
   const { toggleFavorite, setRating } = useImageActions();
   const softDelete = useTrashStore((s) => s.softDeleteImage);
+  const batchSoftDelete = useTrashStore((s) => s.batchSoftDelete);
   const isMobile = useIsMobile();
   const { t } = useTranslation();
   usePerformanceMonitor('GalleryPage');
@@ -153,8 +154,11 @@ export function GalleryPage() {
       await batchSoftDelete([...selectedIds]);
       clearSelection();
       await fetchImages(page);
-    } catch {
-      // error handled by store
+    } catch (err) {
+      useToastStore.getState().addToast(
+        'error',
+        err instanceof Error ? err.message : '批量删除失败',
+      );
     } finally {
       setBatchDeleting(false);
     }

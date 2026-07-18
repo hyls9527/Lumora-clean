@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { invoke } from '../../lib/tauri';
+import { listTags, createTag, deleteTag, updateTag } from '../../lib/api/images';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { t as tok } from '../../lib/tokens';
 import { useTranslation } from '../../lib/i18n';
@@ -35,7 +35,7 @@ export function TagManager() {
 
   const loadTags = useCallback(async () => {
     try {
-      const result = await invoke<Tag[]>('list_tags');
+      const result = await listTags();
       setTags(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : '加载标签失败');
@@ -50,7 +50,7 @@ export function TagManager() {
     const name = newName.trim();
     if (!name) return;
     try {
-      await invoke('create_tag', { name, color: newColor });
+      await createTag(name, newColor);
       setNewName('');
       setNewColor(null);
       setError(null);
@@ -63,7 +63,7 @@ export function TagManager() {
   const handleDelete = async (id: string, name: string) => {
     if (!window.confirm(t("tags.confirmDelete", { name }))) return;
     try {
-      await invoke('delete_tag', { id });
+      await deleteTag(id);
       setError(null);
       loadTags();
     } catch (err) {
@@ -301,10 +301,7 @@ export function TagManager() {
                       type="button"
                       onClick={async () => {
                         try {
-                          await invoke('update_tag', {
-                            id: tag.id,
-                            color: c,
-                          });
+                          await updateTag(tag.id, { color: c });
                         } catch (e) { console.warn('Failed to update tag color:', e); }
                         setEditingId(null);
                         loadTags();

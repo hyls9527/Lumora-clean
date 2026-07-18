@@ -56,7 +56,7 @@ export function toImageRecord(raw: TauriImageRecord): ImageRecord {
     fileSizeKb: raw.fileSizeKb,
     width: raw.width ?? 0,
     height: raw.height ?? 0,
-    format: raw.format as ImageRecord['format'],
+    format: (['png', 'jpg', 'webp', 'avif'].includes(raw.format) ? raw.format : 'png') as ImageRecord['format'],
     createdAt: raw.createdAt,
     rating: raw.rating,
     favorite: raw.favorite,
@@ -178,6 +178,13 @@ export async function listTags(): Promise<TagRecord[]> {
 
 export async function deleteTag(id: string): Promise<void> {
   await invoke('delete_tag', { id });
+}
+
+export async function updateTag(
+  id: string,
+  updates: { name?: string; color?: string },
+): Promise<void> {
+  await invoke('update_tag', { id, ...updates });
 }
 
 export async function addTagToImage(

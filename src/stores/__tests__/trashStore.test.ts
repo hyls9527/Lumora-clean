@@ -183,6 +183,38 @@ describe('emptyTrash', () => {
   });
 });
 
+describe('batchSoftDelete', () => {
+  it('returns count on success', async () => {
+    vi.mocked(api.batchSoftDelete).mockResolvedValue(3);
+
+    const count = await useTrashStore.getState().batchSoftDelete(['a', 'b', 'c']);
+
+    expect(count).toBe(3);
+    expect(api.batchSoftDelete).toHaveBeenCalledWith(['a', 'b', 'c']);
+    expect(useTrashStore.getState().error).toBeNull();
+  });
+
+  it('sets error and rethrows on failure', async () => {
+    vi.mocked(api.batchSoftDelete).mockRejectedValue(new Error('disk full'));
+
+    await expect(
+      useTrashStore.getState().batchSoftDelete(['a']),
+    ).rejects.toThrow('disk full');
+
+    expect(useTrashStore.getState().error).toBe('disk full');
+  });
+
+  it('sets generic error for non-Error throws', async () => {
+    vi.mocked(api.batchSoftDelete).mockRejectedValue('string error');
+
+    await expect(
+      useTrashStore.getState().batchSoftDelete(['a']),
+    ).rejects.toBe('string error');
+
+    expect(useTrashStore.getState().error).toBe('批量删除失败');
+  });
+});
+
 describe('softDeleteImage', () => {
   it('calls api.softDeleteImage', async () => {
     vi.mocked(api.softDeleteImage).mockResolvedValue();

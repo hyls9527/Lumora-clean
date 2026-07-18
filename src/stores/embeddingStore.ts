@@ -6,7 +6,8 @@ import {
   type EmbeddingInfo,
   type EmbeddingStats,
 } from '../lib/api/embeddings';
-import type { ImageRecord } from './imageStore';
+
+import type { ImageRecord } from '../types/image';
 
 interface EmbeddingStore {
   /** Per-image embedding info, keyed by imageId */

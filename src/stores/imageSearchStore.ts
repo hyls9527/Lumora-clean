@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { searchByImage, type SemanticSearchResult } from '../lib/api/semantic';
 
+
 interface ImageSearchState {
   sourceImageId: string | null;
   sourceFilePath: string | null;
@@ -27,6 +28,7 @@ export const useImageSearchStore = create<ImageSearchState>((set) => ({
       set({ results, loading: false });
     } catch (e) {
       set({ error: e instanceof Error ? e.message : '搜索失败', loading: false });
+      
     }
   },
 

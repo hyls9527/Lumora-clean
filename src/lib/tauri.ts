@@ -9,10 +9,14 @@ const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 const WRITE_COMMANDS = new Set([
   'import_images', 'update_rating', 'toggle_favorite',
   'soft_delete_image', 'restore_image', 'permanent_delete_image',
-  'empty_trash', 'create_tag', 'delete_tag',
+  'empty_trash', 'create_tag', 'delete_tag', 'update_tag',
   'add_tag_to_image', 'remove_tag_from_image',
   'batch_soft_delete', 'batch_restore', 'batch_permanent_delete',
   'batch_add_tag', 'batch_remove_tag',
+  'generate_embedding', 'generate_embedding_for_image_cmd',
+  'analyze_image_cmd', 'apply_ai_tags_cmd',
+  'rebuild_fts_index',
+  'import_database',
 ]);
 
 /** Registered callbacks invoked after write commands. */

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { AnalysisResult, AnalysisHistoryItem } from '../lib/api/ai';
 import * as aiApi from '../lib/api/ai';
 
+
 interface AiAnalysisState {
   /** Currently displayed result per image */
   results: Record<string, AnalysisResult>;

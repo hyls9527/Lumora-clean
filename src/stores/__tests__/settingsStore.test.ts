@@ -36,61 +36,61 @@ beforeEach(() => {
 });
 
 describe('setLanguage', () => {
-  it('sets language state', () => {
-    useSettingsStore.getState().setLanguage('en');
+  it('sets language state', async () => {
+    await useSettingsStore.getState().setLanguage('en');
     expect(useSettingsStore.getState().language).toBe('en');
   });
 
-  it('invokes set_setting with language key', () => {
-    useSettingsStore.getState().setLanguage('en');
+  it('invokes set_setting with language key', async () => {
+    await useSettingsStore.getState().setLanguage('en');
     expect(mockInvoke).toHaveBeenCalledWith('set_setting', {
       key: 'language',
       value: 'en',
     });
   });
 
-  it('sets document.documentElement lang attribute', () => {
-    useSettingsStore.getState().setLanguage('en');
+  it('sets document.documentElement lang attribute', async () => {
+    await useSettingsStore.getState().setLanguage('en');
     expect(document.documentElement.getAttribute('lang')).toBe('en');
   });
 
-  it('writes language to localStorage', () => {
-    useSettingsStore.getState().setLanguage('en');
+  it('writes language to localStorage', async () => {
+    await useSettingsStore.getState().setLanguage('en');
     expect(localStorage.getItem('lumora-lang')).toBe('en');
   });
 });
 
 describe('setTheme', () => {
-  it('sets theme state for light', () => {
-    useSettingsStore.getState().setTheme('light');
+  it('sets theme state for light', async () => {
+    await useSettingsStore.getState().setTheme('light');
     expect(useSettingsStore.getState().theme).toBe('light');
   });
 
-  it('invokes set_setting with theme key', () => {
-    useSettingsStore.getState().setTheme('light');
+  it('invokes set_setting with theme key', async () => {
+    await useSettingsStore.getState().setTheme('light');
     expect(mockInvoke).toHaveBeenCalledWith('set_setting', {
       key: 'theme',
       value: 'light',
     });
   });
 
-  it('sets data-theme attribute', () => {
-    useSettingsStore.getState().setTheme('light');
+  it('sets data-theme attribute', async () => {
+    await useSettingsStore.getState().setTheme('light');
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
 
-  it('sets theme state for dark', () => {
-    useSettingsStore.getState().setTheme('dark');
+  it('sets theme state for dark', async () => {
+    await useSettingsStore.getState().setTheme('dark');
     expect(useSettingsStore.getState().theme).toBe('dark');
   });
 
-  it('sets data-theme attribute to dark', () => {
-    useSettingsStore.getState().setTheme('dark');
+  it('sets data-theme attribute to dark', async () => {
+    await useSettingsStore.getState().setTheme('dark');
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
 
-  it('invokes set_setting with dark theme', () => {
-    useSettingsStore.getState().setTheme('dark');
+  it('invokes set_setting with dark theme', async () => {
+    await useSettingsStore.getState().setTheme('dark');
     expect(mockInvoke).toHaveBeenCalledWith('set_setting', {
       key: 'theme',
       value: 'dark',

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as api from '../lib/api/images';
+
 import type { ImageRecord } from '../types/image';
 
 interface TrashStore {
@@ -15,6 +16,7 @@ interface TrashStore {
   permanentDelete: (id: string) => Promise<void>;
   emptyTrash: () => Promise<void>;
   softDeleteImage: (id: string) => Promise<void>;
+  batchSoftDelete: (ids: string[]) => Promise<number>;
 }
 
 export const useTrashStore = create<TrashStore>((set, get) => ({
@@ -78,7 +80,7 @@ export const useTrashStore = create<TrashStore>((set, get) => ({
       set({
         loading: false,
         error: err instanceof Error ? err.message : '清空回收站失败',
-      });
+              });
     }
   },
 
@@ -87,6 +89,16 @@ export const useTrashStore = create<TrashStore>((set, get) => ({
       await api.softDeleteImage(id);
     } catch (err) {
       set({ error: err instanceof Error ? err.message : '删除失败' });
+    }
+  },
+
+  batchSoftDelete: async (ids: string[]) => {
+    try {
+      const count = await api.batchSoftDelete(ids);
+      return count;
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '批量删除失败' });
+      throw err;
     }
   },
 }));

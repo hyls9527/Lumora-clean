@@ -5,6 +5,7 @@ import {
 } from '../lib/api/semantic';
 import { searchSemanticCached, invalidateSemanticCache } from '../lib/api/semanticCache';
 
+
 export type SearchMode = 'exact' | 'semantic';
 
 interface SemanticSearchState {
