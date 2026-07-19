@@ -362,6 +362,9 @@
     "delete": "批量删除",
     "tagging": "分析中…",
     "aiTag": "AI 标签",
+    "embed": "嵌入向量",
+    "embedding": "嵌入中…",
+    "rename": "重命名",
     "cancel": "取消"
   },
   "favorites": {
@@ -372,6 +375,36 @@
   },
   "variants": {
     "title": "变体",
-    "count": "{count} 个变体"
+    "count": "{count} 个变体",
+    "compare": "对比变体"
+  },
+  "filter": {
+    "title": "筛选",
+    "model": "模型",
+    "rating": "评分",
+    "ratingMin": "最低评分",
+    "ratingMax": "最高评分",
+    "favorite": "仅收藏",
+    "format": "格式",
+    "dateRange": "日期范围",
+    "dateFrom": "开始日期",
+    "dateTo": "结束日期",
+    "clear": "清除筛选",
+    "active": "{count} 个筛选条件"
+  },
+  "rename": {
+    "title": "批量重命名",
+    "template": "命名模板",
+    "templatePlaceholder": "{name}_{model}_{seed}",
+    "templateHint": "可用变量: {name} {id} {date} {rating} {tags} {model} {prompt} {seed} {width} {height} {format}",
+    "preview": "预览",
+    "execute": "执行重命名",
+    "cancel": "取消",
+    "newName": "新文件名",
+    "oldName": "原文件名",
+    "conflict": "文件名冲突",
+    "result": "成功重命名 {renamed} 张，跳过 {skipped} 张",
+    "resultError": "成功重命名 {renamed} 张，跳过 {skipped} 张，失败 {errors} 张",
+    "confirm": "确认重命名 {count} 个文件？此操作不可撤销。"
   }
 }

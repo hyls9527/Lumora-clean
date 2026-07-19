@@ -58,7 +58,7 @@ pub fn export_images(
     })
 }
 
-fn load_tags_for_image(conn: &rusqlite::Connection, image_id: &str) -> Vec<String> {
+pub(crate) fn load_tags_for_image(conn: &rusqlite::Connection, image_id: &str) -> Vec<String> {
     let mut stmt = match conn.prepare(
         "SELECT t.name FROM tags t
          JOIN image_tags it ON it.tag_id = t.id
@@ -72,7 +72,7 @@ fn load_tags_for_image(conn: &rusqlite::Connection, image_id: &str) -> Vec<Strin
         .unwrap_or_default()
 }
 
-fn build_filename(
+pub(crate) fn build_filename(
     record: &crate::schema::types::ImageRecord,
     tags: &[String],
     template: Option<&str>,

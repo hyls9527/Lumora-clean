@@ -19,6 +19,7 @@ import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useTranslation } from '../../lib/i18n';
 import { TabButton } from '../../components/ui/TabButton';
 import { BatchToolbar } from './BatchToolbar';
+import { RenameDialog } from '../../components/rename/RenameDialog';
 import { t as tokens } from '../../lib/tokens';
 
 const sortOptions = [
@@ -51,6 +52,7 @@ export function GalleryPage() {
   const batchSoftDelete = useTrashStore((s) => s.batchSoftDelete);
   const isMobile = useIsMobile();
   const { t } = useTranslation();
+  const [renameOpen, setRenameOpen] = useState(false);
   usePerformanceMonitor('GalleryPage');
 
   const [batchDeleting, setBatchDeleting] = useState(false);
@@ -497,10 +499,23 @@ export function GalleryPage() {
         onDelete={handleBatchDelete}
         onAiTag={handleBatchTag}
         onEmbed={handleBatchEmbed}
+        onRename={() => setRenameOpen(true)}
         onCancel={clearSelection}
         deleting={batchDeleting}
         tagging={batchTagging}
         embedding={batchEmbedding}
+      />
+
+      {/* Rename Dialog */}
+      <RenameDialog
+        open={renameOpen}
+        imageIds={[...selectedIds]}
+        onClose={() => setRenameOpen(false)}
+        onComplete={() => {
+          setRenameOpen(false);
+          clearSelection();
+          fetchImages();
+        }}
       />
 
       {/* Detail Modal */}

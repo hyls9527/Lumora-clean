@@ -362,6 +362,9 @@
     "delete": "Batch Delete",
     "tagging": "Analyzing…",
     "aiTag": "AI Tag",
+    "embed": "Embed",
+    "embedding": "Embedding…",
+    "rename": "Rename",
     "cancel": "Cancel"
   },
   "favorites": {
@@ -372,6 +375,36 @@
   },
   "variants": {
     "title": "Variants",
-    "count": "{count} variants"
+    "count": "{count} variants",
+    "compare": "Compare Variants"
+  },
+  "filter": {
+    "title": "Filter",
+    "model": "Model",
+    "rating": "Rating",
+    "ratingMin": "Min Rating",
+    "ratingMax": "Max Rating",
+    "favorite": "Favorites Only",
+    "format": "Format",
+    "dateRange": "Date Range",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "clear": "Clear Filters",
+    "active": "{count} filters"
+  },
+  "rename": {
+    "title": "Batch Rename",
+    "template": "Naming Template",
+    "templatePlaceholder": "{name}_{model}_{seed}",
+    "templateHint": "Variables: {name} {id} {date} {rating} {tags} {model} {prompt} {seed} {width} {height} {format}",
+    "preview": "Preview",
+    "execute": "Execute Rename",
+    "cancel": "Cancel",
+    "newName": "New Name",
+    "oldName": "Original Name",
+    "conflict": "Filename conflict",
+    "result": "Renamed {renamed}, skipped {skipped}",
+    "resultError": "Renamed {renamed}, skipped {skipped}, errors {errors}",
+    "confirm": "Are you sure you want to rename {count} files? This cannot be undone."
   }
 }

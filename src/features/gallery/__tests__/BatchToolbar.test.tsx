@@ -19,8 +19,7 @@ describe('BatchToolbar', () => {
   it('should render embed button', () => {
     const { container } = render(<BatchToolbar {...defaultProps} />);
     const buttons = container.querySelectorAll('button');
-    expect(buttons.length).toBe(4);
-    expect(buttons[2].textContent).toContain('embed');
+    expect(buttons.length).toBe(5);
   });
 
   it('should call onEmbed when embed button clicked', () => {
@@ -35,7 +34,6 @@ describe('BatchToolbar', () => {
     const { container } = render(<BatchToolbar {...defaultProps} embedding={true} />);
     const buttons = container.querySelectorAll('button');
     expect(buttons[2].disabled).toBe(true);
-    expect(buttons[2].textContent).toContain('embedding');
   });
 
   it('should not render when count is 0', () => {

@@ -56,6 +56,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::images::import_images,
             commands::images::list_images,
+            commands::images::list_images_filtered,
             commands::images::search_images,
             commands::images::search_images_advanced,
             commands::images::update_rating,
@@ -86,6 +87,7 @@ pub fn run() {
             commands::trash::batch_remove_tag,
             commands::dashboard::get_dashboard_stats,
             commands::export::export_images,
+            commands::rename::batch_rename,
             commands::embeddings::generate_embedding,
             commands::embeddings::get_embedding_status_cmd,
             commands::embeddings::search_semantic_cmd,

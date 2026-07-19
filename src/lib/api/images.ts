@@ -1,4 +1,5 @@
 import { invoke } from '../tauri';
+import type { FilterCriteria } from '../../types/filter';
 import type { ImageRecord } from '../../types/image';
 
 /** Tauri 返回的原始记录结构（camelCase，serde 重命名后） */
@@ -111,6 +112,31 @@ export async function listImages(
     total: raw.total,
   };
 }
+
+export async function listImagesFiltered(
+  page: number,
+  perPage: number,
+  filter: FilterCriteria,
+): Promise<{ items: ImageRecord[]; total: number }> {
+  const raw = await invoke<TauriPaginatedResult>('list_images_filtered', {
+    page,
+    perPage,
+    filter: {
+      model: filter.model ?? null,
+      ratingMin: filter.ratingMin ?? null,
+      ratingMax: filter.ratingMax ?? null,
+      favorite: filter.favorite ?? null,
+      format: filter.format ?? null,
+      dateFrom: filter.dateFrom ?? null,
+      dateTo: filter.dateTo ?? null,
+    },
+  });
+  return {
+    items: raw.items.map(toImageRecord),
+    total: raw.total,
+  };
+}
+
 
 export async function searchImages(query: string): Promise<ImageRecord[]> {
   const raw = await invoke<TauriImageRecord[]>('search_images', { query });
@@ -297,5 +323,36 @@ export async function exportImages(
     format,
     renameTemplate: renameTemplate || undefined,
   });
+}
+
+// ---------------------------------------------------------------------------
+// Rename API
+// ---------------------------------------------------------------------------
+
+export interface RenameItem {
+  id: string;
+  oldName: string;
+  newName: string;
+  status: 'ok' | 'conflict' | 'error';
+  error?: string;
+}
+
+export interface RenameResult {
+  items: RenameItem[];
+  renamed: number;
+  skipped: number;
+  errors: number;
+}
+
+/**
+ * Batch-rename images using a naming template.
+ * @param dryRun - if true, only preview names without modifying
+ */
+export async function batchRename(
+  ids: string[],
+  template: string,
+  dryRun?: boolean,
+): Promise<RenameResult> {
+  return invoke<RenameResult>('batch_rename', { ids, template, dryRun: dryRun ?? false });
 }
 

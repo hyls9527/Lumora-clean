@@ -38,8 +38,10 @@ function notifyWriteListeners() {
 }
 
 function mockResponse(cmd: string): unknown {
-  if (['list_images', 'list_trash'].includes(cmd))
+  if (['list_images', 'list_images_filtered', 'list_trash'].includes(cmd))
     return { items: [], total: 0, page: 1, perPage: 40 };
+  if (cmd === 'batch_rename')
+    return { items: [], renamed: 0, skipped: 0, errors: 0 };
   if (cmd === 'import_images')
     return { items: [], imported: 0, skipped: 0, totalScanned: 0 };
   if (['list_tags', 'search_images', 'get_image_tags', 'list_favorites'].includes(cmd))
@@ -68,6 +70,8 @@ let _loadAttempted = false;
 /** User-friendly error messages for common Tauri command failures */
 const ERROR_MESSAGES: Record<string, string> = {
   'list_images': '加载图片列表失败',
+  'list_images_filtered': '加载图片列表失败',
+  'batch_rename': '批量重命名失败',
   'import_images': '导入图片失败',
   'search_images': '搜索失败',
   'update_rating': '更新评分失败',

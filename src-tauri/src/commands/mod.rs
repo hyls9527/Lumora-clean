@@ -5,6 +5,7 @@ pub mod comfyui;
 pub mod dashboard;
 pub mod embeddings;
 pub mod export;
+pub mod rename;
 pub mod images;
 pub mod settings;
 pub mod tags;
