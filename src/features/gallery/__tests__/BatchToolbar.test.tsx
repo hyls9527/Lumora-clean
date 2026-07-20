@@ -19,7 +19,7 @@ describe('BatchToolbar', () => {
   it('should render embed button', () => {
     const { container } = render(<BatchToolbar {...defaultProps} />);
     const buttons = container.querySelectorAll('button');
-    expect(buttons.length).toBe(5);
+    expect(buttons.length).toBe(6);
   });
 
   it('should call onEmbed when embed button clicked', () => {

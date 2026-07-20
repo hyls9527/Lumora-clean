@@ -28,20 +28,41 @@ interface TauriPaginatedResult {
   perPage: number;
 }
 
-/** 解析 metadata_json 中可选的 model / prompt / tags */
+/** 解析 metadata_json 中可选的 model / prompt / tags / SD 参数 */
 function parseMetadata(json: string | null): {
   model: string;
   prompt: string;
   tags: string[];
+  negativePrompt?: string;
+  steps?: number;
+  sampler?: string;
+  cfgScale?: number;
+  seed?: number;
 } {
   if (!json) return { model: '', prompt: '', tags: [] };
   try {
     const meta = JSON.parse(json);
-    return {
+    const result: ReturnType<typeof parseMetadata> = {
       model: meta.model ?? '',
       prompt: meta.prompt ?? '',
       tags: Array.isArray(meta.tags) ? meta.tags : [],
     };
+    if (typeof meta.negative_prompt === 'string' && meta.negative_prompt) {
+      result.negativePrompt = meta.negative_prompt;
+    }
+    if (typeof meta.steps === 'number' && meta.steps > 0) {
+      result.steps = meta.steps;
+    }
+    if (typeof meta.sampler === 'string' && meta.sampler) {
+      result.sampler = meta.sampler;
+    }
+    if (typeof meta.cfg_scale === 'number' && meta.cfg_scale > 0) {
+      result.cfgScale = meta.cfg_scale;
+    }
+    if (typeof meta.seed === 'number') {
+      result.seed = meta.seed;
+    }
+    return result;
   } catch {
     return { model: '', prompt: '', tags: [] };
   }
@@ -49,7 +70,7 @@ function parseMetadata(json: string | null): {
 
 /** 将 Tauri 记录转换为前端 ImageRecord */
 export function toImageRecord(raw: TauriImageRecord): ImageRecord {
-  const { model, prompt, tags } = parseMetadata(raw.metadataJson);
+  const { model, prompt, tags, negativePrompt, steps, sampler, cfgScale, seed } = parseMetadata(raw.metadataJson);
   return {
     id: raw.id,
     filePath: raw.filePath,
@@ -66,6 +87,11 @@ export function toImageRecord(raw: TauriImageRecord): ImageRecord {
     model,
     prompt,
     tags,
+    negativePrompt,
+    steps,
+    sampler,
+    cfgScale,
+    seed,
   };
 }
 
@@ -354,5 +380,43 @@ export async function batchRename(
   dryRun?: boolean,
 ): Promise<RenameResult> {
   return invoke<RenameResult>('batch_rename', { ids, template, dryRun: dryRun ?? false });
+}
+
+// ---------------------------------------------------------------------------
+// Convert API
+// ---------------------------------------------------------------------------
+
+export interface BatchConvertItem {
+  id: string;
+  oldFormat: string;
+  newFormat: string;
+  status: 'ok' | 'error';
+  error?: string;
+}
+
+export interface BatchConvertResult {
+  items: BatchConvertItem[];
+  converted: number;
+  skipped: number;
+  failed: number;
+}
+
+/**
+ * Batch-convert image files to a new format.
+ */
+export async function batchConvert(
+  ids: string[],
+  format: string,
+  quality?: number,
+  maxWidth?: number,
+  maxHeight?: number,
+): Promise<BatchConvertResult> {
+  return invoke<BatchConvertResult>('batch_convert', {
+    ids,
+    format,
+    quality: quality ?? null,
+    maxWidth: maxWidth ?? null,
+    maxHeight: maxHeight ?? null,
+  });
 }
 

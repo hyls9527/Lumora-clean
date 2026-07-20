@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useImageStore } from '../../stores/imageStore';
 import { useSelection } from '../../hooks/useSelection';
 import { useImageActions } from '../../hooks/useImageActions';
@@ -20,6 +20,7 @@ import { useTranslation } from '../../lib/i18n';
 import { TabButton } from '../../components/ui/TabButton';
 import { BatchToolbar } from './BatchToolbar';
 import { RenameDialog } from '../../components/rename/RenameDialog';
+import { ConvertDialog } from '../../components/convert/ConvertDialog';
 import { t as tokens } from '../../lib/tokens';
 
 const sortOptions = [
@@ -53,6 +54,7 @@ export function GalleryPage() {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
   const [renameOpen, setRenameOpen] = useState(false);
+  const [convertOpen, setConvertOpen] = useState(false);
   usePerformanceMonitor('GalleryPage');
 
   const [batchDeleting, setBatchDeleting] = useState(false);
@@ -226,16 +228,31 @@ export function GalleryPage() {
 
   useKeyboardNav({
     route: '/gallery',
-    onArrowUp: handleArrowUp,
-    onArrowDown: handleArrowDown,
-    onArrowLeft: handleArrowLeft,
-    onArrowRight: handleArrowRight,
-    onEnter: handleEnter,
-    onSpace: handleSpace,
-    onEscape: handleEscape,
-    onDelete: handleDelete,
-    onFavorite: handleFavorite,
-    onRate: handleRate,
+    activeStage: detailImage ? 'detail' : 'browse',
+    stages: [
+      {
+        id: 'browse',
+        onArrowUp: handleArrowUp,
+        onArrowDown: handleArrowDown,
+        onArrowLeft: handleArrowLeft,
+        onArrowRight: handleArrowRight,
+        onEnter: handleEnter,
+        onSpace: handleSpace,
+        onEscape: handleEscape,
+        onDelete: handleDelete,
+        onFavorite: handleFavorite,
+        onRate: handleRate,
+      },
+      {
+        id: 'detail',
+        onArrowLeft: handleDetailPrev,
+        onArrowRight: handleDetailNext,
+        onEscape: () => setDetailImage(null),
+        onDelete: handleDelete,
+        onFavorite: handleFavorite,
+        onRate: handleRate,
+      },
+    ],
   });
 
   return (
@@ -415,24 +432,28 @@ export function GalleryPage() {
               className={filters.view === 'grid' ? 'gallery-grid' : 'gallery-list'}
               style={columnCount > 0 && filters.view === 'grid' ? { columnCount } : undefined}
             >
-              {images.map((img, index) => (
-                <div
-                  key={img.id}
-                  style={{
-                    breakInside: 'avoid',
-                    marginBottom: 12,
-                  }}
-                >
-                  <LazyLoad height={img.height || 200}>
-                    <ImageCard
-                      image={img}
-                      focused={focusedIndex === index}
-                      onOpen={() => setDetailImage(img)}
-                      onClick={() => setFocusedIndex(index)}
-                    />
-                  </LazyLoad>
-                </div>
-              ))}
+              {useMemo(
+                () =>
+                  images.map((img, index) => (
+                    <div
+                      key={img.id}
+                      style={{
+                        breakInside: 'avoid',
+                        marginBottom: 12,
+                      }}
+                    >
+                      <LazyLoad height={img.height || 200}>
+                        <ImageCard
+                          image={img}
+                          focused={focusedIndex === index}
+                          onOpen={() => setDetailImage(img)}
+                          onClick={() => setFocusedIndex(index)}
+                        />
+                      </LazyLoad>
+                    </div>
+                  )),
+                [images, focusedIndex],
+              )}
             </div>
           </InfiniteScroll>
 
@@ -449,7 +470,7 @@ export function GalleryPage() {
             >
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                 <button
-                  key={p}
+                  key={`gallery-page-${p}`}
                   type="button"
                   onClick={() => fetchImages(p)}
                   style={{
@@ -500,6 +521,7 @@ export function GalleryPage() {
         onAiTag={handleBatchTag}
         onEmbed={handleBatchEmbed}
         onRename={() => setRenameOpen(true)}
+        onConvert={() => setConvertOpen(true)}
         onCancel={clearSelection}
         deleting={batchDeleting}
         tagging={batchTagging}
@@ -513,6 +535,18 @@ export function GalleryPage() {
         onClose={() => setRenameOpen(false)}
         onComplete={() => {
           setRenameOpen(false);
+          clearSelection();
+          fetchImages();
+        }}
+      />
+
+      {/* Convert Dialog */}
+      <ConvertDialog
+        open={convertOpen}
+        imageIds={[...selectedIds]}
+        onClose={() => setConvertOpen(false)}
+        onComplete={() => {
+          setConvertOpen(false);
           clearSelection();
           fetchImages();
         }}

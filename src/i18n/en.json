@@ -365,6 +365,7 @@
     "embed": "Embed",
     "embedding": "Embedding…",
     "rename": "Rename",
+    "convert": "Convert",
     "cancel": "Cancel"
   },
   "favorites": {
@@ -406,5 +407,17 @@
     "result": "Renamed {renamed}, skipped {skipped}",
     "resultError": "Renamed {renamed}, skipped {skipped}, errors {errors}",
     "confirm": "Are you sure you want to rename {count} files? This cannot be undone."
+  },
+  "shortcutsPanel": {
+    "title": "Keyboard Shortcuts",
+    "close": "Close"
+  },
+  "convert": {
+    "title": "Batch Convert",
+    "format": "Target Format",
+    "execute": "Convert",
+    "cancel": "Cancel",
+    "result": "Converted {converted}, skipped {skipped}",
+    "resultError": "Converted {converted}, skipped {skipped}, failed {failed}"
   }
 }

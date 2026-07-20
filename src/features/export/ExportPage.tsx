@@ -11,7 +11,7 @@ export function ExportPage() {
   const { t } = useTranslation();
 
   const [destDir, setDestDir] = useState('');
-  const [format, setFormat] = useState<'original' | 'png' | 'jpg' | 'webp'>('original');
+  const [format, setFormat] = useState<string>('original');
   const [renameTemplate, setRenameTemplate] = useState('');
   const [exporting, setExporting] = useState(false);
   const [result, setResult] = useState<ExportResult | null>(null);
@@ -155,7 +155,7 @@ export function ExportPage() {
         <section style={{ marginBottom: 24 }}>
           <SectionHeader>{t('export.outputFormat')}</SectionHeader>
           <div style={{ display: 'flex', gap: 12 }}>
-            {(['original', 'png', 'jpg', 'webp'] as const).map((fmt) => (
+            {(['original', 'png', 'jpg', 'webp', 'avif', 'bmp', 'gif', 'tiff'] as const).map((fmt) => (
               <FormatOption
                 key={fmt}
                 label={fmt.toUpperCase()}

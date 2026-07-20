@@ -17,6 +17,7 @@ const WRITE_COMMANDS = new Set([
   'analyze_image_cmd', 'apply_ai_tags_cmd',
   'rebuild_fts_index',
   'import_database',
+  'batch_convert',
 ]);
 
 /** Registered callbacks invoked after write commands. */
@@ -50,6 +51,8 @@ function mockResponse(cmd: string): unknown {
     return { totalImages: 0, totalSizeKb: 0, formatCounts: [], ratingCounts: [], topTags: [], recentImports: [] };
   if (cmd === 'export_images')
     return { successCount: 0, failCount: 0, targetDir: '' };
+  if (cmd === 'batch_convert')
+    return { items: [], converted: 0, skipped: 0, failed: 0 };
   if (cmd === 'get_embedding_status_cmd')
     return { status: 'pending', dimensions: null, generatedAt: null };
   if (cmd === 'get_analysis_result_cmd')
@@ -88,6 +91,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   'remove_tag_from_image': '移除标签失败',
   'get_dashboard_stats': '加载统计数据失败',
   'export_images': '导出图片失败',
+  'batch_convert': '批量格式转换失败',
   'generate_embedding': '生成嵌入失败',
   'get_embedding_status_cmd': '获取嵌入状态失败',
   'search_semantic_cmd': '语义搜索失败',
@@ -106,6 +110,49 @@ function wrapError(cmd: string, error: unknown): Error {
   return wrapped;
 }
 
+/** Retry config for read operations (write operations are never retried). */
+const READ_RETRY_MAX = 3;
+const READ_RETRY_BASE_DELAY_MS = 200;
+
+/** Sleep for `ms` milliseconds. */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Attempt a read invoke with retries on failure.
+ * Only read commands are retried; write commands are passed through immediately.
+ */
+async function invokeWithRetry<T>(
+  cmd: string,
+  args: Record<string, unknown> | undefined,
+  maxRetries: number,
+  baseDelayMs: number,
+): Promise<T> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await _realInvoke!(cmd, args) as T;
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxRetries) {
+        const delay = baseDelayMs * 2 ** attempt;
+        // Log in development
+        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+          console.warn(
+            `[invoke] ${cmd} failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delay}ms:`,
+            error,
+          );
+        }
+        await sleep(delay);
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 /** Drop-in replacement for `invoke` from `@tauri-apps/api/core` */
 export async function invoke<T = unknown>(cmd: string, args?: Record<string, unknown>): Promise<T> {
   // In Tauri context, lazily load the real invoke
@@ -120,9 +167,14 @@ export async function invoke<T = unknown>(cmd: string, args?: Record<string, unk
   }
 
   if (_realInvoke) {
+    const isWrite = WRITE_COMMANDS.has(cmd);
+
     try {
-      const result = await _realInvoke(cmd, args) as T;
-      if (WRITE_COMMANDS.has(cmd)) {
+      const result = isWrite
+        ? (await _realInvoke(cmd, args) as T)
+        : await invokeWithRetry<T>(cmd, args ?? {}, READ_RETRY_MAX, READ_RETRY_BASE_DELAY_MS);
+
+      if (isWrite) {
         // Fire-and-forget: don't block or alter return value
         Promise.resolve().then(() => notifyWriteListeners());
       }

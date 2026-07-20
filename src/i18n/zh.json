@@ -365,6 +365,7 @@
     "embed": "嵌入向量",
     "embedding": "嵌入中…",
     "rename": "重命名",
+    "convert": "格式转换",
     "cancel": "取消"
   },
   "favorites": {
@@ -406,5 +407,17 @@
     "result": "成功重命名 {renamed} 张，跳过 {skipped} 张",
     "resultError": "成功重命名 {renamed} 张，跳过 {skipped} 张，失败 {errors} 张",
     "confirm": "确认重命名 {count} 个文件？此操作不可撤销。"
+  },
+  "shortcutsPanel": {
+    "title": "快捷键参考",
+    "close": "关闭"
+  },
+  "convert": {
+    "title": "批量格式转换",
+    "format": "目标格式",
+    "execute": "转换",
+    "cancel": "取消",
+    "result": "成功转换 {converted} 张，跳过 {skipped} 张",
+    "resultError": "成功转换 {converted} 张，跳过 {skipped} 张，失败 {failed} 张"
   }
 }
