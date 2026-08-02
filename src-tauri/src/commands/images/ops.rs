@@ -197,6 +197,31 @@ pub fn list_images_filtered(
     per_page: u32,
     filter: ImageFilter,
 ) -> AppResult<PaginatedResult> {
+    list_images_filtered_inner(&db, page, per_page, &filter)
+}
+
+fn list_images_filtered_inner(
+    db: &DbHandle,
+    page: u32,
+    per_page: u32,
+    filter: &ImageFilter,
+) -> AppResult<PaginatedResult> {
+    // Fail visibly on inverted ranges instead of silently returning empty results
+    if let (Some(min), Some(max)) = (filter.rating_min, filter.rating_max) {
+        if min > max {
+            return Err(AppError::InvalidInput(
+                "评分范围无效：最低分不能高于最高分".into(),
+            ));
+        }
+    }
+    if let (Some(from), Some(to)) = (&filter.date_from, &filter.date_to) {
+        if from > to {
+            return Err(AppError::InvalidInput(
+                "日期范围无效：开始日期不能晚于结束日期".into(),
+            ));
+        }
+    }
+
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let offset = page.saturating_sub(1) * per_page;
 
@@ -226,11 +251,12 @@ pub fn list_images_filtered(
         param_values.push(Box::new(fmt.clone()));
     }
     if let Some(ref from) = filter.date_from {
-        conditions.push(format!("created_at >= ?{}", param_values.len() + 1));
+        // date() makes the range day-inclusive (dateTo "2025-01-01" includes the whole day)
+        conditions.push(format!("date(created_at) >= ?{}", param_values.len() + 1));
         param_values.push(Box::new(from.clone()));
     }
     if let Some(ref to) = filter.date_to {
-        conditions.push(format!("created_at <= ?{}", param_values.len() + 1));
+        conditions.push(format!("date(created_at) <= ?{}", param_values.len() + 1));
         param_values.push(Box::new(to.clone()));
     }
 
@@ -519,5 +545,125 @@ mod tests {
             )
             .unwrap();
         assert_eq!(count, 0);
+    }
+
+    fn insert_filter_image(
+        conn: &rusqlite::Connection,
+        id: &str,
+        format: &str,
+        created_at: &str,
+        metadata_json: Option<&str>,
+        favorite: bool,
+    ) {
+        conn.execute(
+            "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at,metadata_json,favorite)
+             VALUES (?1, ?2, ?3, 1, ?4, ?5, ?6, ?7)",
+            rusqlite::params![
+                id,
+                format!("/{id}.png"),
+                format!("hash-{id}"),
+                format,
+                created_at,
+                metadata_json,
+                favorite as i32,
+            ],
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn filtered_list_rejects_inverted_rating_range() {
+        let db = test_db();
+        let filter = ImageFilter {
+            model: None,
+            rating_min: Some(4),
+            rating_max: Some(2),
+            favorite: None,
+            format: None,
+            date_from: None,
+            date_to: None,
+        };
+        assert!(list_images_filtered_inner(&db, 1, 40, &filter).is_err());
+    }
+
+    #[test]
+    fn filtered_list_rejects_inverted_date_range() {
+        let db = test_db();
+        let filter = ImageFilter {
+            model: None,
+            rating_min: None,
+            rating_max: None,
+            favorite: None,
+            format: None,
+            date_from: Some("2025-02-01".into()),
+            date_to: Some("2025-01-01".into()),
+        };
+        assert!(list_images_filtered_inner(&db, 1, 40, &filter).is_err());
+    }
+
+    #[test]
+    fn filtered_list_date_to_includes_entire_day() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_filter_image(&conn, "a", "png", "2025-01-01T12:30:00", None, false);
+        }
+        let filter = ImageFilter {
+            model: None,
+            rating_min: None,
+            rating_max: None,
+            favorite: None,
+            format: None,
+            date_from: None,
+            date_to: Some("2025-01-01".into()),
+        };
+        let result = list_images_filtered_inner(&db, 1, 40, &filter).unwrap();
+        assert_eq!(result.total, 1);
+        assert_eq!(result.items.len(), 1);
+    }
+
+    #[test]
+    fn filtered_list_combines_model_favorite_and_format() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_filter_image(&conn, "a", "png", "2025-01-01", Some(r#"{"model":"sd1.5"}"#), true);
+            insert_filter_image(&conn, "b", "png", "2025-01-02", Some(r#"{"model":"sd1.5"}"#), false);
+            insert_filter_image(&conn, "c", "jpg", "2025-01-03", Some(r#"{"model":"sd1.5"}"#), true);
+            insert_filter_image(&conn, "d", "png", "2025-01-04", Some(r#"{"model":"flux"}"#), true);
+        }
+        let filter = ImageFilter {
+            model: Some("sd1.5".into()),
+            rating_min: None,
+            rating_max: None,
+            favorite: Some(true),
+            format: Some("png".into()),
+            date_from: None,
+            date_to: None,
+        };
+        let result = list_images_filtered_inner(&db, 1, 40, &filter).unwrap();
+        assert_eq!(result.total, 1);
+        assert_eq!(result.items[0].id, "a");
+    }
+
+    #[test]
+    fn filtered_list_favorite_false_is_ignored() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_filter_image(&conn, "a", "png", "2025-01-01", None, true);
+            insert_filter_image(&conn, "b", "png", "2025-01-02", None, false);
+        }
+        let filter = ImageFilter {
+            model: None,
+            rating_min: None,
+            rating_max: None,
+            favorite: Some(false),
+            format: None,
+            date_from: None,
+            date_to: None,
+        };
+        let result = list_images_filtered_inner(&db, 1, 40, &filter).unwrap();
+        assert_eq!(result.total, 2);
     }
 }

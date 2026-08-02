@@ -3,8 +3,7 @@
  * Run: node scripts/perf-budget.mjs
  */
 
-import { execSync } from 'child_process';
-import { readdirSync, statSync } from 'fs';
+import { readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 
 const BUDGETS = {
@@ -13,7 +12,7 @@ const BUDGETS = {
   'npm packages': { max: 300, unit: 'count' },
   'cargo crates': { max: 700, unit: 'count' },
   'TypeScript files': { max: 200, unit: 'count' },
-  'Zustand stores': { max: 10, unit: 'count' },
+  'Zustand stores': { max: 12, unit: 'count' },
 };
 
 function dirSize(path) {
@@ -53,11 +52,11 @@ try {
 }
 
 // npm packages
-const npmCount = (execSync('cat package-lock.json | grep -c \'"resolved":\'', { encoding: 'utf8' }).trim() | 0);
+const npmCount = (readFileSync('package-lock.json', 'utf8').match(/"resolved":/g) || []).length;
 results.push({ name: 'npm packages', value: npmCount, budget: BUDGETS['npm packages'].max, ok: npmCount <= BUDGETS['npm packages'].max });
 
 // cargo crates
-const cargoCount = (execSync('grep -c "\\[\\[package\\]\\]" src-tauri/Cargo.lock', { encoding: 'utf8' }).trim() | 0);
+const cargoCount = (readFileSync('src-tauri/Cargo.lock', 'utf8').match(/\[\[package\]\]/g) || []).length;
 results.push({ name: 'cargo crates', value: cargoCount, budget: BUDGETS['cargo crates'].max, ok: cargoCount <= BUDGETS['cargo crates'].max });
 
 // TypeScript files

@@ -86,6 +86,7 @@ pub fn run() {
             commands::dashboard::get_dashboard_stats,
             commands::export::export_images,
             commands::export::batch_convert,
+            commands::fs::is_directory,
             commands::rename::batch_rename,
             commands::embeddings::generate_embedding,
             commands::embeddings::get_embedding_status_cmd,

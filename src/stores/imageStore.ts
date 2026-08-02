@@ -33,7 +33,7 @@ interface FilterState {
   similarityThreshold: number;
 }
 
-interface ImageStore {
+export interface ImageStore {
   images: ImageRecord[];
   filters: FilterState;
   loading: boolean;

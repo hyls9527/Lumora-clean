@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { t } from '../../lib/i18n';
 import { t as tok } from '../../lib/tokens';
 import { batchConvert } from '../../lib/api/images';
@@ -56,16 +56,26 @@ export function ConvertDialog({ open, imageIds, onClose, onComplete }: ConvertDi
   const [format, setFormat] = useState('png');
   const [executing, setExecuting] = useState(false);
   const [result, setResult] = useState<BatchConvertResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Reset dialog state each time it opens
+  useEffect(() => {
+    if (open) {
+      setResult(null);
+      setError(null);
+    }
+  }, [open]);
 
   const handleExecute = async () => {
     if (imageIds.length === 0) return;
     setExecuting(true);
+    setError(null);
     try {
       const res = await batchConvert(imageIds, format);
       setResult(res);
       onComplete?.(res);
-    } catch {
-      // handled by tauri.ts wrapper
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setExecuting(false);
     }
@@ -85,7 +95,7 @@ export function ConvertDialog({ open, imageIds, onClose, onComplete }: ConvertDi
         <div style={{ fontSize: 15, fontFamily: tok.fontDisplay, fontWeight: 600, color: tok.text }}>
           {t('convert.title')}
           <span style={{ fontSize: 12, fontWeight: 400, color: tok.textSecondary, marginLeft: 8 }}>
-            ({imageIds.length} {imageIds.length === 1 ? 'file' : 'files'})
+            ({t('convert.filesCount', undefined, { count: imageIds.length })})
           </span>
         </div>
 
@@ -114,6 +124,22 @@ export function ConvertDialog({ open, imageIds, onClose, onComplete }: ConvertDi
             {result.failed > 0
               ? t('convert.resultError', undefined, { converted: result.converted, skipped: result.skipped, failed: result.failed })
               : t('convert.result', undefined, { converted: result.converted, skipped: result.skipped })}
+          </div>
+        )}
+
+        {error && (
+          <div
+            role="alert"
+            style={{
+              fontSize: 12,
+              fontFamily: tok.fontBody,
+              padding: '8px 12px',
+              borderRadius: 4,
+              background: 'rgba(189, 71, 31, 0.1)',
+              color: tok.danger,
+            }}
+          >
+            {t('convert.error')}: {error}
           </div>
         )}
 

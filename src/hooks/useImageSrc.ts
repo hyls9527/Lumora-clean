@@ -4,6 +4,26 @@ import { convertFileSrc, invoke } from '../lib/tauri';
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 500;
 
+const MIME_BY_EXT: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  bmp: 'image/bmp',
+  avif: 'image/avif',
+  tiff: 'image/tiff',
+  tif: 'image/tiff',
+};
+
+/** Derive a usable MIME type from the file name, falling back safely. */
+function mimeForPath(filePath: string): string {
+  const base = filePath.split(/[/\\]/).pop() ?? filePath;
+  const dot = base.lastIndexOf('.');
+  const ext = dot >= 0 ? base.slice(dot + 1).toLowerCase() : '';
+  return MIME_BY_EXT[ext] ?? (ext ? `image/${ext}` : 'image/png');
+}
+
 interface UseImageSrcOptions {
   /** If set, load a thumbnail resized to this max width (pixels). */
   thumbnailMaxWidth?: number;
@@ -53,9 +73,7 @@ export function useImageSrc(
 
         const b64 = await invoke<string>(cmd, args);
         if (!cancelled && b64) {
-          const ext = filePath.split('.').pop()?.toLowerCase() ?? 'png';
-          const mime = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
-          setSrc(`data:${mime};base64,${b64}`);
+          setSrc(`data:${mimeForPath(filePath)};base64,${b64}`);
           return;
         }
       } catch {

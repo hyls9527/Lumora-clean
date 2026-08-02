@@ -2,6 +2,7 @@ import { t as tok } from '../../lib/tokens';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useCommandStore } from '../../stores/commandStore';
 import { useTranslation } from '../../lib/i18n';
+import { registerModal, unregisterModal, isTopModal } from '../../lib/modalStack';
 
 export function CommandPalette() {
   const { isOpen, close, commands } = useCommandStore();
@@ -9,6 +10,9 @@ export function CommandPalette() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const modalIdRef = useRef<string | null>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
   const { t } = useTranslation('commandPalette');
 
   const filtered = commands.filter((cmd) => {
@@ -31,8 +35,18 @@ export function CommandPalette() {
 
   useEffect(() => {
     if (isOpen) {
+      modalIdRef.current = registerModal();
+      restoreFocusRef.current = document.activeElement as HTMLElement | null;
       inputRef.current?.focus();
     }
+    return () => {
+      if (modalIdRef.current) {
+        unregisterModal(modalIdRef.current);
+        modalIdRef.current = null;
+        restoreFocusRef.current?.focus?.();
+        restoreFocusRef.current = null;
+      }
+    };
   }, [isOpen]);
 
   useEffect(() => {
@@ -57,7 +71,27 @@ export function CommandPalette() {
       resetAndClose();
     } else if (e.key === 'Escape') {
       e.preventDefault();
-      resetAndClose();
+      if (modalIdRef.current && isTopModal(modalIdRef.current)) {
+        resetAndClose();
+      }
+    } else if (e.key === 'Tab') {
+      const root = panelRef.current;
+      if (!root) return;
+      const els = Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((el) => !el.hasAttribute('disabled'));
+      if (els.length === 0) return;
+      const first = els[0];
+      const last = els[els.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     }
   };
 
@@ -98,7 +132,12 @@ export function CommandPalette() {
 
   return (
     <div style={styles.overlay} onClick={resetAndClose}>
-      <div style={styles.panel} onClick={(e) => e.stopPropagation()} onKeyDown={handleKeyDown}>
+      <div
+        ref={panelRef}
+        style={styles.panel}
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleKeyDown}
+      >
         <input
           ref={inputRef}
           type="text"

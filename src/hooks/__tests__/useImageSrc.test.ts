@@ -150,4 +150,157 @@ describe('useImageSrc', () => {
     });
     expect(result.current).toBe('data:image/png;base64,bbbb');
   });
+
+  it('maps jpg to image/jpeg MIME', async () => {
+    mockInvoke.mockResolvedValue('data');
+    const { result } = renderHook(() => useImageSrc('/path/photo.jpg'));
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    expect(result.current).toBe('data:image/jpeg;base64,data');
+  });
+
+  it('lowercases uppercase extensions', async () => {
+    mockInvoke.mockResolvedValue('data');
+    const { result } = renderHook(() => useImageSrc('/path/PHOTO.PNG'));
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    expect(result.current).toBe('data:image/png;base64,data');
+  });
+
+  it('keeps image/<ext> fallback for unknown but valid extensions', async () => {
+    mockInvoke.mockResolvedValue('data');
+    const { result } = renderHook(() => useImageSrc('/path/photo.jfif'));
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    expect(result.current).toBe('data:image/jfif;base64,data');
+  });
+
+  it('uses a safe default MIME for extensionless paths', async () => {
+    mockInvoke.mockResolvedValue('data');
+    const { result } = renderHook(() => useImageSrc('/path/photo'));
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    expect(result.current).toBe('data:image/png;base64,data');
+  });
+
+  it('retries with 500ms, 1000ms, 2000ms backoff and stops at MAX_RETRIES', async () => {
+    vi.useFakeTimers();
+    mockInvoke.mockRejectedValue(new Error('fail'));
+    mockConvert.mockRejectedValue(new Error('fail'));
+
+    renderHook(() => useImageSrc('/path/img.png'));
+
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+    expect(mockInvoke).toHaveBeenCalledTimes(2);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+    expect(mockInvoke).toHaveBeenCalledTimes(3);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2000);
+    });
+    expect(mockInvoke).toHaveBeenCalledTimes(4);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10000);
+    });
+    expect(mockInvoke).toHaveBeenCalledTimes(4);
+    vi.useRealTimers();
+  });
+
+  it('stops retrying once a retry succeeds', async () => {
+    vi.useFakeTimers();
+    mockInvoke
+      .mockRejectedValueOnce(new Error('fail 1'))
+      .mockRejectedValueOnce(new Error('fail 2'))
+      .mockResolvedValueOnce('success-at-retry-2');
+    mockConvert.mockRejectedValue(new Error('fail'));
+
+    const { result } = renderHook(() => useImageSrc('/path/img.png'));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+    expect(mockInvoke).toHaveBeenCalledTimes(2);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+
+    expect(mockInvoke).toHaveBeenCalledTimes(3);
+    expect(result.current).toBe('data:image/png;base64,success-at-retry-2');
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10000);
+    });
+    expect(mockInvoke).toHaveBeenCalledTimes(3);
+    vi.useRealTimers();
+  });
+
+  it('cancels pending retries on unmount', async () => {
+    vi.useFakeTimers();
+    mockInvoke.mockRejectedValue(new Error('fail'));
+    mockConvert.mockRejectedValue(new Error('fail'));
+
+    const { unmount } = renderHook(() => useImageSrc('/path/img.png'));
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
+
+    unmount();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10000);
+    });
+
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it('discards a stale response when filePath changes before the load resolves', async () => {
+    let resolveFirst!: (value: string) => void;
+    mockInvoke
+      .mockImplementationOnce(
+        () => new Promise<string>((resolve) => {
+          resolveFirst = resolve;
+        }),
+      )
+      .mockResolvedValueOnce('second');
+
+    const { result, rerender } = renderHook(
+      (path: string) => useImageSrc(path),
+      { initialProps: '/path/first.png' },
+    );
+
+    rerender('/path/second.png');
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(result.current).toBe('data:image/png;base64,second');
+
+    await act(async () => {
+      resolveFirst('stale');
+    });
+    expect(result.current).toBe('data:image/png;base64,second');
+  });
 });

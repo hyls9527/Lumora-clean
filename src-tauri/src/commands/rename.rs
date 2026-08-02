@@ -304,3 +304,56 @@ fn resolve_conflict(
         .unwrap_or(0);
     format!("{stem}_{ts}{ext}")
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashSet;
+
+    fn used(names: &[&str]) -> HashSet<String> {
+        names.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn resolve_conflict_returns_desired_name_when_free() {
+        let dir = tempfile::tempdir().unwrap();
+        let name = resolve_conflict(dir.path(), "photo.png", &used(&[]));
+        assert_eq!(name, "photo.png");
+    }
+
+    #[test]
+    fn resolve_conflict_appends_suffix_for_batch_duplicate() {
+        let dir = tempfile::tempdir().unwrap();
+        let used_names = used(&["photo.png"]);
+        let name = resolve_conflict(dir.path(), "photo.png", &used_names);
+        assert_eq!(name, "photo_1.png");
+    }
+
+    #[test]
+    fn resolve_conflict_avoids_existing_file_on_disk() {
+        let dir = tempfile::tempdir().unwrap();
+        std::fs::write(dir.path().join("photo.png"), b"x").unwrap();
+        let name = resolve_conflict(dir.path(), "photo.png", &used(&[]));
+        assert_eq!(name, "photo_1.png");
+    }
+
+    #[test]
+    fn resolve_conflict_skips_names_used_by_both_sources() {
+        let dir = tempfile::tempdir().unwrap();
+        std::fs::write(dir.path().join("photo.png"), b"x").unwrap();
+        let used_names = used(&["photo_1.png"]);
+        let name = resolve_conflict(dir.path(), "photo.png", &used_names);
+        assert_eq!(name, "photo_2.png");
+    }
+
+    #[test]
+    fn resolve_conflict_falls_back_to_timestamp_after_exhaustion() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut used_names: HashSet<String> =
+            (1..999).map(|i| format!("photo_{i}.png")).collect();
+        used_names.insert("photo.png".to_string());
+        let name = resolve_conflict(dir.path(), "photo.png", &used_names);
+        assert!(name.starts_with("photo_") && name.ends_with(".png"));
+        assert!(!used_names.contains(&name));
+    }
+}

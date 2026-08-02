@@ -1,6 +1,7 @@
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { VariantCompareModal } from '../VariantCompareModal';
+import { useImageSrc } from '../../../hooks/useImageSrc';
 import type { ImageRecord } from '../../../types/image';
 
 vi.mock('../../../hooks/useImageSrc', () => ({
@@ -112,5 +113,14 @@ describe('VariantCompareModal', () => {
     expect(container.textContent).toContain('#1');
     expect(container.textContent).toContain('#2');
     expect(container.textContent).toContain('#3');
+  });
+
+  it('shows a dimension placeholder when the image source fails to load', () => {
+    vi.mocked(useImageSrc).mockReturnValue(null);
+    const { container } = render(
+      <VariantCompareModal open images={images} activeId="a" onClose={onClose} onSelect={onSelect} />,
+    );
+    expect(container.textContent).toContain('512 × 512');
+    expect(container.querySelectorAll('img').length).toBe(0);
   });
 });

@@ -177,6 +177,41 @@ describe('toImageRecord transform', () => {
     expect(record.tags).toEqual([]);
   });
 
+  it('ignores numeric-string SD parameters', async () => {
+    const raw: TauriImageRecord = {
+      ...SAMPLE_RAW,
+      metadataJson: '{"steps":"30","cfg_scale":"7","seed":"123"}',
+    };
+    mockInvoke.mockResolvedValue({ items: [raw], imported: 1, skipped: 0, totalScanned: 1 });
+    const result = await importImages('/x');
+    const record = result.items[0];
+    expect(record.steps).toBeUndefined();
+    expect(record.cfgScale).toBeUndefined();
+    expect(record.seed).toBeUndefined();
+  });
+
+  it('keeps numeric SD parameters including seed 0 and rejects non-positive steps/cfg', async () => {
+    const raw: TauriImageRecord = {
+      ...SAMPLE_RAW,
+      metadataJson: '{"steps":0,"cfg_scale":0,"seed":0,"sampler":""}',
+    };
+    mockInvoke.mockResolvedValue({ items: [raw], imported: 1, skipped: 0, totalScanned: 1 });
+    const result = await importImages('/x');
+    const record = result.items[0];
+    expect(record.steps).toBeUndefined();
+    expect(record.cfgScale).toBeUndefined();
+    expect(record.seed).toBe(0);
+    expect(record.sampler).toBeUndefined();
+  });
+
+  it('ignores non-array tags', async () => {
+    const raw: TauriImageRecord = { ...SAMPLE_RAW, metadataJson: '{"tags":"animal"}' };
+    mockInvoke.mockResolvedValue({ items: [raw], imported: 1, skipped: 0, totalScanned: 1 });
+    const result = await importImages('/x');
+    const record = result.items[0];
+    expect(record.tags).toEqual([]);
+  });
+
   it('extracts fileName from filePath', async () => {
     mockInvoke.mockResolvedValue(SAMPLE_IMPORT_RESULT);
     const result = await importImages('/x');

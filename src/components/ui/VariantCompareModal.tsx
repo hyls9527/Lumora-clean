@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
 import type { ImageRecord } from '../../types/image';
+import { useRef } from 'react';
 import { useImageSrc } from '../../hooks/useImageSrc';
+import { useModalEsc } from '../../hooks/useModalEsc';
 import { t } from '../../lib/i18n';
 import { t as tok } from '../../lib/tokens';
 
@@ -101,22 +102,14 @@ export function VariantCompareModal({
   onClose,
   onSelect,
 }: VariantCompareModalProps) {
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [open, onClose]);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  useModalEsc(open, onClose, overlayRef);
 
   if (!open || images.length === 0) return null;
 
   return (
     <div
+      ref={overlayRef}
       style={{
         position: 'fixed',
         inset: 0,

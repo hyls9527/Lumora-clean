@@ -74,4 +74,43 @@ describe('FilterPanel', () => {
       container.querySelector('input[type="text"]');
     expect(modelInput).toBeDefined();
   });
+
+  it('renders rating inputs when expanded and updates criteria', () => {
+    const { container } = render(<FilterPanel />);
+    fireEvent.click(container.querySelectorAll('button')[0]); // expand
+
+    const numberInputs = container.querySelectorAll('input[type="number"]');
+    expect(numberInputs.length).toBe(2);
+
+    fireEvent.change(numberInputs[0], { target: { value: '3' } });
+    fireEvent.change(numberInputs[1], { target: { value: '5' } });
+    expect(useFilterStore.getState().criteria.ratingMin).toBe(3);
+    expect(useFilterStore.getState().criteria.ratingMax).toBe(5);
+  });
+
+  it('renders format select when expanded and updates criteria', () => {
+    const { container } = render(<FilterPanel />);
+    fireEvent.click(container.querySelectorAll('button')[0]); // expand
+
+    const select = container.querySelector('select');
+    expect(select).toBeDefined();
+    expect(select!.textContent).toContain('PNG');
+    expect(select!.textContent).toContain('WebP');
+
+    fireEvent.change(select!, { target: { value: 'webp' } });
+    expect(useFilterStore.getState().criteria.format).toBe('webp');
+  });
+
+  it('renders date inputs when expanded and updates criteria', () => {
+    const { container } = render(<FilterPanel />);
+    fireEvent.click(container.querySelectorAll('button')[0]); // expand
+
+    const dateInputs = container.querySelectorAll('input[type="date"]');
+    expect(dateInputs.length).toBe(2);
+
+    fireEvent.change(dateInputs[0], { target: { value: '2025-01-01' } });
+    fireEvent.change(dateInputs[1], { target: { value: '2025-12-31' } });
+    expect(useFilterStore.getState().criteria.dateFrom).toBe('2025-01-01');
+    expect(useFilterStore.getState().criteria.dateTo).toBe('2025-12-31');
+  });
 });

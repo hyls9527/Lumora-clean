@@ -33,6 +33,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Performance budget
+        run: node scripts/perf-budget.mjs
+
   rust:
     name: Rust (Tests + Build)
     runs-on: ubuntu-latest

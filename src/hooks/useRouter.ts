@@ -25,6 +25,7 @@ export function useRouter(): UseRouterReturn {
 /** Registers route commands in the command palette. Call once in App. */
 export function useRouteCommands(
   navigate: (path: RoutePath) => void,
+  onRefresh?: () => void,
 ): void {
   const { registerCommands } = useCommandStore();
   const { t } = useTranslation();
@@ -57,7 +58,10 @@ export function useRouteCommands(
         description: t('commandPalette.refreshGalleryDesc'),
         shortcut: '⌘R',
         section: 'action',
-        action: () => navigate('/gallery' as RoutePath),
+        action: () => {
+          if (onRefresh) onRefresh();
+          else navigate('/gallery' as RoutePath);
+        },
       },
       {
         id: 'action-empty-trash',
@@ -69,12 +73,13 @@ export function useRouteCommands(
     );
 
     registerCommands(commands);
-  }, [registerCommands, t, navigate]);
+  }, [registerCommands, t, navigate, onRefresh]);
 }
 
 /** Registers global keyboard shortcuts (⌘K, ⌘I, ⌘R) */
 export function useGlobalShortcuts(
   navigate: (path: RoutePath) => void,
+  onRefresh?: () => void,
 ): void {
   const { toggle } = useCommandStore();
 
@@ -93,11 +98,12 @@ export function useGlobalShortcuts(
       }
       if (mod && e.key === 'r') {
         e.preventDefault();
-        navigate('/gallery' as RoutePath);
+        if (onRefresh) onRefresh();
+        else navigate('/gallery' as RoutePath);
         return;
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [toggle, navigate]);
+  }, [toggle, navigate, onRefresh]);
 }

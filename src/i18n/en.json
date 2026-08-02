@@ -419,6 +419,8 @@
   "convert": {
     "title": "Batch Convert",
     "format": "Target Format",
+    "filesCount": "{count} files",
+    "error": "Conversion failed",
     "execute": "Convert",
     "cancel": "Cancel",
     "result": "Converted {converted}, skipped {skipped}",

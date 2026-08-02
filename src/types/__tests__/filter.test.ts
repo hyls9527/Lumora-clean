@@ -20,6 +20,10 @@ describe('FilterCriteria helpers', () => {
       expect(hasActiveFilters({ favorite: true })).toBe(true);
     });
 
+    it('treats favorite=false as inactive (backend ignores it)', () => {
+      expect(hasActiveFilters({ favorite: false })).toBe(false);
+    });
+
     it('returns true when format is set', () => {
       expect(hasActiveFilters({ format: 'png' })).toBe(true);
     });
@@ -52,6 +56,10 @@ describe('FilterCriteria helpers', () => {
         dateFrom: '2025-01-01',
       };
       expect(countActiveFilters(criteria)).toBe(5);
+    });
+
+    it('does not count favorite=false', () => {
+      expect(countActiveFilters({ favorite: false })).toBe(0);
     });
   });
 });

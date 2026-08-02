@@ -27,7 +27,7 @@ export function hasActiveFilters(criteria: FilterCriteria): boolean {
     criteria.model !== undefined ||
     criteria.ratingMin !== undefined ||
     criteria.ratingMax !== undefined ||
-    criteria.favorite !== undefined ||
+    criteria.favorite === true ||
     criteria.format !== undefined ||
     criteria.dateFrom !== undefined ||
     criteria.dateTo !== undefined
@@ -41,7 +41,7 @@ export function countActiveFilters(criteria: FilterCriteria): number {
   let count = 0;
   if (criteria.model !== undefined) count++;
   if (criteria.ratingMin !== undefined || criteria.ratingMax !== undefined) count++;
-  if (criteria.favorite !== undefined) count++;
+  if (criteria.favorite === true) count++;
   if (criteria.format !== undefined) count++;
   if (criteria.dateFrom !== undefined || criteria.dateTo !== undefined) count++;
   return count;

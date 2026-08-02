@@ -25,7 +25,15 @@ vi.mock('../../../lib/api/backup', () => ({
 }));
 
 vi.mock('../../../lib/api/lan', () => ({
-  getLanInfo: vi.fn().mockResolvedValue({ port: 8079, ip: '192.168.1.100', token: 'test1234' }),
+  // Never-resolving promise: the mount fetch must not schedule a state update
+  // after the test environment is torn down (react-dom teardown flake).
+  getLanInfo: vi.fn(() => new Promise(() => {})),
+}));
+
+vi.mock('@tauri-apps/plugin-updater', () => ({
+  // Same teardown-race guard: useUpdater's mount-time check() must never
+  // resolve/reject after the jsdom environment is torn down.
+  check: vi.fn(() => new Promise<null>(() => {})),
 }));
 
 // Mock Tauri dialog

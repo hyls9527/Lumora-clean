@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ImageRecord } from '../../types/image';
 import { Rating } from './Rating';
 import { TagBadge } from './TagBadge';
 import { formatDate, formatFileSize } from '../../lib/format';
 import { useImageSrc } from '../../hooks/useImageSrc';
+import { useModalEsc } from '../../hooks/useModalEsc';
 import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useTouchGesture } from '../../hooks/useTouchGesture';
 import { usePerformanceMonitor } from '../../hooks/usePerformance';
@@ -126,8 +127,10 @@ export function DetailModal({
   const [showCompare, setShowCompare] = useState(false);
   const { variants, fetchVariants } = useVariantStore();
   const isMobile = useIsMobile();
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   usePerformanceMonitor('DetailModal');
+  useModalEsc(!!image, onClose, overlayRef);
 
   // Add touch gesture support for mobile
   useTouchGesture({
@@ -146,10 +149,7 @@ export function DetailModal({
   useEffect(() => {
     if (!image) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      } else if (e.key === 'ArrowLeft') {
+      if (e.key === 'ArrowLeft') {
         e.preventDefault();
         onPrev?.();
       } else if (e.key === 'ArrowRight') {
@@ -159,12 +159,13 @@ export function DetailModal({
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [image, onClose, onPrev, onNext]);
+  }, [image, onPrev, onNext]);
 
   if (!image) return null;
 
   return (
     <div
+      ref={overlayRef}
       style={overlayStyle}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();

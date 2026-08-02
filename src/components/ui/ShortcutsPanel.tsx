@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { t as tok } from '../../lib/tokens';
 import { useTranslation } from '../../lib/i18n';
+import { useModalEsc } from '../../hooks/useModalEsc';
 
 export interface ShortcutItem {
   action: string;
@@ -22,18 +23,7 @@ export function ShortcutsPanel({ isOpen, onClose, groups }: ShortcutsPanelProps)
   const panelRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation('shortcutsPanel');
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [isOpen, onClose]);
+  useModalEsc(isOpen, onClose, panelRef);
 
   useEffect(() => {
     if (isOpen) {

@@ -21,6 +21,8 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { useRouter, useRouteCommands, useGlobalShortcuts } from './hooks/useRouter';
 import { getRouteDef, type RoutePath } from './routes';
 import { t as tok } from './lib/tokens';
+import { filterDropPaths } from './lib/dropPaths';
+import { isDirectory } from './lib/api/fs';
 
 function App() {
   const [droppedPaths, setDroppedPaths] = useState<string[]>([]);
@@ -41,8 +43,13 @@ function App() {
   useAutoClearError(useImageSearchStore);
 
   // Register route commands + global shortcuts
-  useRouteCommands(navigate);
-  useGlobalShortcuts(navigate);
+  const refreshGallery = useCallback(() => {
+    navigate('/gallery' as RoutePath);
+    void useImageStore.getState().fetchImages(1);
+  }, [navigate]);
+
+  useRouteCommands(navigate, refreshGallery);
+  useGlobalShortcuts(navigate, refreshGallery);
 
   // Auto-navigate to search when image search is triggered
   const imageSearchSource = useImageSearchStore((s) => s.sourceImageId);
@@ -58,15 +65,12 @@ function App() {
   // Drag-and-drop: import files when dropped on window
   const handleDrop = useCallback(
     (paths: string[]) => {
-      const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff'];
-      const imagePaths = paths.filter((p) => {
-        const ext = p.toLowerCase().slice(p.lastIndexOf('.'));
-        return imageExts.includes(ext);
+      void filterDropPaths(paths, isDirectory).then((dropPaths) => {
+        if (dropPaths.length > 0) {
+          setDroppedPaths(dropPaths);
+          navigate('/import' as RoutePath);
+        }
       });
-      if (imagePaths.length > 0) {
-        setDroppedPaths(imagePaths);
-        navigate('/import' as RoutePath);
-      }
     },
     [navigate],
   );

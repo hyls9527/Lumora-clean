@@ -419,6 +419,8 @@
   "convert": {
     "title": "批量格式转换",
     "format": "目标格式",
+    "filesCount": "{count} 个文件",
+    "error": "转换失败",
     "execute": "转换",
     "cancel": "取消",
     "result": "成功转换 {converted} 张，跳过 {skipped} 张",

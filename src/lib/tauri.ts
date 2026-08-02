@@ -57,6 +57,8 @@ function mockResponse(cmd: string): unknown {
     return { status: 'pending', dimensions: null, generatedAt: null };
   if (cmd === 'get_analysis_result_cmd')
     return null;
+  if (cmd === 'is_directory')
+    return false;
   if (cmd === 'get_analysis_history_cmd')
     return [];
   if (cmd === 'get_ollama_host')

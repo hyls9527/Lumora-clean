@@ -8,6 +8,7 @@ import { useIsMobile } from '../../hooks/useMediaQuery';
 import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { t as tok } from '../../lib/tokens';
 import { detectComfyuiPath } from '../../lib/api/comfyui';
+import { importTargetsFromDrop } from '../../lib/dropPaths';
 
 interface ImportPageProps {
   droppedPaths?: string[];
@@ -58,13 +59,10 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
   // Auto-import dropped files from App.tsx
   useEffect(() => {
     if (droppedPaths && droppedPaths.length > 0) {
-      // Get parent folders of dropped files
-      const folders = [...new Set(droppedPaths.map(p => {
-        const parts = p.split(/[/\\]/);
-        parts.pop();
-        return parts.join('/');
-      }))];
-      folders.forEach(folder => handleImport(folder));
+      // Image files import their containing folder; folders import themselves.
+      for (const target of importTargetsFromDrop(droppedPaths)) {
+        void handleImport(target);
+      }
       onPathsConsumed?.();
     }
   }, [droppedPaths, onPathsConsumed, handleImport]);

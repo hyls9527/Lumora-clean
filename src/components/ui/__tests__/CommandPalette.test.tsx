@@ -1,6 +1,8 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { CommandPalette } from '../CommandPalette';
+import { useModalEsc } from '../../../hooks/useModalEsc';
+import { resetModalStackForTests } from '../../../lib/modalStack';
 
 // Mock scrollIntoView (not available in jsdom)
 Element.prototype.scrollIntoView = vi.fn();
@@ -51,6 +53,10 @@ vi.mock('../../../lib/i18n', () => ({
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+});
+
+beforeEach(() => {
+  resetModalStackForTests();
 });
 
 describe('CommandPalette', () => {
@@ -115,5 +121,46 @@ describe('CommandPalette', () => {
 
     const panel = screen.getByRole('listbox').parentElement;
     expect(panel?.style.borderRadius).toBe('6px');
+  });
+
+  it('closes on Escape when it is the topmost modal', () => {
+    render(<CommandPalette />);
+    fireEvent.keyDown(screen.getByPlaceholderText('搜索命令...'), { key: 'Escape' });
+    expect(mockClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not close a modal below the palette on Escape', () => {
+    const closeBelow = vi.fn();
+    function ModalBelow() {
+      useModalEsc(true, closeBelow);
+      return <div data-testid="below" />;
+    }
+    render(
+      <>
+        <ModalBelow />
+        <CommandPalette />
+      </>,
+    );
+
+    fireEvent.keyDown(screen.getByPlaceholderText('搜索命令...'), { key: 'Escape' });
+
+    expect(mockClose).toHaveBeenCalledTimes(1);
+    expect(closeBelow).not.toHaveBeenCalled();
+  });
+
+  it('wraps Tab focus within the palette panel', () => {
+    render(<CommandPalette />);
+    const input = screen.getByPlaceholderText('搜索命令...');
+
+    // Focus the last focusable (a command button) and Tab forward to wrap.
+    const buttons = screen.getAllByRole('button');
+    const lastButton = buttons[buttons.length - 1];
+    lastButton.focus();
+
+    fireEvent.keyDown(lastButton, { key: 'Tab' });
+    expect(document.activeElement).toBe(input);
+
+    fireEvent.keyDown(input, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(lastButton);
   });
 });

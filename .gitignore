@@ -43,3 +43,6 @@ src-tauri/sidecar/__pycache__/
 .hermes/
 .deepx/
 .understand-anything/
+
+# Local database backups (large, machine-specific)
+backups/

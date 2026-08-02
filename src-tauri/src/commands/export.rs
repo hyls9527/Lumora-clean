@@ -465,10 +465,22 @@ fn parse_metadata_fields(json: Option<&str>) -> (String, String, String) {
 
 /// Strip path separators and traversal sequences from template-generated filenames.
 fn sanitize_filename(name: &str) -> String {
-    name.replace('/', "_")
-        .replace('\\', "_")
+    let mut s: String = name
         .replace("..", "_")
-        .replace('\0', "")
+        .chars()
+        .filter(|c| *c != '\0')
+        .map(|c| match c {
+            '/' | '\\' | ':' | '*' | '?' | '"' | '<' | '>' | '|' => '_',
+            c => c,
+        })
+        .collect();
+    while s.ends_with('.') || s.ends_with(' ') {
+        s.pop();
+    }
+    if s.is_empty() {
+        s.push('_');
+    }
+    s
 }
 
 fn resolve_extension<'a>(original_format: &'a str, target_format: &str) -> &'a str {
@@ -758,6 +770,29 @@ mod tests {
         let rec = make_record("/images/sunset.jpg", "id99", 5, Some(1920), Some(1080), Some(meta));
         let name = build_filename(&rec, &[], Some("{model}_{seed}"));
         assert_eq!(name, "SDXL_42");
+    }
+
+    #[test]
+    fn sanitize_filename_removes_windows_invalid_chars() {
+        assert_eq!(sanitize_filename("cat: portrait*?"), "cat_ portrait__");
+        assert_eq!(sanitize_filename("a<b>c|d"), "a_b_c_d");
+        assert_eq!(sanitize_filename("quote\"name"), "quote_name");
+    }
+
+    #[test]
+    fn sanitize_filename_handles_separators_and_dots() {
+        assert_eq!(sanitize_filename("a/b\\c"), "a_b_c");
+        assert_eq!(sanitize_filename(".."), "_");
+        assert_eq!(sanitize_filename("name."), "name");
+        assert_eq!(sanitize_filename("name.."), "name_");
+        assert_eq!(sanitize_filename("name "), "name");
+    }
+
+    #[test]
+    fn sanitize_filename_empty_or_dots_falls_back() {
+        assert_eq!(sanitize_filename(""), "_");
+        assert_eq!(sanitize_filename("..."), "_");
+        assert_eq!(sanitize_filename("///"), "___");
     }
 
     // ---------------------------------------------------------------------------
