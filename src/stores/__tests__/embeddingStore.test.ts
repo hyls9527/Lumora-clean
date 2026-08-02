@@ -5,6 +5,7 @@ vi.mock('../../lib/api/embeddings', () => ({
   getEmbeddingStatus: vi.fn(),
   getEmbeddingStats: vi.fn(),
   generateEmbeddings: vi.fn(),
+  embedMissing: vi.fn(),
 }));
 
 import { useEmbeddingStore } from '../embeddingStore';
@@ -14,6 +15,7 @@ import type { ImageRecord } from '../imageStore';
 const mockGetStatus = vi.mocked(api.getEmbeddingStatus);
 const mockGetStats = vi.mocked(api.getEmbeddingStats);
 const mockGenerate = vi.mocked(api.generateEmbeddings);
+const mockEmbedMissing = vi.mocked(api.embedMissing);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -22,6 +24,8 @@ beforeEach(() => {
     stats: null,
     statsLoading: false,
     generating: false,
+    filling: false,
+    fillProgress: null,
   });
 });
 
@@ -70,7 +74,7 @@ describe('fetchStatuses', () => {
 
 describe('fetchStats', () => {
   it('fetches and stores stats', async () => {
-    const stats = { embedded: 10, pending: 2, error: 1, total: 13 };
+    const stats = { embedded: 10, pending: 2, error: 1, total: 13, missing: 0 };
     mockGetStats.mockResolvedValue(stats);
 
     await useEmbeddingStore.getState().fetchStats();
@@ -91,7 +95,7 @@ describe('generate', () => {
   it('sets generating flag and refreshes statuses', async () => {
     mockGenerate.mockResolvedValue(undefined);
     mockGetStatus.mockResolvedValue({ status: 'embedded', dimensions: 512 });
-    mockGetStats.mockResolvedValue({ embedded: 5, pending: 0, error: 0, total: 5 });
+    mockGetStats.mockResolvedValue({ embedded: 5, pending: 0, error: 0, total: 5, missing: 0 });
 
     const testImages: ImageRecord[] = [
       { id: 'img-1', prompt: 'a cat', fileName: 'cat.png', filePath: '/cat.png', fileSizeKb: 100, width: 512, height: 512, format: 'png', createdAt: '2025-01-01', rating: 0, favorite: false, model: '', tags: [] },
@@ -129,5 +133,31 @@ describe('fetchStats error handling', () => {
 
     expect(useEmbeddingStore.getState().error).toBe('stats failed');
     expect(useEmbeddingStore.getState().statsLoading).toBe(false);
+  });
+});
+
+describe('fillMissing', () => {
+  it('loops until all missing embeddings are generated', async () => {
+    mockEmbedMissing
+      .mockResolvedValueOnce({ processed: 5, remaining: 3 })
+      .mockResolvedValueOnce({ processed: 3, remaining: 0 });
+    mockGetStats.mockResolvedValue({ embedded: 8, pending: 0, error: 0, total: 8, missing: 0 });
+
+    await useEmbeddingStore.getState().fillMissing(5);
+
+    expect(mockEmbedMissing).toHaveBeenCalledTimes(2);
+    expect(mockEmbedMissing).toHaveBeenCalledWith(5);
+    expect(useEmbeddingStore.getState().filling).toBe(false);
+    expect(useEmbeddingStore.getState().fillProgress).toBeNull();
+    expect(useEmbeddingStore.getState().stats?.embedded).toBe(8);
+  });
+
+  it('stops on error and reports it', async () => {
+    mockEmbedMissing.mockRejectedValue(new Error('ollama offline'));
+
+    await useEmbeddingStore.getState().fillMissing(5);
+
+    expect(useEmbeddingStore.getState().error).toBe('ollama offline');
+    expect(useEmbeddingStore.getState().filling).toBe(false);
   });
 });

@@ -18,6 +18,7 @@ export interface EmbeddingStats {
   pending: number;
   error: number;
   total: number;
+  missing: number;
 }
 
 /**
@@ -76,5 +77,23 @@ export async function getEmbeddingStats(): Promise<EmbeddingStats> {
     pending: result.pending ?? 0,
     error: result.error ?? 0,
     total: result.total ?? 0,
+    missing: result.missing ?? 0,
+  };
+}
+
+/**
+ * Embed a batch of images that have no embedding row yet.
+ * Calls Tauri command `embed_missing_cmd`.
+ */
+export async function embedMissing(
+  limit = 10,
+): Promise<{ processed: number; remaining: number }> {
+  const result = await invoke<{ processed: number; remaining: number }>(
+    'embed_missing_cmd',
+    { limit },
+  );
+  return {
+    processed: result?.processed ?? 0,
+    remaining: result?.remaining ?? 0,
   };
 }

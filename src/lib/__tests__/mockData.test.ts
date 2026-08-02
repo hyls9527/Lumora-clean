@@ -25,6 +25,7 @@ describe('browser mock mode data contracts', () => {
       pending: 0,
       error: 0,
       total: 0,
+      missing: 0,
     });
     expect(await invoke('get_lan_info')).toMatchObject({
       ip: expect.any(String),

@@ -20,6 +20,9 @@ export function DashboardPage() {
   const embStats = useEmbeddingStore((s) => s.stats);
   const embLoading = useEmbeddingStore((s) => s.statsLoading);
   const fetchEmbStats = useEmbeddingStore((s) => s.fetchStats);
+  const fillMissing = useEmbeddingStore((s) => s.fillMissing);
+  const filling = useEmbeddingStore((s) => s.filling);
+  const fillProgress = useEmbeddingStore((s) => s.fillProgress);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -209,6 +212,32 @@ export function DashboardPage() {
                     label={tEmbed('statusError')}
                     value={embStats.error}
                   />
+                  <DotRow
+                    label={tEmbed('missing')}
+                    value={embStats.missing}
+                  />
+                  {embStats.missing > 0 && (
+                    <button
+                      type="button"
+                      disabled={filling}
+                      onClick={() => void fillMissing()}
+                      style={{
+                        alignSelf: 'flex-start',
+                        fontSize: 11,
+                        fontFamily: 'var(--font-display)',
+                        color: filling ? tokens.textMuted : tokens.bg,
+                        background: filling ? tokens.textFaint : tokens.accent,
+                        border: 'none',
+                        padding: '6px 14px',
+                        borderRadius: 4,
+                        cursor: filling ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      {filling
+                        ? tEmbed('fillingProgress', { remaining: String(fillProgress?.remaining ?? 0) })
+                        : tEmbed('fillMissing')}
+                    </button>
+                  )}
                   <DotRow
                     label={tEmbed('coverage')}
                     value={

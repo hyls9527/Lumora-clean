@@ -1,6 +1,32 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { SearchPage } from '../SearchPage';
+
+const { semanticStoreMock, embeddingStoreMock } = vi.hoisted(() => ({
+  semanticStoreMock: vi.fn((selector: unknown) => {
+    const state = {
+      mode: 'text',
+      results: [],
+      loading: false,
+      error: null,
+      searchSemantic: vi.fn(),
+      searchByImage: vi.fn(),
+      clearResults: vi.fn(),
+    };
+    return selector ? (selector as (s: unknown) => unknown)(state) : state;
+  }),
+  embeddingStoreMock: vi.fn((selector: unknown) => {
+    const state = {
+      stats: null,
+      statsLoading: false,
+      filling: false,
+      fillProgress: null,
+      fetchStats: vi.fn(),
+      fillMissing: vi.fn(),
+    };
+    return selector ? (selector as (s: unknown) => unknown)(state) : state;
+  }),
+}));
 
 // Mock stores
 vi.mock('../../../stores/imageSearchStore', () => ({
@@ -37,17 +63,11 @@ vi.mock('../../../stores/imageStore', () => ({
 }));
 
 vi.mock('../../../stores/semanticSearchStore', () => ({
-  useSemanticSearchStore: vi.fn((selector) => {
-    const state = {
-      results: [],
-      loading: false,
-      error: null,
-      searchSemantic: vi.fn(),
-      searchByImage: vi.fn(),
-      clearResults: vi.fn(),
-    };
-    return selector ? selector(state) : state;
-  }),
+  useSemanticSearchStore: semanticStoreMock,
+}));
+
+vi.mock('../../../stores/embeddingStore', () => ({
+  useEmbeddingStore: embeddingStoreMock,
 }));
 
 // Mock i18n
@@ -89,5 +109,36 @@ describe('SearchPage', () => {
   it('should render without crashing', () => {
     const { container } = render(<SearchPage />);
     expect(container).toBeDefined();
+  });
+
+  it('shows an index-completeness hint in semantic mode', () => {
+    semanticStoreMock.mockImplementation((selector: unknown) => {
+      const state = {
+        mode: 'semantic',
+        results: [],
+        loading: false,
+        error: null,
+        searchSemantic: vi.fn(),
+        searchByImage: vi.fn(),
+        clearResults: vi.fn(),
+      };
+      return selector ? (selector as (s: unknown) => unknown)(state) : state;
+    });
+    embeddingStoreMock.mockImplementation((selector: unknown) => {
+      const state = {
+        stats: { embedded: 8, pending: 0, error: 0, total: 10, missing: 2 },
+        statsLoading: false,
+        filling: false,
+        fillProgress: null,
+        fetchStats: vi.fn(),
+        fillMissing: vi.fn(),
+      };
+      return selector ? (selector as (s: unknown) => unknown)(state) : state;
+    });
+
+    render(<SearchPage />);
+
+    expect(screen.getByText('indexIncomplete')).toBeTruthy();
+    expect(screen.getByText('fillMissing')).toBeTruthy();
   });
 });

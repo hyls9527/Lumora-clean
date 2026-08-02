@@ -3,6 +3,7 @@ import {
   getEmbeddingStatus,
   getEmbeddingStats,
   generateEmbeddings,
+  embedMissing,
   type EmbeddingInfo,
   type EmbeddingStats,
 } from '../lib/api/embeddings';
@@ -14,12 +15,14 @@ export interface EmbeddingStoreDeps {
   getEmbeddingStatus: (imageId: string) => Promise<EmbeddingInfo>;
   getEmbeddingStats: () => Promise<EmbeddingStats>;
   generateEmbeddings: (images: ImageRecord[]) => Promise<void>;
+  embedMissing: (limit: number) => Promise<{ processed: number; remaining: number }>;
 }
 
 const defaultDeps: EmbeddingStoreDeps = {
   getEmbeddingStatus,
   getEmbeddingStats,
   generateEmbeddings,
+  embedMissing,
 };
 
 interface EmbeddingStore {
@@ -27,11 +30,14 @@ interface EmbeddingStore {
   stats: EmbeddingStats | null;
   statsLoading: boolean;
   generating: boolean;
+  filling: boolean;
+  fillProgress: { processed: number; remaining: number } | null;
   error: string | null;
   fetchStatus: (imageId: string) => Promise<void>;
   fetchStatuses: (imageIds: string[]) => Promise<void>;
   fetchStats: () => Promise<void>;
   generate: (images: ImageRecord[]) => Promise<void>;
+  fillMissing: (limit?: number) => Promise<void>;
 }
 
 export function createEmbeddingStore(deps: EmbeddingStoreDeps = defaultDeps): StateCreator<EmbeddingStore, [], []> {
@@ -40,6 +46,8 @@ export function createEmbeddingStore(deps: EmbeddingStoreDeps = defaultDeps): St
     stats: null,
     statsLoading: false,
     generating: false,
+    filling: false,
+    fillProgress: null,
     error: null,
 
     fetchStatus: async (imageId: string) => {
@@ -94,6 +102,26 @@ export function createEmbeddingStore(deps: EmbeddingStoreDeps = defaultDeps): St
         set({ stats: prevStats, error: err instanceof Error ? err.message : '生成嵌入失败' });
       } finally {
         set({ generating: false });
+      }
+    },
+
+    fillMissing: async (limit = 10) => {
+      set({ filling: true, error: null });
+      try {
+        for (;;) {
+          const result = await deps.embedMissing(limit);
+          const stats = await deps.getEmbeddingStats();
+          set({
+            fillProgress: { processed: result.processed, remaining: result.remaining },
+            stats,
+          });
+          if (result.remaining <= 0) break;
+        }
+        set({ fillProgress: null });
+      } catch (err) {
+        set({ error: err instanceof Error ? err.message : '补齐嵌入失败' });
+      } finally {
+        set({ filling: false });
       }
     },
   });

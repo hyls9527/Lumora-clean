@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useImageStore } from '../../stores/imageStore';
+import { useEmbeddingStore } from '../../stores/embeddingStore';
 import { SearchSkeleton } from '../../components/ui/LoadingSkeleton';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { SemanticSearchBar } from '../../components/ui/SemanticSearchBar';
@@ -47,6 +48,11 @@ export function SearchPage() {
 
   const { mode: searchMode } =
     useSemanticSearchStore();
+  const embStats = useEmbeddingStore((s) => s.stats);
+  const filling = useEmbeddingStore((s) => s.filling);
+  const fillProgress = useEmbeddingStore((s) => s.fillProgress);
+  const fillMissing = useEmbeddingStore((s) => s.fillMissing);
+  const fetchEmbStats = useEmbeddingStore((s) => s.fetchStats);
 
   usePerformanceMonitor('SearchPage');
 
@@ -97,6 +103,10 @@ export function SearchPage() {
     setSearchPage((p) => p + 1);
   }, []);
 
+  useEffect(() => {
+    void fetchEmbStats();
+  }, [fetchEmbStats]);
+
   return (
     <div style={{ flex: 1, overflowY: 'auto' }}>
       <div style={{ padding: isMobile ? '24px 16px 40px' : '48px 48px 64px' }}>
@@ -137,6 +147,45 @@ export function SearchPage() {
                 ? `找到 ${results.length} 个相似结果`
                 : '输入关键词开始搜索'}
             </p>
+          )}
+          {searchMode === 'semantic' && embStats && embStats.missing > 0 && (
+            <div
+              role="status"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                marginTop: 12,
+                padding: '8px 12px',
+                background: 'rgba(122, 92, 18, 0.08)',
+                border: '1px solid rgba(122, 92, 18, 0.15)',
+                borderRadius: 4,
+                fontSize: 12,
+                color: tok.textSecondary,
+                fontFamily: tok.fontBody,
+              }}
+            >
+              <span>{tT('indexIncomplete', { count: String(embStats.missing) })}</span>
+              <button
+                type="button"
+                disabled={filling}
+                onClick={() => void fillMissing()}
+                style={{
+                  fontSize: 11,
+                  fontFamily: tok.fontDisplay,
+                  color: filling ? tok.textMuted : tok.bg,
+                  background: filling ? tok.textFaint : tok.accent,
+                  border: 'none',
+                  padding: '4px 12px',
+                  borderRadius: 4,
+                  cursor: filling ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {filling
+                  ? tT('fillingProgress', { remaining: String(fillProgress?.remaining ?? 0) })
+                  : tT('fillMissing')}
+              </button>
+            </div>
           )}
         </header>
 

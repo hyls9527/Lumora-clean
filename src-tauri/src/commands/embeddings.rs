@@ -87,6 +87,43 @@ pub fn get_embedding_status_db(
     }
 }
 
+/// List images that have no embedding row yet (deleted excluded), newest
+/// imports first. Returns (image_id, description) where description prefers
+/// the stored prompt and falls back to the file name.
+pub fn list_missing_embedding_images_db(
+    conn: &Connection,
+    limit: i64,
+) -> Result<Vec<(String, String)>, rusqlite::Error> {
+    let mut stmt = conn.prepare(
+        "SELECT i.id, json_extract(i.metadata_json, '$.prompt') AS prompt, i.file_path
+         FROM images i
+         WHERE i.deleted = 0
+           AND NOT EXISTS (SELECT 1 FROM embeddings e WHERE e.image_id = i.id)
+         ORDER BY i.imported_at ASC
+         LIMIT ?1",
+    )?;
+    let rows = stmt.query_map(rusqlite::params![limit], |row| {
+        let id: String = row.get(0)?;
+        let prompt: Option<String> = row.get(1)?;
+        let file_path: String = row.get(2)?;
+        let file_name = std::path::Path::new(&file_path)
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+            .unwrap_or_else(|| id.clone());
+        let description = prompt
+            .map(|p| p.trim().to_string())
+            .filter(|p| !p.is_empty())
+            .unwrap_or(file_name);
+        Ok((id, description))
+    })?;
+
+    let mut items = Vec::new();
+    for row in rows {
+        items.push(row?);
+    }
+    Ok(items)
+}
+
 /// Perform KNN search using sqlite-vec.
 pub fn search_semantic_db(
     conn: &Connection,
@@ -160,6 +197,7 @@ pub struct EmbeddingStats {
     pub pending: i64,
     pub error: i64,
     pub total: i64,
+    pub missing: i64,
 }
 
 /// Get aggregate embedding stats from the database.
@@ -179,12 +217,24 @@ pub fn get_embedding_stats_db(conn: &Connection) -> Result<EmbeddingStats, rusql
         [],
         |r| r.get(0),
     )?;
-    let total = embedded + pending + error;
+    // total = library size (non-deleted images); missing = images without any
+    // embedding row, so semantic coverage is visible and trustworthy.
+    let total: i64 = conn.query_row("SELECT COUNT(*) FROM images WHERE deleted = 0", [], |r| {
+        r.get(0)
+    })?;
+    let missing: i64 = conn.query_row(
+        "SELECT COUNT(*) FROM images i
+         WHERE i.deleted = 0
+           AND NOT EXISTS (SELECT 1 FROM embeddings e WHERE e.image_id = i.id)",
+        [],
+        |r| r.get(0),
+    )?;
     Ok(EmbeddingStats {
         embedded,
         pending,
         error,
         total,
+        missing,
     })
 }
 
@@ -276,6 +326,46 @@ pub async fn generate_embedding_for_image_cmd(
 
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     Ok(upsert_embedding(&conn, &image_id, &embedding)?)
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct EmbedMissingResult {
+    pub processed: i64,
+    pub remaining: i64,
+}
+
+/// Embed images that have no embedding row yet, in batches (default 10, max
+/// 50). Fails fast if the embedding backend is unreachable; images processed
+/// before the failure stay embedded.
+#[command]
+pub async fn embed_missing_cmd(
+    db: tauri::State<'_, DbHandle>,
+    cfg: tauri::State<'_, crate::ollama::OllamaConfig>,
+    limit: Option<i64>,
+    model: Option<String>,
+) -> AppResult<EmbedMissingResult> {
+    let model_name = model.unwrap_or_else(|| "nomic-embed-text".to_string());
+    let batch = limit.unwrap_or(10).clamp(1, 50);
+
+    let missing = {
+        let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+        list_missing_embedding_images_db(&conn, batch)?
+    };
+
+    let mut processed = 0i64;
+    for (image_id, description) in missing {
+        let embedding = embed_text_ollama(&cfg, &description, &model_name).await?;
+        let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+        upsert_embedding(&conn, &image_id, &embedding)?;
+        processed += 1;
+    }
+
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let remaining = list_missing_embedding_images_db(&conn, i64::MAX)?.len() as i64;
+    Ok(EmbedMissingResult {
+        processed,
+        remaining,
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -440,6 +530,44 @@ mod tests {
         assert_eq!(stats.embedded, 2);
         assert_eq!(stats.pending, 0);
         assert_eq!(stats.error, 0);
-        assert_eq!(stats.total, 2);
+        assert_eq!(stats.total, 3);
+        assert_eq!(stats.missing, 1);
+    }
+
+    #[test]
+    fn stats_and_missing_count_library_gaps() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+
+        for i in 0..3 {
+            conn.execute(
+                "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at, metadata_json, imported_at)
+                 VALUES (?1, ?2, ?3, 100, 'png', '2025-01-01', ?4, ?5)",
+                rusqlite::params![
+                    format!("img-{}", i),
+                    format!("/t{}.png", i),
+                    format!("h{}", i),
+                    if i == 0 { "{\"prompt\":\"a cat\"}" } else { "{}" },
+                    format!("2025-01-01 00:00:0{}", i)
+                ],
+            )
+            .unwrap();
+        }
+
+        let missing = list_missing_embedding_images_db(&conn, 10).unwrap();
+        assert_eq!(missing.len(), 3);
+        assert_eq!(missing[0].0, "img-0");
+        assert_eq!(missing[0].1, "a cat");
+        assert!(missing[1].1.ends_with(".png"));
+
+        upsert_embedding(&conn, "img-0", &vec![0.0; 768]).unwrap();
+
+        let one = list_missing_embedding_images_db(&conn, 1).unwrap();
+        assert_eq!(one.len(), 1);
+
+        let stats = get_embedding_stats_db(&conn).unwrap();
+        assert_eq!(stats.total, 3);
+        assert_eq!(stats.embedded, 1);
+        assert_eq!(stats.missing, 2);
     }
 }
