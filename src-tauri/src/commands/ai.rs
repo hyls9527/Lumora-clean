@@ -59,8 +59,8 @@ struct OllamaResponse {
 
 /// Check if Ollama is running and available.
 async fn check_ollama_available(cfg: &crate::ollama::OllamaConfig) -> AppResult<()> {
-    let client = reqwest::Client::new();
-    let response = client
+    let response = cfg
+        .client()
         .get(cfg.url("/api/tags"))
         .timeout(std::time::Duration::from_secs(5))
         .send()
@@ -113,12 +113,10 @@ Return ONLY valid JSON, no other text."#;
         stream: false,
     };
 
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(120))
-        .build()
-        .map_err(|e| format!("failed to create HTTP client: {}", e))?;
-    let response = client
+    let response = cfg
+        .client()
         .post(cfg.url("/api/chat"))
+        .timeout(std::time::Duration::from_secs(120))
         .json(&request)
         .send()
         .await

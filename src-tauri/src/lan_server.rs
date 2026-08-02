@@ -1,32 +1,32 @@
 use std::net::TcpListener;
-use std::sync::Arc;
 
 use axum::{
     extract::{Path, Query, State},
-    http::StatusCode,
+    http::{StatusCode, HeaderMap},
     response::IntoResponse,
     routing::get,
     Json, Router,
 };
-use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
-use std::sync::Mutex;
 
-/// Shared database connection for the LAN server.
-pub type SharedConn = Arc<Mutex<Connection>>;
+use crate::db::DbHandle;
 
-/// Managed state holding the LAN server port.
+/// Managed state holding the LAN server port + auth token.
 pub struct LanPort(pub u16);
 
+/// Auth token generated at startup, shown in app UI for mobile access.
+pub struct LanToken(pub String);
+
 #[tauri::command]
-pub fn get_lan_info(port: tauri::State<'_, LanPort>) -> (String, u16) {
-    (local_ip(), port.0)
+pub fn get_lan_info(port: tauri::State<'_, LanPort>, token: tauri::State<'_, LanToken>) -> (String, u16, String) {
+    (local_ip(), port.0, token.0.clone())
 }
 
-/// Server state including DB connection and app data dir.
+/// Server state including DB handle and auth token.
 #[derive(Clone)]
 pub struct ServerState {
-    pub conn: SharedConn,
+    pub db: DbHandle,
+    pub token: String,
 }
 
 #[derive(Serialize)]
@@ -35,6 +35,7 @@ pub struct HealthResponse {
     pub version: &'static str,
     pub local_ip: String,
     pub port: u16,
+    pub requires_auth: bool,
 }
 
 #[derive(Serialize)]
@@ -68,13 +69,30 @@ pub struct TagItem {
 pub struct PaginationParams {
     pub page: Option<u32>,
     pub per_page: Option<u32>,
+    pub token: Option<String>,
+}
+
+/// Generate a random 8-character alphanumeric token.
+pub fn generate_token() -> String {
+    (0..8)
+        .map(|_| {
+            let idx = rand::random_range(0..62);
+            if idx < 10 {
+                (b'0' + idx) as char
+            } else if idx < 36 {
+                (b'A' + idx - 10) as char
+            } else {
+                (b'a' + idx - 36) as char
+            }
+        })
+        .collect()
 }
 
 /// Start the LAN web server on an available port.
 /// Returns the bound port on success.
-pub fn start_server(conn: SharedConn) -> u16 {
+pub fn start_server(db: DbHandle, token: String) -> u16 {
     let port = find_available_port();
-    let state = ServerState { conn };
+    let state = ServerState { db, token };
     let app = Router::new()
         .route("/health", get(health_handler))
         .route("/", get(mobile_ui_handler))
@@ -115,6 +133,33 @@ pub fn local_ip() -> String {
         .unwrap_or_else(|_| "localhost".to_string())
 }
 
+// ── Auth helper ──────────────────────────────────────
+
+/// Extract token from query params or Authorization header.
+fn extract_token(headers: &HeaderMap, query_token: Option<&String>) -> Option<String> {
+    // 1. Query param: ?token=xxx
+    if let Some(t) = query_token {
+        return Some(t.clone());
+    }
+    // 2. Authorization: Bearer xxx
+    if let Some(auth) = headers.get("Authorization") {
+        if let Ok(val) = auth.to_str() {
+            if let Some(t) = val.strip_prefix("Bearer ") {
+                return Some(t.to_string());
+            }
+        }
+    }
+    None
+}
+
+fn verify_auth(state: &ServerState, headers: &HeaderMap, query_token: Option<&String>) -> Result<(), StatusCode> {
+    let provided = extract_token(headers, query_token);
+    match provided {
+        Some(t) if t == state.token => Ok(()),
+        _ => Err(StatusCode::UNAUTHORIZED),
+    }
+}
+
 // ── Handlers ──────────────────────────────────────────
 
 async fn health_handler(State(_state): State<ServerState>) -> Json<HealthResponse> {
@@ -122,7 +167,8 @@ async fn health_handler(State(_state): State<ServerState>) -> Json<HealthRespons
         status: "ok",
         version: env!("CARGO_PKG_VERSION"),
         local_ip: local_ip(),
-        port: 0,
+        port: 0, // will be filled by frontend from the URL used to reach it
+        requires_auth: true,
     })
 }
 
@@ -132,14 +178,18 @@ async fn mobile_ui_handler() -> axum::response::Html<&'static str> {
 
 async fn images_handler(
     State(state): State<ServerState>,
+    headers: HeaderMap,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ImageListResponse>, StatusCode> {
+    verify_auth(&state, &headers, params.token.as_ref())?;
+
     let page = params.page.unwrap_or(1).max(1);
     let per_page = params.per_page.unwrap_or(40).min(200);
     let offset = (page - 1) * per_page;
 
     let conn = state
-        .conn
+        .db
+        .conn()
         .lock()
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -189,10 +239,15 @@ async fn images_handler(
 
 async fn image_file_handler(
     State(state): State<ServerState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
+    Query(params): Query<PaginationParams>,
 ) -> Result<impl IntoResponse, StatusCode> {
+    verify_auth(&state, &headers, params.token.as_ref())?;
+
     let conn = state
-        .conn
+        .db
+        .conn()
         .lock()
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -231,9 +286,16 @@ async fn image_file_handler(
     Ok(([(axum::http::header::CONTENT_TYPE, mime)], data))
 }
 
-async fn tags_handler(State(state): State<ServerState>) -> Result<Json<Vec<TagItem>>, StatusCode> {
+async fn tags_handler(
+    State(state): State<ServerState>,
+    headers: HeaderMap,
+    Query(params): Query<PaginationParams>,
+) -> Result<Json<Vec<TagItem>>, StatusCode> {
+    verify_auth(&state, &headers, params.token.as_ref())?;
+
     let conn = state
-        .conn
+        .db
+        .conn()
         .lock()
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -270,5 +332,12 @@ mod tests {
     fn local_ip_returns_non_empty() {
         let ip = local_ip();
         assert!(!ip.is_empty());
+    }
+
+    #[test]
+    fn generate_token_creates_8_char_string() {
+        let token = generate_token();
+        assert_eq!(token.len(), 8);
+        assert!(token.chars().all(|c| c.is_ascii_alphanumeric()));
     }
 }

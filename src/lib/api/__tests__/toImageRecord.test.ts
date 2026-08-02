@@ -16,7 +16,7 @@ describe('toImageRecord', () => {
     deletedAt: null,
     rating: 3,
     favorite: true,
-    metadataJson: '{"model":"SDXL","prompt":"a cat","tags":["animal","cat"]}',
+    metadataJson: '{"model":"SDXL","prompt":"a cat","tags":["animal","cat"],"negative_prompt":"blurry","steps":20,"sampler":"Euler a","cfg_scale":7.5,"seed":12345}',
   };
 
   it('should extract model, prompt, tags from metadataJson', () => {
@@ -24,6 +24,29 @@ describe('toImageRecord', () => {
     expect(result.model).toBe('SDXL');
     expect(result.prompt).toBe('a cat');
     expect(result.tags).toEqual(['animal', 'cat']);
+  });
+
+  it('should extract SD parameters from metadataJson', () => {
+    const result = toImageRecord(raw);
+    expect(result.negativePrompt).toBe('blurry');
+    expect(result.steps).toBe(20);
+    expect(result.sampler).toBe('Euler a');
+    expect(result.cfgScale).toBe(7.5);
+    expect(result.seed).toBe(12345);
+  });
+
+  it('should handle metadataJson without SD parameters', () => {
+    const result = toImageRecord({
+      ...raw,
+      metadataJson: '{"model":"SDXL","prompt":"a cat","tags":["animal"]}',
+    });
+    expect(result.model).toBe('SDXL');
+    expect(result.prompt).toBe('a cat');
+    expect(result.negativePrompt).toBeUndefined();
+    expect(result.steps).toBeUndefined();
+    expect(result.sampler).toBeUndefined();
+    expect(result.cfgScale).toBeUndefined();
+    expect(result.seed).toBeUndefined();
   });
 
   it('should map basic fields correctly', () => {
@@ -47,6 +70,11 @@ describe('toImageRecord', () => {
     expect(result.model).toBe('');
     expect(result.prompt).toBe('');
     expect(result.tags).toEqual([]);
+    expect(result.negativePrompt).toBeUndefined();
+    expect(result.steps).toBeUndefined();
+    expect(result.sampler).toBeUndefined();
+    expect(result.cfgScale).toBeUndefined();
+    expect(result.seed).toBeUndefined();
   });
 
   it('should handle null width/height', () => {

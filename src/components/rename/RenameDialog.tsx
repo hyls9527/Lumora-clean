@@ -21,10 +21,12 @@ const overlayStyle: React.CSSProperties = {
   background: 'rgba(42, 33, 24, 0.7)',
 };
 
+const MAX_PREVIEW_ROWS = 20;
+
 const dialogStyle: React.CSSProperties = {
   background: tok.bg,
   border: `1px solid ${tok.border}`,
-  borderRadius: 8,
+  borderRadius: 12,
   padding: 24,
   minWidth: 480,
   maxWidth: 640,
@@ -110,7 +112,7 @@ export function RenameDialog({ open, imageIds, onClose, onComplete }: RenameDial
   const [loading, setLoading] = useState(false);
   const [executing, setExecuting] = useState(false);
   const [result, setResult] = useState<RenameResult | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Fetch preview on template change (debounced)
   const fetchPreview = useCallback(
@@ -195,7 +197,7 @@ export function RenameDialog({ open, imageIds, onClose, onComplete }: RenameDial
         <div style={{ fontSize: 15, fontFamily: tok.fontDisplay, fontWeight: 600, color: tok.text }}>
           {t('rename.title')}
           <span style={{ fontSize: 12, fontWeight: 400, color: tok.textSecondary, marginLeft: 8 }}>
-            ({imageIds.length} {imageIds.length === 1 ? 'file' : 'files'})
+            ({t('rename.filesCount', undefined, { count: imageIds.length })})
           </span>
         </div>
 
@@ -220,7 +222,7 @@ export function RenameDialog({ open, imageIds, onClose, onComplete }: RenameDial
         {/* Preview */}
         {loading && (
           <div style={{ fontSize: 12, color: tok.textMuted, padding: 8 }}>
-            Loading preview...
+            {t('rename.loadingPreview')}
           </div>
         )}
 
@@ -239,7 +241,7 @@ export function RenameDialog({ open, imageIds, onClose, onComplete }: RenameDial
                   </tr>
                 </thead>
                 <tbody>
-                  {preview.map((item, i) => (
+                  {preview.slice(0, MAX_PREVIEW_ROWS).map((item, i) => (
                     <tr key={item.id}>
                       <td style={tdStyle}>{i + 1}</td>
                       <td style={tdStyle}>{item.oldName}</td>
@@ -249,6 +251,13 @@ export function RenameDialog({ open, imageIds, onClose, onComplete }: RenameDial
                       </td>
                     </tr>
                   ))}
+                  {preview.length > MAX_PREVIEW_ROWS && (
+                    <tr>
+                      <td colSpan={3} style={{ ...tdStyle, color: tok.textMuted, textAlign: 'center' }}>
+                        {t('rename.previewMore', undefined, { shown: MAX_PREVIEW_ROWS, total: preview.length })}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -268,8 +277,8 @@ export function RenameDialog({ open, imageIds, onClose, onComplete }: RenameDial
             }}
           >
             {result.errors > 0
-              ? t('rename.resultError', { renamed: result.renamed, skipped: result.skipped, errors: result.errors })
-              : t('rename.result', { renamed: result.renamed, skipped: result.skipped })}
+              ? t('rename.resultError', undefined, { renamed: result.renamed, skipped: result.skipped, errors: result.errors })
+              : t('rename.result', undefined, { renamed: result.renamed, skipped: result.skipped })}
           </div>
         )}
 
@@ -291,7 +300,7 @@ export function RenameDialog({ open, imageIds, onClose, onComplete }: RenameDial
                 cursor: !template.trim() || !hasChanges || executing ? 'not-allowed' : 'pointer',
               }}
             >
-              {executing ? '...' : t('rename.execute')}
+              {executing ? t('rename.executing') : t('rename.execute')}
             </button>
           )}
         </div>

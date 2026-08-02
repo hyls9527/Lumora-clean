@@ -41,4 +41,5 @@ src-tauri/sidecar/__pycache__/
 .env.local
 .env.*.local
 .hermes/
+.deepx/
 .understand-anything/

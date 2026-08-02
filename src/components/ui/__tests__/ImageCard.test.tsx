@@ -110,25 +110,18 @@ describe('ImageCard', () => {
     expect(ratingButtons.length).toBe(5);
   });
 
-  it('has correct border radius for card', () => {
+  it('has correct border radius and transition via CSS class', () => {
     const { container } = render(<ImageCard image={MOCK_IMAGE} />);
 
     const card = container.firstChild as HTMLElement;
-    expect(card.style.borderRadius).toBe('2px');
+    expect(card.classList.contains('image-card')).toBe(true);
   });
 
-  it('has 200ms transition', () => {
-    const { container } = render(<ImageCard image={MOCK_IMAGE} />);
-
-    const card = container.firstChild as HTMLElement;
-    expect(card.style.transition).toContain('200ms');
-  });
-
-  it('applies focused style when focused', () => {
+  it('applies focused CSS class when focused', () => {
     const { container } = render(<ImageCard image={MOCK_IMAGE} focused />);
 
     const card = container.firstChild as HTMLElement;
-    expect(card.style.border).toContain('var(--color-accent)');
+    expect(card.classList.contains('image-card--focused')).toBe(true);
   });
 
   it('renders an img element with asset protocol src', async () => {

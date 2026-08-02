@@ -22,6 +22,8 @@ const filterOptions = [
   { key: '70', label: '70%以上' },
 ];
 
+const SEARCH_PER_PAGE = 20;
+
 const searchFieldOptions = [
   { key: 'all', label: '全部字段' },
   { key: 'prompt', label: 'Prompt' },
@@ -60,6 +62,7 @@ export function SearchPage() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [inputValue, setInputValue] = useState(filters.searchQuery);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchPage, setSearchPage] = useState(1);
 
   const normalResults = getSearchResults();
   const results = isImageSearch ? imageSearch.results : normalResults;
@@ -71,6 +74,7 @@ export function SearchPage() {
     searchImagesApi(inputValue);
     addHistory(inputValue);
     setShowSuggestions(false);
+    setSearchPage(1);
   }, [inputValue, setSearchQuery, searchImagesApi, addHistory]);
 
   const handleKeyDown = useCallback(
@@ -80,10 +84,18 @@ export function SearchPage() {
     [handleSearch],
   );
 
+  // Reset search page when search query or results change
   const filteredResults =
     activeFilter === 'all'
       ? results
       : results.filter((r) => (r.similarity ?? 0) >= parseInt(activeFilter, 10));
+
+  const paginatedResults = filteredResults.slice(0, searchPage * SEARCH_PER_PAGE);
+  const hasMore = paginatedResults.length < filteredResults.length;
+
+  const handleLoadMore = useCallback(() => {
+    setSearchPage((p) => p + 1);
+  }, []);
 
   return (
     <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -107,9 +119,9 @@ export function SearchPage() {
               <span style={{ fontSize: 12, color: tok.accent, fontFamily: tok.fontBody }}>
                 以图搜图 · 找到 {results.length} 个相似结果
               </span>
-              <button
+               <button
                 type="button"
-                onClick={clearImageSearch}
+                onClick={() => { clearImageSearch(); setSearchPage(1); }}
                 style={{
                   fontSize: 11, fontFamily: tok.fontBody, color: tok.textSecondary,
                   background: 'none', border: `1px solid ${tok.border}`,
@@ -273,14 +285,16 @@ export function SearchPage() {
             }}
           >
             <span style={{ color: tok.textSecondary }}>
-              共 {filteredResults.length} 个结果 · 按相似度排序
+              共 {filteredResults.length} 个结果
+              {hasMore && ` · 已显示 ${paginatedResults.length}`}
+              {' · '}按相似度排序
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               {filterOptions.map((f) => (
                 <button
                   key={f.key}
                   type="button"
-                  onClick={() => setActiveFilter(f.key)}
+                  onClick={() => { setActiveFilter(f.key); setSearchPage(1); }}
                   style={{
                     padding: '4px 12px',
                     fontSize: 11,
@@ -349,7 +363,7 @@ export function SearchPage() {
         )}
 
         {/* Results grid */}
-        {!currentLoading && !currentError && filteredResults.length > 0 && (
+        {!currentLoading && !currentError && paginatedResults.length > 0 && (
           <section aria-label={tT("search.searchResults")}>
             <div
               style={{
@@ -358,7 +372,7 @@ export function SearchPage() {
                 gap: isMobile ? 12 : 16,
               }}
             >
-              {filteredResults.map((img) =>
+              {paginatedResults.map((img) =>
                 isImageSearch ? (
                   <SearchResultCard key={img.id} result={img} />
                 ) : (
@@ -369,11 +383,34 @@ export function SearchPage() {
                 )
               )}
             </div>
+            {/* Load more button */}
+            {hasMore && (
+              <div style={{ textAlign: 'center', marginTop: 24 }}>
+                <button
+                  type="button"
+                  onClick={handleLoadMore}
+                  style={{
+                    padding: '10px 36px',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    fontFamily: tok.fontDisplay,
+                    color: tok.accent,
+                    background: 'transparent',
+                    border: `1px solid ${tok.accent}`,
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                    transition: 'background 200ms, color 200ms',
+                  }}
+                >
+                  加载更多 ({filteredResults.length - paginatedResults.length} 项)
+                </button>
+              </div>
+            )}
           </section>
         )}
 
         {/* High similarity compare */}
-        {filteredResults.some((r) => (r.similarity ?? 0) >= 90) && (
+        {paginatedResults.some((r) => (r.similarity ?? 0) >= 90) && (
           <section aria-label={tT("search.highSimilarityCompare")} style={{ marginTop: 32, borderTop: `1px solid ${tok.border}`, borderBottom: `1px solid ${tok.border}`, padding: '12px 0' }}>
             <Collapsible title={tT("search.highSimilarityCompare")}>
               <div style={{ padding: '32px 0', textAlign: 'center' }}>
@@ -392,6 +429,7 @@ export function SearchPage() {
             setInputValue(term);
             setSearchQuery(term);
             searchImagesApi(term);
+            setSearchPage(1);
           }}
         />
       </div>

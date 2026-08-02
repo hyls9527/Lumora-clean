@@ -5,6 +5,10 @@ import { FavoritesPage } from '../FavoritesPage';
 // Mock the API layer
 vi.mock('../../../lib/api/images', () => ({
   listFavorites: vi.fn(),
+  listImages: vi.fn(),
+  searchImagesAdvanced: vi.fn(),
+  importImages: vi.fn(),
+  exportImages: vi.fn(),
 }));
 
 // Mock child components

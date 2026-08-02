@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { ImageRecord } from '../../types/image';
 import { Rating } from './Rating';
 import { TagBadge } from './TagBadge';
@@ -8,9 +8,11 @@ import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useTouchGesture } from '../../hooks/useTouchGesture';
 import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { t } from '../../lib/i18n';
-import { t as tok, labelStyle, valueStyle } from '../../lib/tokens';
+import { t as tok, labelStyle, valueStyle, accentBtnStyle, closeBtnStyle } from '../../lib/tokens';
 import { AiAnalysisSection } from './ai/AiAnalysisSection';
 import { VariantGroup } from './VariantGroup';
+import { VariantCompareModal } from './VariantCompareModal';
+import { useVariantStore } from '../../stores/variantStore';
 
 interface DetailModalProps {
   image: ImageRecord | null;
@@ -121,6 +123,8 @@ export function DetailModal({
   onSearchSimilar,
 }: DetailModalProps) {
   const imgSrc = useImageSrc(image?.filePath ?? null);
+  const [showCompare, setShowCompare] = useState(false);
+  const { variants, fetchVariants } = useVariantStore();
   const isMobile = useIsMobile();
 
   usePerformanceMonitor('DetailModal');
@@ -169,11 +173,6 @@ export function DetailModal({
       aria-modal="true"
       aria-label={t("common.imageDetail")}
     >
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-      `}</style>
-
       {onPrev && (
         <button
           type="button"
@@ -226,18 +225,7 @@ export function DetailModal({
           <button
             type="button"
             onClick={onClose}
-            style={{
-              position: 'absolute',
-              top: 12,
-              right: 12,
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: 16,
-              color: tok.textMuted,
-              padding: 4,
-              lineHeight: 1,
-            }}
+            style={closeBtnStyle}
             aria-label={t("common.close")}
           >
             ✕
@@ -282,6 +270,55 @@ export function DetailModal({
               <div style={{ ...valueStyle, color: tok.accent }}>{image.model}</div>
             </div>
           </div>
+
+          {/* SD Generation Parameters */}
+          {(image.prompt || image.negativePrompt || image.steps != null || image.sampler || image.cfgScale != null || image.seed != null) && (
+            <div>
+              <div style={{ ...labelStyle, marginBottom: 6 }}>生成参数</div>
+              <div style={{
+                background: 'rgba(139, 115, 75, 0.04)',
+                borderRadius: 4,
+                padding: '10px 12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+                fontSize: 12,
+                fontFamily: tok.fontBody,
+                color: tok.textSecondary,
+                maxHeight: 200,
+                overflowY: 'auto',
+              }}>
+                {image.prompt && (
+                  <div style={{ lineHeight: 1.5 }}>
+                    <span style={{ color: tok.textFaint }}>Prompt: </span>
+                    <span>{image.prompt}</span>
+                  </div>
+                )}
+                {image.negativePrompt && (
+                  <div style={{ lineHeight: 1.5 }}>
+                    <span style={{ color: tok.textFaint }}>Negative: </span>
+                    <span>{image.negativePrompt}</span>
+                  </div>
+                )}
+                {(image.steps != null || image.sampler || image.cfgScale != null || image.seed != null) && (
+                  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', lineHeight: 1.6 }}>
+                    {image.steps != null && (
+                      <span><span style={{ color: tok.textFaint }}>Steps:</span> {image.steps}</span>
+                    )}
+                    {image.sampler && (
+                      <span><span style={{ color: tok.textFaint }}>Sampler:</span> {image.sampler}</span>
+                    )}
+                    {image.cfgScale != null && (
+                      <span><span style={{ color: tok.textFaint }}>CFG:</span> {image.cfgScale}</span>
+                    )}
+                    {image.seed != null && (
+                      <span><span style={{ color: tok.textFaint }}>Seed:</span> {image.seed}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <div>
             <div style={labelStyle}>评分</div>
@@ -333,23 +370,25 @@ export function DetailModal({
               }}
             />
           )}
+n          {image.variantGroupId && (
+            <button
+              type="button"
+              onClick={() => {
+                fetchVariants(image.variantGroupId!);
+                setShowCompare(true);
+              }}
+              style={accentBtnStyle}
+            >
+              {t("variants.compare")}
+            </button>
+          )}
 
           {onSearchSimilar && (
             <div>
               <button
                 type="button"
                 onClick={() => onSearchSimilar(image.id)}
-                style={{
-                  fontSize: 12,
-                  fontFamily: tok.fontBody,
-                  color: tok.accent,
-                  background: tok.accentSubtle,
-                  border: `1px solid ${tok.accent}`,
-                  borderRadius: 4,
-                  padding: '6px 14px',
-                  cursor: 'pointer',
-                  transition: 'background 200ms',
-                }}
+                style={accentBtnStyle}
               >
                 以图搜图
               </button>
@@ -376,6 +415,20 @@ export function DetailModal({
           ›
         </button>
       )}
+n      {/* Variant Compare Modal */}
+      <VariantCompareModal
+        open={showCompare}
+        images={variants}
+        activeId={image.id}
+        onClose={() => setShowCompare(false)}
+        onSelect={(id) => {
+          setShowCompare(false);
+          const variant = variants.find((v) => v.id === id);
+          if (variant) {
+            window.dispatchEvent(new CustomEvent("lumora:selectImage", { detail: variant }));
+          }
+        }}
+      />
     </div>
   );
 }

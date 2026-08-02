@@ -8,11 +8,31 @@ import sys
 import json
 import base64
 import io
+from importlib.metadata import version as pkg_version
 from pathlib import Path
 
 import open_clip
 import torch
 from PIL import Image
+
+# ── Version lock — pinned in requirements.txt ──────────────────────────
+SIDECAR_VERSION = "1.0.0"
+EXPECTED_DEPS = {
+    "open-clip-torch": "~=2.30.0",
+    "torch":            "~=2.5.0",
+    "Pillow":           "~=11.0",
+}
+
+
+def _get_dep_versions() -> dict[str, str]:
+    """Return installed versions of key dependencies (best-effort)."""
+    versions = {}
+    for pkg in EXPECTED_DEPS:
+        try:
+            versions[pkg] = pkg_version(pkg)
+        except Exception:
+            versions[pkg] = "unknown"
+    return versions
 
 
 # Global model cache
@@ -64,6 +84,53 @@ def embed_text(text: str) -> list[float]:
     return features[0].cpu().numpy().tolist()
 
 
+def _health_check() -> dict:
+    """
+    Perform a real health check:
+    1. Load the model (downloads weights on first call).
+    2. Run a tiny text embedding to verify inference works.
+    Returns a detailed status dict.
+    """
+    try:
+        load_model()
+
+        # Quick smoke test: embed a single word to confirm the pipeline works
+        tokenizer = open_clip.get_tokenizer("ViT-B-32")
+        tokens = tokenizer(["healthcheck"]).to(_device)
+        with torch.no_grad():
+            vec = _model.encode_text(tokens)
+            vec = vec / vec.norm(dim=-1, keepdim=True)
+        shape = list(vec.shape)
+
+        return {
+            "status": "ok",
+            "sidecar_version": SIDECAR_VERSION,
+            "device": _device,
+            "model": "ViT-B-32",
+            "pretrained": "laion2b_s34b_b79k",
+            "embedding_dim": shape[-1] if len(shape) >= 2 else shape[0],
+            "dependencies": _get_dep_versions(),
+            "expected_dependencies": EXPECTED_DEPS,
+        }
+    except Exception as exc:
+        return {
+            "status": "unhealthy",
+            "error": str(exc),
+            "sidecar_version": SIDECAR_VERSION,
+            "dependencies": _get_dep_versions(),
+        }
+
+
+def _print_version():
+    """Print sidecar and dependency version info."""
+    info = {
+        "sidecar_version": SIDECAR_VERSION,
+        "dependencies": _get_dep_versions(),
+        "expected_dependencies": EXPECTED_DEPS,
+    }
+    print(json.dumps(info))
+
+
 def main():
     """CLI entry point. Reads JSON from stdin, writes JSON to stdout."""
     # Handle CLI args for direct invocation
@@ -81,7 +148,11 @@ def main():
             print(json.dumps({"embedding": embedding}))
 
         elif command == "health":
-            print(json.dumps({"status": "ok"}))
+            result = _health_check()
+            print(json.dumps(result))
+
+        elif command == "version":
+            _print_version()
 
         else:
             print(json.dumps({"error": "Unknown command"}))
@@ -105,7 +176,12 @@ def main():
                     print(json.dumps({"embedding": embedding}), flush=True)
 
                 elif command == "health":
-                    print(json.dumps({"status": "ok"}), flush=True)
+                    result = _health_check()
+                    print(json.dumps(result), flush=True)
+
+                elif command == "version":
+                    _print_version()
+                    # _print_version already flushes via print
 
                 else:
                     print(json.dumps({"error": f"Unknown command: {command}"}), flush=True)

@@ -24,8 +24,18 @@ const MOCK_IMAGE = {
   rating: 4,
   favorite: true,
   model: 'stable-diffusion',
-  prompt: 'A beautiful mountain landscape',
+  prompt: '',
   tags: ['nature', 'landscape', 'mountain'],
+};
+
+const MOCK_IMAGE_WITH_SD_PARAMS = {
+  ...MOCK_IMAGE,
+  prompt: 'A beautiful mountain landscape',
+  negativePrompt: 'blurry, low quality',
+  steps: 20,
+  sampler: 'Euler a',
+  cfgScale: 7.5,
+  seed: 123456,
 };
 
 afterEach(() => {
@@ -117,5 +127,53 @@ describe('DetailModal', () => {
 
     const img = await screen.findByRole('img');
     expect(img.getAttribute('alt')).toBe('image.png');
+  });
+
+  describe('SD parameters', () => {
+    it('renders prompt in the SD params section', () => {
+      render(<DetailModal image={MOCK_IMAGE_WITH_SD_PARAMS} onClose={vi.fn()} />);
+      expect(screen.getByText(/A beautiful mountain landscape/)).toBeDefined();
+    });
+
+    it('renders negative prompt', () => {
+      render(<DetailModal image={MOCK_IMAGE_WITH_SD_PARAMS} onClose={vi.fn()} />);
+      expect(screen.getByText(/blurry, low quality/)).toBeDefined();
+    });
+
+    it('renders steps', () => {
+      render(<DetailModal image={MOCK_IMAGE_WITH_SD_PARAMS} onClose={vi.fn()} />);
+      expect(screen.getByText(/^20$/)).toBeDefined();
+    });
+
+    it('renders sampler', () => {
+      render(<DetailModal image={MOCK_IMAGE_WITH_SD_PARAMS} onClose={vi.fn()} />);
+      expect(screen.getByText('Euler a')).toBeDefined();
+    });
+
+    it('renders CFG scale', () => {
+      render(<DetailModal image={MOCK_IMAGE_WITH_SD_PARAMS} onClose={vi.fn()} />);
+      expect(screen.getByText(/7\.5/)).toBeDefined();
+    });
+
+    it('renders seed', () => {
+      render(<DetailModal image={MOCK_IMAGE_WITH_SD_PARAMS} onClose={vi.fn()} />);
+      expect(screen.getByText(/123456/)).toBeDefined();
+    });
+
+    it('renders "生成参数" header', () => {
+      render(<DetailModal image={MOCK_IMAGE_WITH_SD_PARAMS} onClose={vi.fn()} />);
+      expect(screen.getByText('生成参数')).toBeDefined();
+    });
+
+    it('does not render SD params section when none present', () => {
+      render(<DetailModal image={MOCK_IMAGE} onClose={vi.fn()} />);
+      expect(screen.queryByText('生成参数')).toBeNull();
+    });
+
+    it('renders negative prompt field with colon', () => {
+      render(<DetailModal image={MOCK_IMAGE_WITH_SD_PARAMS} onClose={vi.fn()} />);
+      // Steps: label + value should appear
+      expect(screen.getByText(/Steps:/)).toBeDefined();
+    });
   });
 });

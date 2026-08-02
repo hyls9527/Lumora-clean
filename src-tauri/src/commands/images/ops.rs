@@ -175,6 +175,94 @@ pub fn get_variant_group_images(
     Ok(items)
 }
 
+
+/// Filter parameters for list_images_filtered.
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ImageFilter {
+    pub model: Option<String>,
+    pub rating_min: Option<u32>,
+    pub rating_max: Option<u32>,
+    pub favorite: Option<bool>,
+    pub format: Option<String>,
+    pub date_from: Option<String>,
+    pub date_to: Option<String>,
+}
+
+/// Paginated listing with optional filters.
+#[tauri::command]
+pub fn list_images_filtered(
+    db: tauri::State<'_, DbHandle>,
+    page: u32,
+    per_page: u32,
+    filter: ImageFilter,
+) -> AppResult<PaginatedResult> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let offset = page.saturating_sub(1) * per_page;
+
+    // Build WHERE clauses dynamically
+    let mut conditions = vec!["deleted = 0".to_string()];
+    let mut param_values: Vec<Box<dyn rusqlite::types::ToSql>> = Vec::new();
+
+    if let Some(ref m) = filter.model {
+        conditions.push(format!("json_extract(metadata_json, '$.model') = ?{}", param_values.len() + 1));
+        param_values.push(Box::new(m.clone()));
+    }
+    if let Some(min) = filter.rating_min {
+        conditions.push(format!("rating >= ?{}", param_values.len() + 1));
+        param_values.push(Box::new(min));
+    }
+    if let Some(max) = filter.rating_max {
+        conditions.push(format!("rating <= ?{}", param_values.len() + 1));
+        param_values.push(Box::new(max));
+    }
+    if let Some(fav) = filter.favorite {
+        if fav {
+            conditions.push("favorite = 1".to_string());
+        }
+    }
+    if let Some(ref fmt) = filter.format {
+        conditions.push(format!("format = ?{}", param_values.len() + 1));
+        param_values.push(Box::new(fmt.clone()));
+    }
+    if let Some(ref from) = filter.date_from {
+        conditions.push(format!("created_at >= ?{}", param_values.len() + 1));
+        param_values.push(Box::new(from.clone()));
+    }
+    if let Some(ref to) = filter.date_to {
+        conditions.push(format!("created_at <= ?{}", param_values.len() + 1));
+        param_values.push(Box::new(to.clone()));
+    }
+
+    let where_clause = conditions.join(" AND ");
+
+    // Count query
+    let count_sql = format!("SELECT COUNT(*) FROM images WHERE {}", where_clause);
+    let total: i64 = conn.query_row(&count_sql, rusqlite::params_from_iter(param_values.iter().map(|p| p.as_ref())), |r| r.get(0))?;
+
+    // Data query with pagination
+    let data_sql = format!(
+        "SELECT * FROM images WHERE {} ORDER BY imported_at DESC LIMIT ?{} OFFSET ?{}",
+        where_clause,
+        param_values.len() + 1,
+        param_values.len() + 2
+    );
+    param_values.push(Box::new(per_page));
+    param_values.push(Box::new(offset));
+
+    let mut stmt = conn.prepare(&data_sql)?;
+    let items = stmt
+        .query_map(rusqlite::params_from_iter(param_values.iter().map(|p| p.as_ref())), row_to_record)?
+        .collect::<Result<Vec<_>, _>>()?;
+
+    Ok(PaginatedResult {
+        items,
+        total,
+        page,
+        per_page,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

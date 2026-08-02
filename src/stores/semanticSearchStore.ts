@@ -1,12 +1,24 @@
-import { create } from 'zustand';
+import { create, type StateCreator } from 'zustand';
 import {
   getSearchSuggestions,
   type SemanticSearchResult,
 } from '../lib/api/semantic';
 import { searchSemanticCached, invalidateSemanticCache } from '../lib/api/semanticCache';
 
-
 export type SearchMode = 'exact' | 'semantic';
+
+/** External dependencies consumed by semanticSearchStore. */
+export interface SemanticSearchStoreDeps {
+  searchSemanticCached: (query: string) => Promise<SemanticSearchResult[]>;
+  getSearchSuggestions: (query: string) => Promise<string[]>;
+  invalidateSemanticCache: () => void;
+}
+
+const defaultDeps: SemanticSearchStoreDeps = {
+  searchSemanticCached,
+  getSearchSuggestions,
+  invalidateSemanticCache,
+};
 
 interface SemanticSearchState {
   query: string;
@@ -18,7 +30,6 @@ interface SemanticSearchState {
   error: string | null;
   showSuggestions: boolean;
 
-  // Actions
   setQuery: (query: string) => void;
   setMode: (mode: SearchMode) => void;
   search: (query?: string) => Promise<void>;
@@ -29,68 +40,72 @@ interface SemanticSearchState {
   invalidateCache: () => void;
 }
 
-export const useSemanticSearchStore = create<SemanticSearchState>((set, get) => ({
-  query: '',
-  mode: 'semantic',
-  results: [],
-  suggestions: [],
-  loading: false,
-  suggestionsLoading: false,
-  error: null,
-  showSuggestions: false,
+export function createSemanticSearchStore(deps: SemanticSearchStoreDeps = defaultDeps): StateCreator<SemanticSearchState, [], []> {
+  return (set, get) => ({
+    query: '',
+    mode: 'semantic',
+    results: [],
+    suggestions: [],
+    loading: false,
+    suggestionsLoading: false,
+    error: null,
+    showSuggestions: false,
 
-  setQuery: (query) => set({ query }),
+    setQuery: (query) => set({ query }),
 
-  setMode: (mode) => set({ mode }),
+    setMode: (mode) => set({ mode }),
 
-  search: async (queryOverride?: string) => {
-    const query = queryOverride ?? get().query;
-    if (!query.trim()) {
-      set({ results: [], error: null });
-      return;
-    }
-    set({ loading: true, error: null, showSuggestions: false });
-    try {
-      const results = await searchSemanticCached(query);
-      set({ results, loading: false });
-    } catch (err) {
+    search: async (queryOverride?: string) => {
+      const query = queryOverride ?? get().query;
+      if (!query.trim()) {
+        set({ results: [], error: null });
+        return;
+      }
+      set({ loading: true, error: null, showSuggestions: false });
+      try {
+        const results = await deps.searchSemanticCached(query);
+        set({ results, loading: false });
+      } catch (err) {
+        set({
+          loading: false,
+          error: err instanceof Error ? err.message : '搜索失败',
+        });
+      }
+    },
+
+    fetchSuggestions: async (query) => {
+      if (!query.trim()) {
+        set({ suggestions: [], suggestionsLoading: false });
+        return;
+      }
+      set({ suggestionsLoading: true });
+      try {
+        const suggestions = await deps.getSearchSuggestions(query);
+        set({ suggestions, suggestionsLoading: false, showSuggestions: suggestions.length > 0 });
+      } catch (err) {
+        set({ suggestionsLoading: false, error: err instanceof Error ? err.message : '获取建议失败' });
+      }
+    },
+
+    clearSuggestions: () => set({ suggestions: [], showSuggestions: false }),
+
+    setShowSuggestions: (show) => set({ showSuggestions: show }),
+
+    reset: () => {
+      deps.invalidateSemanticCache();
       set({
+        query: '',
+        results: [],
+        suggestions: [],
         loading: false,
-        error: err instanceof Error ? err.message : '搜索失败',
+        suggestionsLoading: false,
+        error: null,
+        showSuggestions: false,
       });
-    }
-  },
+    },
 
-  fetchSuggestions: async (query) => {
-    if (!query.trim()) {
-      set({ suggestions: [], suggestionsLoading: false });
-      return;
-    }
-    set({ suggestionsLoading: true });
-    try {
-      const suggestions = await getSearchSuggestions(query);
-      set({ suggestions, suggestionsLoading: false, showSuggestions: suggestions.length > 0 });
-    } catch (err) {
-      set({ suggestionsLoading: false, error: err instanceof Error ? err.message : '获取建议失败' });
-    }
-  },
+    invalidateCache: () => deps.invalidateSemanticCache(),
+  });
+}
 
-  clearSuggestions: () => set({ suggestions: [], showSuggestions: false }),
-
-  setShowSuggestions: (show) => set({ showSuggestions: show }),
-
-  reset: () => {
-    invalidateSemanticCache();
-    set({
-      query: '',
-      results: [],
-      suggestions: [],
-      loading: false,
-      suggestionsLoading: false,
-      error: null,
-      showSuggestions: false,
-    });
-  },
-
-  invalidateCache: () => invalidateSemanticCache(),
-}));
+export const useSemanticSearchStore = create<SemanticSearchState>()(createSemanticSearchStore(defaultDeps));

@@ -25,7 +25,7 @@ vi.mock('../../../lib/api/backup', () => ({
 }));
 
 vi.mock('../../../lib/api/lan', () => ({
-  getLanInfo: vi.fn().mockResolvedValue({ port: 8079, ip: '192.168.1.100' }),
+  getLanInfo: vi.fn().mockResolvedValue({ port: 8079, ip: '192.168.1.100', token: 'test1234' }),
 }));
 
 // Mock Tauri dialog

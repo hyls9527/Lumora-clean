@@ -1,17 +1,18 @@
 import { useTranslation } from '../../lib/i18n';
 import { t as tok } from '../../lib/tokens';
+import { type RoutePath, ROUTES } from '../../routes';
 
 interface MobileNavProps {
   activeRoute: string;
-  onNavigate: (route: string) => void;
+  onNavigate: (route: RoutePath) => void;
 }
 
 const navItems = [
-  { key: '/gallery', icon: '🖼️', i18nKey: 'sidebar.gallery' },
-  { key: '/search', icon: '🔍', i18nKey: 'sidebar.search' },
-  { key: '/import', icon: '📥', i18nKey: 'sidebar.import' },
-  { key: '/favorites', icon: '⭐', i18nKey: 'sidebar.favorites' },
-  { key: '/settings', icon: '⚙️', i18nKey: 'sidebar.settings' },
+  { key: ROUTES.GALLERY, icon: '🖼️', i18nKey: 'sidebar.gallery' },
+  { key: ROUTES.SEARCH, icon: '🔍', i18nKey: 'sidebar.search' },
+  { key: ROUTES.IMPORT, icon: '📥', i18nKey: 'sidebar.import' },
+  { key: ROUTES.FAVORITES, icon: '⭐', i18nKey: 'sidebar.favorites' },
+  { key: ROUTES.SETTINGS, icon: '⚙️', i18nKey: 'sidebar.settings' },
 ];
 
 export function MobileNav({ activeRoute, onNavigate }: MobileNavProps) {

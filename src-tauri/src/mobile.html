@@ -26,9 +26,29 @@ body{font-family:-apple-system,sans-serif;background:#1a1612;color:#e8e0d0;paddi
 .search-bar input{flex:1;background:#262119;border:1px solid rgba(200,180,140,.1);border-radius:4px;padding:8px 12px;color:#e8e0d0;font-size:14px;outline:none}
 .search-bar input:focus{border-color:#c49a30}
 .search-bar button{background:#c49a30;border:none;color:#1a1612;padding:8px 16px;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer}
+/* Auth overlay */
+.auth-overlay{position:fixed;inset:0;background:#1a1612;display:flex;align-items:center;justify-content:center;z-index:100}
+.auth-box{text-align:center;padding:32px;max-width:320px;width:100%}
+.auth-box h2{color:#c49a30;margin-bottom:8px;font-size:20px}
+.auth-box p{color:#786850;font-size:12px;margin-bottom:20px}
+.auth-box input{width:100%;background:#262119;border:1px solid rgba(200,180,140,.1);border-radius:4px;padding:10px 14px;color:#e8e0d0;font-size:16px;text-align:center;letter-spacing:4px;outline:none;font-family:monospace}
+.auth-box input:focus{border-color:#c49a30}
+.auth-box button{margin-top:12px;background:#c49a30;border:none;color:#1a1612;padding:10px 24px;border-radius:4px;font-size:14px;font-weight:600;cursor:pointer;width:100%}
+.auth-box .error{color:#e05555;font-size:12px;margin-top:8px;display:none}
 </style>
 </head>
 <body>
+<!-- Auth overlay -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <h2>Lumora</h2>
+    <p>输入访问令牌以连接桌面应用</p>
+    <input id="tokenInput" type="text" placeholder="访问令牌" maxlength="64" autocomplete="off">
+    <button onclick="saveToken()">连接</button>
+    <div class="error" id="authError">令牌无效，请重试</div>
+  </div>
+</div>
+
 <div class="header">
   <h1>Lumora</h1>
   <span class="info" id="status">连接中…</span>
@@ -45,12 +65,64 @@ let page = 1;
 let loading = false;
 let allLoaded = false;
 
+function getToken() {
+  return localStorage.getItem('lumora_token') || '';
+}
+
+function apiUrl(path) {
+  const token = getToken();
+  const sep = path.includes('?') ? '&' : '?';
+  return `${API}${path}${sep}token=${encodeURIComponent(token)}`;
+}
+
+function setToken(t) {
+  localStorage.setItem('lumora_token', t);
+}
+
+function saveToken() {
+  const input = document.getElementById('tokenInput');
+  const err = document.getElementById('authError');
+  const token = input.value.trim();
+  if (!token) return;
+
+  setToken(token);
+  // Verify token against health endpoint
+  fetch(apiUrl('/health'))
+    .then(r => {
+      if (r.ok) return r.json();
+      throw new Error('unauthorized');
+    })
+    .then(() => {
+      document.getElementById('authOverlay').style.display = 'none';
+      initApp();
+    })
+    .catch(() => {
+      setToken('');
+      err.style.display = 'block';
+    });
+}
+
+// Allow Enter key in token input
+document.getElementById('tokenInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveToken();
+});
+
 async function loadImages(p) {
   if (loading || allLoaded) return;
   loading = true;
   document.getElementById('content').className = 'loading';
   try {
-    const r = await fetch(`${API}/api/images?page=${p}&per_page=40`);
+    const r = await fetch(apiUrl(`/api/images?page=${p}&per_page=40`));
+    if (r.status === 401) {
+      // Token expired/invalid
+      setToken('');
+      document.getElementById('authOverlay').style.display = 'flex';
+      document.getElementById('authError').style.display = 'block';
+      document.getElementById('content').className = 'empty';
+      document.getElementById('content').textContent = '令牌失效，请重新输入';
+      loading = false;
+      return;
+    }
     if (!r.ok) throw new Error(r.status);
     const data = await r.json();
     const grid = document.getElementById('content');
@@ -67,7 +139,7 @@ async function loadImages(p) {
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
-        <img src="${API}/api/images/${img.id}/file" alt="${img.file_name}" loading="lazy">
+        <img src="${apiUrl(`/api/images/${img.id}/file`)}" alt="${img.file_name}" loading="lazy">
         <div class="meta">
           <div class="name">${img.file_name}</div>
           ${img.rating > 0 ? `<span class="rating">${'★'.repeat(img.rating)}</span>` : ''}
@@ -85,9 +157,19 @@ async function loadImages(p) {
 }
 
 function doSearch() {
-  // Simple client-side: just reload (search not implemented in API yet)
   allLoaded = false;
   page = 1;
+  loadImages(1);
+}
+
+function initApp() {
+  // Health check
+  fetch(apiUrl('/health')).then(r => r.json()).then(d => {
+    document.getElementById('status').textContent = `${d.local_ip}:${d.port || '8079'}`;
+  }).catch(() => {
+    document.getElementById('status').textContent = '离线';
+  });
+
   loadImages(1);
 }
 
@@ -98,14 +180,16 @@ window.addEventListener('scroll', () => {
   }
 });
 
-// Health check
-fetch(`${API}/health`).then(r => r.json()).then(d => {
-  document.getElementById('status').textContent = `${d.local_ip}:${d.port || '8079'}`;
-}).catch(() => {
-  document.getElementById('status').textContent = '离线';
-});
-
-loadImages(1);
+// On load: check for existing token
+(function() {
+  const saved = getToken();
+  if (saved) {
+    document.getElementById('tokenInput').value = saved;
+    saveToken(); // verify it
+  } else {
+    document.getElementById('authOverlay').style.display = 'flex';
+  }
+})();
 </script>
 </body>
 </html>

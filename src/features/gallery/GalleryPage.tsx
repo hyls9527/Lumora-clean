@@ -21,7 +21,7 @@ import { TabButton } from '../../components/ui/TabButton';
 import { BatchToolbar } from './BatchToolbar';
 import { RenameDialog } from '../../components/rename/RenameDialog';
 import { ConvertDialog } from '../../components/convert/ConvertDialog';
-import { t as tokens } from '../../lib/tokens';
+import { t as tokens, navTabStyle, separatorStyle, dotStyle, pageTitleStyle } from '../../lib/tokens';
 
 const sortOptions = [
   { key: 'time' as const, label: '生成时间 ↓' },
@@ -280,41 +280,23 @@ export function GalleryPage() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <h2
-              style={{
-                fontSize: isMobile ? 18 : 20,
-                fontWeight: 600,
-                fontFamily: tokens.fontDisplay,
-                color: tokens.text,
-                margin: 0,
-              }}
-            >
+            <h2 style={pageTitleStyle(isMobile)}>
               创作者图库
             </h2>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {[2, 3, 4].map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => setColumnCount(columnCount === n ? 0 : n)}
-                style={{
-                  fontSize: 11,
-                  fontFamily: tokens.fontDisplay,
-                  color: columnCount === n ? tokens.accent : tokens.textSecondary,
-                  background: 'none',
-                  border: 'none',
-                  padding: '0 0 2px',
-                  borderBottom: `2px solid ${columnCount === n ? tokens.accent : 'transparent'}`,
-                  cursor: 'pointer',
-                  transition: 'color 200ms, border-color 200ms',
-                }}
-                title={`${n}列`}
-              >
-                {n}列
-              </button>
-            ))}
-            <span style={{ width: 1, height: 14, background: 'rgba(139,115,75,0.15)', margin: '0 4px' }} />
+              {[2, 3, 4].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setColumnCount(columnCount === n ? 0 : n)}
+                  style={navTabStyle(columnCount === n)}
+                  title={`${n}列`}
+                >
+                  {n}列
+                </button>
+              ))}
+              <span style={separatorStyle} />
             <TabButton
               active={filters.view === 'grid'}
               onClick={() => setView('grid')}
@@ -377,15 +359,7 @@ export function GalleryPage() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span
-            style={{
-              display: 'inline-block',
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: loading ? tokens.textMuted : tokens.success,
-            }}
-          />
+          <span style={dotStyle(loading ? tokens.textMuted : tokens.success)} />
           <span
             style={{ fontSize: 10, color: loading ? tokens.textMuted : tokens.success, fontFamily: tokens.fontBody }}
           >

@@ -1,4 +1,4 @@
-import { useEffect, memo } from 'react';
+import { useEffect, memo, useCallback } from 'react';
 import { useImageStore } from '../../stores/imageStore';
 import { useImageActions } from '../../hooks/useImageActions';
 import type { ImageRecord } from '../../types/image';
@@ -11,7 +11,6 @@ import { EmbeddingBadge } from './EmbeddingBadge';
 import { useImageSrc } from '../../hooks/useImageSrc';
 import { t } from '../../lib/i18n';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import { t as tok } from '../../lib/tokens';
 
 interface ImageCardProps {
   image: ImageRecord;
@@ -21,7 +20,13 @@ interface ImageCardProps {
   showSimilarity?: boolean;
 }
 
-export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focused, showSimilarity }: ImageCardProps) {
+export const ImageCard = memo(function ImageCard({
+  image,
+  onClick,
+  onOpen,
+  focused,
+  showSimilarity,
+}: ImageCardProps) {
   const { toggleFavorite, setRating } = useImageActions();
   const softDelete = useTrashStore((s) => s.softDeleteImage);
   const fetchImages = useImageStore((s) => s.fetchImages);
@@ -35,23 +40,48 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
     if (!embeddingStatus) fetchStatus(image.id);
   }, [image.id, embeddingStatus, fetchStatus]);
 
+  const handleFavorite = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      toggleFavorite(image.id);
+    },
+    [image.id, toggleFavorite],
+  );
+
+  const handleDelete = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      softDelete(image.id).then(() => fetchImages());
+    },
+    [image.id, softDelete, fetchImages],
+  );
+
+  const handleRatingChange = useCallback(
+    (v: number) => setRating(image.id, v),
+    [image.id, setRating],
+  );
+
+  const cardClass = [
+    'image-card',
+    focused ? 'image-card--focused' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const metaClass = `image-card__meta${isMobile ? ' image-card__meta--mobile' : ''}`;
+  const modelClass = `image-card__model${isMobile ? ' image-card__model--mobile' : ''}`;
+  const actionsClass = `image-card__actions${isMobile ? ' image-card__actions--mobile' : ''}`;
+  const btnClass = `image-card__action-btn${isMobile ? ' image-card__action-btn--mobile' : ''}`;
+  const promptClass = `image-card__prompt${isMobile ? ' image-card__prompt--mobile' : ''}`;
+  const bodyClass = `image-card__body${isMobile ? ' image-card__body--mobile' : ''}`;
+  const footerClass = `image-card__footer${isMobile ? ' image-card__footer--mobile' : ''}`;
+  const tagsClass = `image-card__tags${isMobile ? ' image-card__tags--mobile' : ''}`;
+
   return (
     <div
       tabIndex={0}
       data-image-id={image.id}
-      style={{
-        borderRadius: '2px',
-        cursor: 'pointer',
-        background: 'var(--color-surface)',
-        border: focused
-          ? `2px solid ${tok.accent}`
-          : `1px solid ${tok.border}`,
-        boxShadow:
-          'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px',
-        overflow: 'hidden',
-        transition: 'box-shadow 200ms ease-out, border-color 200ms ease-out, transform 200ms ease-out',
-        outline: 'none',
-      }}
+      className={cardClass}
       onClick={onClick ?? onOpen}
       onFocus={(e) => {
         if (!focused) {
@@ -61,9 +91,7 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
       }}
       onBlur={(e) => {
         if (!focused) {
-          e.currentTarget.style.boxShadow =
-            'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px';
-          e.currentTarget.style.transform = '';
+          e.currentTarget.style.boxShadow = '';
         }
       }}
       onMouseEnter={(e) => {
@@ -73,123 +101,53 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = '';
-        e.currentTarget.style.boxShadow =
-          'rgba(139,115,75,0.08) 0px 0px 0px 1px, rgba(78,50,23,0.04) 0px 1px 3px';
+        e.currentTarget.style.boxShadow = '';
       }}
     >
       {/* Image preview area */}
       <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          aspectRatio: `${image.width} / ${image.height}`,
-          background: 'rgba(139, 115, 75, 0.08)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: '2px 2px 0 0',
-          overflow: 'hidden',
-        }}
+        className="image-card__preview"
+        style={{ aspectRatio: `${image.width} / ${image.height}` }}
       >
         {imgSrc ? (
           <img
             src={imgSrc}
             alt={image.fileName}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
             loading="lazy"
           />
         ) : (
-          <span
-            style={{
-              fontSize: '11px',
-              color: tok.textMuted,
-              fontFamily: tok.fontBody,
-            }}
-          >
+          <span className="image-card__placeholder">
             {image.width}×{image.height}
           </span>
         )}
         {showSimilarity && image.similarity != null && (
-          <div style={{ position: 'absolute', top: 8, right: 8 }}>
+          <div className="image-card__similarity">
             <SimilarityBadge value={image.similarity} />
           </div>
         )}
       </div>
 
       {/* Card body */}
-      <div style={{ padding: isMobile ? '10px 12px' : '8px 10px', background: tok.bg }}>
+      <div className={bodyClass}>
         {/* Model + Favorite + Rating */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: isMobile ? '6px' : '4px',
-          }}
-        >
-          <span
-            style={{
-              fontSize: isMobile ? '12px' : '11px',
-              color: tok.accent,
-              fontFamily: tok.fontDisplay,
-            }}
-          >
-            {image.model}
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '4px' }}>
+        <div className={metaClass}>
+          <span className={modelClass}>{image.model}</span>
+          <div className={actionsClass}>
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleFavorite(image.id);
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: isMobile ? '4px' : '0',
-                cursor: 'pointer',
-                fontSize: isMobile ? '14px' : '11px',
-                color: image.favorite ? tok.accent : tok.textFaint,
-                transition: 'color 200ms',
-                lineHeight: 1,
-                minWidth: isMobile ? '28px' : 'auto',
-                minHeight: isMobile ? '28px' : 'auto',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              onClick={handleFavorite}
+              className={`${btnClass}${image.favorite ? ' image-card__action-btn--active' : ''}`}
               aria-label={image.favorite ? t('common.unfavorite') : t('common.favorite')}
             >
               ◆
             </button>
-            <Rating value={image.rating} onChange={(v) => setRating(image.id, v)} />
+            <Rating value={image.rating} onChange={handleRatingChange} />
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                softDelete(image.id).then(() => fetchImages());
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: isMobile ? '4px' : '0',
-                cursor: 'pointer',
-                fontSize: isMobile ? '14px' : '11px',
-                color: tok.textFaint,
-                transition: 'color 200ms',
-                lineHeight: 1,
-                minWidth: isMobile ? '28px' : 'auto',
-                minHeight: isMobile ? '28px' : 'auto',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              aria-label={t("common.delete")}
-              title={t("common.moveToTrash")}
+              onClick={handleDelete}
+              className={btnClass}
+              aria-label={t('common.delete')}
+              title={t('common.moveToTrash')}
             >
               ✕
             </button>
@@ -197,25 +155,11 @@ export const ImageCard = memo(function ImageCard({ image, onClick, onOpen, focus
         </div>
 
         {/* Prompt excerpt */}
-        <p
-          style={{
-            fontSize: isMobile ? '11px' : '10px',
-            color: tok.textMuted,
-            fontFamily: tok.fontBody,
-            lineHeight: 1.4,
-            overflow: 'hidden',
-            display: '-webkit-box',
-            WebkitLineClamp: isMobile ? 3 : 2,
-            WebkitBoxOrient: 'vertical',
-            margin: 0,
-          }}
-        >
-          {image.prompt}
-        </p>
+        <p className={promptClass}>{image.prompt}</p>
 
         {/* Tags + Embedding badge */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: isMobile ? '8px' : '6px', flexWrap: 'wrap', gap: '4px' }}>
-          <div style={{ display: 'flex', gap: isMobile ? '6px' : '4px', flexWrap: 'wrap', flex: 1 }}>
+        <div className={footerClass}>
+          <div className={tagsClass}>
             {image.tags.map((tag) => (
               <TagBadge key={tag} name={tag} />
             ))}

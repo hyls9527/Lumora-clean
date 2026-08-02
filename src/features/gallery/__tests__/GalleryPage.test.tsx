@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { GalleryPage } from '../GalleryPage';
 
+// Use vi.hoisted to create the mock before hoisted vi.mock calls
+const mockUseKeyboardNav = vi.hoisted(() => vi.fn());
+
 // Mock the store
 vi.mock('../../../stores/imageStore', () => ({
   useImageStore: vi.fn((selector) => {
@@ -77,7 +80,7 @@ vi.mock('../../../lib/api/ai', () => ({
 }));
 
 vi.mock('../../../hooks/useKeyboardNav', () => ({
-  useKeyboardNav: vi.fn(),
+  useKeyboardNav: mockUseKeyboardNav,
 }));
 
 vi.mock('../../../hooks/useMediaQuery', () => ({
@@ -117,7 +120,7 @@ vi.mock('../../../components/ui/InfiniteScroll', () => ({
 }));
 
 vi.mock('../../../components/ui/TabButton', () => ({
-  TabButton: ({ label }: { label: string }) => <button>{label}</button>,
+  TabButton: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
 }));
 
 vi.mock('../BatchToolbar', () => ({
@@ -132,5 +135,45 @@ describe('GalleryPage', () => {
   it('should render without crashing', () => {
     const { container } = render(<GalleryPage />);
     expect(container).toBeDefined();
+  });
+
+  describe('useKeyboardNav integration', () => {
+    it('should call useKeyboardNav with multi-stage config', () => {
+      render(<GalleryPage />);
+
+      expect(mockUseKeyboardNav).toHaveBeenCalledTimes(1);
+
+      const callArgs = mockUseKeyboardNav.mock.calls[0][0];
+      expect(callArgs.route).toBe('/gallery');
+      expect(callArgs.activeStage).toBe('browse'); // detailImage starts as null
+      expect(callArgs.stages).toBeDefined();
+      expect(callArgs.stages).toHaveLength(2);
+
+      // Verify stage IDs
+      const stageIds = callArgs.stages.map((s: { id: string }) => s.id);
+      expect(stageIds).toEqual(['browse', 'detail']);
+
+      // Verify browse stage has all handlers
+      const browseStage = callArgs.stages[0];
+      expect(browseStage.onArrowUp).toBeDefined();
+      expect(browseStage.onArrowDown).toBeDefined();
+      expect(browseStage.onArrowLeft).toBeDefined();
+      expect(browseStage.onArrowRight).toBeDefined();
+      expect(browseStage.onEnter).toBeDefined();
+      expect(browseStage.onSpace).toBeDefined();
+      expect(browseStage.onEscape).toBeDefined();
+      expect(browseStage.onDelete).toBeDefined();
+      expect(browseStage.onFavorite).toBeDefined();
+      expect(browseStage.onRate).toBeDefined();
+
+      // Verify detail stage has relevant handlers
+      const detailStage = callArgs.stages[1];
+      expect(detailStage.onArrowLeft).toBeDefined();
+      expect(detailStage.onArrowRight).toBeDefined();
+      expect(detailStage.onEscape).toBeDefined();
+      expect(detailStage.onDelete).toBeDefined();
+      expect(detailStage.onFavorite).toBeDefined();
+      expect(detailStage.onRate).toBeDefined();
+    });
   });
 });

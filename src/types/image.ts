@@ -23,4 +23,10 @@ export interface ImageRecord {
   deleted?: boolean;
   deletedAt?: string;
   variantGroupId?: string | null;
+  /** SD generation parameters (from metadata_json) */
+  negativePrompt?: string;
+  steps?: number;
+  sampler?: string;
+  cfgScale?: number;
+  seed?: number;
 }

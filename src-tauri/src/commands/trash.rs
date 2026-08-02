@@ -200,6 +200,8 @@ pub fn batch_permanent_delete(db: tauri::State<'_, DbHandle>, ids: Vec<String>) 
 }
 
 /// Batch add tag: add a tag to multiple images.
+///
+/// Wrapped in a transaction so all inserts succeed or none do (fixes #9).
 #[tauri::command]
 pub fn batch_add_tag(
     db: tauri::State<'_, DbHandle>,
@@ -207,18 +209,22 @@ pub fn batch_add_tag(
     tag_id: String,
 ) -> AppResult<u64> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let tx = conn.unchecked_transaction()?;
     let mut affected: u64 = 0;
     for image_id in &image_ids {
-        let n = conn.execute(
+        let n = tx.execute(
             "INSERT OR IGNORE INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
             rusqlite::params![image_id, tag_id],
         )?;
         affected += n as u64;
     }
+    tx.commit()?;
     Ok(affected)
 }
 
 /// Batch remove tag: remove a tag from multiple images.
+///
+/// Wrapped in a transaction so all deletes succeed or none do (fixes #9).
 #[tauri::command]
 pub fn batch_remove_tag(
     db: tauri::State<'_, DbHandle>,
@@ -226,14 +232,16 @@ pub fn batch_remove_tag(
     tag_id: String,
 ) -> AppResult<u64> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let tx = conn.unchecked_transaction()?;
     let mut affected: u64 = 0;
     for image_id in &image_ids {
-        let n = conn.execute(
+        let n = tx.execute(
             "DELETE FROM image_tags WHERE image_id = ?1 AND tag_id = ?2",
             rusqlite::params![image_id, tag_id],
         )?;
         affected += n as u64;
     }
+    tx.commit()?;
     Ok(affected)
 }
 

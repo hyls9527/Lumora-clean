@@ -1,6 +1,6 @@
 import { useSettingsStore } from '../../stores/settingsStore';
 import { exportDatabase, importDatabase } from '../../lib/api/backup';
-import { getLanInfo } from '../../lib/api/lan';
+import { getLanInfo, type LanInfo } from '../../lib/api/lan';
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { useState, useEffect } from 'react';
 import { useTranslation } from '../../lib/i18n';
@@ -162,7 +162,7 @@ export function SettingsPage() {
   ];
 
   const [backupMsg, setBackupMsg] = useState('');
-  const [lanInfo, setLanInfo] = useState<{ ip: string; port: number } | null>(null);
+  const [lanInfo, setLanInfo] = useState<LanInfo | null>(null);
   const { available, checking, installing, downloaded, error: updateError, updateInfo, checkForUpdates, installUpdate } = useUpdater();
 
   useEffect(() => { getLanInfo().then(setLanInfo).catch(() => {}); }, []);
@@ -403,10 +403,32 @@ export function SettingsPage() {
                   background: 'var(--color-accent-subtle)',
                   borderRadius: 4,
                   border: `1px solid ${token.accent}`,
+                  marginBottom: 12,
                 }}
               >
                 http://{lanInfo.ip}:{lanInfo.port}
               </a>
+              <p style={{ margin: '0 0 4px', fontSize: 12, color: token.muted }}>
+                访问令牌（在移动端页面输入）：
+              </p>
+              <code
+                style={{
+                  display: 'inline-block',
+                  fontSize: 18,
+                  fontFamily: 'monospace',
+                  letterSpacing: '0.15em',
+                  color: token.accent,
+                  padding: '6px 14px',
+                  background: 'var(--color-accent-subtle)',
+                  borderRadius: 4,
+                  border: `1px solid ${token.border}`,
+                  userSelect: 'all',
+                  cursor: 'pointer',
+                }}
+                title="点击复制"
+              >
+                {lanInfo.token}
+              </code>
             </div>
           </section>
         )}

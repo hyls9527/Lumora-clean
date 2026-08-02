@@ -25,6 +25,10 @@ pub struct SemanticSearchResult {
 // ---------------------------------------------------------------------------
 
 /// Insert or update an embedding for an image.
+///
+/// Wraps the upsert in an explicit transaction so the regular `embeddings`
+/// table and the `vec_embeddings` virtual table stay consistent — if either
+/// write fails the whole operation rolls back (fixes #3).
 pub fn upsert_embedding(
     conn: &Connection,
     image_id: &str,
@@ -37,26 +41,28 @@ pub fn upsert_embedding(
         .collect();
     let dims = embedding.len() as i64;
 
+    let tx = conn.unchecked_transaction()?;
+
     // Upsert into regular embeddings table
-    conn.execute(
+    tx.execute(
         "INSERT OR REPLACE INTO embeddings (image_id, embedding, dimensions, status, generated_at)
          VALUES (?1, ?2, ?3, 'embedded', datetime('now'))",
         rusqlite::params![image_id, bytes, dims],
     )?;
 
-    // For vec0 table: try insert first, if exists then delete and re-insert
-    // vec0 doesn't support INSERT OR REPLACE
+    // For vec0 table: delete-then-insert (vec0 doesn't support INSERT OR REPLACE)
     let vec_json = serde_json::to_string(embedding).unwrap_or_default();
-    conn.execute(
+    tx.execute(
         "DELETE FROM vec_embeddings WHERE image_id = ?1",
         rusqlite::params![image_id],
     )?;
-    conn.execute(
+    tx.execute(
         "INSERT INTO vec_embeddings (image_id, embedding)
          VALUES (?1, ?2)",
         rusqlite::params![image_id, vec_json],
     )?;
 
+    tx.commit()?;
     Ok(())
 }
 
@@ -194,8 +200,8 @@ async fn embed_text_ollama(
     text: &str,
     model: &str,
 ) -> AppResult<Vec<f64>> {
-    let client = reqwest::Client::new();
-    let response = client
+    let response = cfg
+        .client()
         .post(cfg.url("/api/embed"))
         .json(&serde_json::json!({
             "model": model,
@@ -217,14 +223,28 @@ async fn embed_text_ollama(
         .await
         .map_err(|e| format!("Failed to parse Ollama response: {}", e))?;
 
-    let embeddings = body["embeddings"][0]
-        .as_array()
-        .ok_or_else(|| "Invalid embeddings response".to_string())?;
-
-    let vec: Vec<f64> = embeddings
-        .iter()
-        .map(|v| v.as_f64().unwrap_or(0.0))
-        .collect();
+    // Try multiple possible Ollama embedding response shapes (fallback chain).
+    // Ollama v0.x: { "embeddings": [[...]] }
+    // Some forks/versions: { "embeddings": [...] } or { "embedding": [...] }
+    let vec = body["embeddings"]
+        // Shape 1: [[...]] — standard Ollama embeddings API
+        .get(0)
+        .and_then(|v| v.as_array())
+        // Shape 2: [...] — flat array under "embeddings"
+        .or_else(|| body["embeddings"].as_array())
+        // Shape 3: { "embedding": [...] } — single-vector shape
+        .or_else(|| body["embedding"].as_array())
+        .map(|arr| {
+            arr.iter()
+                .map(|v| v.as_f64().unwrap_or(0.0))
+                .collect::<Vec<f64>>()
+        })
+        .ok_or_else(|| {
+            AppError::External(format!(
+                "Invalid embeddings response shape: {}",
+                serde_json::to_string(&body).unwrap_or_default()
+            ))
+        })?;
 
     if vec.is_empty() {
         return Err(AppError::External("Empty embedding returned".to_string()));

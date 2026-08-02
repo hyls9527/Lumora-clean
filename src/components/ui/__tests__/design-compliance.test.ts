@@ -92,15 +92,15 @@ describe('UI 一致性 — DESIGN.md 合规', () => {
     });
 
     it('使用 200ms 过渡', () => {
-      const imageCard = readFileSync(resolve(root, 'src/components/ui/ImageCard.tsx'), 'utf-8');
-      expect(imageCard).toContain('200ms');
+      const css = readFileSync(resolve(root, 'src/index.css'), 'utf-8');
+      expect(css).toMatch(/transition.*200ms/);
     });
   });
 
   describe('组件规范检查', () => {
     it('卡片使用 2px 圆角', () => {
-      const imageCard = readFileSync(resolve(root, 'src/components/ui/ImageCard.tsx'), 'utf-8');
-      expect(imageCard).toContain("borderRadius: '2px'");
+      const css = readFileSync(resolve(root, 'src/index.css'), 'utf-8');
+      expect(css).toMatch(/border-radius.*2px/);
     });
 
     it('弹窗使用 6px 圆角', () => {

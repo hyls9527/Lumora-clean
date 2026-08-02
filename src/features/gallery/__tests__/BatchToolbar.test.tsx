@@ -10,6 +10,8 @@ describe('BatchToolbar', () => {
     onDelete: vi.fn(),
     onAiTag: vi.fn(),
     onEmbed: vi.fn(),
+    onRename: vi.fn(),
+    onConvert: vi.fn(),
     onCancel: vi.fn(),
     deleting: false,
     tagging: false,

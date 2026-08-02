@@ -1,8 +1,9 @@
-import { useEffect, useState, lazy, Suspense, useCallback } from 'react';
+import { useEffect, useState, Suspense, useCallback } from 'react';
 import { Sidebar } from './components/ui/Sidebar';
 import { MobileNav } from './components/ui/MobileNav';
 import { CommandPalette } from './components/ui/CommandPalette';
 import { DropOverlay } from './components/ui/DropOverlay';
+import { LoadingPage } from './components/ui/LoadingPage';
 import { useSettingsStore } from './stores/settingsStore';
 import { useCommandStore } from './stores/commandStore';
 import { useDragDrop } from './hooks/useDragDrop';
@@ -16,29 +17,18 @@ import { useEmbeddingStore } from './stores/embeddingStore';
 import { useSemanticSearchStore } from './stores/semanticSearchStore';
 import { useIsMobile } from './hooks/useMediaQuery';
 import { usePerformanceMonitor } from './hooks/usePerformance';
-import { useTranslation, t } from './lib/i18n';
-import { t as tok } from './lib/tokens';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
-import type { Command } from './stores/commandStore';
-
-// Lazy load all pages
-const GalleryPage = lazy(() => import('./features/gallery/GalleryPage'));
-const ImportPage = lazy(() => import('./features/import/ImportPage'));
-const SearchPage = lazy(() => import('./features/search/SearchPage'));
-const SettingsPage = lazy(() => import('./features/settings/SettingsPage'));
-const TrashPage = lazy(() => import('./features/trash/TrashPage'));
-const TagManager = lazy(() => import('./features/tags/TagManager'));
-const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage'));
-const ExportPage = lazy(() => import('./features/export/ExportPage'));
-const FavoritesPage = lazy(() => import('./features/favorites/FavoritesPage'));
+import { useRouter, useRouteCommands, useGlobalShortcuts } from './hooks/useRouter';
+import { getRouteDef, type RoutePath } from './routes';
+import { t as tok } from './lib/tokens';
 
 function App() {
-  const [route, setRoute] = useState('/gallery');
   const [droppedPaths, setDroppedPaths] = useState<string[]>([]);
   const hydrate = useSettingsStore((s) => s.hydrate);
-  const { toggle, registerCommands } = useCommandStore();
-  const { t } = useTranslation();
+  const { toggle } = useCommandStore();
   const isMobile = useIsMobile();
+
+  const { route, routeDef, navigate } = useRouter();
 
   usePerformanceMonitor('App');
   useAutoClearError(useImageStore);
@@ -50,91 +40,102 @@ function App() {
   useAutoClearError(useSemanticSearchStore);
   useAutoClearError(useImageSearchStore);
 
+  // Register route commands + global shortcuts
+  useRouteCommands(navigate);
+  useGlobalShortcuts(navigate);
+
   // Auto-navigate to search when image search is triggered
   const imageSearchSource = useImageSearchStore((s) => s.sourceImageId);
   useEffect(() => {
-    if (imageSearchSource) { setRoute('/search'); useImageSearchStore.getState().clearSource(); }
-  }, [imageSearchSource]);
+    if (imageSearchSource) {
+      navigate('/search' as RoutePath);
+      useImageSearchStore.getState().clearSource();
+    }
+  }, [imageSearchSource, navigate]);
 
   useEffect(() => { void hydrate(); }, [hydrate]);
-
-  useEffect(() => {
-    const commands: Command[] = [
-      { id: 'nav-gallery', name: t('nav.creatorGallery'), description: t('commandPalette.descGallery'), section: 'navigation', action: () => setRoute('/gallery') },
-      { id: 'nav-dashboard', name: t('nav.dashboard'), description: t('commandPalette.descDashboard'), section: 'navigation', action: () => setRoute('/dashboard') },
-      { id: 'nav-import', name: t('nav.import'), description: t('commandPalette.descImport'), section: 'navigation', action: () => setRoute('/import') },
-      { id: 'nav-search', name: t('nav.search'), description: t('commandPalette.descSearch'), section: 'navigation', action: () => setRoute('/search') },
-      { id: 'nav-tags', name: t('nav.tags'), description: t('commandPalette.descTags'), section: 'navigation', action: () => setRoute('/tags') },
-      { id: 'nav-export', name: t('nav.export'), description: t('commandPalette.descExport'), section: 'navigation', action: () => setRoute('/export') },
-      { id: 'nav-settings', name: t('nav.settings'), description: t('commandPalette.descSettings'), section: 'navigation', action: () => setRoute('/settings') },
-      { id: 'nav-trash', name: t('nav.trash'), description: t('commandPalette.descTrash'), section: 'navigation', action: () => setRoute('/trash') },
-      { id: 'action-import', name: t('commandPalette.importImages'), description: t('commandPalette.importImagesDesc'), shortcut: '⌘I', section: 'action', action: () => setRoute('/import') },
-      { id: 'action-refresh', name: t('commandPalette.refreshGallery'), description: t('commandPalette.refreshGalleryDesc'), shortcut: '⌘R', section: 'action', action: () => setRoute('/gallery') },
-      { id: 'action-empty-trash', name: t('commandPalette.emptyTrash'), description: t('commandPalette.emptyTrashDesc'), section: 'action', action: () => setRoute('/trash') },
-    ];
-    registerCommands(commands);
-  }, [registerCommands, t, setRoute]);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); toggle(); }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [toggle]);
 
   // Drag-and-drop: import files when dropped on window
   const handleDrop = useCallback(
     (paths: string[]) => {
-      // Filter for image files
       const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff'];
       const imagePaths = paths.filter((p) => {
         const ext = p.toLowerCase().slice(p.lastIndexOf('.'));
         return imageExts.includes(ext);
       });
-
       if (imagePaths.length > 0) {
         setDroppedPaths(imagePaths);
-        setRoute('/import');
+        navigate('/import' as RoutePath);
       }
     },
-    [setRoute],
+    [navigate],
   );
 
   const { isDragging } = useDragDrop({ onDrop: handleDrop });
 
   const renderPage = () => {
-    switch (route) {
-      case '/trash': return <ErrorBoundary key="trash"><Suspense fallback={<Loading />}><TrashPage /></Suspense></ErrorBoundary>;
-      case '/dashboard': return <ErrorBoundary key="dashboard"><Suspense fallback={<Loading />}><DashboardPage /></Suspense></ErrorBoundary>;
-      case '/gallery': return <ErrorBoundary key="gallery"><Suspense fallback={<Loading />}><GalleryPage /></Suspense></ErrorBoundary>;
-      case '/import': return <ErrorBoundary key="import"><Suspense fallback={<Loading />}><ImportPage droppedPaths={droppedPaths} onPathsConsumed={() => setDroppedPaths([])} /></Suspense></ErrorBoundary>;
-      case '/search': return <ErrorBoundary key="search"><Suspense fallback={<Loading />}><SearchPage /></Suspense></ErrorBoundary>;
-      case '/tags': return <ErrorBoundary key="tags"><Suspense fallback={<Loading />}><TagManager /></Suspense></ErrorBoundary>;
-      case '/export': return <ErrorBoundary key="export"><Suspense fallback={<Loading />}><ExportPage /></Suspense></ErrorBoundary>;
-      case '/favorites': return <ErrorBoundary key="favorites"><Suspense fallback={<Loading />}><FavoritesPage /></Suspense></ErrorBoundary>;
-      case '/settings': return <ErrorBoundary key="settings"><Suspense fallback={<Loading />}><SettingsPage /></Suspense></ErrorBoundary>;
-      default: return <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',color:tok.textSecondary,fontFamily:'var(--font-display)',fontSize:14}}>{t('common.pageNotFound')}</div>;
+    if (!routeDef) {
+      return (
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: tok.textSecondary,
+            fontFamily: tok.fontDisplay,
+            fontSize: 14,
+          }}
+        >
+          页面未找到
+        </div>
+      );
     }
+
+    // Import page gets droppedPaths prop
+    if (route === '/import') {
+      const ImportPage = getRouteDef('/import')!.component;
+      return (
+        <ErrorBoundary key="import">
+          <Suspense fallback={<LoadingPage />}>
+            <ImportPage droppedPaths={droppedPaths} onPathsConsumed={() => setDroppedPaths([])} />
+          </Suspense>
+        </ErrorBoundary>
+      );
+    }
+
+    const PageComponent = routeDef.component;
+    return (
+      <ErrorBoundary key={route}>
+        <Suspense fallback={<LoadingPage />}>
+          <PageComponent />
+        </Suspense>
+      </ErrorBoundary>
+    );
   };
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
-      {!isMobile && <Sidebar activeRoute={route} onNavigate={setRoute} onSearch={toggle} />}
-      <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'auto', paddingBottom: isMobile ? 56 : 0 }}>
+      {!isMobile && <Sidebar activeRoute={route} onNavigate={navigate} onSearch={toggle} />}
+      <main
+        style={{
+          flex: 1,
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'auto',
+          paddingBottom: isMobile ? 56 : 0,
+        }}
+      >
         <div key={route} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {renderPage()}
         </div>
       </main>
       <CommandPalette />
       <DropOverlay isVisible={isDragging} />
-      {isMobile && <MobileNav activeRoute={route} onNavigate={setRoute} />}
+      {isMobile && <MobileNav activeRoute={route} onNavigate={navigate} />}
     </div>
   );
-}
-
-function Loading() {
-  return <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',color:tok.textMuted,fontFamily:'var(--font-body)',fontSize:13}}>{t('common.loading')}</div>;
 }
 
 export default App;

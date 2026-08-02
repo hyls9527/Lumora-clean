@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { convertFileSrc, invoke } from '../lib/tauri';
 
-const MAX_RETRIES = 2;
-const RETRY_DELAY_MS = 1000;
+const MAX_RETRIES = 3;
+const BASE_DELAY_MS = 500;
 
 interface UseImageSrcOptions {
   /** If set, load a thumbnail resized to this max width (pixels). */
@@ -73,14 +73,15 @@ export function useImageSrc(
         }
       }
 
-      // Retry on failure
+      // Retry with exponential backoff
       if (!cancelled && attemptRef.current < MAX_RETRIES) {
         attemptRef.current += 1;
+        const delay = BASE_DELAY_MS * Math.pow(2, attemptRef.current - 1);
         setTimeout(() => {
           if (!cancelled && filePathRef.current === filePath) {
             void load();
           }
-        }, RETRY_DELAY_MS * attemptRef.current);
+        }, delay);
       }
     };
 

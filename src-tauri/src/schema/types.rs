@@ -85,6 +85,27 @@ pub struct ExportResult {
     pub dest_dir: String,
 }
 
+/// Result for a single convert operation within batch_convert.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BatchConvertItem {
+    pub id: String,
+    pub old_format: String,
+    pub new_format: String,
+    pub status: String, // "ok" | "error"
+    pub error: Option<String>,
+}
+
+/// Overall result of a batch_convert operation.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BatchConvertResult {
+    pub items: Vec<BatchConvertItem>,
+    pub converted: u32,
+    pub skipped: u32,
+    pub failed: u32,
+}
+
 /// Result returned by import_images command.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

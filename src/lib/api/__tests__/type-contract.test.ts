@@ -80,7 +80,7 @@ const MOCK_TAURI_RECORD: TauriImageRecord = {
   deletedAt: null,
   rating: 3,
   favorite: true,
-  metadataJson: JSON.stringify({ model: 'SDXL', prompt: 'a cat on mars', tags: ['animal', 'space'] }),
+  metadataJson: JSON.stringify({ model: 'SDXL', prompt: 'a cat on mars', tags: ['animal', 'space'], negative_prompt: 'ugly', steps: 30, sampler: 'euler', cfg_scale: 8.0, seed: 999 }),
 };
 
 describe('toImageRecord conversion', () => {
@@ -99,6 +99,11 @@ describe('toImageRecord conversion', () => {
     expect(result.model).toBe('SDXL');
     expect(result.prompt).toBe('a cat on mars');
     expect(result.tags).toEqual(['animal', 'space']);
+    expect(result.negativePrompt).toBe('ugly');
+    expect(result.steps).toBe(30);
+    expect(result.sampler).toBe('euler');
+    expect(result.cfgScale).toBe(8.0);
+    expect(result.seed).toBe(999);
   });
 
   it('handles null metadataJson gracefully', () => {
@@ -106,6 +111,8 @@ describe('toImageRecord conversion', () => {
     expect(result.model).toBe('');
     expect(result.prompt).toBe('');
     expect(result.tags).toEqual([]);
+    expect(result.negativePrompt).toBeUndefined();
+    expect(result.steps).toBeUndefined();
   });
 
   it('handles null width/height → 0', () => {
@@ -139,5 +146,7 @@ describe('toImageRecord conversion', () => {
     expect(result.model).toBe('');
     expect(result.prompt).toBe('');
     expect(result.tags).toEqual([]);
+    expect(result.negativePrompt).toBeUndefined();
+    expect(result.seed).toBeUndefined();
   });
 });

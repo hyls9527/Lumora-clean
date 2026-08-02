@@ -13,6 +13,7 @@ const BUDGETS = {
   'npm packages': { max: 300, unit: 'count' },
   'cargo crates': { max: 700, unit: 'count' },
   'TypeScript files': { max: 200, unit: 'count' },
+  'Zustand stores': { max: 10, unit: 'count' },
 };
 
 function dirSize(path) {
@@ -62,6 +63,12 @@ results.push({ name: 'cargo crates', value: cargoCount, budget: BUDGETS['cargo c
 // TypeScript files
 const tsCount = countLines('src', '.ts') + countLines('src', '.tsx');
 results.push({ name: 'TypeScript files', value: tsCount, budget: BUDGETS['TypeScript files'].max, ok: tsCount <= BUDGETS['TypeScript files'].max });
+
+// Zustand stores
+const storeCount = (() => {
+  try { return readdirSync('src/stores').filter((f) => f.endsWith('.ts')).length; } catch { return 0; }
+})();
+results.push({ name: 'Zustand stores', value: storeCount, budget: BUDGETS['Zustand stores'].max, ok: storeCount <= BUDGETS['Zustand stores'].max });
 
 // Report
 console.log('\n=== Lumora Performance Budget ===\n');

@@ -112,8 +112,8 @@ export function ConvertDialog({ open, imageIds, onClose, onComplete }: ConvertDi
             color: result.failed > 0 ? tok.danger : tok.text,
           }}>
             {result.failed > 0
-              ? t('convert.resultError', { converted: result.converted, skipped: result.skipped, failed: result.failed })
-              : t('convert.result', { converted: result.converted, skipped: result.skipped })}
+              ? t('convert.resultError', undefined, { converted: result.converted, skipped: result.skipped, failed: result.failed })
+              : t('convert.result', undefined, { converted: result.converted, skipped: result.skipped })}
           </div>
         )}
 

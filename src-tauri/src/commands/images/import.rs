@@ -94,7 +94,7 @@ pub(crate) fn scan_folder(root: &str) -> std::io::Result<Vec<ImportEntry>> {
             file_hash: hash,
             width: w,
             height: h,
-            file_size_kb: meta.len() as i64,
+            file_size_kb: meta.len().div_ceil(1024) as i64,
             format: ext,
             created_at: created,
             metadata_json: meta_json,

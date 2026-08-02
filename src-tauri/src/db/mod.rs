@@ -3,14 +3,16 @@ pub mod schema;
 
 use rusqlite::{ffi::sqlite3_auto_extension, Connection};
 use std::path::Path;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 /// Thread-safe database handle wrapping a single SQLite connection.
 ///
 /// Tauri commands receive `&DbHandle` via managed state.
-/// WAL mode + `Mutex` keeps it safe under concurrent Tauri command calls.
+/// WAL mode + internal `Arc<Mutex<Connection>>` allows cheap cloning
+/// for LAN server sharing without opening a second connection.
+#[derive(Clone)]
 pub struct DbHandle {
-    conn: Mutex<Connection>,
+    conn: Arc<Mutex<Connection>>,
     path: std::path::PathBuf,
 }
 
@@ -29,9 +31,8 @@ impl DbHandle {
              PRAGMA synchronous  = NORMAL;
              PRAGMA foreign_keys = ON;",
         )?;
-        migrations::run_migrations(&conn)?;
         Ok(Self {
-            conn: Mutex::new(conn),
+            conn: Arc::new(Mutex::new(conn)),
             path: path.to_path_buf(),
         })
     }
@@ -53,7 +54,7 @@ impl DbHandle {
         )?;
         migrations::run_migrations(&conn)?;
         Ok(Self {
-            conn: Mutex::new(conn),
+            conn: Arc::new(Mutex::new(conn)),
             path: std::path::PathBuf::from(":memory:"),
         })
     }

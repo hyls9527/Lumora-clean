@@ -39,123 +39,225 @@ pub fn batch_rename(
     template: String,
     dry_run: bool,
 ) -> AppResult<RenameResult> {
-    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    // Phase 1: load all records and tags while holding the lock (DB only, no I/O)
+    struct RenameTask {
+        id: String,
+        old_name: String,
+        old_path: std::path::PathBuf,
+        new_name: String,
+        new_path: std::path::PathBuf,
+        error: Option<String>,
+    }
 
-    let mut items: Vec<RenameItem> = Vec::with_capacity(ids.len());
+    let tasks: Vec<RenameTask> = {
+        let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+        let mut used_new_paths: std::collections::HashSet<String> = std::collections::HashSet::new();
+
+        ids.iter()
+            .map(|id| {
+                let record = match conn.query_row(
+                    "SELECT * FROM images WHERE id = ?1",
+                    params![id],
+                    crate::schema::types::row_to_record,
+                ) {
+                    Ok(r) => r,
+                    Err(_) => {
+                        return RenameTask {
+                            id: id.clone(),
+                            old_name: String::new(),
+                            old_path: std::path::PathBuf::new(),
+                            new_name: String::new(),
+                            new_path: std::path::PathBuf::new(),
+                            error: Some(format!("图片不存在: {id}")),
+                        };
+                    }
+                };
+
+                let tags = load_tags_for_image(&conn, id);
+                let old_path = std::path::PathBuf::from(&record.file_path);
+                let old_name = old_path
+                    .file_name()
+                    .map(|s| s.to_string_lossy().into_owned())
+                    .unwrap_or_else(|| record.id.clone());
+
+                let stem = build_filename(&record, &tags, Some(&template));
+                let ext = old_path
+                    .extension()
+                    .map(|s| s.to_string_lossy().into_owned())
+                    .unwrap_or_else(|| record.format.clone());
+
+                let parent = old_path.parent().unwrap_or(std::path::Path::new(""));
+                let desired_name = format!("{stem}.{ext}");
+                let final_new_name = resolve_conflict(&parent, &desired_name, &used_new_paths);
+
+                if final_new_name == old_name {
+                    return RenameTask {
+                        id: id.clone(),
+                        old_name: old_name.clone(),
+                        old_path,
+                        new_name: old_name,
+                        new_path: std::path::PathBuf::new(),
+                        error: None,
+                    };
+                }
+
+                used_new_paths.insert(final_new_name.clone());
+                let new_path = parent.join(&final_new_name);
+
+                RenameTask {
+                    id: id.clone(),
+                    old_name,
+                    old_path,
+                    new_name: final_new_name,
+                    new_path,
+                    error: None,
+                }
+            })
+            .collect()
+    };
+    // Lock released — I/O below happens without holding the mutex
+
+    // Phase 2: perform file renames without DB lock (I/O only)
+    struct RenameOutcome {
+        id: String,
+        old_name: String,
+        old_path: std::path::PathBuf,
+        new_name: String,
+        new_path: Option<std::path::PathBuf>,
+        status: String, // "ok" | "skipped" | "error"
+        error: Option<String>,
+    }
+
+    let outcomes: Vec<RenameOutcome> = tasks
+        .into_iter()
+        .map(|task| {
+            if let Some(err) = task.error {
+                return RenameOutcome {
+                    id: task.id,
+                    old_name: task.old_name,
+                    old_path: task.old_path,
+                    new_name: task.new_name,
+                    new_path: None,
+                    status: "error".into(),
+                    error: Some(err),
+                };
+            }
+
+            if task.new_name == task.old_name && !task.new_name.is_empty() {
+                return RenameOutcome {
+                    id: task.id,
+                    old_name: task.old_name,
+                    old_path: task.old_path,
+                    new_name: task.new_name,
+                    new_path: None,
+                    status: "skipped".into(),
+                    error: None,
+                };
+            }
+
+            if dry_run {
+                return RenameOutcome {
+                    id: task.id,
+                    old_name: task.old_name,
+                    old_path: task.old_path,
+                    new_name: task.new_name,
+                    new_path: None,
+                    status: "ok".into(),
+                    error: None,
+                };
+            }
+
+            match std::fs::rename(&task.old_path, &task.new_path) {
+                Ok(_) => RenameOutcome {
+                    id: task.id,
+                    old_name: task.old_name,
+                    old_path: task.old_path,
+                    new_name: task.new_name,
+                    new_path: Some(task.new_path),
+                    status: "ok".into(),
+                    error: None,
+                },
+                Err(e) => RenameOutcome {
+                    id: task.id,
+                    old_name: task.old_name,
+                    old_path: task.old_path,
+                    new_name: task.new_name,
+                    new_path: None,
+                    status: "error".into(),
+                    error: Some(format!("文件重命名失败: {e}")),
+                },
+            }
+        })
+        .collect();
+
+    // Phase 3: update DB for successfully renamed files (lock → DB → unlock)
+    {
+        let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+        for outcome in &outcomes {
+            if outcome.status == "ok" && outcome.new_path.is_some() && !dry_run {
+                let new_path = outcome.new_path.as_ref().unwrap();
+                let new_path_str = new_path.to_string_lossy().into_owned();
+                let tx = match conn.unchecked_transaction() {
+                    Ok(t) => t,
+                    Err(e) => {
+                        let _ = std::fs::rename(new_path, &outcome.old_path);
+                        log::error!("Failed to start DB transaction for rename {}: {}", outcome.id, e);
+                        continue;
+                    }
+                };
+                if let Err(e) = tx.execute(
+                    "UPDATE images SET file_path = ?1 WHERE id = ?2",
+                    params![new_path_str, outcome.id],
+                ) {
+                    let _ = std::fs::rename(new_path, &outcome.old_path);
+                    log::error!("DB update failed for rename {}: {}", outcome.id, e);
+                    continue;
+                }
+                if let Err(e) = tx.commit() {
+                    let _ = std::fs::rename(new_path, &outcome.old_path);
+                    log::error!("DB commit failed for rename {}: {}", outcome.id, e);
+                }
+            }
+        }
+    }
+
+    // Build result
+    let mut items: Vec<RenameItem> = Vec::with_capacity(outcomes.len());
     let mut renamed = 0u32;
     let mut skipped = 0u32;
     let mut errors = 0u32;
 
-    // Track used filenames to detect inter-image conflicts within the batch
-    let mut used_new_paths: std::collections::HashSet<String> = std::collections::HashSet::new();
-
-    for id in &ids {
-        let record = match conn.query_row(
-            "SELECT * FROM images WHERE id = ?1",
-            params![id],
-            crate::schema::types::row_to_record,
-        ) {
-            Ok(r) => r,
-            Err(_) => {
+    for outcome in &outcomes {
+        match outcome.status.as_str() {
+            "ok" => {
+                renamed += 1;
                 items.push(RenameItem {
-                    id: id.clone(),
-                    old_name: String::new(),
-                    new_name: String::new(),
-                    status: "error".into(),
-                    error: Some(format!("图片不存在: {id}")),
-                });
-                errors += 1;
-                continue;
-            }
-        };
-
-        let tags = load_tags_for_image(&conn, id);
-        let old_path = Path::new(&record.file_path);
-        let old_name = old_path
-            .file_name()
-            .map(|s| s.to_string_lossy().into_owned())
-            .unwrap_or_else(|| record.id.clone());
-
-        let stem = build_filename(&record, &tags, Some(&template));
-        let ext = old_path
-            .extension()
-            .map(|s| s.to_string_lossy().into_owned())
-            .unwrap_or_else(|| record.format.clone());
-
-        let parent = old_path.parent().unwrap_or(Path::new(""));
-        let new_name = format!("{stem}.{ext}");
-
-        // Resolve conflict: if new_name already used (by another image in this batch
-        // or already exists on disk), append _1, _2, etc.
-        let final_new_name = resolve_conflict(&parent, &new_name, &used_new_paths);
-
-        if final_new_name == old_name {
-            // Name unchanged — skip
-            items.push(RenameItem {
-                id: id.clone(),
-                old_name: old_name.clone(),
-                new_name: old_name,
-                status: "ok".into(),
-                error: None,
-            });
-            skipped += 1;
-            continue;
-        }
-
-        used_new_paths.insert(final_new_name.clone());
-        let new_path = parent.join(&final_new_name);
-
-        if dry_run {
-            items.push(RenameItem {
-                id: id.clone(),
-                old_name,
-                new_name: final_new_name,
-                status: "ok".into(),
-                error: None,
-            });
-            renamed += 1;
-            continue;
-        }
-
-        // Perform actual rename
-        match std::fs::rename(&record.file_path, &new_path) {
-            Ok(_) => {
-                // Update DB
-                let new_path_str = new_path.to_string_lossy().into_owned();
-                if let Err(e) = conn.execute(
-                    "UPDATE images SET file_path = ?1 WHERE id = ?2",
-                    params![new_path_str, id],
-                ) {
-                    // DB update failed — try to revert file rename
-                    let _ = std::fs::rename(&new_path, &record.file_path);
-                    items.push(RenameItem {
-                        id: id.clone(),
-                        old_name,
-                        new_name: final_new_name,
-                        status: "error".into(),
-                        error: Some(format!("数据库更新失败: {e}")),
-                    });
-                    errors += 1;
-                    continue;
-                }
-                items.push(RenameItem {
-                    id: id.clone(),
-                    old_name,
-                    new_name: final_new_name,
+                    id: outcome.id.clone(),
+                    old_name: outcome.old_name.clone(),
+                    new_name: outcome.new_name.clone(),
                     status: "ok".into(),
                     error: None,
                 });
-                renamed += 1;
             }
-            Err(e) => {
+            "skipped" => {
+                skipped += 1;
                 items.push(RenameItem {
-                    id: id.clone(),
-                    old_name,
-                    new_name: final_new_name,
-                    status: "error".into(),
-                    error: Some(format!("文件重命名失败: {e}")),
+                    id: outcome.id.clone(),
+                    old_name: outcome.old_name.clone(),
+                    new_name: outcome.new_name.clone(),
+                    status: "ok".into(),
+                    error: None,
                 });
+            }
+            _ => {
                 errors += 1;
+                items.push(RenameItem {
+                    id: outcome.id.clone(),
+                    old_name: outcome.old_name.clone(),
+                    new_name: outcome.new_name.clone(),
+                    status: "error".into(),
+                    error: outcome.error.clone(),
+                });
             }
         }
     }

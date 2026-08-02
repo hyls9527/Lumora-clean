@@ -1,0 +1,57 @@
+import { describe, it, expect } from 'vitest';
+import { hasActiveFilters, countActiveFilters, type FilterCriteria } from '../filter';
+
+describe('FilterCriteria helpers', () => {
+  describe('hasActiveFilters', () => {
+    it('returns false for empty criteria', () => {
+      expect(hasActiveFilters({})).toBe(false);
+    });
+
+    it('returns true when model is set', () => {
+      expect(hasActiveFilters({ model: 'sd1.5' })).toBe(true);
+    });
+
+    it('returns true when rating range is set', () => {
+      expect(hasActiveFilters({ ratingMin: 3 })).toBe(true);
+      expect(hasActiveFilters({ ratingMax: 5 })).toBe(true);
+    });
+
+    it('returns true when favorite is set', () => {
+      expect(hasActiveFilters({ favorite: true })).toBe(true);
+    });
+
+    it('returns true when format is set', () => {
+      expect(hasActiveFilters({ format: 'png' })).toBe(true);
+    });
+
+    it('returns true when date range is set', () => {
+      expect(hasActiveFilters({ dateFrom: '2025-01-01' })).toBe(true);
+      expect(hasActiveFilters({ dateTo: '2025-12-31' })).toBe(true);
+    });
+  });
+
+  describe('countActiveFilters', () => {
+    it('returns 0 for empty criteria', () => {
+      expect(countActiveFilters({})).toBe(0);
+    });
+
+    it('counts model as 1', () => {
+      expect(countActiveFilters({ model: 'sd1.5' })).toBe(1);
+    });
+
+    it('counts rating range as 1 (not 2)', () => {
+      expect(countActiveFilters({ ratingMin: 3, ratingMax: 5 })).toBe(1);
+    });
+
+    it('counts multiple independent filters', () => {
+      const criteria: FilterCriteria = {
+        model: 'sd1.5',
+        ratingMin: 3,
+        favorite: true,
+        format: 'png',
+        dateFrom: '2025-01-01',
+      };
+      expect(countActiveFilters(criteria)).toBe(5);
+    });
+  });
+});

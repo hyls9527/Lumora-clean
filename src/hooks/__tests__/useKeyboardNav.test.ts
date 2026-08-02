@@ -1,110 +1,379 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useKeyboardNav } from '../useKeyboardNav';
+import type { KeyboardNavStage } from '../useKeyboardNav';
 
 vi.mock('../../stores/commandStore', () => ({
   useCommandStore: () => false, // isCommandOpen = false
 }));
+
+/** Helper: dispatch a keydown event on window */
+function pressKey(key: string, target?: HTMLElement) {
+  const el = target ?? window;
+  el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+}
 
 describe('useKeyboardNav', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('should call onArrowDown when ArrowDown pressed', () => {
-    const onArrowDown = vi.fn();
-    renderHook(() => useKeyboardNav({ route: '/gallery', onArrowDown }));
+  // ─── Backward compatibility: single-stage ───
+  describe('single stage (default behavior)', () => {
+    it('should fire the first stage handlers when no activeStage given', () => {
+      const onArrowDown = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onArrowDown }];
 
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
-    expect(onArrowDown).toHaveBeenCalledTimes(1);
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      pressKey('ArrowDown');
+      expect(onArrowDown).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fire Enter handler', () => {
+      const onEnter = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onEnter }];
+
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      pressKey('Enter');
+      expect(onEnter).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fire Escape handler', () => {
+      const onEscape = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onEscape }];
+
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      pressKey('Escape');
+      expect(onEscape).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fire onDelete for Delete key', () => {
+      const onDelete = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onDelete }];
+
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      pressKey('Delete');
+      expect(onDelete).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fire onDelete for Backspace key', () => {
+      const onDelete = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onDelete }];
+
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      pressKey('Backspace');
+      expect(onDelete).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fire onFavorite when f pressed', () => {
+      const onFavorite = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onFavorite }];
+
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      pressKey('f');
+      expect(onFavorite).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fire onRate with number when 1-5 pressed', () => {
+      const onRate = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onRate }];
+
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      pressKey('3');
+      expect(onRate).toHaveBeenCalledWith(3);
+    });
+
+    it('should fire onSpace when Space pressed', () => {
+      const onSpace = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onSpace }];
+
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      pressKey(' ');
+      expect(onSpace).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('should call onEnter when Enter pressed', () => {
-    const onEnter = vi.fn();
-    renderHook(() => useKeyboardNav({ route: '/gallery', onEnter }));
+  // ─── Multi-stage switching ───
+  describe('multi-stage switching', () => {
+    it('should fire active stage handlers, not inactive ones', () => {
+      const browseEnter = vi.fn();
+      const detailEnter = vi.fn();
 
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-    expect(onEnter).toHaveBeenCalledTimes(1);
+      const stages: KeyboardNavStage[] = [
+        { id: 'browse', onEnter: browseEnter },
+        { id: 'detail', onEnter: detailEnter },
+      ];
+
+      renderHook(() =>
+        useKeyboardNav({ route: '/gallery', stages, activeStage: 'browse' }),
+      );
+
+      pressKey('Enter');
+      expect(browseEnter).toHaveBeenCalledTimes(1);
+      expect(detailEnter).not.toHaveBeenCalled();
+    });
+
+    it('should switch handlers when activeStage changes', () => {
+      const browseEnter = vi.fn();
+      const detailEnter = vi.fn();
+
+      const stages: KeyboardNavStage[] = [
+        { id: 'browse', onEnter: browseEnter },
+        { id: 'detail', onEnter: detailEnter },
+      ];
+
+      const { rerender } = renderHook(
+        ({ activeStage }) =>
+          useKeyboardNav({ route: '/gallery', stages, activeStage }),
+        { initialProps: { activeStage: 'browse' as string | undefined } },
+      );
+
+      pressKey('Enter');
+      expect(browseEnter).toHaveBeenCalledTimes(1);
+
+      rerender({ activeStage: 'detail' });
+
+      pressKey('Enter');
+      expect(browseEnter).toHaveBeenCalledTimes(1); // no more calls
+      expect(detailEnter).toHaveBeenCalledTimes(1);
+    });
+
+    it('should resolve different keys per stage', () => {
+      const browseArrowUp = vi.fn();
+      const detailArrowLeft = vi.fn();
+
+      const stages: KeyboardNavStage[] = [
+        { id: 'browse', onArrowUp: browseArrowUp },
+        { id: 'detail', onArrowLeft: detailArrowLeft },
+      ];
+
+      renderHook(() =>
+        useKeyboardNav({ route: '/gallery', stages, activeStage: 'detail' }),
+      );
+
+      pressKey('ArrowLeft');
+      expect(detailArrowLeft).toHaveBeenCalledTimes(1);
+
+      pressKey('ArrowUp');
+      // browse stage is not active, so ArrowUp should NOT fire
+      expect(browseArrowUp).not.toHaveBeenCalled();
+    });
+
+    it('should default to first stage when activeStage is undefined', () => {
+      const firstEnter = vi.fn();
+      const secondEnter = vi.fn();
+
+      const stages: KeyboardNavStage[] = [
+        { id: 'first', onEnter: firstEnter },
+        { id: 'second', onEnter: secondEnter },
+      ];
+
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      pressKey('Enter');
+      expect(firstEnter).toHaveBeenCalledTimes(1);
+      expect(secondEnter).not.toHaveBeenCalled();
+    });
   });
 
-  it('should call onEscape when Escape pressed', () => {
-    const onEscape = vi.fn();
-    renderHook(() => useKeyboardNav({ route: '/gallery', onEscape }));
+  // ─── Edge cases ───
+  describe('edge cases', () => {
+    it('should do nothing when stages array is empty', () => {
+      const stages: KeyboardNavStage[] = [];
 
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-    expect(onEscape).toHaveBeenCalledTimes(1);
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      // Should not throw
+      pressKey('Enter');
+      pressKey('ArrowDown');
+      pressKey('Escape');
+    });
+
+    it('should do nothing when activeStage does not match any stage', () => {
+      const onEnter = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'browse', onEnter }];
+
+      renderHook(() =>
+        useKeyboardNav({
+          route: '/gallery',
+          stages,
+          activeStage: 'nonexistent',
+        }),
+      );
+
+      pressKey('Enter');
+      expect(onEnter).not.toHaveBeenCalled();
+    });
+
+    it('should skip when disabled is true', () => {
+      const onEnter = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onEnter }];
+
+      renderHook(() =>
+        useKeyboardNav({ route: '/gallery', stages, disabled: true }),
+      );
+
+      pressKey('Enter');
+      expect(onEnter).not.toHaveBeenCalled();
+    });
+
+    it('should fire when disabled is false (explicit)', () => {
+      const onEnter = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onEnter }];
+
+      renderHook(() =>
+        useKeyboardNav({ route: '/gallery', stages, disabled: false }),
+      );
+
+      pressKey('Enter');
+      expect(onEnter).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('should call onDelete when Delete pressed', () => {
-    const onDelete = vi.fn();
-    renderHook(() => useKeyboardNav({ route: '/gallery', onDelete }));
+  // ─── Input exclusion ───
+  describe('input exclusion', () => {
+    it('should NOT fire when typing in INPUT', () => {
+      const onArrowDown = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onArrowDown }];
 
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete' }));
-    expect(onDelete).toHaveBeenCalledTimes(1);
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      const input = document.createElement('input');
+      document.body.appendChild(input);
+      pressKey('ArrowDown', input);
+      document.body.removeChild(input);
+
+      expect(onArrowDown).not.toHaveBeenCalled();
+    });
+
+    it('should NOT fire when typing in TEXTAREA', () => {
+      const onEnter = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onEnter }];
+
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      const textarea = document.createElement('textarea');
+      document.body.appendChild(textarea);
+      pressKey('Enter', textarea);
+      document.body.removeChild(textarea);
+
+      expect(onEnter).not.toHaveBeenCalled();
+    });
+
+    it('should NOT fire when typing in SELECT', () => {
+      const onArrowDown = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onArrowDown }];
+
+      renderHook(() => useKeyboardNav({ route: '/gallery', stages }));
+
+      const select = document.createElement('select');
+      document.body.appendChild(select);
+      pressKey('ArrowDown', select);
+      document.body.removeChild(select);
+
+      expect(onArrowDown).not.toHaveBeenCalled();
+    });
   });
 
-  it('should call onDelete when Backspace pressed', () => {
-    const onDelete = vi.fn();
-    renderHook(() => useKeyboardNav({ route: '/gallery', onDelete }));
+  // ─── Cleanup ───
+  describe('cleanup', () => {
+    it('should remove listener on unmount', () => {
+      const onArrowDown = vi.fn();
+      const stages: KeyboardNavStage[] = [{ id: 'main', onArrowDown }];
 
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace' }));
-    expect(onDelete).toHaveBeenCalledTimes(1);
+      const { unmount } = renderHook(() =>
+        useKeyboardNav({ route: '/gallery', stages }),
+      );
+
+      unmount();
+      pressKey('ArrowDown');
+      expect(onArrowDown).not.toHaveBeenCalled();
+    });
   });
 
-  it('should call onFavorite when f pressed', () => {
-    const onFavorite = vi.fn();
-    renderHook(() => useKeyboardNav({ route: '/gallery', onFavorite }));
+  // ─── Real-world multi-stage scenario (Gallery-like) ───
+  describe('gallery-like multi-stage scenario', () => {
+    it('should handle browse → detail → browse transition', () => {
+      const browseEnter = vi.fn();
+      const detailEscape = vi.fn();
+      const detailLeft = vi.fn();
+      const detailRight = vi.fn();
 
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'f' }));
-    expect(onFavorite).toHaveBeenCalledTimes(1);
-  });
+      const stages: KeyboardNavStage[] = [
+        { id: 'browse', onEnter: browseEnter },
+        {
+          id: 'detail',
+          onEscape: detailEscape,
+          onArrowLeft: detailLeft,
+          onArrowRight: detailRight,
+        },
+      ];
 
-  it('should call onRate with number when 1-5 pressed', () => {
-    const onRate = vi.fn();
-    renderHook(() => useKeyboardNav({ route: '/gallery', onRate }));
+      const { rerender } = renderHook(
+        ({ activeStage }) =>
+          useKeyboardNav({ route: '/gallery', stages, activeStage }),
+        { initialProps: { activeStage: 'browse' as string | undefined } },
+      );
 
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: '3' }));
-    expect(onRate).toHaveBeenCalledWith(3);
-  });
+      // Browse: Enter fires
+      pressKey('Enter');
+      expect(browseEnter).toHaveBeenCalledTimes(1);
 
-  it('should call onSpace when Space pressed', () => {
-    const onSpace = vi.fn();
-    renderHook(() => useKeyboardNav({ route: '/gallery', onSpace }));
+      // Switch to detail
+      rerender({ activeStage: 'detail' });
 
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
-    expect(onSpace).toHaveBeenCalledTimes(1);
-  });
+      // Detail: arrows fire, Escape fires
+      pressKey('ArrowLeft');
+      pressKey('ArrowRight');
+      pressKey('Escape');
+      expect(detailLeft).toHaveBeenCalledTimes(1);
+      expect(detailRight).toHaveBeenCalledTimes(1);
+      expect(detailEscape).toHaveBeenCalledTimes(1);
 
-  it('should NOT call handler when typing in INPUT', () => {
-    const onArrowDown = vi.fn();
-    renderHook(() => useKeyboardNav({ route: '/gallery', onArrowDown }));
+      // Switch back to browse
+      rerender({ activeStage: 'browse' });
 
-    const input = document.createElement('input');
-    document.body.appendChild(input);
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
-    document.body.removeChild(input);
+      pressKey('Enter');
+      expect(browseEnter).toHaveBeenCalledTimes(2);
+    });
 
-    expect(onArrowDown).not.toHaveBeenCalled();
-  });
+    it('should allow partial handler overrides between stages', () => {
+      const deleteBrowse = vi.fn();
+      const deleteDetail = vi.fn();
+      const favBrowse = vi.fn();
 
-  it('should NOT call handler when typing in TEXTAREA', () => {
-    const onEnter = vi.fn();
-    renderHook(() => useKeyboardNav({ route: '/gallery', onEnter }));
+      const stages: KeyboardNavStage[] = [
+        { id: 'browse', onDelete: deleteBrowse, onFavorite: favBrowse },
+        // detail stage has onDelete but no onFavorite
+        { id: 'detail', onDelete: deleteDetail },
+      ];
 
-    const textarea = document.createElement('textarea');
-    document.body.appendChild(textarea);
-    textarea.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-    document.body.removeChild(textarea);
+      const { rerender } = renderHook(
+        ({ activeStage }) =>
+          useKeyboardNav({ route: '/gallery', stages, activeStage }),
+        { initialProps: { activeStage: 'browse' as string | undefined } },
+      );
 
-    expect(onEnter).not.toHaveBeenCalled();
-  });
+      pressKey('Delete');
+      pressKey('f');
+      expect(deleteBrowse).toHaveBeenCalledTimes(1);
+      expect(favBrowse).toHaveBeenCalledTimes(1);
 
-  it('should cleanup listener on unmount', () => {
-    const onArrowDown = vi.fn();
-    const { unmount } = renderHook(() => useKeyboardNav({ route: '/gallery', onArrowDown }));
+      rerender({ activeStage: 'detail' });
 
-    unmount();
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
-    expect(onArrowDown).not.toHaveBeenCalled();
+      pressKey('Delete');
+      pressKey('f');
+      expect(deleteDetail).toHaveBeenCalledTimes(1);
+      // f should not fire anything in detail stage (no handler)
+      expect(favBrowse).toHaveBeenCalledTimes(1); // unchanged
+    });
   });
 });

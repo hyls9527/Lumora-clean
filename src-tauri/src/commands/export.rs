@@ -25,41 +25,67 @@ pub fn export_images(
     format: String,
     rename_template: Option<String>,
 ) -> AppResult<ExportResult> {
+    // Validate format early (fixes #10)
+    let allowed = ["original", "png", "jpg", "jpeg", "webp", "avif", "bmp", "gif", "tiff", "tif"];
+    if !allowed.contains(&format.as_str()) {
+        return Err(AppError::InvalidInput(format!("不支持的格式: {format}")));
+    }
+
     let dest = Path::new(&dest_dir);
     fs::create_dir_all(dest).map_err(|e| AppError::Io(format!("创建目标文件夹失败: {e}")))?;
 
-    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    // Phase 1: collect all records and tags while holding the lock (DB only, no I/O)
+    struct ExportTask {
+        file_path: String,
+        stem: String,
+        ext: String,
+    }
+    let tasks: Vec<Result<ExportTask, String>> = {
+        let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+        ids.iter()
+            .filter_map(|id| {
+                let record = match conn.query_row(
+                    "SELECT * FROM images WHERE id = ?1",
+                    params![id],
+                    row_to_record,
+                ) {
+                    Ok(r) => r,
+                    Err(_) => return Some(Err(id.clone())),
+                };
+                let tags = load_tags_for_image(&conn, id);
+                let stem = build_filename(&record, &tags, rename_template.as_deref());
+                let ext = resolve_extension(&record.format, &format);
+                Some(Ok(ExportTask {
+                    file_path: record.file_path,
+                    stem,
+                    ext: ext.to_string(),
+                }))
+            })
+            .collect()
+    };
+    // Lock released here — all I/O below happens without holding the mutex
+
+    // Phase 2: perform export I/O without holding the DB lock
+    let opts = ConvertOptions {
+        format,
+        quality: None,
+        max_width: None,
+        max_height: None,
+    };
 
     let mut success = 0u32;
     let mut failed = 0u32;
 
-    for id in &ids {
-        let record = match conn.query_row(
-            "SELECT * FROM images WHERE id = ?1",
-            params![id],
-            row_to_record,
-        ) {
-            Ok(r) => r,
+    for task in &tasks {
+        let task = match task {
+            Ok(t) => t,
             Err(_) => {
                 failed += 1;
                 continue;
             }
         };
-
-        let tags = load_tags_for_image(&conn, id);
-
-        let stem = build_filename(&record, &tags, rename_template.as_deref());
-        let ext = resolve_extension(&record.format, &format);
-        let out_path = dest.join(format!("{stem}.{ext}"));
-
-        let opts = ConvertOptions {
-            format: format.clone(),
-            quality: None,
-            max_width: None,
-            max_height: None,
-        };
-
-        match export_single(&record.file_path, &out_path, &opts) {
+        let out_path = dest.join(format!("{}.{}", task.stem, task.ext));
+        match export_single(&task.file_path, &out_path, &opts) {
             Ok(_) => success += 1,
             Err(_) => failed += 1,
         }
@@ -87,7 +113,7 @@ pub fn batch_convert(
     dry_run: bool,
 ) -> AppResult<BatchConvertResult> {
     // Validate format early
-    if format != "original" && format != "png" && format != "jpg" && format != "jpeg" && format != "webp" {
+    if format != "original" && format != "png" && format != "jpg" && format != "jpeg" && format != "webp" && format != "avif" && format != "bmp" && format != "gif" && format != "tiff" && format != "tif" {
         return Err(AppError::InvalidInput(format!("不支持的格式: {format}")));
     }
     if let Some(q) = quality {
@@ -96,160 +122,262 @@ pub fn batch_convert(
         }
     }
 
-    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-
-    let mut items: Vec<BatchConvertItem> = Vec::with_capacity(ids.len());
-    let mut converted = 0u32;
-    let mut skipped = 0u32;
-    let mut failed = 0u32;
-
     let opts = ConvertOptions {
-        format,
+        format: format.clone(),
         quality,
         max_width,
         max_height,
     };
 
-    for id in &ids {
-        let record = match conn.query_row(
-            "SELECT * FROM images WHERE id = ?1",
-            params![id],
-            row_to_record,
-        ) {
-            Ok(r) => r,
-            Err(_) => {
-                items.push(BatchConvertItem {
-                    id: id.clone(),
-                    old_format: String::new(),
-                    new_format: opts.format.clone(),
-                    status: "error".into(),
-                    error: Some(format!("图片不存在: {id}")),
-                });
-                failed += 1;
-                continue;
-            }
-        };
+    // Phase 1: load all records while holding the lock (DB only, no I/O)
+    struct ConvertTask {
+        id: String,
+        old_format: String,
+        file_path: String,
+        new_ext: String,
+        new_path: std::path::PathBuf,
+        old_path: std::path::PathBuf,
+        no_work: bool, // skip — format unchanged and no resize
+        error: Option<String>,
+    }
 
-        let new_ext = resolve_extension(&record.format, &opts.format);
-
-        // Skip if format unchanged and no resize requested
-        let no_resize = opts.max_width.is_none() && opts.max_height.is_none();
-        if opts.format == "original" && no_resize {
-            items.push(BatchConvertItem {
-                id: id.clone(),
-                old_format: record.format.clone(),
-                new_format: record.format.clone(),
-                status: "ok".into(),
-                error: None,
-            });
-            skipped += 1;
-            continue;
-        }
-
-        let old_path = Path::new(&record.file_path);
-        let new_path = if let Some(ref dir) = dest_dir {
-            let dest = Path::new(dir);
-            let stem = old_path
-                .file_stem()
-                .map(|s| s.to_string_lossy().into_owned())
-                .unwrap_or_else(|| record.id.clone());
-            dest.join(format!("{stem}.{new_ext}"))
-        } else {
-            old_path.with_extension(new_ext)
-        };
-
-        // If in-place conversion and src == dest with same format, skip
-        if dest_dir.is_none()
-            && opts.format == "original"
-            && old_path == new_path
-        {
-            items.push(BatchConvertItem {
-                id: id.clone(),
-                old_format: record.format.clone(),
-                new_format: record.format.clone(),
-                status: "ok".into(),
-                error: None,
-            });
-            skipped += 1;
-            continue;
-        }
-
-        if dry_run {
-            items.push(BatchConvertItem {
-                id: id.clone(),
-                old_format: record.format.clone(),
-                new_format: new_ext.to_string(),
-                status: "ok".into(),
-                error: None,
-            });
-            converted += 1;
-            continue;
-        }
-
-        // Ensure parent dir exists (for dest_dir mode)
-        if let Some(parent) = new_path.parent() {
-            if let Err(e) = fs::create_dir_all(parent) {
-                items.push(BatchConvertItem {
-                    id: id.clone(),
-                    old_format: record.format.clone(),
-                    new_format: new_ext.to_string(),
-                    status: "error".into(),
-                    error: Some(format!("创建目录失败: {e}")),
-                });
-                failed += 1;
-                continue;
-            }
-        }
-
-        match export_single(&record.file_path, &new_path, &opts) {
-            Ok(_) => {
-                // Update DB with new file_path and format
-                let new_path_str = new_path.to_string_lossy().into_owned();
-                let new_format_str = if opts.format == "original" {
-                    record.format.clone()
-                } else if opts.format == "jpg" || opts.format == "jpeg" {
-                    "jpeg".to_string()
-                } else {
-                    opts.format.clone()
+    let tasks: Vec<ConvertTask> = {
+        let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+        ids.iter()
+            .map(|id| {
+                let record = match conn.query_row(
+                    "SELECT * FROM images WHERE id = ?1",
+                    params![id],
+                    row_to_record,
+                ) {
+                    Ok(r) => r,
+                    Err(_) => {
+                        return ConvertTask {
+                            id: id.clone(),
+                            old_format: String::new(),
+                            file_path: String::new(),
+                            new_ext: opts.format.clone(),
+                            new_path: std::path::PathBuf::new(),
+                            old_path: std::path::PathBuf::new(),
+                            no_work: false,
+                            error: Some(format!("图片不存在: {id}")),
+                        };
+                    }
                 };
 
-                // Remove old file if converting to a different file
-                if new_path != old_path {
-                    let _ = fs::remove_file(old_path);
-                }
+                let new_ext = resolve_extension(&record.format, &opts.format);
+                let no_resize = opts.max_width.is_none() && opts.max_height.is_none();
 
-                if let Err(e) = conn.execute(
-                    "UPDATE images SET file_path = ?1, format = ?2 WHERE id = ?3",
-                    params![new_path_str, new_format_str, id],
-                ) {
-                    items.push(BatchConvertItem {
+                if opts.format == "original" && no_resize {
+                    return ConvertTask {
                         id: id.clone(),
                         old_format: record.format.clone(),
-                        new_format: new_ext.to_string(),
-                        status: "error".into(),
-                        error: Some(format!("数据库更新失败: {e}")),
-                    });
-                    failed += 1;
-                    continue;
+                        file_path: record.file_path.clone(),
+                        new_ext: record.format.clone(),
+                        new_path: std::path::PathBuf::new(),
+                        old_path: std::path::PathBuf::new(),
+                        no_work: true,
+                        error: None,
+                    };
                 }
-                items.push(BatchConvertItem {
+
+                let old_path = std::path::PathBuf::from(&record.file_path);
+                let new_path = if let Some(ref dir) = dest_dir {
+                    let dest = std::path::Path::new(dir);
+                    let stem = old_path
+                        .file_stem()
+                        .map(|s| s.to_string_lossy().into_owned())
+                        .unwrap_or_else(|| record.id.clone());
+                    dest.join(format!("{stem}.{new_ext}"))
+                } else {
+                    old_path.with_extension(&*new_ext)
+                };
+
+                // In-place same format, no resize → skip
+                if dest_dir.is_none()
+                    && opts.format == "original"
+                    && old_path == new_path
+                {
+                    return ConvertTask {
+                        id: id.clone(),
+                        old_format: record.format.clone(),
+                        file_path: record.file_path.clone(),
+                        new_ext: record.format.clone(),
+                        new_path: std::path::PathBuf::new(),
+                        old_path,
+                        no_work: true,
+                        error: None,
+                    };
+                }
+
+                ConvertTask {
                     id: id.clone(),
                     old_format: record.format.clone(),
-                    new_format: new_ext.to_string(),
+                    file_path: record.file_path,
+                    new_ext: new_ext.to_string(),
+                    new_path,
+                    old_path,
+                    no_work: false,
+                    error: None,
+                }
+            })
+            .collect()
+    };
+    // Lock released — I/O below happens without holding the mutex
+
+    // Phase 2: perform conversion I/O and collect results
+    struct ConvertOutcome {
+        id: String,
+        old_format: String,
+        new_format: String,
+        status: String, // "ok" | "skipped" | "error"
+        error: Option<String>,
+        new_path_str: Option<String>,
+    }
+
+    let outcomes: Vec<ConvertOutcome> = tasks
+        .into_iter()
+        .map(|task| {
+            if let Some(err) = task.error {
+                return ConvertOutcome {
+                    id: task.id,
+                    old_format: task.old_format,
+                    new_format: task.new_ext,
+                    status: "error".into(),
+                    error: Some(err),
+                    new_path_str: None,
+                };
+            }
+
+            if task.no_work {
+                return ConvertOutcome {
+                    id: task.id,
+                    old_format: task.old_format.clone(),
+                    new_format: task.old_format,
+                    status: "skipped".into(),
+                    error: None,
+                    new_path_str: None,
+                };
+            }
+
+            if dry_run {
+                return ConvertOutcome {
+                    id: task.id,
+                    old_format: task.old_format,
+                    new_format: task.new_ext,
+                    status: "ok".into(),
+                    error: None,
+                    new_path_str: None,
+                };
+            }
+
+            // Ensure parent dir exists (for dest_dir mode)
+            if let Some(parent) = task.new_path.parent() {
+                if let Err(e) = fs::create_dir_all(parent) {
+                    return ConvertOutcome {
+                        id: task.id,
+                        old_format: task.old_format,
+                        new_format: task.new_ext,
+                        status: "error".into(),
+                        error: Some(format!("创建目录失败: {e}")),
+                        new_path_str: None,
+                    };
+                }
+            }
+
+            match export_single(&task.file_path, &task.new_path, &opts) {
+                Ok(_) => {
+                    // Remove old file if path changed
+                    if task.new_path != task.old_path {
+                        let _ = fs::remove_file(&task.old_path);
+                    }
+                    ConvertOutcome {
+                        id: task.id,
+                        old_format: task.old_format,
+                        new_format: task.new_ext,
+                        status: "ok".into(),
+                        error: None,
+                        new_path_str: Some(task.new_path.to_string_lossy().into_owned()),
+                    }
+                }
+                Err(e) => ConvertOutcome {
+                    id: task.id,
+                    old_format: task.old_format,
+                    new_format: task.new_ext,
+                    status: "error".into(),
+                    error: Some(format!("转换失败: {e}")),
+                    new_path_str: None,
+                },
+            }
+        })
+        .collect();
+
+    // Phase 3: update DB for successfully converted images (lock → DB writes → unlock)
+    {
+        let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+        for outcome in &outcomes {
+            if outcome.status == "ok" && outcome.new_path_str.is_some() && !dry_run {
+                let new_path_str = outcome.new_path_str.as_deref().unwrap();
+                let new_format_str =
+                    if opts.format == "original" {
+                        outcome.old_format.clone()
+                    } else if opts.format == "jpg" || opts.format == "jpeg" {
+                        "jpeg".to_string()
+                    } else {
+                        opts.format.clone()
+                    };
+                // If DB update fails, log but don't fail the whole batch — file is already converted
+                if let Err(e) = conn.execute(
+                    "UPDATE images SET file_path = ?1, format = ?2 WHERE id = ?3",
+                    params![new_path_str, new_format_str, outcome.id],
+                ) {
+                    log::error!("DB update failed for {} after conversion: {}", outcome.id, e);
+                }
+            }
+        }
+    }
+
+    // Build result
+    let mut items: Vec<BatchConvertItem> = Vec::with_capacity(outcomes.len());
+    let mut converted = 0u32;
+    let mut skipped = 0u32;
+    let mut failed = 0u32;
+
+    for outcome in &outcomes {
+        match outcome.status.as_str() {
+            "ok" => {
+                if dry_run {
+                    converted += 1;
+                } else {
+                    converted += 1;
+                }
+                items.push(BatchConvertItem {
+                    id: outcome.id.clone(),
+                    old_format: outcome.old_format.clone(),
+                    new_format: outcome.new_format.clone(),
                     status: "ok".into(),
                     error: None,
                 });
-                converted += 1;
             }
-            Err(e) => {
+            "skipped" => {
+                skipped += 1;
                 items.push(BatchConvertItem {
-                    id: id.clone(),
-                    old_format: record.format.clone(),
-                    new_format: new_ext.to_string(),
-                    status: "error".into(),
-                    error: Some(format!("转换失败: {e}")),
+                    id: outcome.id.clone(),
+                    old_format: outcome.old_format.clone(),
+                    new_format: outcome.new_format.clone(),
+                    status: "ok".into(),
+                    error: None,
                 });
+            }
+            _ => {
                 failed += 1;
+                items.push(BatchConvertItem {
+                    id: outcome.id.clone(),
+                    old_format: outcome.old_format.clone(),
+                    new_format: outcome.new_format.clone(),
+                    status: "error".into(),
+                    error: outcome.error.clone(),
+                });
             }
         }
     }
@@ -794,7 +922,22 @@ mod tests {
         // Also create tags table for load_tags_for_image
         let conn = db.conn().lock().unwrap();
         conn.execute_batch(
-            "CREATE TABLE IF NOT EXISTS tags (
+            "CREATE TABLE IF NOT EXISTS images (
+                id            TEXT PRIMARY KEY,
+                file_path     TEXT NOT NULL UNIQUE,
+                file_hash     TEXT NOT NULL,
+                file_size_kb  INTEGER NOT NULL,
+                width         INTEGER,
+                height        INTEGER,
+                format        TEXT NOT NULL,
+                created_at    TEXT NOT NULL,
+                imported_at   TEXT NOT NULL DEFAULT (datetime('now')),
+                deleted       INTEGER DEFAULT 0,
+                rating        INTEGER DEFAULT 0,
+                favorite      INTEGER DEFAULT 0,
+                metadata_json TEXT
+            );
+            CREATE TABLE IF NOT EXISTS tags (
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL UNIQUE,
                 color TEXT,
@@ -972,155 +1115,250 @@ mod tests {
             }
         }
 
-        let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-
-        let mut items: Vec<BatchConvertItem> = Vec::with_capacity(ids.len());
-        let mut converted = 0u32;
-        let mut skipped = 0u32;
-        let mut failed = 0u32;
-
         let opts = ConvertOptions {
-            format,
+            format: format.clone(),
             quality,
             max_width,
             max_height,
         };
 
-        for id in &ids {
-            let record = match conn.query_row(
-                "SELECT * FROM images WHERE id = ?1",
-                params![id],
-                row_to_record,
-            ) {
-                Ok(r) => r,
-                Err(_) => {
-                    items.push(BatchConvertItem {
-                        id: id.clone(),
-                        old_format: String::new(),
-                        new_format: opts.format.clone(),
-                        status: "error".into(),
-                        error: Some(format!("图片不存在: {id}")),
-                    });
-                    failed += 1;
-                    continue;
-                }
-            };
+        // Phase 1: load all records while holding the lock (DB only, no I/O)
+        struct ConvertTask {
+            id: String,
+            old_format: String,
+            file_path: String,
+            new_ext: String,
+            new_path: std::path::PathBuf,
+            old_path: std::path::PathBuf,
+            no_work: bool,
+            error: Option<String>,
+        }
 
-            let new_ext = resolve_extension(&record.format, &opts.format);
-
-            let no_resize = opts.max_width.is_none() && opts.max_height.is_none();
-            if opts.format == "original" && no_resize {
-                items.push(BatchConvertItem {
-                    id: id.clone(),
-                    old_format: record.format.clone(),
-                    new_format: record.format.clone(),
-                    status: "ok".into(),
-                    error: None,
-                });
-                skipped += 1;
-                continue;
-            }
-
-            let old_path = Path::new(&record.file_path);
-            let new_path = if let Some(ref dir) = dest_dir {
-                let dest = Path::new(dir);
-                let stem = old_path
-                    .file_stem()
-                    .map(|s| s.to_string_lossy().into_owned())
-                    .unwrap_or_else(|| record.id.clone());
-                dest.join(format!("{stem}.{new_ext}"))
-            } else {
-                old_path.with_extension(new_ext)
-            };
-
-            if dest_dir.is_none()
-                && opts.format == "original"
-                && old_path == new_path
-            {
-                items.push(BatchConvertItem {
-                    id: id.clone(),
-                    old_format: record.format.clone(),
-                    new_format: record.format.clone(),
-                    status: "ok".into(),
-                    error: None,
-                });
-                skipped += 1;
-                continue;
-            }
-
-            if dry_run {
-                items.push(BatchConvertItem {
-                    id: id.clone(),
-                    old_format: record.format.clone(),
-                    new_format: new_ext.to_string(),
-                    status: "ok".into(),
-                    error: None,
-                });
-                converted += 1;
-                continue;
-            }
-
-            if let Some(parent) = new_path.parent() {
-                if let Err(e) = fs::create_dir_all(parent) {
-                    items.push(BatchConvertItem {
-                        id: id.clone(),
-                        old_format: record.format.clone(),
-                        new_format: new_ext.to_string(),
-                        status: "error".into(),
-                        error: Some(format!("创建目录失败: {e}")),
-                    });
-                    failed += 1;
-                    continue;
-                }
-            }
-
-            match export_single(&record.file_path, &new_path, &opts) {
-                Ok(_) => {
-                    let new_path_str = new_path.to_string_lossy().into_owned();
-                    let new_format_str = if opts.format == "original" {
-                        record.format.clone()
-                    } else if opts.format == "jpg" || opts.format == "jpeg" {
-                        "jpeg".to_string()
-                    } else {
-                        opts.format.clone()
+        let tasks: Vec<ConvertTask> = {
+            let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+            ids.iter()
+                .map(|id| {
+                    let record = match conn.query_row(
+                        "SELECT * FROM images WHERE id = ?1",
+                        params![id],
+                        row_to_record,
+                    ) {
+                        Ok(r) => r,
+                        Err(_) => {
+                            return ConvertTask {
+                                id: id.clone(),
+                                old_format: String::new(),
+                                file_path: String::new(),
+                                new_ext: opts.format.clone(),
+                                new_path: std::path::PathBuf::new(),
+                                old_path: std::path::PathBuf::new(),
+                                no_work: false,
+                                error: Some(format!("图片不存在: {id}")),
+                            };
+                        }
                     };
 
-                    if new_path != old_path {
-                        let _ = fs::remove_file(old_path);
-                    }
+                    let new_ext = resolve_extension(&record.format, &opts.format);
+                    let no_resize = opts.max_width.is_none() && opts.max_height.is_none();
 
-                    if let Err(e) = conn.execute(
-                        "UPDATE images SET file_path = ?1, format = ?2 WHERE id = ?3",
-                        params![new_path_str, new_format_str, id],
-                    ) {
-                        items.push(BatchConvertItem {
+                    if opts.format == "original" && no_resize {
+                        return ConvertTask {
                             id: id.clone(),
                             old_format: record.format.clone(),
-                            new_format: new_ext.to_string(),
-                            status: "error".into(),
-                            error: Some(format!("数据库更新失败: {e}")),
-                        });
-                        failed += 1;
-                        continue;
+                            file_path: record.file_path.clone(),
+                            new_ext: record.format.clone(),
+                            new_path: std::path::PathBuf::new(),
+                            old_path: std::path::PathBuf::new(),
+                            no_work: true,
+                            error: None,
+                        };
                     }
-                    items.push(BatchConvertItem {
+
+                    let old_path = std::path::PathBuf::from(&record.file_path);
+                    let new_path = if let Some(ref dir) = dest_dir {
+                        let dest = std::path::Path::new(dir);
+                        let stem = old_path
+                            .file_stem()
+                            .map(|s| s.to_string_lossy().into_owned())
+                            .unwrap_or_else(|| record.id.clone());
+                        dest.join(format!("{stem}.{new_ext}"))
+                    } else {
+                        old_path.with_extension(&*new_ext)
+                    };
+
+                    if dest_dir.is_none()
+                        && opts.format == "original"
+                        && old_path == new_path
+                    {
+                        return ConvertTask {
+                            id: id.clone(),
+                            old_format: record.format.clone(),
+                            file_path: record.file_path.clone(),
+                            new_ext: record.format.clone(),
+                            new_path: std::path::PathBuf::new(),
+                            old_path,
+                            no_work: true,
+                            error: None,
+                        };
+                    }
+
+                    ConvertTask {
                         id: id.clone(),
                         old_format: record.format.clone(),
-                        new_format: new_ext.to_string(),
+                        file_path: record.file_path,
+                        new_ext: new_ext.to_string(),
+                        new_path,
+                        old_path,
+                        no_work: false,
+                        error: None,
+                    }
+                })
+                .collect()
+        };
+        // Lock released
+
+        // Phase 2: perform conversion I/O without holding the lock
+        struct ConvertOutcome {
+            id: String,
+            old_format: String,
+            new_format: String,
+            status: String,
+            error: Option<String>,
+            new_path_str: Option<String>,
+        }
+
+        let outcomes: Vec<ConvertOutcome> = tasks
+            .into_iter()
+            .map(|task| {
+                if let Some(err) = task.error {
+                    return ConvertOutcome {
+                        id: task.id,
+                        old_format: task.old_format,
+                        new_format: task.new_ext,
+                        status: "error".into(),
+                        error: Some(err),
+                        new_path_str: None,
+                    };
+                }
+                if task.no_work {
+                    return ConvertOutcome {
+                        id: task.id,
+                        old_format: task.old_format.clone(),
+                        new_format: task.old_format,
+                        status: "skipped".into(),
+                        error: None,
+                        new_path_str: None,
+                    };
+                }
+                if dry_run {
+                    return ConvertOutcome {
+                        id: task.id,
+                        old_format: task.old_format,
+                        new_format: task.new_ext,
+                        status: "ok".into(),
+                        error: None,
+                        new_path_str: None,
+                    };
+                }
+                if let Some(parent) = task.new_path.parent() {
+                    if let Err(e) = fs::create_dir_all(parent) {
+                        return ConvertOutcome {
+                            id: task.id,
+                            old_format: task.old_format,
+                            new_format: task.new_ext,
+                            status: "error".into(),
+                            error: Some(format!("创建目录失败: {e}")),
+                            new_path_str: None,
+                        };
+                    }
+                }
+                match export_single(&task.file_path, &task.new_path, &opts) {
+                    Ok(_) => {
+                        if task.new_path != task.old_path {
+                            let _ = fs::remove_file(&task.old_path);
+                        }
+                        ConvertOutcome {
+                            id: task.id,
+                            old_format: task.old_format,
+                            new_format: task.new_ext,
+                            status: "ok".into(),
+                            error: None,
+                            new_path_str: Some(task.new_path.to_string_lossy().into_owned()),
+                        }
+                    }
+                    Err(e) => ConvertOutcome {
+                        id: task.id,
+                        old_format: task.old_format,
+                        new_format: task.new_ext,
+                        status: "error".into(),
+                        error: Some(format!("转换失败: {e}")),
+                        new_path_str: None,
+                    },
+                }
+            })
+            .collect();
+
+        // Phase 3: update DB for successfully converted images
+        {
+            let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+            for outcome in &outcomes {
+                if outcome.status == "ok" && outcome.new_path_str.is_some() && !dry_run {
+                    let new_path_str = outcome.new_path_str.as_deref().unwrap();
+                    let new_format_str =
+                        if opts.format == "original" {
+                            outcome.old_format.clone()
+                        } else if opts.format == "jpg" || opts.format == "jpeg" {
+                            "jpeg".to_string()
+                        } else {
+                            opts.format.clone()
+                        };
+                    if let Err(e) = conn.execute(
+                        "UPDATE images SET file_path = ?1, format = ?2 WHERE id = ?3",
+                        params![new_path_str, new_format_str, outcome.id],
+                    ) {
+                        log::error!("DB update failed for {} after conversion: {}", outcome.id, e);
+                    }
+                }
+            }
+        }
+
+        // Build result
+        let mut items: Vec<BatchConvertItem> = Vec::with_capacity(outcomes.len());
+        let mut converted = 0u32;
+        let mut skipped = 0u32;
+        let mut failed = 0u32;
+
+        for outcome in &outcomes {
+            match outcome.status.as_str() {
+                "ok" => {
+                    converted += 1;
+                    items.push(BatchConvertItem {
+                        id: outcome.id.clone(),
+                        old_format: outcome.old_format.clone(),
+                        new_format: outcome.new_format.clone(),
                         status: "ok".into(),
                         error: None,
                     });
-                    converted += 1;
                 }
-                Err(e) => {
+                "skipped" => {
+                    skipped += 1;
                     items.push(BatchConvertItem {
-                        id: id.clone(),
-                        old_format: record.format.clone(),
-                        new_format: new_ext.to_string(),
-                        status: "error".into(),
-                        error: Some(format!("转换失败: {e}")),
+                        id: outcome.id.clone(),
+                        old_format: outcome.old_format.clone(),
+                        new_format: outcome.new_format.clone(),
+                        status: "ok".into(),
+                        error: None,
                     });
+                }
+                _ => {
                     failed += 1;
+                    items.push(BatchConvertItem {
+                        id: outcome.id.clone(),
+                        old_format: outcome.old_format.clone(),
+                        new_format: outcome.new_format.clone(),
+                        status: "error".into(),
+                        error: outcome.error.clone(),
+                    });
                 }
             }
         }

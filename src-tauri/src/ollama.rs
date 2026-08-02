@@ -1,17 +1,24 @@
+use crate::error::AppResult;
+
 /// Centralized Ollama configuration.
 ///
 /// Host is read from the `OLLAMA_HOST` environment variable at startup.
 /// Defaults to `http://localhost:11434` if not set.
+///
+/// Holds a shared `reqwest::Client` for connection reuse across all
+/// Ollama API calls (embeddings, chat, health checks).
 #[derive(Clone)]
 pub struct OllamaConfig {
     host: String,
+    client: reqwest::Client,
 }
 
 impl OllamaConfig {
     pub fn from_env() -> Self {
         let host =
             std::env::var("OLLAMA_HOST").unwrap_or_else(|_| "http://localhost:11434".to_string());
-        Self { host }
+        let client = reqwest::Client::new();
+        Self { host, client }
     }
 
     /// Base URL of the Ollama server (no trailing slash).
@@ -22,6 +29,12 @@ impl OllamaConfig {
     /// Full URL for a specific Ollama API endpoint.
     pub fn url(&self, path: &str) -> String {
         format!("{}{}", self.host, path)
+    }
+
+    /// Shared `reqwest::Client` for connection reuse.
+    /// Clone is cheap (Arc internally) — use it directly for per-request timeout.
+    pub fn client(&self) -> &reqwest::Client {
+        &self.client
     }
 }
 
@@ -37,14 +50,16 @@ pub fn get_ollama_host(config: tauri::State<'_, OllamaConfig>) -> String {
 #[tauri::command]
 pub async fn check_ollama_status(
     config: tauri::State<'_, OllamaConfig>,
-) -> Result<(bool, Option<String>), String> {
+) -> AppResult<(bool, Option<String>)> {
     let url = config.url("/api/tags");
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(3))
-        .build()
-        .map_err(|e| format!("failed to create HTTP client: {}", e))?;
 
-    match client.get(&url).send().await {
+    match config
+        .client()
+        .get(&url)
+        .timeout(std::time::Duration::from_secs(3))
+        .send()
+        .await
+    {
         Ok(resp) => {
             if resp.status().is_success() {
                 Ok((true, None))

@@ -1,6 +1,12 @@
 import { invoke } from '../tauri';
 
-export async function getLanInfo(): Promise<{ ip: string; port: number }> {
-  const [ip, port] = await invoke<[string, number]>('get_lan_info');
-  return { ip, port };
+export interface LanInfo {
+  ip: string;
+  port: number;
+  token: string;
+}
+
+export async function getLanInfo(): Promise<LanInfo> {
+  const [ip, port, token] = await invoke<[string, number, string]>('get_lan_info');
+  return { ip, port, token };
 }

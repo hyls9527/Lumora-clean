@@ -1,7 +1,7 @@
 import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { RenameDialog } from '../RenameDialog';
-import { batchRename } from '../../../lib/api/images';
+import { batchRename, type RenameItem } from '../../../lib/api/images';
 
 vi.mock('../../../lib/api/images', () => ({
   batchRename: vi.fn(),
@@ -9,7 +9,7 @@ vi.mock('../../../lib/api/images', () => ({
 
 vi.mock('../../../lib/i18n', () => ({
   useTranslation: () => ({ t: (k: string) => k }),
-  t: (k: string, params?: Record<string, unknown>) => {
+  t: (k: string, _lang?: unknown, params?: Record<string, unknown>) => {
     if (params) return `${k}(${JSON.stringify(params)})`;
     return k;
   },
@@ -17,7 +17,12 @@ vi.mock('../../../lib/i18n', () => ({
 
 afterEach(() => { cleanup(); });
 
-const makePreviewItem = (id: string, oldName: string, newName: string, status = 'ok') => ({
+const makePreviewItem = (
+  id: string,
+  oldName: string,
+  newName: string,
+  status: RenameItem['status'] = 'ok',
+): RenameItem => ({
   id,
   oldName,
   newName,
@@ -45,7 +50,7 @@ describe('RenameDialog', () => {
       <RenameDialog open imageIds={['a', 'b']} onClose={onClose} />,
     );
     expect(container.textContent).toContain('rename.title');
-    expect(container.textContent).toContain('(2 files)');
+    expect(container.textContent).toContain('rename.filesCount');
   });
 
   it('shows template input', () => {

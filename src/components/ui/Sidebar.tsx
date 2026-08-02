@@ -4,30 +4,14 @@ import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { t } from '../../lib/i18n';
 import { UpdateBanner } from './UpdateBanner';
 import { useIsMobile } from '../../hooks/useMediaQuery';
-import { t as tok } from '../../lib/tokens';
+import { t as tok, dotStyle } from '../../lib/tokens';
+import { sidebarRoutes, type RoutePath } from '../../routes';
 
 interface SidebarProps {
   activeRoute: string;
-  onNavigate: (route: string) => void;
+  onNavigate: (route: RoutePath) => void;
   onSearch: () => void;
 }
-
-interface NavItem {
-  key: string;
-  i18nKey: string;
-}
-
-const navItems: NavItem[] = [
-  { key: '/gallery', i18nKey: 'sidebar.gallery' },
-  { key: '/favorites', i18nKey: 'sidebar.favorites' },
-  { key: '/dashboard', i18nKey: 'sidebar.dashboard' },
-  { key: '/import', i18nKey: 'sidebar.import' },
-  { key: '/search', i18nKey: 'sidebar.search' },
-  { key: '/tags', i18nKey: 'sidebar.tags' },
-  { key: '/export', i18nKey: 'sidebar.export' },
-  { key: '/settings', i18nKey: 'sidebar.settings' },
-  { key: '/trash', i18nKey: 'sidebar.trash' },
-];
 
 export function Sidebar({ activeRoute, onNavigate, onSearch }: SidebarProps) {
   const { available, checking, error, recheck } = useOllamaStatus();
@@ -94,13 +78,13 @@ export function Sidebar({ activeRoute, onNavigate, onSearch }: SidebarProps) {
           }
         }}
       >
-        {navItems.map((item) => {
-          const isActive = activeRoute === item.key;
+        {sidebarRoutes.map((item) => {
+          const isActive = activeRoute === item.path;
           return (
             <NavButton
-              key={item.key}
+              key={item.path}
               active={isActive}
-              onClick={() => onNavigate(item.key)}
+              onClick={() => onNavigate(item.path as RoutePath)}
               collapsed={isCollapsed}
             >
               {t(item.i18nKey)}
@@ -137,15 +121,7 @@ export function Sidebar({ activeRoute, onNavigate, onSearch }: SidebarProps) {
             transition: 'background 200ms',
           }}
         >
-          <span
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: tok.danger,
-              flexShrink: 0,
-            }}
-          />
+          <span style={dotStyle(tok.danger)} />
           Ollama 离线
         </button>
       )}
@@ -164,15 +140,7 @@ export function Sidebar({ activeRoute, onNavigate, onSearch }: SidebarProps) {
             color: tok.success,
           }}
         >
-          <span
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: tok.success,
-              flexShrink: 0,
-            }}
-          />
+          <span style={dotStyle(tok.success)} />
           Ollama 在线
         </div>
       )}

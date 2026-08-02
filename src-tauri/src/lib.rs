@@ -40,17 +40,15 @@ pub fn run() {
             let db_path = app_dir.join("lumora.db");
             let db = DbHandle::open(&db_path).expect("failed to open database");
 
+            // Start LAN web server for mobile access — reuse the same DbHandle
+            let token = lan_server::generate_token();
+            let port = lan_server::start_server(db.clone(), token.clone());
+            log::info!("LAN server started on port {} with auth", port);
+
             app.manage(db);
             app.manage(ollama::OllamaConfig::from_env());
-
-            // Start LAN web server for mobile access
-            let db_path_for_lan = app_dir.join("lumora.db");
-            if let Ok(lan_conn) = rusqlite::Connection::open(&db_path_for_lan) {
-                let shared_conn = std::sync::Arc::new(std::sync::Mutex::new(lan_conn));
-                let port = lan_server::start_server(shared_conn);
-                log::info!("LAN server started on port {}", port);
-                app.manage(lan_server::LanPort(port));
-            }
+            app.manage(lan_server::LanPort(port));
+            app.manage(lan_server::LanToken(token));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -87,6 +85,7 @@ pub fn run() {
             commands::trash::batch_remove_tag,
             commands::dashboard::get_dashboard_stats,
             commands::export::export_images,
+            commands::export::batch_convert,
             commands::rename::batch_rename,
             commands::embeddings::generate_embedding,
             commands::embeddings::get_embedding_status_cmd,

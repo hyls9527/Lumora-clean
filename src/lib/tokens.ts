@@ -66,3 +66,71 @@ export const valueStyle: React.CSSProperties = {
   fontFamily: t.fontBody,
   color: t.text,
 };
+
+// ── Common UI pattern presets ─────────────────────
+
+/** Small colored dot (status indicator, badge marker) */
+export const dotStyle = (color: string): React.CSSProperties => ({
+  width: 6,
+  height: 6,
+  borderRadius: '50%',
+  background: color,
+  flexShrink: 0,
+});
+
+/** Base accent button — subtle outline variant */
+export const accentBtnStyle: React.CSSProperties = {
+  fontSize: 12,
+  fontFamily: t.fontBody,
+  color: t.accent,
+  background: t.accentSubtle,
+  border: `1px solid ${t.accent}`,
+  borderRadius: 4,
+  padding: '6px 14px',
+  cursor: 'pointer',
+  transition: t.transition,
+};
+
+/** Base text nav button — underline-active variant */
+export const navTabStyle = (active: boolean): React.CSSProperties => ({
+  fontSize: 11,
+  fontFamily: t.fontDisplay,
+  color: active ? t.accent : t.textSecondary,
+  background: 'none',
+  border: 'none',
+  padding: '0 0 2px',
+  borderBottom: `2px solid ${active ? t.accent : 'transparent'}`,
+  cursor: 'pointer',
+  transition: t.transition,
+});
+
+/** Close button (✕) — positioned absolute top-right */
+export const closeBtnStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: 12,
+  right: 12,
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  fontSize: 16,
+  color: t.textMuted,
+  padding: 4,
+  lineHeight: 1,
+};
+
+/** Page title (h2) style — responsive */
+export const pageTitleStyle = (isMobile?: boolean): React.CSSProperties => ({
+  fontSize: isMobile ? 18 : 20,
+  fontWeight: 600,
+  fontFamily: t.fontDisplay,
+  color: t.text,
+  margin: 0,
+});
+
+/** Sidebar / toolbar separator line */
+export const separatorStyle: React.CSSProperties = {
+  width: 1,
+  height: 14,
+  background: 'rgba(139,115,75,0.15)',
+  margin: '0 4px',
+};
