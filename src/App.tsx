@@ -120,7 +120,7 @@ function App() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       {!isMobile && <Sidebar activeRoute={route} onNavigate={navigate} onSearch={toggle} />}
       <main
         style={{
