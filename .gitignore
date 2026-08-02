@@ -46,3 +46,6 @@ src-tauri/sidecar/__pycache__/
 
 # Local database backups (large, machine-specific)
 backups/
+
+# Local dev server logs
+tauri-dev*.log

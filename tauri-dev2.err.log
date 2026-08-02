@@ -1,16 +1,0 @@
-     Running BeforeDevCommand (`npm run dev`)
-     Running DevCommand (`cargo  run --no-default-features --color always --`)
-        Info Watching C:\Users\Admin\Desktop\Vibe coding\Lumora-clean\src-tauri for changes...
-[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 1.30s
-[1m[92m     Running[0m `target\debug\Lumora.exe`
-        Info File src-tauri\src\commands\settings.rs changed. Rebuilding application...
-     Running DevCommand (`cargo  run --no-default-features --color always --`)
-[1m[92m   Compiling[0m Lumora v0.8.0 (C:\Users\Admin\Desktop\Vibe coding\Lumora-clean\src-tauri)
-[1m[96m    Building[0m [=======================> ] 544/546: Lumora          Info File src-tauri\src\lib.rs changed. Rebuilding application...
-     Running DevCommand (`cargo  run --no-default-features --color always --`)
-[1m[92m   Compiling[0m Lumora v0.8.0 (C:\Users\Admin\Desktop\Vibe coding\Lumora-clean\src-tauri)
-[1m[96m    Building[0m [=======================> ] 544/546: Lumora          Info File src-tauri\tauri.conf.json changed. Rebuilding application...
-     Running DevCommand (`cargo  run --no-default-features --color always --`)
-[1m[92m   Compiling[0m Lumora v0.8.0 (C:\Users\Admin\Desktop\Vibe coding\Lumora-clean\src-tauri)
-[1m[96m    Building[0m [=======================> ] 543/546: Lumora(…[1m[96m    Building[0m [=======================> ] 544/546: Lumora  [1m[96m    Building[0m [=======================> ] 545/546: Lumora(…                                                            [1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 49.13s
-[1m[92m     Running[0m `target\debug\Lumora.exe`
