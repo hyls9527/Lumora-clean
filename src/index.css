@@ -87,6 +87,49 @@ body {
 @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
+/* ── Splash screen (brand launch animation) ── */
+@keyframes splashMarkIn {
+  0% { opacity: 0; transform: scale(0.55) rotate(-6deg); }
+  60% { opacity: 1; transform: scale(1.05) rotate(1deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes splashGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(122, 92, 18, 0), 0 18px 48px rgba(78, 50, 23, 0.22); }
+  50% { box-shadow: 0 0 0 20px rgba(122, 92, 18, 0.05), 0 18px 58px rgba(78, 50, 23, 0.32); }
+}
+@keyframes splashSheen {
+  0% { transform: translateX(-160%) skewX(-18deg); }
+  55% { transform: translateX(160%) skewX(-18deg); }
+  100% { transform: translateX(160%) skewX(-18deg); }
+}
+@keyframes splashRing {
+  from { stroke-dashoffset: 333; opacity: 0; }
+  40% { opacity: 1; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes splashWord {
+  from { opacity: 0; transform: translateY(10px); filter: blur(6px); letter-spacing: 0.42em; }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); letter-spacing: 0.16em; }
+}
+@keyframes splashRule {
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+@keyframes splashTag {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes splashPulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-anim * {
+    animation: none !important;
+  }
+}
+
 h1,
 h2,
 h3,

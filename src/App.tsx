@@ -19,7 +19,8 @@ import { useIsMobile } from './hooks/useMediaQuery';
 import { usePerformanceMonitor } from './hooks/usePerformance';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { useRouter, useRouteCommands, useGlobalShortcuts } from './hooks/useRouter';
-import { getRouteDef, type RoutePath } from './routes';
+import { getRouteDef, preloadRoutes, type RoutePath } from './routes';
+import { SplashScreen } from './components/ui/SplashScreen';
 import { t } from './lib/i18n';
 import { t as tok } from './lib/tokens';
 import { filterDropPaths } from './lib/dropPaths';
@@ -27,6 +28,8 @@ import { isDirectory } from './lib/api/fs';
 
 function App() {
   const [droppedPaths, setDroppedPaths] = useState<string[]>([]);
+  const [appReady, setAppReady] = useState(false);
+  const [splashDone, setSplashDone] = useState(false);
   const hydrate = useSettingsStore((s) => s.hydrate);
   const { toggle } = useCommandStore();
   const isMobile = useIsMobile();
@@ -61,7 +64,14 @@ function App() {
     }
   }, [imageSearchSource, navigate]);
 
-  useEffect(() => { void hydrate(); }, [hydrate]);
+  useEffect(() => {
+    // Warm up lazy route chunks and wait for settings hydration so the
+    // splash can reveal an already-responsive app (seamless startup).
+    void preloadRoutes();
+    void hydrate().then(() => setAppReady(true));
+  }, [hydrate]);
+
+  const handleSplashFinish = useCallback(() => setSplashDone(true), []);
 
   // Drag-and-drop: import files when dropped on window
   const handleDrop = useCallback(
@@ -139,6 +149,7 @@ function App() {
       <CommandPalette />
       <DropOverlay isVisible={isDragging} />
       {isMobile && <MobileNav activeRoute={route} onNavigate={navigate} />}
+      {!splashDone && <SplashScreen ready={appReady} onFinish={handleSplashFinish} />}
     </div>
   );
 }
