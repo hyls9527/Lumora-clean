@@ -73,6 +73,7 @@ pub fn run() {
             commands::tags::get_image_tags,
             commands::settings::get_setting,
             commands::settings::set_setting,
+            commands::settings::get_app_version,
             commands::trash::soft_delete_image,
             commands::trash::restore_image,
             commands::trash::permanent_delete_image,

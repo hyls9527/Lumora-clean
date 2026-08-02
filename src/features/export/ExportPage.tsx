@@ -7,7 +7,7 @@ import { t as tokens } from '../../lib/tokens';
 
 export function ExportPage() {
   const { images, fetchImages, exportImages } = useImageStore();
-  const { selectedIds } = useSelection();
+  const { selectedIds, clearSelection } = useSelection();
   const { t } = useTranslation();
 
   const [destDir, setDestDir] = useState('');
@@ -104,6 +104,37 @@ export function ExportPage() {
                 : t('export.allCount', { count: String(images.length) })}
             </span>
           </div>
+          {selectedIds.size > 0 && (
+            <div
+              style={{
+                marginTop: 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+              }}
+            >
+              <span style={{ fontSize: 12, color: tokens.textMuted, fontFamily: tokens.fontBody }}>
+                {t('export.selectionHint')}
+              </span>
+              <button
+                type="button"
+                onClick={clearSelection}
+                style={{
+                  fontSize: 11,
+                  fontFamily: tokens.fontBody,
+                  color: tokens.textSecondary,
+                  background: 'none',
+                  border: `1px solid ${tokens.border}`,
+                  padding: '4px 10px',
+                  borderRadius: 4,
+                  cursor: 'pointer',
+                }}
+              >
+                {t('export.clearSelection')}
+              </button>
+            </div>
+          )}
         </section>
 
         {/* Destination folder */}

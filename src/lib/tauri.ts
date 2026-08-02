@@ -74,6 +74,7 @@ function mockResponse(cmd: string): unknown {
     return { embedded: 0, pending: 0, error: 0, total: 0 };
   if (cmd === 'get_lan_info')
     return { ip: '127.0.0.1', port: 8079, token: 'mock-token' };
+  if (cmd === 'get_app_version') return '0.8.0';
   if (cmd === 'create_tag')
     return { id: 'mock-tag', name: '', color: null, createdAt: '' };
   if (cmd === 'apply_ai_tags_cmd')

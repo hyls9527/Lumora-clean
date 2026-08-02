@@ -24,3 +24,9 @@ pub async fn set_setting(app: tauri::AppHandle, key: String, value: String) -> A
         .map_err(|e| AppError::External(format!("failed to save store: {e}")))?;
     Ok(())
 }
+
+/// Return the app version from Cargo.toml (single source of truth for runtime).
+#[command]
+pub fn get_app_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
+}

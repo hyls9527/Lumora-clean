@@ -259,6 +259,8 @@
     "selection": "导出范围",
     "selectedCount": "已选 {count} 张图片",
     "allCount": "全部 {count} 张图片",
+    "selectionHint": "正在导出画廊中选中的图片；如需导出全部，请先清除选区",
+    "clearSelection": "清除选区",
     "destFolder": "目标文件夹",
     "selectDest": "选择导出目标文件夹…",
     "browse": "浏览",

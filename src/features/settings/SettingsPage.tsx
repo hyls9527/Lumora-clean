@@ -1,6 +1,7 @@
 import { useSettingsStore } from '../../stores/settingsStore';
 import { exportDatabase, importDatabase } from '../../lib/api/backup';
 import { getLanInfo, type LanInfo } from '../../lib/api/lan';
+import { getAppVersion } from '../../lib/api/settings';
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { useState, useEffect } from 'react';
 import { useTranslation } from '../../lib/i18n';
@@ -163,9 +164,11 @@ export function SettingsPage() {
 
   const [backupMsg, setBackupMsg] = useState('');
   const [lanInfo, setLanInfo] = useState<LanInfo | null>(null);
+  const [appVersion, setAppVersion] = useState('');
   const { available, checking, installing, downloaded, error: updateError, updateInfo, checkForUpdates, installUpdate } = useUpdater();
 
   useEffect(() => { getLanInfo().then(setLanInfo).catch(() => {}); }, []);
+  useEffect(() => { getAppVersion().then(setAppVersion).catch(() => {}); }, []);
 
   const handleExport = async () => {
     try {
@@ -464,7 +467,7 @@ export function SettingsPage() {
                 gap: 24,
               }}
             >
-              <span>{t('version')}: 0.7.0</span>
+              <span>{t('version')}: {appVersion}</span>
               <span>{t('license')}: MIT</span>
             </div>
 

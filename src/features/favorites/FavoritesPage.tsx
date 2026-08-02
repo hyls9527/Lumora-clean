@@ -7,6 +7,7 @@ import { DetailModal } from '../../components/ui/DetailModal';
 import { listFavorites } from '../../lib/api/images';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { t as tok } from '../../lib/tokens';
+import { onWriteCommand } from '../../lib/tauri';
 
 export function FavoritesPage() {
   const { toggleFavorite, setRating } = useImageActions();
@@ -34,6 +35,9 @@ export function FavoritesPage() {
     void loadFavorites();
   }, [loadFavorites]);
 
+  // Refresh whenever a write command completes (favorite/rating changes)
+  useEffect(() => onWriteCommand(() => { void loadFavorites(); }), [loadFavorites]);
+
   // Close modal if current image is no longer in favorites
   useEffect(() => {
     if (detailImage && !favorites.find((f) => f.id === detailImage.id)) {
@@ -44,10 +48,8 @@ export function FavoritesPage() {
   const handleToggleFavorite = useCallback(
     (id: string) => {
       toggleFavorite(id);
-      // Refresh favorites list after toggle
-      setTimeout(() => { void loadFavorites(); }, 100);
     },
-    [toggleFavorite, loadFavorites],
+    [toggleFavorite],
   );
 
   const handleDetailPrev = useCallback(() => {

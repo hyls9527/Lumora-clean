@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, cleanup } from '@testing-library/react';
 import { SettingsPage } from '../SettingsPage';
 
 // Mock the store
@@ -53,6 +53,10 @@ describe('SettingsPage', () => {
     vi.clearAllMocks();
   });
 
+  afterEach(() => {
+    cleanup();
+  });
+
   it('should render without crashing', () => {
     const { container } = render(<SettingsPage />);
     expect(container).toBeDefined();
@@ -62,5 +66,10 @@ describe('SettingsPage', () => {
     const { container } = render(<SettingsPage />);
     const headings = container.querySelectorAll('h2');
     expect(headings.length).toBeGreaterThan(0);
+  });
+
+  it('renders the app version from the backend', async () => {
+    const { findByText } = render(<SettingsPage />);
+    expect(await findByText('version: 0.8.0')).toBeDefined();
   });
 });

@@ -1,6 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { ExportPage } from '../ExportPage';
+
+const { useSelectionMock } = vi.hoisted(() => ({
+  useSelectionMock: vi.fn(() => ({
+    selectedIds: new Set<string>(),
+    toggleSelect: vi.fn(),
+    selectAll: vi.fn(),
+    clearSelection: vi.fn(),
+  })),
+}));
 
 // Mock dependencies
 vi.mock('../../../stores/imageStore', () => ({
@@ -15,12 +24,7 @@ vi.mock('../../../stores/imageStore', () => ({
 }));
 
 vi.mock('../../../hooks/useSelection', () => ({
-  useSelection: () => ({
-    selectedIds: new Set(),
-    toggleSelect: vi.fn(),
-    selectAll: vi.fn(),
-    clearSelection: vi.fn(),
-  }),
+  useSelection: useSelectionMock,
 }));
 
 vi.mock('../../../lib/i18n', () => ({
@@ -54,5 +58,21 @@ describe('ExportPage', () => {
     const { container } = render(<ExportPage />);
     const buttons = container.querySelectorAll('button');
     expect(buttons.length).toBeGreaterThanOrEqual(4); // At least 4 format buttons + browse + export
+  });
+
+  it('shows selection hint and clears selection', () => {
+    const clearSelection = vi.fn();
+    useSelectionMock.mockReturnValue({
+      selectedIds: new Set(['1']),
+      toggleSelect: vi.fn(),
+      selectAll: vi.fn(),
+      clearSelection,
+    });
+
+    render(<ExportPage />);
+
+    expect(screen.getByText('export.selectionHint')).toBeTruthy();
+    fireEvent.click(screen.getByText('export.clearSelection'));
+    expect(clearSelection).toHaveBeenCalledTimes(1);
   });
 });

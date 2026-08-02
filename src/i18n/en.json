@@ -259,6 +259,8 @@
     "selection": "Export Scope",
     "selectedCount": "{count} images selected",
     "allCount": "All {count} images",
+    "selectionHint": "Exporting images selected in the gallery. Clear the selection to export all images.",
+    "clearSelection": "Clear selection",
     "destFolder": "Destination Folder",
     "selectDest": "Select export destination…",
     "browse": "Browse",

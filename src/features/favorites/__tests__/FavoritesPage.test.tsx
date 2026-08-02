@@ -1,6 +1,14 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
+import { render, screen, cleanup, waitFor, act } from '@testing-library/react';
 import { FavoritesPage } from '../FavoritesPage';
+
+const { onWriteMock } = vi.hoisted(() => ({
+  onWriteMock: vi.fn((_cb: () => void) => () => {}),
+}));
+
+vi.mock('../../../lib/tauri', () => ({
+  onWriteCommand: onWriteMock,
+}));
 
 // Mock the API layer
 vi.mock('../../../lib/api/images', () => ({
@@ -100,5 +108,17 @@ describe('FavoritesPage', () => {
       expect(screen.getByTestId('error-state')).toBeTruthy();
       expect(screen.getByText('network error')).toBeTruthy();
     });
+  });
+
+  it('refreshes the list when a write command completes', async () => {
+    vi.mocked(api.listFavorites).mockClear();
+    vi.mocked(api.listFavorites).mockResolvedValue([]);
+    render(<FavoritesPage />);
+    await waitFor(() => expect(api.listFavorites).toHaveBeenCalledTimes(1));
+
+    const listener = onWriteMock.mock.calls[0][0];
+    act(() => listener());
+
+    await waitFor(() => expect(api.listFavorites).toHaveBeenCalledTimes(2));
   });
 });
