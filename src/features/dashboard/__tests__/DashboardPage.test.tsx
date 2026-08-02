@@ -1,17 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, cleanup } from '@testing-library/react';
 import { DashboardPage } from '../DashboardPage';
 
 // Mock the API layer
 vi.mock('../../../lib/api/images', () => ({
-  getDashboardStats: vi.fn().mockResolvedValue({
-    totalImages: 100,
-    totalSizeKb: 500000,
-    formatCounts: [],
-    ratingCounts: [],
-    topTags: [],
-    recentImports: [],
-  }),
+  // Never-resolving promise: the mount fetch must not schedule a state
+  // update after the test environment is torn down (CI teardown race).
+  getDashboardStats: vi.fn(() => new Promise(() => {})),
   toImageRecord: (r: unknown) => r,
 }));
 
@@ -41,6 +36,10 @@ vi.mock('../../../lib/format', () => ({
 describe('DashboardPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it('should render without crashing', () => {
