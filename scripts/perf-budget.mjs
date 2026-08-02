@@ -9,7 +9,7 @@ import { join } from 'path';
 const BUDGETS = {
   'Frontend bundle (dist/)': { max: 500_000, unit: 'bytes' },
   'Rust binary (release)': { max: 30_000_000, unit: 'bytes' },
-  'npm packages': { max: 300, unit: 'count' },
+  'npm packages': { max: 350, unit: 'count' },
   'cargo crates': { max: 700, unit: 'count' },
   'TypeScript files': { max: 200, unit: 'count' },
   'Zustand stores': { max: 12, unit: 'count' },

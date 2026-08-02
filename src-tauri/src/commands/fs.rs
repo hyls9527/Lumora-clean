@@ -3,7 +3,9 @@ use crate::error::AppResult;
 /// True when the path exists and is a directory; false for files and missing paths.
 #[tauri::command]
 pub fn is_directory(path: String) -> AppResult<bool> {
-    Ok(std::fs::metadata(&path).map(|m| m.is_dir()).unwrap_or(false))
+    Ok(std::fs::metadata(&path)
+        .map(|m| m.is_dir())
+        .unwrap_or(false))
 }
 
 #[cfg(test)]

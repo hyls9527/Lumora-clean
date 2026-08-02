@@ -182,10 +182,29 @@ fn revert_migration(conn: &Connection, version: i64) -> Result<(), rusqlite::Err
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rusqlite::ffi::sqlite3_auto_extension;
+
+    /// Open an in-memory connection with sqlite-vec registered.
+    /// Migrations create a `vec0` virtual table, which requires the extension.
+    fn open_conn() -> Connection {
+        unsafe {
+            sqlite3_auto_extension(Some(std::mem::transmute::<
+                *const (),
+                unsafe extern "C" fn(
+                    *mut rusqlite::ffi::sqlite3,
+                    *mut *mut i8,
+                    *const rusqlite::ffi::sqlite3_api_routines,
+                ) -> i32,
+            >(
+                sqlite_vec::sqlite3_vec_init as *const ()
+            )));
+        }
+        Connection::open_in_memory().unwrap()
+    }
 
     #[test]
     fn fresh_db_starts_at_version_1() {
-        let conn = Connection::open_in_memory().unwrap();
+        let conn = open_conn();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
         assert_eq!(v, 6);
@@ -193,7 +212,7 @@ mod tests {
 
     #[test]
     fn idempotent_migration() {
-        let conn = Connection::open_in_memory().unwrap();
+        let conn = open_conn();
         run_migrations(&conn).unwrap();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
@@ -202,7 +221,7 @@ mod tests {
 
     #[test]
     fn images_table_exists_after_migration() {
-        let conn = Connection::open_in_memory().unwrap();
+        let conn = open_conn();
         run_migrations(&conn).unwrap();
         let count: i64 = conn
             .query_row("SELECT COUNT(*) FROM images", [], |r| r.get(0))
@@ -212,7 +231,7 @@ mod tests {
 
     #[test]
     fn downgrade_from_v5_to_v1() {
-        let conn = Connection::open_in_memory().unwrap();
+        let conn = open_conn();
         // Migrate all the way up.
         run_migrations(&conn).unwrap();
         assert_eq!(current_version(&conn).unwrap(), 6);

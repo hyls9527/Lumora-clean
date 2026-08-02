@@ -8,7 +8,10 @@ use crate::schema::types::{row_to_record, ImageRecord, PaginatedResult};
 /// Falls back when Tauri's asset protocol is not available.
 /// SECURITY: Only allows reading files under the app's images directory.
 #[tauri::command]
-pub fn get_image_base64_cmd(db: tauri::State<'_, DbHandle>, file_path: String) -> AppResult<String> {
+pub fn get_image_base64_cmd(
+    db: tauri::State<'_, DbHandle>,
+    file_path: String,
+) -> AppResult<String> {
     use base64::Engine;
     use std::path::Path;
 
@@ -175,7 +178,6 @@ pub fn get_variant_group_images(
     Ok(items)
 }
 
-
 /// Filter parameters for list_images_filtered.
 #[derive(serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -230,7 +232,10 @@ fn list_images_filtered_inner(
     let mut param_values: Vec<Box<dyn rusqlite::types::ToSql>> = Vec::new();
 
     if let Some(ref m) = filter.model {
-        conditions.push(format!("json_extract(metadata_json, '$.model') = ?{}", param_values.len() + 1));
+        conditions.push(format!(
+            "json_extract(metadata_json, '$.model') = ?{}",
+            param_values.len() + 1
+        ));
         param_values.push(Box::new(m.clone()));
     }
     if let Some(min) = filter.rating_min {
@@ -264,7 +269,11 @@ fn list_images_filtered_inner(
 
     // Count query
     let count_sql = format!("SELECT COUNT(*) FROM images WHERE {}", where_clause);
-    let total: i64 = conn.query_row(&count_sql, rusqlite::params_from_iter(param_values.iter().map(|p| p.as_ref())), |r| r.get(0))?;
+    let total: i64 = conn.query_row(
+        &count_sql,
+        rusqlite::params_from_iter(param_values.iter().map(|p| p.as_ref())),
+        |r| r.get(0),
+    )?;
 
     // Data query with pagination
     let data_sql = format!(
@@ -278,7 +287,10 @@ fn list_images_filtered_inner(
 
     let mut stmt = conn.prepare(&data_sql)?;
     let items = stmt
-        .query_map(rusqlite::params_from_iter(param_values.iter().map(|p| p.as_ref())), row_to_record)?
+        .query_map(
+            rusqlite::params_from_iter(param_values.iter().map(|p| p.as_ref())),
+            row_to_record,
+        )?
         .collect::<Result<Vec<_>, _>>()?;
 
     Ok(PaginatedResult {
@@ -307,11 +319,8 @@ mod tests {
             [],
         )
         .unwrap();
-        conn.execute(
-            "UPDATE images SET rating = ?1 WHERE id = 'r1'",
-            params![99u32.min(5)],
-        )
-        .unwrap();
+        conn.execute("UPDATE images SET rating = ?1 WHERE id = 'r1'", params![5])
+            .unwrap();
         let r: i32 = conn
             .query_row("SELECT rating FROM images WHERE id = 'r1'", [], |row| {
                 row.get(0)
@@ -398,7 +407,7 @@ mod tests {
             .prepare("SELECT id FROM images WHERE deleted = 0 ORDER BY imported_at DESC LIMIT 40")
             .unwrap();
         let rows: Vec<String> = stmt
-            .query_map([], |row| Ok(row.get::<_, String>(0)?))
+            .query_map([], |row| row.get::<_, String>(0))
             .unwrap()
             .filter_map(|r| r.ok())
             .collect();
@@ -411,7 +420,7 @@ mod tests {
             .prepare("SELECT id FROM images WHERE metadata_json LIKE '%Test image 500%'")
             .unwrap();
         let rows: Vec<String> = stmt
-            .query_map([], |row| Ok(row.get::<_, String>(0)?))
+            .query_map([], |row| row.get::<_, String>(0))
             .unwrap()
             .filter_map(|r| r.ok())
             .collect();
@@ -442,7 +451,7 @@ mod tests {
             .unwrap();
         let rows: Vec<String> = stmt
             .query_map(rusqlite::params![per_page, offset], |row| {
-                Ok(row.get::<_, String>(0)?)
+                row.get::<_, String>(0)
             })
             .unwrap()
             .filter_map(|r| r.ok())
@@ -627,10 +636,38 @@ mod tests {
         let db = test_db();
         {
             let conn = db.conn().lock().unwrap();
-            insert_filter_image(&conn, "a", "png", "2025-01-01", Some(r#"{"model":"sd1.5"}"#), true);
-            insert_filter_image(&conn, "b", "png", "2025-01-02", Some(r#"{"model":"sd1.5"}"#), false);
-            insert_filter_image(&conn, "c", "jpg", "2025-01-03", Some(r#"{"model":"sd1.5"}"#), true);
-            insert_filter_image(&conn, "d", "png", "2025-01-04", Some(r#"{"model":"flux"}"#), true);
+            insert_filter_image(
+                &conn,
+                "a",
+                "png",
+                "2025-01-01",
+                Some(r#"{"model":"sd1.5"}"#),
+                true,
+            );
+            insert_filter_image(
+                &conn,
+                "b",
+                "png",
+                "2025-01-02",
+                Some(r#"{"model":"sd1.5"}"#),
+                false,
+            );
+            insert_filter_image(
+                &conn,
+                "c",
+                "jpg",
+                "2025-01-03",
+                Some(r#"{"model":"sd1.5"}"#),
+                true,
+            );
+            insert_filter_image(
+                &conn,
+                "d",
+                "png",
+                "2025-01-04",
+                Some(r#"{"model":"flux"}"#),
+                true,
+            );
         }
         let filter = ImageFilter {
             model: Some("sd1.5".into()),

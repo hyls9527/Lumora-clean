@@ -1,14 +1,10 @@
-use std::path::PathBuf;
 use std::io::Read;
+use std::path::{Path, PathBuf};
 
 use crate::error::{AppError, AppResult};
 
 /// ComfyUI marker files that indicate a ComfyUI installation
-const COMFYUI_MARKERS: &[&str] = &[
-    "main.py",
-    "comfy/cli_args.py",
-    "comfy/model_management.py",
-];
+const COMFYUI_MARKERS: &[&str] = &["main.py", "comfy/cli_args.py", "comfy/model_management.py"];
 
 /// Common ComfyUI directory names (including variations like 秋叶整合包)
 const COMFYUI_DIR_NAMES: &[&str] = &[
@@ -42,7 +38,7 @@ pub fn detect_comfyui_path(custom_path: Option<String>) -> AppResult<Option<Stri
     }
 
     let home = get_home_dir()?;
-    
+
     // 2. Scan Desktop recursively (most common location for user installations)
     let desktop = home.join("Desktop");
     if desktop.is_dir() {
@@ -109,7 +105,7 @@ fn resolve_output_dir(comfyui_dir: &PathBuf) -> AppResult<Option<String>> {
 }
 
 /// Read extra_model_paths.yaml to find custom output directory
-fn read_extra_model_paths(comfyui_dir: &PathBuf) -> Option<String> {
+fn read_extra_model_paths(comfyui_dir: &Path) -> Option<String> {
     let config_paths = vec![
         comfyui_dir.join("extra_model_paths.yaml"),
         comfyui_dir.join("extra_model_paths.yml"),
@@ -139,11 +135,18 @@ fn read_extra_model_paths(comfyui_dir: &PathBuf) -> Option<String> {
 }
 
 /// Read startup scripts to find --output-directory parameter
-fn read_startup_script_output_dir(comfyui_dir: &PathBuf) -> Option<String> {
+fn read_startup_script_output_dir(comfyui_dir: &Path) -> Option<String> {
     let script_names = vec![
-        "run.bat", "run.cmd", "run_nvidia_gpu.bat", "run_cpu.bat",
-        "start.bat", "start.cmd", "launch.bat", "launch.cmd",
-        "启动.bat", "运行.bat",
+        "run.bat",
+        "run.cmd",
+        "run_nvidia_gpu.bat",
+        "run_cpu.bat",
+        "start.bat",
+        "start.cmd",
+        "launch.bat",
+        "launch.cmd",
+        "启动.bat",
+        "运行.bat",
     ];
 
     for script_name in script_names {
@@ -171,9 +174,10 @@ fn scan_bat_files_for_output_dir(comfyui_dir: &PathBuf, _pattern: &str) -> Optio
     if let Ok(entries) = std::fs::read_dir(comfyui_dir) {
         for entry in entries.flatten() {
             let path = entry.path();
-            if path.extension().map_or(false, |ext| {
-                ext == "bat" || ext == "cmd" || ext == "ps1"
-            }) {
+            if path
+                .extension()
+                .is_some_and(|ext| ext == "bat" || ext == "cmd" || ext == "ps1")
+            {
                 if let Ok(mut file) = std::fs::File::open(&path) {
                     let mut content = String::new();
                     if file.read_to_string(&mut content).is_ok() {
@@ -200,8 +204,8 @@ fn extract_output_dir_from_script(content: &str) -> Option<String> {
             // Extract the path after the flag
             let parts: Vec<&str> = line.split_whitespace().collect();
             for (i, part) in parts.iter().enumerate() {
-                if (*part == "--output-directory" || *part == "--output_directory") 
-                    && i + 1 < parts.len() 
+                if (*part == "--output-directory" || *part == "--output_directory")
+                    && i + 1 < parts.len()
                 {
                     let value = parts[i + 1].trim_matches('"').trim_matches('\'');
                     return Some(value.to_string());
@@ -238,8 +242,9 @@ fn scan_for_comfyui_recursive(dir: &PathBuf, current_depth: u32, max_depth: u32)
                 if should_skip_directory(&name) {
                     continue;
                 }
-                
-                if let Some(found) = scan_for_comfyui_recursive(&path, current_depth + 1, max_depth) {
+
+                if let Some(found) = scan_for_comfyui_recursive(&path, current_depth + 1, max_depth)
+                {
                     return Some(found);
                 }
             }
@@ -251,8 +256,8 @@ fn scan_for_comfyui_recursive(dir: &PathBuf, current_depth: u32, max_depth: u32)
 
 /// Check if a directory should be skipped during scanning
 fn should_skip_directory(name: &str) -> bool {
-    name.starts_with('.') 
-        || name == "node_modules" 
+    name.starts_with('.')
+        || name == "node_modules"
         || name == "target"
         || name == "__pycache__"
         || name == ".git"
@@ -262,20 +267,27 @@ fn should_skip_directory(name: &str) -> bool {
 }
 
 /// Check if a directory is a ComfyUI installation by looking for marker files
-fn is_comfyui_dir(dir: &PathBuf) -> bool {
+fn is_comfyui_dir(dir: &Path) -> bool {
     // Check directory name first (fast path)
-    let dir_name = dir.file_name().unwrap_or_default().to_string_lossy().to_lowercase();
-    let is_standard_name = COMFYUI_DIR_NAMES.iter()
+    let dir_name = dir
+        .file_name()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_lowercase();
+    let is_standard_name = COMFYUI_DIR_NAMES
+        .iter()
         .any(|name| dir_name == name.to_lowercase());
-    
+
     if is_standard_name {
         // Verify with marker file
-        return COMFYUI_MARKERS.iter()
+        return COMFYUI_MARKERS
+            .iter()
             .any(|marker| dir.join(marker).exists());
     }
-    
+
     // For non-standard names, require marker file
-    COMFYUI_MARKERS.iter()
+    COMFYUI_MARKERS
+        .iter()
         .any(|marker| dir.join(marker).exists())
 }
 
@@ -293,8 +305,6 @@ fn get_home_dir() -> AppResult<PathBuf> {
 mod tests {
     use super::*;
     use std::fs;
-    use std::io::Write;
-
     #[test]
     fn detect_returns_none_when_no_comfyui() {
         let result = detect_comfyui_path(None);
@@ -308,7 +318,10 @@ mod tests {
 
         let result = detect_comfyui_path(Some(temp_dir.to_string_lossy().to_string()));
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), Some(temp_dir.to_string_lossy().to_string()));
+        assert_eq!(
+            result.unwrap(),
+            Some(temp_dir.to_string_lossy().to_string())
+        );
 
         fs::remove_dir_all(&temp_dir).unwrap();
     }
@@ -414,11 +427,11 @@ pause"#;
     fn read_startup_script_finds_output_dir() {
         let temp_dir = std::env::temp_dir().join("lumora_test_script");
         fs::create_dir_all(&temp_dir).unwrap();
-        
+
         // Create a mock run.bat with --output-directory
         let output_dir = temp_dir.join("custom_output");
         fs::create_dir_all(&output_dir).unwrap();
-        
+
         let bat_content = format!(
             r#"@echo off
 python main.py --output-directory "{}""#,

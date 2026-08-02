@@ -114,7 +114,6 @@ pub(super) fn escape_fts5(query: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     fn test_db() -> crate::db::DbHandle {
         crate::db::DbHandle::open_memory().unwrap()
@@ -135,7 +134,7 @@ mod tests {
             .prepare("SELECT id FROM images WHERE metadata_json LIKE '%nonexistent%'")
             .unwrap();
         let rows: Vec<String> = stmt
-            .query_map([], |row| Ok(row.get::<_, String>(0)?))
+            .query_map([], |row| row.get::<_, String>(0))
             .unwrap()
             .filter_map(|r| r.ok())
             .collect();
@@ -164,9 +163,7 @@ mod tests {
             )
             .unwrap();
         let rows: Vec<String> = stmt
-            .query_map(rusqlite::params![12345i64], |row| {
-                Ok(row.get::<_, String>(0)?)
-            })
+            .query_map(rusqlite::params![12345i64], |row| row.get::<_, String>(0))
             .unwrap()
             .filter_map(|r| r.ok())
             .collect();
@@ -197,9 +194,7 @@ mod tests {
             )
             .unwrap();
         let rows: Vec<String> = stmt
-            .query_map(rusqlite::params![pattern], |row| {
-                Ok(row.get::<_, String>(0)?)
-            })
+            .query_map(rusqlite::params![pattern], |row| row.get::<_, String>(0))
             .unwrap()
             .filter_map(|r| r.ok())
             .collect();
@@ -230,9 +225,7 @@ mod tests {
             )
             .unwrap();
         let rows: Vec<String> = stmt
-            .query_map(rusqlite::params![pattern], |row| {
-                Ok(row.get::<_, String>(0)?)
-            })
+            .query_map(rusqlite::params![pattern], |row| row.get::<_, String>(0))
             .unwrap()
             .filter_map(|r| r.ok())
             .collect();

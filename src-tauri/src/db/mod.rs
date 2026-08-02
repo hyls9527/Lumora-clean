@@ -21,8 +21,15 @@ impl DbHandle {
     pub fn open(path: &Path) -> Result<Self, rusqlite::Error> {
         // Register sqlite-vec extension globally (must be done before any connection)
         unsafe {
-            sqlite3_auto_extension(Some(std::mem::transmute(
-                sqlite_vec::sqlite3_vec_init as *const (),
+            sqlite3_auto_extension(Some(std::mem::transmute::<
+                *const (),
+                unsafe extern "C" fn(
+                    *mut rusqlite::ffi::sqlite3,
+                    *mut *mut i8,
+                    *const rusqlite::ffi::sqlite3_api_routines,
+                ) -> i32,
+            >(
+                sqlite_vec::sqlite3_vec_init as *const ()
             )));
         }
         let conn = Connection::open(path)?;
@@ -31,6 +38,7 @@ impl DbHandle {
              PRAGMA synchronous  = NORMAL;
              PRAGMA foreign_keys = ON;",
         )?;
+        migrations::run_migrations(&conn)?;
         Ok(Self {
             conn: Arc::new(Mutex::new(conn)),
             path: path.to_path_buf(),
@@ -42,8 +50,15 @@ impl DbHandle {
     pub fn open_memory() -> Result<Self, rusqlite::Error> {
         // Register sqlite-vec extension globally
         unsafe {
-            sqlite3_auto_extension(Some(std::mem::transmute(
-                sqlite_vec::sqlite3_vec_init as *const (),
+            sqlite3_auto_extension(Some(std::mem::transmute::<
+                *const (),
+                unsafe extern "C" fn(
+                    *mut rusqlite::ffi::sqlite3,
+                    *mut *mut i8,
+                    *const rusqlite::ffi::sqlite3_api_routines,
+                ) -> i32,
+            >(
+                sqlite_vec::sqlite3_vec_init as *const ()
             )));
         }
         let conn = Connection::open_in_memory()?;
@@ -65,5 +80,22 @@ impl DbHandle {
 
     pub fn path(&self) -> &std::path::Path {
         &self.path
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn open_runs_migrations_on_fresh_database() {
+        let dir = tempfile::tempdir().unwrap();
+        let db_path = dir.path().join("test.db");
+        let db = DbHandle::open(&db_path).unwrap();
+        let conn = db.conn().lock().unwrap();
+        let count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM images", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, 0);
     }
 }

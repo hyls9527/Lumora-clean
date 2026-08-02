@@ -11,7 +11,7 @@ use crate::schema::types::{row_to_record, BatchConvertItem, BatchConvertResult, 
 /// Options passed to `export_single` for format conversion.
 pub struct ConvertOptions {
     pub format: String,
-    pub quality: Option<u8>,          // 1..=100 for JPEG/WebP
+    pub quality: Option<u8>, // 1..=100 for JPEG/WebP
     pub max_width: Option<u32>,
     pub max_height: Option<u32>,
 }
@@ -26,7 +26,9 @@ pub fn export_images(
     rename_template: Option<String>,
 ) -> AppResult<ExportResult> {
     // Validate format early (fixes #10)
-    let allowed = ["original", "png", "jpg", "jpeg", "webp", "avif", "bmp", "gif", "tiff", "tif"];
+    let allowed = [
+        "original", "png", "jpg", "jpeg", "webp", "avif", "bmp", "gif", "tiff", "tif",
+    ];
     if !allowed.contains(&format.as_str()) {
         return Err(AppError::InvalidInput(format!("不支持的格式: {format}")));
     }
@@ -43,23 +45,23 @@ pub fn export_images(
     let tasks: Vec<Result<ExportTask, String>> = {
         let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
         ids.iter()
-            .filter_map(|id| {
+            .map(|id| {
                 let record = match conn.query_row(
                     "SELECT * FROM images WHERE id = ?1",
                     params![id],
                     row_to_record,
                 ) {
                     Ok(r) => r,
-                    Err(_) => return Some(Err(id.clone())),
+                    Err(_) => return Err(id.clone()),
                 };
                 let tags = load_tags_for_image(&conn, id);
                 let stem = build_filename(&record, &tags, rename_template.as_deref());
                 let ext = resolve_extension(&record.format, &format);
-                Some(Ok(ExportTask {
+                Ok(ExportTask {
                     file_path: record.file_path,
                     stem,
                     ext: ext.to_string(),
-                }))
+                })
             })
             .collect()
     };
@@ -102,6 +104,7 @@ pub fn export_images(
 ///
 /// When `dry_run` is true, only reports what would happen without modifying anything.
 #[tauri::command]
+#[allow(clippy::too_many_arguments)]
 pub fn batch_convert(
     db: tauri::State<'_, DbHandle>,
     ids: Vec<String>,
@@ -113,7 +116,17 @@ pub fn batch_convert(
     dry_run: bool,
 ) -> AppResult<BatchConvertResult> {
     // Validate format early
-    if format != "original" && format != "png" && format != "jpg" && format != "jpeg" && format != "webp" && format != "avif" && format != "bmp" && format != "gif" && format != "tiff" && format != "tif" {
+    if format != "original"
+        && format != "png"
+        && format != "jpg"
+        && format != "jpeg"
+        && format != "webp"
+        && format != "avif"
+        && format != "bmp"
+        && format != "gif"
+        && format != "tiff"
+        && format != "tif"
+    {
         return Err(AppError::InvalidInput(format!("不支持的格式: {format}")));
     }
     if let Some(q) = quality {
@@ -190,14 +203,11 @@ pub fn batch_convert(
                         .unwrap_or_else(|| record.id.clone());
                     dest.join(format!("{stem}.{new_ext}"))
                 } else {
-                    old_path.with_extension(&*new_ext)
+                    old_path.with_extension(new_ext)
                 };
 
                 // In-place same format, no resize → skip
-                if dest_dir.is_none()
-                    && opts.format == "original"
-                    && old_path == new_path
-                {
+                if dest_dir.is_none() && opts.format == "original" && old_path == new_path {
                     return ConvertTask {
                         id: id.clone(),
                         old_format: record.format.clone(),
@@ -318,20 +328,23 @@ pub fn batch_convert(
         for outcome in &outcomes {
             if outcome.status == "ok" && outcome.new_path_str.is_some() && !dry_run {
                 let new_path_str = outcome.new_path_str.as_deref().unwrap();
-                let new_format_str =
-                    if opts.format == "original" {
-                        outcome.old_format.clone()
-                    } else if opts.format == "jpg" || opts.format == "jpeg" {
-                        "jpeg".to_string()
-                    } else {
-                        opts.format.clone()
-                    };
+                let new_format_str = if opts.format == "original" {
+                    outcome.old_format.clone()
+                } else if opts.format == "jpg" || opts.format == "jpeg" {
+                    "jpeg".to_string()
+                } else {
+                    opts.format.clone()
+                };
                 // If DB update fails, log but don't fail the whole batch — file is already converted
                 if let Err(e) = conn.execute(
                     "UPDATE images SET file_path = ?1, format = ?2 WHERE id = ?3",
                     params![new_path_str, new_format_str, outcome.id],
                 ) {
-                    log::error!("DB update failed for {} after conversion: {}", outcome.id, e);
+                    log::error!(
+                        "DB update failed for {} after conversion: {}",
+                        outcome.id,
+                        e
+                    );
                 }
             }
         }
@@ -346,11 +359,7 @@ pub fn batch_convert(
     for outcome in &outcomes {
         match outcome.status.as_str() {
             "ok" => {
-                if dry_run {
-                    converted += 1;
-                } else {
-                    converted += 1;
-                }
+                converted += 1;
                 items.push(BatchConvertItem {
                     id: outcome.id.clone(),
                     old_format: outcome.old_format.clone(),
@@ -529,9 +538,7 @@ fn export_single(src: &str, dest: &Path, opts: &ConvertOptions) -> AppResult<()>
     if opts.format == "original" {
         // Still re-encode through image crate to apply resize
         if opts.max_width.is_some() || opts.max_height.is_some() {
-            let ext = dest.extension()
-                .and_then(|e| e.to_str())
-                .unwrap_or("png");
+            let ext = dest.extension().and_then(|e| e.to_str()).unwrap_or("png");
             let fmt = extension_to_image_format(ext)?;
             let mut cursor = std::io::Cursor::new(Vec::new());
             encode_with_quality(&img, fmt, opts.quality, &mut cursor)?;
@@ -539,8 +546,7 @@ fn export_single(src: &str, dest: &Path, opts: &ConvertOptions) -> AppResult<()>
                 .map_err(|e| AppError::Io(format!("写入文件失败: {e}")))?;
             return Ok(());
         }
-        fs::copy(src, dest)
-            .map_err(|e| AppError::Io(format!("复制失败: {e}")))?;
+        fs::copy(src, dest).map_err(|e| AppError::Io(format!("复制失败: {e}")))?;
         return Ok(());
     }
 
@@ -548,8 +554,7 @@ fn export_single(src: &str, dest: &Path, opts: &ConvertOptions) -> AppResult<()>
 
     let mut cursor = std::io::Cursor::new(Vec::new());
     encode_with_quality(&img, img_format, opts.quality, &mut cursor)?;
-    fs::write(dest, cursor.into_inner())
-        .map_err(|e| AppError::Io(format!("写入文件失败: {e}")))
+    fs::write(dest, cursor.into_inner()).map_err(|e| AppError::Io(format!("写入文件失败: {e}")))
 }
 
 /// Map a format string to `image::ImageFormat`.
@@ -593,7 +598,6 @@ mod tests {
     use super::*;
     use crate::db::DbHandle;
     use crate::schema::types::ImageRecord;
-    use std::io::Write;
     use tempfile::{tempdir, TempDir};
 
     // ---------------------------------------------------------------------------
@@ -698,8 +702,15 @@ mod tests {
     // build_filename
     // ---------------------------------------------------------------------------
 
-    fn make_record(path: &str, id: &str, rating: i32, width: Option<i32>, height: Option<i32>, metadata: Option<&str>) -> ImageRecord {
-        let (w, h) = if let Some(md) = metadata {
+    fn make_record(
+        path: &str,
+        id: &str,
+        rating: i32,
+        width: Option<i32>,
+        height: Option<i32>,
+        metadata: Option<&str>,
+    ) -> ImageRecord {
+        let (w, h) = if let Some(_md) = metadata {
             if path.contains("photo-sunset") {
                 (Some(1920), Some(1080))
             } else {
@@ -739,7 +750,11 @@ mod tests {
     #[test]
     fn build_filename_custom_template() {
         let rec = make_record("/images/photo.jpg", "id123", 4, Some(800), Some(600), None);
-        let name = build_filename(&rec, &["cat".into(), "cute".into()], Some("{name}_{rating}"));
+        let name = build_filename(
+            &rec,
+            &["cat".into(), "cute".into()],
+            Some("{name}_{rating}"),
+        );
         assert!(name.starts_with("photo_4"));
     }
 
@@ -767,7 +782,14 @@ mod tests {
     #[test]
     fn build_filename_with_metadata_template() {
         let meta = r#"{"model":"SDXL","prompt":"a beautiful sunset","seed":42}"#;
-        let rec = make_record("/images/sunset.jpg", "id99", 5, Some(1920), Some(1080), Some(meta));
+        let rec = make_record(
+            "/images/sunset.jpg",
+            "id99",
+            5,
+            Some(1920),
+            Some(1080),
+            Some(meta),
+        );
         let name = build_filename(&rec, &[], Some("{model}_{seed}"));
         assert_eq!(name, "SDXL_42");
     }
@@ -801,18 +823,30 @@ mod tests {
 
     #[test]
     fn extension_png_format() {
-        assert!(matches!(extension_to_image_format("png"), Ok(image::ImageFormat::Png)));
+        assert!(matches!(
+            extension_to_image_format("png"),
+            Ok(image::ImageFormat::Png)
+        ));
     }
 
     #[test]
     fn extension_jpg_format() {
-        assert!(matches!(extension_to_image_format("jpg"), Ok(image::ImageFormat::Jpeg)));
-        assert!(matches!(extension_to_image_format("jpeg"), Ok(image::ImageFormat::Jpeg)));
+        assert!(matches!(
+            extension_to_image_format("jpg"),
+            Ok(image::ImageFormat::Jpeg)
+        ));
+        assert!(matches!(
+            extension_to_image_format("jpeg"),
+            Ok(image::ImageFormat::Jpeg)
+        ));
     }
 
     #[test]
     fn extension_webp_format() {
-        assert!(matches!(extension_to_image_format("webp"), Ok(image::ImageFormat::WebP)));
+        assert!(matches!(
+            extension_to_image_format("webp"),
+            Ok(image::ImageFormat::WebP)
+        ));
     }
 
     #[test]
@@ -893,9 +927,6 @@ mod tests {
         let img = image::DynamicImage::new_rgb8(16, 16);
         img.save(&src_path).unwrap();
         let src_path_str = src_path.to_string_lossy().into_owned();
-
-        let dir = tempdir().unwrap();
-        let dest = dir.path().join("resized.png");
 
         let dir = tempdir().unwrap();
         let dest = dir.path().join("resized.png");
@@ -983,7 +1014,8 @@ mod tests {
                 tag_id TEXT NOT NULL REFERENCES tags(id),
                 PRIMARY KEY (image_id, tag_id)
             );",
-        ).unwrap();
+        )
+        .unwrap();
         drop(conn);
 
         (db, dir)
@@ -1003,14 +1035,16 @@ mod tests {
             "webp" => image::ImageFormat::WebP,
             _ => image::ImageFormat::Png,
         };
-        img.write_to(&mut std::io::Cursor::new(&mut buf), fmt).unwrap();
+        img.write_to(&mut std::io::Cursor::new(&mut buf), fmt)
+            .unwrap();
         std::fs::write(path, &buf).unwrap();
 
         conn.execute(
             "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
              VALUES (?1, ?2, 'fakehash', 10, ?3, '2025-01-01T00:00:00')",
             params![id, path, format],
-        ).unwrap();
+        )
+        .unwrap();
     }
 
     #[test]
@@ -1035,7 +1069,8 @@ mod tests {
             None,
             None,
             true,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert_eq!(result.converted, 2);
         assert_eq!(result.skipped, 0);
@@ -1065,7 +1100,8 @@ mod tests {
             None,
             None,
             true,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert_eq!(result.skipped, 1);
         assert_eq!(result.converted, 0);
@@ -1117,7 +1153,8 @@ mod tests {
             None,
             None,
             false,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert_eq!(result.failed, 1);
         assert_eq!(result.items[0].status, "error");
@@ -1129,6 +1166,7 @@ mod tests {
     // so it can be tested with a plain &DbHandle
     // ---------------------------------------------------------------------------
 
+    #[allow(clippy::too_many_arguments)]
     fn batch_convert_inner(
         db: &DbHandle,
         ids: Vec<String>,
@@ -1140,7 +1178,9 @@ mod tests {
         dry_run: bool,
     ) -> AppResult<BatchConvertResult> {
         // Validate format early
-        let allowed = ["original", "png", "jpg", "jpeg", "webp", "avif", "bmp", "gif", "tiff", "tif"];
+        let allowed = [
+            "original", "png", "jpg", "jpeg", "webp", "avif", "bmp", "gif", "tiff", "tif",
+        ];
         if !allowed.contains(&format.as_str()) {
             return Err(AppError::InvalidInput(format!("不支持的格式: {format}")));
         }
@@ -1218,13 +1258,10 @@ mod tests {
                             .unwrap_or_else(|| record.id.clone());
                         dest.join(format!("{stem}.{new_ext}"))
                     } else {
-                        old_path.with_extension(&*new_ext)
+                        old_path.with_extension(new_ext)
                     };
 
-                    if dest_dir.is_none()
-                        && opts.format == "original"
-                        && old_path == new_path
-                    {
+                    if dest_dir.is_none() && opts.format == "original" && old_path == new_path {
                         return ConvertTask {
                             id: id.clone(),
                             old_format: record.format.clone(),
@@ -1339,19 +1376,22 @@ mod tests {
             for outcome in &outcomes {
                 if outcome.status == "ok" && outcome.new_path_str.is_some() && !dry_run {
                     let new_path_str = outcome.new_path_str.as_deref().unwrap();
-                    let new_format_str =
-                        if opts.format == "original" {
-                            outcome.old_format.clone()
-                        } else if opts.format == "jpg" || opts.format == "jpeg" {
-                            "jpeg".to_string()
-                        } else {
-                            opts.format.clone()
-                        };
+                    let new_format_str = if opts.format == "original" {
+                        outcome.old_format.clone()
+                    } else if opts.format == "jpg" || opts.format == "jpeg" {
+                        "jpeg".to_string()
+                    } else {
+                        opts.format.clone()
+                    };
                     if let Err(e) = conn.execute(
                         "UPDATE images SET file_path = ?1, format = ?2 WHERE id = ?3",
                         params![new_path_str, new_format_str, outcome.id],
                     ) {
-                        log::error!("DB update failed for {} after conversion: {}", outcome.id, e);
+                        log::error!(
+                            "DB update failed for {} after conversion: {}",
+                            outcome.id,
+                            e
+                        );
                     }
                 }
             }

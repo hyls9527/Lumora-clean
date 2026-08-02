@@ -81,43 +81,6 @@ fn get_sidecar_path() -> AppResult<String> {
     Err(AppError::External("CLIP sidecar not found".to_string()))
 }
 
-/// Health-check the CLIP sidecar.
-/// Returns a structured summary: (status, device, embedding_dim, deps_json).
-pub fn clip_health_check() -> AppResult<serde_json::Value> {
-    let sidecar_path = get_sidecar_path()?;
-
-    let output = Command::new(&sidecar_path)
-        .args(["health"])
-        .output()
-        .map_err(|e| AppError::External(format!("Failed to run CLIP health check: {}", e)))?;
-
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(AppError::External(format!(
-            "CLIP health check failed: {}",
-            stderr
-        )));
-    }
-
-    let result: serde_json::Value = serde_json::from_slice(&output.stdout)
-        .map_err(|e| AppError::External(format!("Failed to parse health check response: {}", e)))?;
-
-    let status = result
-        .get("status")
-        .and_then(|v| v.as_str())
-        .unwrap_or("unknown");
-
-    if status != "ok" {
-        let err = result
-            .get("error")
-            .and_then(|v| v.as_str())
-            .unwrap_or("unknown error");
-        return Err(AppError::External(format!("CLIP sidecar unhealthy: {}", err)));
-    }
-
-    Ok(result)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

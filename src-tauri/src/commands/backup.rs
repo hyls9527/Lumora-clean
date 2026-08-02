@@ -7,19 +7,18 @@ use crate::error::{AppError, AppResult};
 
 /// Export database to a user-selected location.
 #[tauri::command]
-pub async fn export_database(
-    db: State<'_, DbHandle>,
-    destination: String,
-) -> AppResult<String> {
+pub async fn export_database(db: State<'_, DbHandle>, destination: String) -> AppResult<String> {
     let db_path = db.path();
     let dest = PathBuf::from(&destination);
 
     // Ensure destination directory exists
     if let Some(parent) = dest.parent() {
-        fs::create_dir_all(parent).map_err(|e| AppError::Io(format!("Failed to create directory: {e}")))?;
+        fs::create_dir_all(parent)
+            .map_err(|e| AppError::Io(format!("Failed to create directory: {e}")))?;
     }
 
-    fs::copy(db_path, &dest).map_err(|e| AppError::Io(format!("Failed to export database: {e}")))?;
+    fs::copy(db_path, &dest)
+        .map_err(|e| AppError::Io(format!("Failed to export database: {e}")))?;
 
     Ok(dest.to_string_lossy().to_string())
 }
@@ -32,13 +31,18 @@ pub async fn import_database(db: State<'_, DbHandle>, source: String) -> AppResu
     let src = PathBuf::from(&source);
 
     if !src.exists() {
-        return Err(AppError::InvalidInput("Source file does not exist".to_string()));
+        return Err(AppError::InvalidInput(
+            "Source file does not exist".to_string(),
+        ));
     }
 
     // Validate it's a SQLite file (magic bytes)
-    let header = fs::read(&src).map_err(|e| AppError::Io(format!("Failed to read source file: {e}")))?;
+    let header =
+        fs::read(&src).map_err(|e| AppError::Io(format!("Failed to read source file: {e}")))?;
     if header.len() < 16 || &header[0..16] != b"SQLite format 3\0" {
-        return Err(AppError::InvalidInput("Source file is not a valid SQLite database".to_string()));
+        return Err(AppError::InvalidInput(
+            "Source file is not a valid SQLite database".to_string(),
+        ));
     }
 
     // Write to staging file first to avoid corrupting active DB
@@ -46,7 +50,8 @@ pub async fn import_database(db: State<'_, DbHandle>, source: String) -> AppResu
     fs::copy(&src, &staging).map_err(|e| AppError::Io(format!("Failed to stage import: {e}")))?;
 
     // Replace original — connection may hold WAL, but staging is safe
-    fs::copy(&staging, db_path).map_err(|e| AppError::Io(format!("Failed to import database: {e}")))?;
+    fs::copy(&staging, db_path)
+        .map_err(|e| AppError::Io(format!("Failed to import database: {e}")))?;
     let _ = fs::remove_file(&staging);
 
     Ok("Database imported successfully. Please restart the application.".to_string())

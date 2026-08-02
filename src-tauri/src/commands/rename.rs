@@ -2,8 +2,8 @@ use std::path::Path;
 
 use rusqlite::params;
 
-use crate::error::{AppError, AppResult};
 use crate::db::DbHandle;
+use crate::error::{AppError, AppResult};
 
 use super::export::{build_filename, load_tags_for_image};
 
@@ -51,7 +51,8 @@ pub fn batch_rename(
 
     let tasks: Vec<RenameTask> = {
         let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-        let mut used_new_paths: std::collections::HashSet<String> = std::collections::HashSet::new();
+        let mut used_new_paths: std::collections::HashSet<String> =
+            std::collections::HashSet::new();
 
         ids.iter()
             .map(|id| {
@@ -88,7 +89,7 @@ pub fn batch_rename(
 
                 let parent = old_path.parent().unwrap_or(std::path::Path::new(""));
                 let desired_name = format!("{stem}.{ext}");
-                let final_new_name = resolve_conflict(&parent, &desired_name, &used_new_paths);
+                let final_new_name = resolve_conflict(parent, &desired_name, &used_new_paths);
 
                 if final_new_name == old_name {
                     return RenameTask {
@@ -194,14 +195,20 @@ pub fn batch_rename(
     {
         let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
         for outcome in &outcomes {
-            if outcome.status == "ok" && outcome.new_path.is_some() && !dry_run {
-                let new_path = outcome.new_path.as_ref().unwrap();
+            if outcome.status != "ok" || dry_run {
+                continue;
+            }
+            if let Some(new_path) = &outcome.new_path {
                 let new_path_str = new_path.to_string_lossy().into_owned();
                 let tx = match conn.unchecked_transaction() {
                     Ok(t) => t,
                     Err(e) => {
                         let _ = std::fs::rename(new_path, &outcome.old_path);
-                        log::error!("Failed to start DB transaction for rename {}: {}", outcome.id, e);
+                        log::error!(
+                            "Failed to start DB transaction for rename {}: {}",
+                            outcome.id,
+                            e
+                        );
                         continue;
                     }
                 };
@@ -349,8 +356,7 @@ mod tests {
     #[test]
     fn resolve_conflict_falls_back_to_timestamp_after_exhaustion() {
         let dir = tempfile::tempdir().unwrap();
-        let mut used_names: HashSet<String> =
-            (1..999).map(|i| format!("photo_{i}.png")).collect();
+        let mut used_names: HashSet<String> = (1..999).map(|i| format!("photo_{i}.png")).collect();
         used_names.insert("photo.png".to_string());
         let name = resolve_conflict(dir.path(), "photo.png", &used_names);
         assert!(name.starts_with("photo_") && name.ends_with(".png"));

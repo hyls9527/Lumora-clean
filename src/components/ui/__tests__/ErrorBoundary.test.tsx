@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { lazy, Suspense } from 'react';
+import { render, waitFor } from '@testing-library/react';
 import { ErrorBoundary } from '../ErrorBoundary';
 
 // Mock console.error to avoid noise in test output
@@ -35,5 +36,24 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
     expect(container.textContent).toContain('error');
+  });
+
+  it('should render error UI when a lazy chunk fails to load', async () => {
+    const FailingLazy = lazy(() =>
+      Promise.reject(new Error('Failed to fetch dynamically imported module: /chunk.js')),
+    );
+    const { container } = render(
+      <ErrorBoundary>
+        <Suspense fallback={<div>Loading chunk…</div>}>
+          <FailingLazy />
+        </Suspense>
+      </ErrorBoundary>,
+    );
+
+    expect(container.textContent).toContain('Loading chunk');
+
+    await waitFor(() => {
+      expect(container.textContent).toContain('Failed to fetch dynamically imported module');
+    });
   });
 });

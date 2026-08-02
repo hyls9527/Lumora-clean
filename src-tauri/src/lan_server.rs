@@ -2,7 +2,7 @@ use std::net::TcpListener;
 
 use axum::{
     extract::{Path, Query, State},
-    http::{StatusCode, HeaderMap},
+    http::{HeaderMap, StatusCode},
     response::IntoResponse,
     routing::get,
     Json, Router,
@@ -18,7 +18,10 @@ pub struct LanPort(pub u16);
 pub struct LanToken(pub String);
 
 #[tauri::command]
-pub fn get_lan_info(port: tauri::State<'_, LanPort>, token: tauri::State<'_, LanToken>) -> (String, u16, String) {
+pub fn get_lan_info(
+    port: tauri::State<'_, LanPort>,
+    token: tauri::State<'_, LanToken>,
+) -> (String, u16, String) {
     (local_ip(), port.0, token.0.clone())
 }
 
@@ -152,7 +155,11 @@ fn extract_token(headers: &HeaderMap, query_token: Option<&String>) -> Option<St
     None
 }
 
-fn verify_auth(state: &ServerState, headers: &HeaderMap, query_token: Option<&String>) -> Result<(), StatusCode> {
+fn verify_auth(
+    state: &ServerState,
+    headers: &HeaderMap,
+    query_token: Option<&String>,
+) -> Result<(), StatusCode> {
     let provided = extract_token(headers, query_token);
     match provided {
         Some(t) if t == state.token => Ok(()),
@@ -325,7 +332,7 @@ mod tests {
     #[test]
     fn find_available_port_returns_valid_port() {
         let port = find_available_port();
-        assert!(port >= 8079 && port < 8090);
+        assert!((8079..8090).contains(&port));
     }
 
     #[test]

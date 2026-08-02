@@ -36,6 +36,9 @@ jobs:
       - name: Performance budget
         run: node scripts/perf-budget.mjs
 
+      - name: Coverage
+        run: npx vitest run --coverage
+
   rust:
     name: Rust (Tests + Build)
     runs-on: ubuntu-latest
@@ -63,3 +66,11 @@ jobs:
       - name: Check
         working-directory: src-tauri
         run: cargo check
+
+      - name: Format check
+        working-directory: src-tauri
+        run: cargo fmt --check
+
+      - name: Clippy
+        working-directory: src-tauri
+        run: cargo clippy --all-targets -- -D warnings
