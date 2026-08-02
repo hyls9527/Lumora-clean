@@ -119,6 +119,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   'generate_embedding': '生成嵌入失败',
   'get_embedding_status_cmd': '获取嵌入状态失败',
   'search_semantic_cmd': '语义搜索失败',
+  'embed_text_cmd': '语义搜索失败（嵌入服务不可用）',
+  'clip_embed_image_cmd': '以图搜图失败（CLIP 不可用）',
   'analyze_image_cmd': 'AI 分析失败',
   'get_analysis_result_cmd': '获取分析结果失败',
   'get_analysis_history_cmd': '获取分析历史失败',

@@ -1,9 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, waitFor, fireEvent } from '@testing-library/react';
 import { ImportPage } from '../ImportPage';
 
 // Mock dependencies
 const mockImportImages = vi.fn();
+
+const { embeddingStoreMock } = vi.hoisted(() => ({
+  embeddingStoreMock: vi.fn((selector: unknown) => {
+    const state = { filling: false, fillProgress: null, fillMissing: vi.fn() };
+    return selector ? (selector as (s: unknown) => unknown)(state) : state;
+  }),
+}));
+
 vi.mock('../../../stores/imageStore', () => ({
   useImageStore: () => ({
     loading: false,
@@ -11,6 +19,16 @@ vi.mock('../../../stores/imageStore', () => ({
     importImages: mockImportImages,
   }),
 }));
+
+vi.mock('../../../stores/embeddingStore', () => ({
+  useEmbeddingStore: embeddingStoreMock,
+}));
+
+vi.mock('../../../lib/api/embeddings', () => ({
+  getEmbeddingStats: vi.fn(),
+}));
+
+import * as embeddingsApi from '../../../lib/api/embeddings';
 
 vi.mock('@tauri-apps/plugin-dialog', () => ({
   open: vi.fn(),
@@ -139,5 +157,28 @@ describe('ImportPage', () => {
   it('does not call importImages when droppedPaths is undefined', () => {
     render(<ImportPage />);
     expect(mockImportImages).not.toHaveBeenCalled();
+  });
+
+  it('prompts to build the semantic index after a successful import', async () => {
+    vi.mocked(embeddingsApi.getEmbeddingStats).mockResolvedValue({
+      embedded: 0,
+      pending: 0,
+      error: 0,
+      total: 3,
+      missing: 3,
+    });
+    const fillMissing = vi.fn();
+    embeddingStoreMock.mockImplementation((selector: unknown) => {
+      const state = { filling: false, fillProgress: null, fillMissing };
+      return selector ? (selector as (s: unknown) => unknown)(state) : state;
+    });
+
+    render(<ImportPage droppedPaths={['C:/tmp/img.png']} onPathsConsumed={vi.fn()} />);
+
+    await waitFor(() =>
+      expect(screen.getByText(/还有 3 张图片未建立语义索引/)).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByText('补齐索引'));
+    expect(fillMissing).toHaveBeenCalledTimes(1);
   });
 });

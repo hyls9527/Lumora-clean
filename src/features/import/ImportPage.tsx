@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { useImageStore } from '../../stores/imageStore';
+import { useEmbeddingStore } from '../../stores/embeddingStore';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { Collapsible } from '../../components/ui/Collapsible';
 import { StatCard, StatusBadge, SectionHeader, SettingRow, Toggle, inputStyle, selectStyle } from './ImportComponents';
@@ -8,6 +9,7 @@ import { useIsMobile } from '../../hooks/useMediaQuery';
 import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { t as tok } from '../../lib/tokens';
 import { detectComfyuiPath } from '../../lib/api/comfyui';
+import { getEmbeddingStats } from '../../lib/api/embeddings';
 import { importTargetsFromDrop } from '../../lib/dropPaths';
 
 interface ImportPageProps {
@@ -27,17 +29,22 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
   } | null>(null);
   const [comfyuiPath, setComfyuiPath] = useState<string | null>(null);
   const [comfyuiDetecting, setComfyuiDetecting] = useState(false);
+  const [indexHint, setIndexHint] = useState<number | null>(null);
   const isMobile = useIsMobile();
 
   usePerformanceMonitor('ImportPage');
 
   const { loading, error, importImages } = useImageStore();
+  const filling = useEmbeddingStore((s) => s.filling);
+  const fillProgress = useEmbeddingStore((s) => s.fillProgress);
+  const fillMissing = useEmbeddingStore((s) => s.fillMissing);
 
   const handleImport = useCallback(
     async (folderPath?: string) => {
       if (!folderPath) return;
       setRecentImports([]);
       setImportResult(null);
+      setIndexHint(null);
       try {
         const result = await importImages(folderPath);
         setImportResult({
@@ -49,6 +56,12 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
           { name: folderPath.split(/[/\\]/).pop() ?? folderPath, status: 'done' },
           ...prev.slice(0, 9),
         ]);
+        try {
+          const stats = await getEmbeddingStats();
+          setIndexHint(stats.missing > 0 ? stats.missing : null);
+        } catch {
+          setIndexHint(null);
+        }
       } catch {
         // error 已在 store 中设置
       }
@@ -274,6 +287,51 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
             <span style={{ color: tok.textMuted }}>
               共扫描 {importResult.total} 个文件
             </span>
+          </div>
+        )}
+
+        {/* Semantic index completeness hint */}
+        {indexHint !== null && !loading && (
+          <div
+            role="status"
+            style={{
+              marginBottom: 32,
+              padding: '12px 16px',
+              background: 'rgba(122, 92, 18, 0.08)',
+              border: '1px solid rgba(122, 92, 18, 0.18)',
+              borderRadius: 4,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 16,
+              fontSize: 12,
+              fontFamily: tok.fontBody,
+              color: tok.textSecondary,
+            }}
+          >
+            <span>
+              导入完成：还有 {indexHint} 张图片未建立语义索引，补齐后语义搜索更完整
+            </span>
+            <button
+              type="button"
+              disabled={filling}
+              onClick={() => void fillMissing()}
+              style={{
+                fontSize: 11,
+                fontFamily: tok.fontDisplay,
+                color: filling ? tok.textMuted : tok.bg,
+                background: filling ? tok.textFaint : tok.accent,
+                border: 'none',
+                padding: '6px 14px',
+                borderRadius: 4,
+                cursor: filling ? 'not-allowed' : 'pointer',
+                flexShrink: 0,
+              }}
+            >
+              {filling
+                ? `补齐中，剩余 ${fillProgress?.remaining ?? 0} 张`
+                : '补齐索引'}
+            </button>
           </div>
         )}
 

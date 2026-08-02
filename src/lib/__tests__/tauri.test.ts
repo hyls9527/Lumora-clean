@@ -207,5 +207,13 @@ describe('invoke (tauri.ts)', () => {
 
       await expect(mod.invoke('unknown_cmd')).rejects.toThrow('操作失败: unknown_cmd');
     });
+
+    it('wraps image search failures with a friendly message', async () => {
+      mockRealInvoke.mockRejectedValue(new Error('sidecar missing'));
+
+      await expect(
+        mod.invoke('clip_embed_image_cmd', { imagePath: '/x.png' }),
+      ).rejects.toThrow('以图搜图失败（CLIP 不可用）');
+    });
   });
 });
