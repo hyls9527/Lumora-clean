@@ -2,6 +2,19 @@
 
 All notable changes to Lumora are documented here.
 
+## v0.8.1 (2026-08-02)
+
+### Added
+- 品牌启动动画：Logo 丝滑入场（圆环描边 / 高光扫过 / 字标落定 / 淡出揭幕），纯 CSS 实现，尊重系统“减少动态效果”设置
+- 无缝加载：路由懒加载块在启动时后台预载，页面切换无“加载中”闪烁；加载占位品牌化
+
+### Fixed
+- DashboardPage 测试 teardown 竞态（CI 发布失败根因，mock 改为永不 resolve）
+- 版本号统一：tauri.conf.json 0.7.1 → 0.8.1，设置页动态读取后端版本
+
+### Tests
+- 前端 672 → 676 测试
+
 ## v0.8.0 (2026-08-02)
 
 ### Added
