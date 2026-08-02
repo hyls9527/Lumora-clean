@@ -6,6 +6,7 @@ import { FavoritesPage } from '../FavoritesPage';
 vi.mock('../../../lib/api/images', () => ({
   listFavorites: vi.fn(),
   listImages: vi.fn(),
+  listImagesFiltered: vi.fn(),
   searchImagesAdvanced: vi.fn(),
   importImages: vi.fn(),
   exportImages: vi.fn(),

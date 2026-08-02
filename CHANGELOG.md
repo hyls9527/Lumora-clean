@@ -25,9 +25,14 @@ All notable changes to Lumora are documented here.
 - 重命名/导出文件名未过滤 Windows 非法字符与路径穿越
 - 图片 base64 加载 MIME 兜底（jpg/jpeg/tiff 归一、无扩展名安全回退）
 - migrations 测试对全局 sqlite-vec 注册的顺序依赖
+- **高级筛选面板实际接线**（此前 FilterPanel 未挂载、筛选条件不生效；现接入 imageStore → `list_images_filtered`）
+- 文件夹导入不再跟随符号链接（防止链接循环导致无限递归）
+- 导入文件哈希改为内容哈希（路径+大小指纹 → 前 64KB 内容），去重语义与文档一致
+- 导入时间戳元数据读取失败不再 panic（回退当前时间）
+- LAN 服务器：端口绑定竞态消除（一次绑定复用）、token 恒定时间比较、后台线程错误日志化而非静默 panic
 
 ### Tests
-- 前端 605 → **659** 测试；Rust 107 → **124** 测试；`tsc --noEmit` 0 错误
+- 前端 605 → **669** 测试；Rust 107 → **128** 测试；`tsc --noEmit` 0 错误
 - 新增：弹窗栈/焦点、路由刷新、拖拽路径、MIME、i18n 键对齐、离线长操作、筛选范围校验、迁移执行、ErrorBoundary 懒加载失败、useMediaQuery
 
 ## v0.7.1 (2026-07-15)

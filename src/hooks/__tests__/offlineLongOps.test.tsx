@@ -31,6 +31,7 @@ describe('offline long operations (GA-16)', () => {
     });
     const store = create<ImageStore>()(createImageStore({
       listImages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
+      listImagesFiltered: vi.fn().mockResolvedValue({ items: [], total: 0 }),
       searchImagesAdvanced: vi.fn().mockResolvedValue([]),
       importImages,
       exportImages: vi.fn().mockResolvedValue({
@@ -63,6 +64,7 @@ describe('offline long operations (GA-16)', () => {
     });
     const store = create<ImageStore>()(createImageStore({
       listImages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
+      listImagesFiltered: vi.fn().mockResolvedValue({ items: [], total: 0 }),
       searchImagesAdvanced: vi.fn().mockResolvedValue([]),
       importImages: vi.fn().mockResolvedValue({
         items: [] as ImageRecord[],

@@ -84,10 +84,11 @@ pub(crate) fn scan_folder(root: &str) -> std::io::Result<Vec<ImportEntry>> {
             let meta_json = metadata::probe_metadata_from_bytes(&buf, &ext);
             (w, h, meta_json)
         };
-        let created = chrono::DateTime::<chrono::Utc>::from(
-            meta.modified().unwrap_or(meta.created().unwrap()),
-        )
-        .to_rfc3339();
+        let created = meta
+            .modified()
+            .or_else(|_| meta.created())
+            .map(|t| chrono::DateTime::<chrono::Utc>::from(t).to_rfc3339())
+            .unwrap_or_else(|_| chrono::Utc::now().to_rfc3339());
         return Ok(vec![ImportEntry {
             id: Uuid::new_v4().to_string(),
             file_path: root.to_string(),
@@ -156,10 +157,18 @@ fn walk_dir(root: &str) -> std::io::Result<Vec<String>> {
             Err(_) => continue,
         };
         for entry in read.flatten() {
+            let file_type = match entry.file_type() {
+                Ok(t) => t,
+                Err(_) => continue,
+            };
+            // Never follow symlinks: a link cycle would recurse forever.
+            if file_type.is_symlink() {
+                continue;
+            }
             let path = entry.path();
-            if path.is_dir() {
+            if file_type.is_dir() {
                 stack.push(path.to_string_lossy().into_owned());
-            } else if path.is_file() {
+            } else if file_type.is_file() {
                 result.push(path.to_string_lossy().into_owned());
             }
         }
@@ -169,8 +178,17 @@ fn walk_dir(root: &str) -> std::io::Result<Vec<String>> {
 
 fn file_hash(path: &str, size: u64) -> String {
     let mut hasher = DefaultHasher::new();
-    path.hash(&mut hasher);
     size.hash(&mut hasher);
+    // Content-based: hash the first 64KB so identical files deduplicate
+    // regardless of path, while different content is not collapsed.
+    let mut buf = [0u8; 65536];
+    let n = std::fs::File::open(path)
+        .and_then(|mut f| {
+            use std::io::Read;
+            f.read(&mut buf)
+        })
+        .unwrap_or(0);
+    buf[..n].hash(&mut hasher);
     format!("{:016x}", hasher.finish())
 }
 
@@ -589,5 +607,53 @@ mod tests {
         assert_eq!(entries.len(), 0);
 
         let _ = std::fs::remove_file(test_file);
+    }
+
+    #[test]
+    fn file_hash_is_content_based() {
+        let dir = tempfile::tempdir().unwrap();
+        let a = dir.path().join("a.png");
+        let b = dir.path().join("sub").join("b.png");
+        std::fs::create_dir_all(dir.path().join("sub")).unwrap();
+        std::fs::write(&a, b"same-content-12345").unwrap();
+        std::fs::write(&b, b"same-content-12345").unwrap();
+
+        assert_eq!(
+            file_hash(a.to_str().unwrap(), 17),
+            file_hash(b.to_str().unwrap(), 17)
+        );
+
+        let c = dir.path().join("c.png");
+        std::fs::write(&c, b"different-content").unwrap();
+        assert_ne!(
+            file_hash(a.to_str().unwrap(), 17),
+            file_hash(c.to_str().unwrap(), 17)
+        );
+    }
+
+    #[test]
+    fn walk_dir_skips_symlinked_directories() {
+        let dir = tempfile::tempdir().unwrap();
+        let real = dir.path().join("real");
+        std::fs::create_dir_all(&real).unwrap();
+        std::fs::write(real.join("img.png"), b"x").unwrap();
+
+        // Create a symlink back to the root. If creation is unsupported
+        // (e.g. Windows without developer mode), skip gracefully.
+        let link = dir.path().join("loop");
+        #[cfg(windows)]
+        let created = std::os::windows::fs::symlink_dir(&real, &link).is_ok();
+        #[cfg(not(windows))]
+        let created = std::os::unix::fs::symlink(&real, &link).is_ok();
+
+        if !created {
+            eprintln!("symlink creation unsupported; skipping walk_dir cycle test");
+            return;
+        }
+
+        let files = walk_dir(dir.path().to_str().unwrap()).unwrap();
+        assert_eq!(files.len(), 1);
+        assert!(files[0].contains("real"));
+        assert!(!files[0].contains("loop"));
     }
 }

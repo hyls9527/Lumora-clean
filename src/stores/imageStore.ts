@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { create, type StateCreator } from 'zustand';
 import * as api from '../lib/api/images';
+import { hasActiveFilters, type FilterCriteria } from '../types/filter';
+import { useFilterStore } from './filterStore';
 
 import type { ExportResult } from '../lib/api/images';
 import type { ImageRecord } from '../types/image';
@@ -10,6 +12,11 @@ export type { ImageRecord } from '../types/image';
 /** External dependencies consumed by imageStore. */
 export interface ImageStoreDeps {
   listImages: (page: number, perPage: number) => Promise<{ items: ImageRecord[]; total: number }>;
+  listImagesFiltered: (
+    page: number,
+    perPage: number,
+    filter: FilterCriteria,
+  ) => Promise<{ items: ImageRecord[]; total: number }>;
   searchImagesAdvanced: (query: string, field?: string) => Promise<ImageRecord[]>;
   importImages: (folderPath: string) => Promise<api.ImportResult>;
   exportImages: (ids: string[], destDir: string, format: string, renameTemplate?: string) => Promise<ExportResult>;
@@ -17,10 +24,24 @@ export interface ImageStoreDeps {
 
 const defaultDeps: ImageStoreDeps = {
   listImages: api.listImages,
+  listImagesFiltered: api.listImagesFiltered,
   searchImagesAdvanced: api.searchImagesAdvanced,
   importImages: api.importImages,
   exportImages: api.exportImages,
 };
+
+/** Fetch one page, routing to the filtered command when any filter is active. */
+async function fetchPage(
+  deps: ImageStoreDeps,
+  page: number,
+  perPage: number,
+): Promise<{ items: ImageRecord[]; total: number }> {
+  const criteria = useFilterStore.getState().criteria;
+  if (hasActiveFilters(criteria)) {
+    return deps.listImagesFiltered(page, perPage, criteria);
+  }
+  return deps.listImages(page, perPage);
+}
 
 interface FilterState {
   mode: 'creator' | 'normal';
@@ -83,7 +104,7 @@ export function createImageStore(deps: ImageStoreDeps = defaultDeps): StateCreat
       const p = page ?? get().page;
       set({ loading: true, error: null });
       try {
-        const result = await deps.listImages(p, perPage);
+        const result = await fetchPage(deps, p, perPage);
         set({
           images: result.items,
           total: result.total,
@@ -106,7 +127,7 @@ export function createImageStore(deps: ImageStoreDeps = defaultDeps): StateCreat
       const nextPage = page + 1;
       set({ loading: true });
       try {
-        const result = await deps.listImages(nextPage, perPage);
+        const result = await fetchPage(deps, nextPage, perPage);
         set({
           images: [...images, ...result.items],
           total: result.total,

@@ -2,12 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../../lib/api/images', () => ({
   listImages: vi.fn(),
+  listImagesFiltered: vi.fn(),
   searchImagesAdvanced: vi.fn(),
   importImages: vi.fn(),
   exportImages: vi.fn(),
 }));
 
 import { useImageStore } from '../imageStore';
+import { useFilterStore } from '../filterStore';
 import * as api from '../../lib/api/images';
 import type { ImageRecord } from '../../types/image';
 
@@ -29,6 +31,7 @@ const mockImage = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  useFilterStore.setState({ criteria: {} });
   useImageStore.setState({
     images: [],
     loading: false,
@@ -67,6 +70,40 @@ describe('fetchImages', () => {
     const state = useImageStore.getState();
     expect(state.images).toHaveLength(2);
     expect(state.page).toBe(2);
+  });
+
+  it('routes through listImagesFiltered when filters are active', async () => {
+    useFilterStore.setState({ criteria: { model: 'sd1.5' } });
+    vi.mocked(api.listImagesFiltered).mockResolvedValue({ items: [mockImage], total: 1 });
+
+    await useImageStore.getState().fetchImages(1);
+
+    expect(api.listImagesFiltered).toHaveBeenCalledWith(1, 40, { model: 'sd1.5' });
+    expect(api.listImages).not.toHaveBeenCalled();
+    expect(useImageStore.getState().images).toHaveLength(1);
+  });
+
+  it('uses plain listImages when no filters are active', async () => {
+    vi.mocked(api.listImages).mockResolvedValue({ items: [mockImage], total: 1 });
+
+    await useImageStore.getState().fetchImages(1);
+
+    expect(api.listImagesFiltered).not.toHaveBeenCalled();
+    expect(api.listImages).toHaveBeenCalledWith(1, 40);
+  });
+
+  it('loadMore keeps using the filtered path with active criteria', async () => {
+    useFilterStore.setState({ criteria: { format: 'png' } });
+    useImageStore.setState({ images: [mockImage], page: 1, total: 2, loading: false });
+    vi.mocked(api.listImagesFiltered).mockResolvedValue({
+      items: [{ ...mockImage, id: '2' }],
+      total: 2,
+    });
+
+    await useImageStore.getState().loadMore();
+
+    expect(api.listImagesFiltered).toHaveBeenCalledWith(2, 40, { format: 'png' });
+    expect(useImageStore.getState().images).toHaveLength(2);
   });
 });
 

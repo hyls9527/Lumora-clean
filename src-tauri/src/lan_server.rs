@@ -94,7 +94,14 @@ pub fn generate_token() -> String {
 /// Start the LAN web server on an available port.
 /// Returns the bound port on success.
 pub fn start_server(db: DbHandle, token: String) -> u16 {
-    let port = find_available_port();
+    let listener = match find_available_listener() {
+        Ok(l) => l,
+        Err(e) => {
+            log::error!("LAN server failed to bind: {e}");
+            return 0;
+        }
+    };
+    let port = listener.local_addr().map(|a| a.port()).unwrap_or(8079);
     let state = ServerState { db, token };
     let app = Router::new()
         .route("/health", get(health_handler))
@@ -107,26 +114,35 @@ pub fn start_server(db: DbHandle, token: String) -> u16 {
     std::thread::spawn(move || {
         let rt = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
         rt.block_on(async move {
-            let addr = format!("0.0.0.0:{}", port);
-            let listener = tokio::net::TcpListener::bind(&addr)
-                .await
-                .expect("Failed to bind LAN server");
+            let listener = match tokio::net::TcpListener::from_std(listener) {
+                Ok(l) => l,
+                Err(e) => {
+                    log::error!("LAN server failed to prepare listener: {e}");
+                    return;
+                }
+            };
             log::info!("LAN server listening on {}:{}", local_ip(), port);
-            axum::serve(listener, app).await.expect("LAN server error");
+            if let Err(e) = axum::serve(listener, app).await {
+                log::error!("LAN server error: {e}");
+            }
         });
     });
 
     port
 }
 
-/// Find an available port starting from 8079.
-pub fn find_available_port() -> u16 {
+/// Bind a listener on the first available port starting from 8079.
+/// The listener is returned bound, avoiding the bind-check-then-rebind race.
+pub fn find_available_listener() -> std::io::Result<std::net::TcpListener> {
     for port in 8079..8090 {
-        if TcpListener::bind(("0.0.0.0", port)).is_ok() {
-            return port;
+        if let Ok(listener) = TcpListener::bind(("0.0.0.0", port)) {
+            return Ok(listener);
         }
     }
-    panic!("No available port found in 8079-8089");
+    Err(std::io::Error::new(
+        std::io::ErrorKind::AddrInUse,
+        "No available port found in 8079-8089",
+    ))
 }
 
 /// Get the local IP address for LAN access.
@@ -162,9 +178,21 @@ fn verify_auth(
 ) -> Result<(), StatusCode> {
     let provided = extract_token(headers, query_token);
     match provided {
-        Some(t) if t == state.token => Ok(()),
+        Some(t) if tokens_match(&t, &state.token) => Ok(()),
         _ => Err(StatusCode::UNAUTHORIZED),
     }
+}
+
+/// Constant-time string comparison (avoids timing side channels on the LAN).
+fn tokens_match(a: &str, b: &str) -> bool {
+    if a.len() != b.len() {
+        return false;
+    }
+    let mut diff = 0u8;
+    for (x, y) in a.bytes().zip(b.bytes()) {
+        diff |= x ^ y;
+    }
+    diff == 0
 }
 
 // ── Handlers ──────────────────────────────────────────
@@ -330,12 +358,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn find_available_port_returns_valid_port() {
-        let port = find_available_port();
-        assert!((8079..8090).contains(&port));
-    }
-
-    #[test]
     fn local_ip_returns_non_empty() {
         let ip = local_ip();
         assert!(!ip.is_empty());
@@ -346,5 +368,40 @@ mod tests {
         let token = generate_token();
         assert_eq!(token.len(), 8);
         assert!(token.chars().all(|c| c.is_ascii_alphanumeric()));
+    }
+
+    #[test]
+    fn tokens_match_compares_constant_time() {
+        assert!(tokens_match("abc12345", "abc12345"));
+        assert!(!tokens_match("abc12345", "abc12346"));
+        assert!(!tokens_match("abc12345", "abc1234"));
+        assert!(!tokens_match("", "x"));
+    }
+
+    #[test]
+    fn verify_auth_accepts_query_token_and_bearer() {
+        let state = ServerState {
+            db: crate::db::DbHandle::open_memory().unwrap(),
+            token: "token123".into(),
+        };
+
+        assert!(verify_auth(&state, &HeaderMap::new(), Some(&"token123".to_string())).is_ok());
+
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            axum::http::header::AUTHORIZATION,
+            "Bearer token123".parse().unwrap(),
+        );
+        assert!(verify_auth(&state, &headers, None).is_ok());
+
+        assert!(verify_auth(&state, &HeaderMap::new(), Some(&"wrongtok".to_string())).is_err());
+        assert!(verify_auth(&state, &HeaderMap::new(), None).is_err());
+    }
+
+    #[test]
+    fn find_available_listener_binds_a_port() {
+        let listener = find_available_listener().unwrap();
+        let port = listener.local_addr().unwrap().port();
+        assert!((8079..8090).contains(&port));
     }
 }

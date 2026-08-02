@@ -7,6 +7,7 @@ import { useToastStore } from '../../stores/toastStore';
 import { useImageSearchStore } from '../../stores/imageSearchStore';
 import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { ImageCard } from '../../components/ui/ImageCard';
+import { FilterPanel } from '../../components/ui/FilterPanel';
 import { DetailModal } from '../../components/ui/DetailModal';
 import { GridSkeleton } from '../../components/ui/LoadingSkeleton';
 import { ErrorState } from '../../components/ui/ErrorState';
@@ -21,6 +22,7 @@ import { TabButton } from '../../components/ui/TabButton';
 import { BatchToolbar } from './BatchToolbar';
 import { RenameDialog } from '../../components/rename/RenameDialog';
 import { ConvertDialog } from '../../components/convert/ConvertDialog';
+import { useFilterStore } from '../../stores/filterStore';
 import { t as tokens, navTabStyle, separatorStyle, dotStyle, pageTitleStyle } from '../../lib/tokens';
 
 const sortOptions = [
@@ -58,6 +60,7 @@ export function GalleryPage() {
   usePerformanceMonitor('GalleryPage');
 
   const [batchDeleting, setBatchDeleting] = useState(false);
+  const filterCriteria = useFilterStore((s) => s.criteria);
   const [batchTagging, setBatchTagging] = useState(false);
   const [batchEmbedding, setBatchEmbedding] = useState(false);
   const [columnCount, setColumnCount] = useState(0); // 0 = auto (CSS responsive)
@@ -74,9 +77,13 @@ export function GalleryPage() {
   const imagesRef = useRef(images);
   imagesRef.current = images;
 
+  // Refetch when filters change (debounced so typing in the panel doesn't spam)
   useEffect(() => {
-    fetchImages(1);
-  }, [fetchImages]);
+    const timer = setTimeout(() => {
+      void fetchImages(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [filterCriteria, fetchImages]);
 
   // Scroll focused card into view
   useEffect(() => {
@@ -372,6 +379,8 @@ export function GalleryPage() {
           {t('common.totalImages', { total })}
         </span>
       </div>
+
+      <FilterPanel />
 
       {/* Error state */}
       {error && !loading && (

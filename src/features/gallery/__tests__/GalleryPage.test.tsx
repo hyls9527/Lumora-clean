@@ -1,9 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, act, waitFor, cleanup } from '@testing-library/react';
 import { GalleryPage } from '../GalleryPage';
+import { useFilterStore } from '../../../stores/filterStore';
 
 // Use vi.hoisted to create the mock before hoisted vi.mock calls
 const mockUseKeyboardNav = vi.hoisted(() => vi.fn());
+const mockFetchImages = vi.hoisted(() => vi.fn());
 
 // Mock the store
 vi.mock('../../../stores/imageStore', () => ({
@@ -25,7 +27,7 @@ vi.mock('../../../stores/imageStore', () => ({
       getFilteredImages: () => [],
       loading: false,
       error: null,
-      fetchImages: vi.fn(),
+      fetchImages: mockFetchImages,
       loadMore: vi.fn(),
       page: 1,
       total: 0,
@@ -130,11 +132,37 @@ vi.mock('../BatchToolbar', () => ({
 describe('GalleryPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useFilterStore.setState({ criteria: {} });
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it('should render without crashing', () => {
     const { container } = render(<GalleryPage />);
     expect(container).toBeDefined();
+  });
+
+  it('renders the filter panel', () => {
+    const { container } = render(<GalleryPage />);
+    expect(container.textContent).toContain('filter.title');
+  });
+
+  it('refetches the gallery when filter criteria change', async () => {
+    render(<GalleryPage />);
+    mockFetchImages.mockClear();
+
+    act(() => {
+      useFilterStore.setState({ criteria: { model: 'flux' } });
+    });
+
+    await waitFor(
+      () => {
+        expect(mockFetchImages).toHaveBeenCalledWith(1);
+      },
+      { timeout: 2000 },
+    );
   });
 
   describe('useKeyboardNav integration', () => {

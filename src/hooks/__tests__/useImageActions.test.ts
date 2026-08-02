@@ -8,6 +8,7 @@ vi.mock('../../lib/api/images', () => ({
   toggleFavorite: vi.fn(),
   updateRating: vi.fn(),
   listImages: vi.fn(),
+  listImagesFiltered: vi.fn(),
   searchImagesAdvanced: vi.fn(),
   importImages: vi.fn(),
   exportImages: vi.fn(),
