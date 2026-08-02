@@ -20,6 +20,7 @@ import { usePerformanceMonitor } from './hooks/usePerformance';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { useRouter, useRouteCommands, useGlobalShortcuts } from './hooks/useRouter';
 import { getRouteDef, type RoutePath } from './routes';
+import { t } from './lib/i18n';
 import { t as tok } from './lib/tokens';
 import { filterDropPaths } from './lib/dropPaths';
 import { isDirectory } from './lib/api/fs';
@@ -91,7 +92,7 @@ function App() {
             fontSize: 14,
           }}
         >
-          页面未找到
+          {t('common.notFound')}
         </div>
       );
     }

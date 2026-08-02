@@ -19,6 +19,11 @@
   },
   "common": {
     "search": "Search",
+    "notFound": "Page not found",
+    "timeJustNow": "Just now",
+    "timeMinutesAgo": "{count} min ago",
+    "timeHoursAgo": "{count} hr ago",
+    "timeDaysAgo": "{count} days ago",
     "searchPlaceholder": "Describe the image you're looking for...",
     "cancel": "Cancel",
     "confirm": "Confirm",
@@ -160,7 +165,9 @@
   },
   "trash": {
     "title": "Trash",
+    "loading": "Loading…",
     "empty": "Trash is empty",
+    "emptyDecorative": "Dust to dust",
     "restore": "Restore",
     "permanentDelete": "Permanently Delete",
     "confirmDelete": "Confirm Delete",
@@ -230,6 +237,7 @@
   },
   "dashboard": {
     "overview": "Overview",
+    "loadError": "Failed to load",
     "totalImages": "Total Images",
     "storage": "Storage",
     "formatDist": "Format Distribution",
@@ -396,6 +404,7 @@
   "rename": {
     "title": "Batch Rename",
     "template": "Naming Template",
+    "error": "Rename failed",
     "templatePlaceholder": "{name}_{model}_{seed}",
     "templateHint": "Variables: {name} {id} {date} {rating} {tags} {model} {prompt} {seed} {width} {height} {format}",
     "preview": "Preview",

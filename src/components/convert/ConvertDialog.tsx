@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { t } from '../../lib/i18n';
 import { t as tok } from '../../lib/tokens';
 import { batchConvert } from '../../lib/api/images';
 import type { BatchConvertResult } from '../../lib/api/images';
+import { useModalEsc } from '../../hooks/useModalEsc';
 
 interface ConvertDialogProps {
   open: boolean;
@@ -57,6 +58,9 @@ export function ConvertDialog({ open, imageIds, onClose, onComplete }: ConvertDi
   const [executing, setExecuting] = useState(false);
   const [result, setResult] = useState<BatchConvertResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useModalEsc(open, onClose, dialogRef);
 
   // Reset dialog state each time it opens
   useEffect(() => {
@@ -91,7 +95,7 @@ export function ConvertDialog({ open, imageIds, onClose, onComplete }: ConvertDi
       aria-modal="true"
       aria-label={t('convert.title')}
     >
-      <div style={dialogStyle} onClick={(e) => e.stopPropagation()}>
+      <div ref={dialogRef} style={dialogStyle} onClick={(e) => e.stopPropagation()}>
         <div style={{ fontSize: 15, fontFamily: tok.fontDisplay, fontWeight: 600, color: tok.text }}>
           {t('convert.title')}
           <span style={{ fontSize: 12, fontWeight: 400, color: tok.textSecondary, marginLeft: 8 }}>

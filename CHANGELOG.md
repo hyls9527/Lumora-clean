@@ -2,6 +2,34 @@
 
 All notable changes to Lumora are documented here.
 
+## v0.8.0 (2026-08-02)
+
+### Added
+- 高级筛选面板：模型 / 评分区间 / 仅收藏 / 格式 / 日期范围组合筛选（后端 `list_images_filtered`）
+- 变体对比视图：同 prompt 不同 seed 的图片 2-N 张并排对比（VariantCompareModal）
+- 图片信息增强：DetailModal 展示完整 SD 参数（Steps / CFG / Sampler / Seed / Negative Prompt）
+- 键盘快捷键帮助面板（ShortcutsPanel）与 ⌘R 画廊刷新命令
+- 离线提示（OfflineBanner）与错误恢复：图片加载指数退避重试、网络状态监听
+- 批量重命名（模板 + 实时预览 + 冲突解析）与批量格式转换（7 种目标格式）
+- 路由统一（`routes.ts` + `useRouter`）、LoadingPage、store 依赖注入重构
+- CI 质量门禁：vitest 覆盖率（语句/分支/行 ≥70%、函数 ≥55%）、`cargo fmt --check`、`cargo clippy --all-targets -- -D warnings`、`perf-budget.mjs`
+
+### Fixed
+- **P1**：生产数据库打开路径未执行迁移（仅测试路径执行），全新安装会缺少数据表
+- Esc 弹窗栈：多弹窗叠加时按一次 Esc 只关闭最上层；弹窗焦点陷阱与关闭后焦点还原
+- ⌘R 刷新在已处于画廊页时失效（同值导航不触发重载）
+- 拖拽文件夹到窗口无法导入（扩展名过滤丢弃文件夹路径）；根路径文件不再误扫整个磁盘
+- ConvertDialog / RenameDialog 执行失败静默无提示；硬编码英文文案迁移至 i18n
+- `favorite=false` 前后端语义不一致；评分/日期范围颠倒时静默返回空结果（改为显式报错）
+- 日期筛选结束日不包含当天（`date(created_at)` 整天含入）
+- 重命名/导出文件名未过滤 Windows 非法字符与路径穿越
+- 图片 base64 加载 MIME 兜底（jpg/jpeg/tiff 归一、无扩展名安全回退）
+- migrations 测试对全局 sqlite-vec 注册的顺序依赖
+
+### Tests
+- 前端 605 → **659** 测试；Rust 107 → **124** 测试；`tsc --noEmit` 0 错误
+- 新增：弹窗栈/焦点、路由刷新、拖拽路径、MIME、i18n 键对齐、离线长操作、筛选范围校验、迁移执行、ErrorBoundary 懒加载失败、useMediaQuery
+
 ## v0.7.1 (2026-07-15)
 
 ### Fixed

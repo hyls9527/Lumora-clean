@@ -19,6 +19,11 @@
   },
   "common": {
     "search": "搜索",
+    "notFound": "页面未找到",
+    "timeJustNow": "刚刚",
+    "timeMinutesAgo": "{count} 分钟前",
+    "timeHoursAgo": "{count} 小时前",
+    "timeDaysAgo": "{count} 天前",
     "searchPlaceholder": "描述你想要找到的画面...",
     "cancel": "取消",
     "confirm": "确认",
@@ -114,7 +119,9 @@
   },
   "trash": {
     "title": "回收站",
+    "loading": "加载中…",
     "empty": "回收站为空",
+    "emptyDecorative": "废纸成尘",
     "restore": "恢复",
     "permanentDelete": "永久删除",
     "confirmDelete": "确认删除",
@@ -230,6 +237,7 @@
   },
   "dashboard": {
     "overview": "概览",
+    "loadError": "加载失败",
     "totalImages": "图片总数",
     "storage": "存储占用",
     "formatDist": "格式分布",
@@ -396,6 +404,7 @@
   "rename": {
     "title": "批量重命名",
     "template": "命名模板",
+    "error": "重命名失败",
     "templatePlaceholder": "{name}_{model}_{seed}",
     "templateHint": "可用变量: {name} {id} {date} {rating} {tags} {model} {prompt} {seed} {width} {height} {format}",
     "preview": "预览",

@@ -86,7 +86,7 @@ export function TrashPage() {
             margin: 0,
           }}
         >
-          回收站
+          {t('trash.title')}
         </h2>
         {total > 0 && (
           <button
@@ -104,7 +104,7 @@ export function TrashPage() {
               transition: 'background 200ms, color 200ms',
             }}
           >
-            清空回收站
+            {t('trash.emptyTrash')}
           </button>
         )}
       </div>
@@ -131,7 +131,7 @@ export function TrashPage() {
             }}
           />
           <span style={{ fontSize: 10, color: tok.textMuted, fontFamily: tok.fontBody }}>
-            {loading ? '加载中…' : `${t('trash.deletedCount', { total })}`}
+            {loading ? t('trash.loading') : t('trash.deletedCount', { total })}
           </span>
         </div>
       </div>
@@ -164,8 +164,8 @@ export function TrashPage() {
                 <path d="M12 16h24M18 16V12h12v4M16 16v20h16V16" stroke={tok.textFaint} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 <path d="M20 22v10M24 22v10M28 22v10" stroke={tok.textFaint} strokeWidth="1" strokeLinecap="round" />
               </svg>
-              <span style={{ fontSize: 15, fontFamily: tok.fontDisplay, marginBottom: 4, color: 'var(--color-text-secondary)' }}>废纸成尘</span>
-              回收站为空
+              <span style={{ fontSize: 15, fontFamily: tok.fontDisplay, marginBottom: 4, color: 'var(--color-text-secondary)' }}>{t('trash.emptyDecorative')}</span>
+              {t('trash.empty')}
             </div>
           ) : (
             <div style={{ padding: isMobile ? '12px 16px' : '16px 32px', overflowX: 'auto' }}>
@@ -186,11 +186,11 @@ export function TrashPage() {
                       textAlign: 'left',
                     }}
                   >
-                    <th style={{ padding: '8px 12px', fontWeight: 500 }}>文件名</th>
-                    <th style={{ padding: '8px 12px', fontWeight: 500 }}>尺寸</th>
-                    <th style={{ padding: '8px 12px', fontWeight: 500 }}>删除时间</th>
+                    <th style={{ padding: '8px 12px', fontWeight: 500 }}>{t('trash.fileName')}</th>
+                    <th style={{ padding: '8px 12px', fontWeight: 500 }}>{t('trash.dimensions')}</th>
+                    <th style={{ padding: '8px 12px', fontWeight: 500 }}>{t('trash.deletedAt')}</th>
                     <th style={{ padding: '8px 12px', fontWeight: 500, textAlign: 'right' }}>
-                      操作
+                      {t('trash.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -244,7 +244,7 @@ export function TrashPage() {
                             transition: 'background 200ms',
                           }}
                         >
-                          恢复
+                          {t('trash.restore')}
                         </button>
                         {confirmDeleteId === img.id ? (
                           <span style={{ display: 'inline-flex', gap: 4 }}>
@@ -262,7 +262,7 @@ export function TrashPage() {
                                 cursor: 'pointer',
                               }}
                             >
-                              确认删除
+                              {t('trash.confirmDelete')}
                             </button>
                             <button
                               type="button"
@@ -297,7 +297,7 @@ export function TrashPage() {
                               transition: 'background 200ms',
                             }}
                           >
-                            永久删除
+                            {t('trash.permanentDelete')}
                           </button>
                         )}
                       </td>
@@ -379,10 +379,10 @@ export function TrashPage() {
                 margin: '0 0 8px',
               }}
             >
-              清空回收站？
+              {t('trash.emptyTrashConfirm')}
             </h3>
             <p style={{ fontSize: 12, color: tok.textSecondary, margin: '0 0 20px', lineHeight: 1.5 }}>
-              永久删除回收站中的所有 {total} 张图片，此操作不可撤销。
+              {t('trash.emptyTrashDesc', { count: total })}
             </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
               <button
@@ -415,7 +415,7 @@ export function TrashPage() {
                   cursor: 'pointer',
                 }}
               >
-                确认清空
+                {t('trash.confirmEmpty')}
               </button>
             </div>
           </div>

@@ -61,6 +61,25 @@ function mockResponse(cmd: string): unknown {
     return false;
   if (cmd === 'get_analysis_history_cmd')
     return [];
+  if (
+    cmd === 'search_images_advanced' ||
+    cmd === 'search_semantic_cmd' ||
+    cmd === 'get_variant_group_images' ||
+    cmd === 'embed_text_cmd' ||
+    cmd === 'clip_embed_image_cmd' ||
+    cmd === 'clip_embed_text_cmd'
+  )
+    return [];
+  if (cmd === 'get_embedding_stats_cmd')
+    return { embedded: 0, pending: 0, error: 0, total: 0 };
+  if (cmd === 'get_lan_info')
+    return { ip: '127.0.0.1', port: 8079, token: 'mock-token' };
+  if (cmd === 'create_tag')
+    return { id: 'mock-tag', name: '', color: null, createdAt: '' };
+  if (cmd === 'apply_ai_tags_cmd')
+    return 0;
+  if (cmd === 'export_database' || cmd === 'import_database')
+    return '';
   if (cmd === 'get_ollama_host')
     return 'http://localhost:11434';
   if (cmd === 'check_ollama_status')

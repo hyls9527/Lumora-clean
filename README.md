@@ -29,8 +29,8 @@ ollama pull llava
 ## Testing
 
 ```bash
-npx vitest run              # 430 frontend tests
-cd src-tauri && cargo test   # 59 Rust tests
+npx vitest run              # 660 frontend tests
+cd src-tauri && cargo test   # 124 Rust tests
 npx tsc --noEmit            # type check
 ```
 

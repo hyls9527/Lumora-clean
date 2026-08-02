@@ -1,3 +1,4 @@
+import { t } from '../../lib/i18n';
 import { t as tok } from '../../lib/tokens';
 
 /** Dotted separator row for directory-style layout */
@@ -59,10 +60,10 @@ export function SectionTitle({ children }: { children: React.ReactNode }) {
 export function formatTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return '刚刚';
-  if (mins < 60) return `${mins} 分钟前`;
+  if (mins < 1) return t('common.timeJustNow');
+  if (mins < 60) return t('common.timeMinutesAgo', undefined, { count: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} 小时前`;
+  if (hours < 24) return t('common.timeHoursAgo', undefined, { count: hours });
   const days = Math.floor(hours / 24);
-  return `${days} 天前`;
+  return t('common.timeDaysAgo', undefined, { count: days });
 }

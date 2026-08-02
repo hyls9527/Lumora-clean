@@ -3,6 +3,7 @@ import { t } from '../../lib/i18n';
 import { t as tok } from '../../lib/tokens';
 import { batchRename } from '../../lib/api/images';
 import type { RenameResult, RenameItem } from '../../lib/api/images';
+import { useModalEsc } from '../../hooks/useModalEsc';
 
 interface RenameDialogProps {
   open: boolean;
@@ -112,7 +113,19 @@ export function RenameDialog({ open, imageIds, onClose, onComplete }: RenameDial
   const [loading, setLoading] = useState(false);
   const [executing, setExecuting] = useState(false);
   const [result, setResult] = useState<RenameResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Reset dialog state each time it opens
+  useEffect(() => {
+    if (open) {
+      setResult(null);
+      setError(null);
+    }
+  }, [open]);
+
+  useModalEsc(open, onClose, dialogRef);
 
   // Fetch preview on template change (debounced)
   const fetchPreview = useCallback(
@@ -163,22 +176,12 @@ export function RenameDialog({ open, imageIds, onClose, onComplete }: RenameDial
       const res = await batchRename(imageIds, template.trim(), false);
       setResult(res);
       onComplete?.(res);
-    } catch {
-      // Error handled by tauri.ts wrapper
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setExecuting(false);
     }
   };
-
-  // Close on Escape
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [open, onClose]);
 
   if (!open) return null;
 
@@ -192,7 +195,7 @@ export function RenameDialog({ open, imageIds, onClose, onComplete }: RenameDial
       aria-modal="true"
       aria-label={t('rename.title')}
     >
-      <div style={dialogStyle} onClick={(e) => e.stopPropagation()}>
+      <div ref={dialogRef} style={dialogStyle} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div style={{ fontSize: 15, fontFamily: tok.fontDisplay, fontWeight: 600, color: tok.text }}>
           {t('rename.title')}
@@ -279,6 +282,22 @@ export function RenameDialog({ open, imageIds, onClose, onComplete }: RenameDial
             {result.errors > 0
               ? t('rename.resultError', undefined, { renamed: result.renamed, skipped: result.skipped, errors: result.errors })
               : t('rename.result', undefined, { renamed: result.renamed, skipped: result.skipped })}
+          </div>
+        )}
+
+        {error && (
+          <div
+            role="alert"
+            style={{
+              fontSize: 12,
+              fontFamily: tok.fontBody,
+              padding: '8px 12px',
+              borderRadius: 4,
+              background: 'rgba(189, 71, 31, 0.1)',
+              color: tok.danger,
+            }}
+          >
+            {t('rename.error')}: {error}
           </div>
         )}
 

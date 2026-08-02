@@ -28,7 +28,7 @@ export function DashboardPage() {
       const data = await getDashboardStats();
       setStats(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '加载失败');
+      setError(err instanceof Error ? err.message : t('dashboard.loadError'));
     } finally {
       setLoading(false);
     }

@@ -253,4 +253,39 @@ describe('RenameDialog', () => {
       expect(hasConflict).toBe(true);
     });
   });
+
+  it('shows an error alert when the rename execution fails', async () => {
+    const mockPreview = {
+      items: [makePreviewItem('a', 'old_a.png', 'new_a.png')],
+      renamed: 1,
+      skipped: 0,
+      errors: 0,
+    };
+    vi.mocked(batchRename)
+      .mockResolvedValueOnce(mockPreview) // dryRun succeeds
+      .mockRejectedValueOnce(new Error('disk full')); // execution fails
+
+    const { container } = render(
+      <RenameDialog open imageIds={['a']} onClose={onClose} />,
+    );
+    const input = container.querySelector('input[type="text"]')!;
+    fireEvent.change(input, { target: { value: '{name}_test' } });
+
+    await waitFor(() => {
+      expect(batchRename).toHaveBeenCalledWith(['a'], '{name}_test', true);
+    });
+
+    const executeBtn = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent === 'rename.execute',
+    )!;
+    fireEvent.click(executeBtn);
+
+    await waitFor(() => {
+      const alert = container.querySelector('[role="alert"]');
+      expect(alert).toBeDefined();
+      expect(alert?.textContent).toContain('disk full');
+      expect(alert?.textContent).toContain('rename.error');
+    });
+    expect(onComplete).not.toHaveBeenCalled();
+  });
 });

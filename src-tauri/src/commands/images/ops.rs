@@ -256,12 +256,18 @@ fn list_images_filtered_inner(
         param_values.push(Box::new(fmt.clone()));
     }
     if let Some(ref from) = filter.date_from {
-        // date() makes the range day-inclusive (dateTo "2025-01-01" includes the whole day)
-        conditions.push(format!("date(created_at) >= ?{}", param_values.len() + 1));
+        // ISO date strings compare lexicographically, so the plain column
+        // comparison keeps the created_at index usable.
+        conditions.push(format!("created_at >= ?{}", param_values.len() + 1));
         param_values.push(Box::new(from.clone()));
     }
     if let Some(ref to) = filter.date_to {
-        conditions.push(format!("date(created_at) <= ?{}", param_values.len() + 1));
+        // Half-open range: created_at < (to + 1 day) includes the whole end day
+        // while remaining index-friendly (the right side is a constant).
+        conditions.push(format!(
+            "created_at < date(?{}, '+1 day')",
+            param_values.len() + 1
+        ));
         param_values.push(Box::new(to.clone()));
     }
 
