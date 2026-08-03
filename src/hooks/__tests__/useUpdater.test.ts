@@ -2,18 +2,39 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, cleanup } from '@testing-library/react';
 
 const mockCheck = vi.fn();
-const mockDownloadAndInstall = vi.fn();
+const mockDownload = vi.fn();
+const mockInstall = vi.fn();
+const mockRelaunch = vi.fn();
 
 vi.mock('@tauri-apps/plugin-updater', () => ({
   check: (...args: unknown[]) => mockCheck(...args),
 }));
 
+vi.mock('@tauri-apps/plugin-process', () => ({
+  relaunch: () => mockRelaunch(),
+}));
+
 import { useUpdater } from '../useUpdater';
+
+function makeUpdate(overrides: Record<string, unknown> = {}) {
+  return {
+    version: '0.4.0',
+    body: 'New features',
+    download: mockDownload,
+    install: mockInstall,
+    ...overrides,
+  };
+}
 
 describe('useUpdater', () => {
   beforeEach(() => {
     mockCheck.mockReset();
-    mockDownloadAndInstall.mockReset();
+    mockDownload.mockReset();
+    mockInstall.mockReset();
+    mockRelaunch.mockReset();
+    mockDownload.mockResolvedValue(undefined);
+    mockInstall.mockResolvedValue(undefined);
+    mockRelaunch.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -30,12 +51,8 @@ describe('useUpdater', () => {
     });
   });
 
-  it('should set available=true when update found', async () => {
-    mockCheck.mockResolvedValue({
-      version: '0.4.0',
-      body: 'New features',
-      downloadAndInstall: mockDownloadAndInstall,
-    });
+  it('should set available=true and auto-download when update found', async () => {
+    mockCheck.mockResolvedValue(makeUpdate());
 
     const { result } = renderHook(() => useUpdater());
 
@@ -47,6 +64,7 @@ describe('useUpdater', () => {
       version: '0.4.0',
       body: 'New features',
     });
+    expect(mockDownload).toHaveBeenCalled();
     expect(result.current.checking).toBe(false);
   });
 
@@ -61,51 +79,106 @@ describe('useUpdater', () => {
 
     expect(result.current.available).toBe(false);
     expect(result.current.updateInfo).toBeNull();
+    expect(mockDownload).not.toHaveBeenCalled();
   });
 
-  it('should call downloadAndInstall on installUpdate', async () => {
-    const mockUpdate = {
-      version: '0.4.0',
-      body: '',
-      downloadAndInstall: mockDownloadAndInstall.mockResolvedValue(undefined),
-    };
-    mockCheck.mockResolvedValue(mockUpdate);
+  it('should report download progress from updater events', async () => {
+    mockCheck.mockResolvedValue(makeUpdate());
+    mockDownload.mockImplementation((onEvent: (e: unknown) => void) => {
+      onEvent({ event: 'Started', data: { contentLength: 100 } });
+      onEvent({ event: 'Progress', data: { chunkLength: 25 } });
+      onEvent({ event: 'Progress', data: { chunkLength: 25 } });
+      return Promise.resolve();
+    });
 
     const { result } = renderHook(() => useUpdater());
 
     await vi.waitFor(() => {
-      expect(result.current.available).toBe(true);
+      expect(result.current.downloaded).toBe(true);
+    });
+
+    expect(result.current.downloading).toBe(false);
+    expect(result.current.downloadProgress).toBe(50);
+  });
+
+  it('should set downloaded=true when download finishes', async () => {
+    mockCheck.mockResolvedValue(makeUpdate());
+
+    const { result } = renderHook(() => useUpdater());
+
+    await vi.waitFor(() => {
+      expect(result.current.downloaded).toBe(true);
+    });
+
+    expect(result.current.downloading).toBe(false);
+    expect(result.current.error).toBeNull();
+  });
+
+  it('should set error on download failure', async () => {
+    mockCheck.mockResolvedValue(makeUpdate());
+    mockDownload.mockRejectedValue(new Error('Network error'));
+
+    const { result } = renderHook(() => useUpdater());
+
+    await vi.waitFor(() => {
+      expect(result.current.error).toBe('Network error');
+    });
+
+    expect(result.current.downloading).toBe(false);
+    expect(result.current.downloaded).toBe(false);
+  });
+
+  it('should call install and relaunch on installNow', async () => {
+    mockCheck.mockResolvedValue(makeUpdate());
+
+    const { result } = renderHook(() => useUpdater());
+
+    await vi.waitFor(() => {
+      expect(result.current.downloaded).toBe(true);
     });
 
     await act(async () => {
-      await result.current.installUpdate();
+      await result.current.installNow();
     });
 
-    expect(mockDownloadAndInstall).toHaveBeenCalled();
-    expect(result.current.downloaded).toBe(true);
+    expect(mockInstall).toHaveBeenCalled();
+    expect(mockRelaunch).toHaveBeenCalled();
     expect(result.current.installing).toBe(false);
   });
 
   it('should set error on install failure', async () => {
-    const mockUpdate = {
-      version: '0.4.0',
-      body: '',
-      downloadAndInstall: mockDownloadAndInstall.mockRejectedValue(new Error('Network error')),
-    };
-    mockCheck.mockResolvedValue(mockUpdate);
+    mockCheck.mockResolvedValue(makeUpdate());
+    mockInstall.mockRejectedValue(new Error('Install error'));
 
     const { result } = renderHook(() => useUpdater());
 
     await vi.waitFor(() => {
-      expect(result.current.available).toBe(true);
+      expect(result.current.downloaded).toBe(true);
     });
 
     await act(async () => {
-      await result.current.installUpdate();
+      await result.current.installNow();
     });
 
-    expect(result.current.error).toBe('Network error');
-    expect(result.current.downloaded).toBe(false);
+    expect(result.current.error).toBe('Install error');
+    expect(mockRelaunch).not.toHaveBeenCalled();
+  });
+
+  it('should dismiss without clearing the downloaded update', async () => {
+    mockCheck.mockResolvedValue(makeUpdate());
+
+    const { result } = renderHook(() => useUpdater());
+
+    await vi.waitFor(() => {
+      expect(result.current.downloaded).toBe(true);
+    });
+
+    act(() => {
+      result.current.dismiss();
+    });
+
+    expect(result.current.dismissed).toBe(true);
+    expect(result.current.downloaded).toBe(true);
   });
 
   it('should not set state after unmount', async () => {

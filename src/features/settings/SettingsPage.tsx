@@ -165,7 +165,19 @@ export function SettingsPage() {
   const [backupMsg, setBackupMsg] = useState('');
   const [lanInfo, setLanInfo] = useState<LanInfo | null>(null);
   const [appVersion, setAppVersion] = useState('');
-  const { available, checking, installing, downloaded, error: updateError, updateInfo, checkForUpdates, installUpdate } = useUpdater();
+  const {
+    available,
+    checking,
+    downloading,
+    downloadProgress,
+    installing,
+    downloaded,
+    error: updateError,
+    updateInfo,
+    checkForUpdates,
+    downloadUpdate,
+    installNow,
+  } = useUpdater();
 
   useEffect(() => { getLanInfo().then(setLanInfo).catch(() => {}); }, []);
   useEffect(() => { getAppVersion().then(setAppVersion).catch(() => {}); }, []);
@@ -473,7 +485,26 @@ export function SettingsPage() {
 
             {/* Update section */}
             <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${token.border}` }}>
-              {available && !downloaded && (
+              {available && !downloaded && downloading && (
+                <div style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(122, 92, 18, 0.08)', borderRadius: 4 }}>
+                  <span style={{ fontSize: 12, color: token.text }}>
+                    正在下载新版本 {updateInfo?.version ?? ''}…
+                  </span>
+                  {downloadProgress != null && (
+                    <div style={{ marginTop: 6, height: 3, background: 'rgba(122, 92, 18, 0.15)', borderRadius: 2, overflow: 'hidden' }}>
+                      <div
+                        style={{
+                          height: '100%',
+                          width: `${Math.round(downloadProgress)}%`,
+                          background: tok.accent,
+                          transition: 'width 200ms',
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+              {available && !downloaded && !downloading && (
                 <div style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(122, 92, 18, 0.08)', borderRadius: 4 }}>
                   <span style={{ fontSize: 12, color: token.text }}>
                     新版本 {updateInfo?.version ?? ''} 可用
@@ -488,10 +519,46 @@ export function SettingsPage() {
                 </div>
               )}
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                {available && !downloaded ? (
+                {available && !downloaded && downloading ? (
                   <button
                     type="button"
-                    onClick={installUpdate}
+                    disabled
+                    style={{
+                      fontSize: 12,
+                      fontFamily: 'var(--font-display)',
+                      color: token.bg,
+                      background: tok.textMuted,
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: 4,
+                      cursor: 'not-allowed',
+                    }}
+                  >
+                    {downloadProgress != null
+                      ? `下载中 ${Math.round(downloadProgress)}%`
+                      : '下载中...'}
+                  </button>
+                ) : available && !downloaded ? (
+                  <button
+                    type="button"
+                    onClick={downloadUpdate}
+                    style={{
+                      fontSize: 12,
+                      fontFamily: 'var(--font-display)',
+                      color: token.bg,
+                      background: tok.accent,
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: 4,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {updateError ? '重试下载' : '下载更新'}
+                  </button>
+                ) : available && downloaded ? (
+                  <button
+                    type="button"
+                    onClick={installNow}
                     disabled={installing}
                     style={{
                       fontSize: 12,
@@ -504,7 +571,7 @@ export function SettingsPage() {
                       cursor: installing ? 'not-allowed' : 'pointer',
                     }}
                   >
-                    {installing ? '安装中...' : '更新并重启'}
+                    {installing ? '安装中...' : '重启并安装'}
                   </button>
                 ) : (
                   <button
