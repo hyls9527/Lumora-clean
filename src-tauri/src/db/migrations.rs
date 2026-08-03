@@ -3,7 +3,7 @@ use rusqlite::Connection;
 use super::schema;
 
 /// Current schema version — bump when adding migrations.
-pub const SCHEMA_VERSION: i64 = 6;
+pub const SCHEMA_VERSION: i64 = 7;
 
 /// Run all pending migrations inside a single transaction.
 pub fn run_migrations(conn: &Connection) -> Result<(), rusqlite::Error> {
@@ -52,6 +52,7 @@ fn apply_migration(conn: &Connection, version: i64) -> Result<(), rusqlite::Erro
         4 => apply_v4(conn),
         5 => apply_v5(conn),
         6 => apply_v6(conn),
+        7 => apply_v7(conn),
         _ => Err(rusqlite::Error::InvalidQuery),
     }
 }
@@ -117,6 +118,11 @@ fn apply_v6(conn: &Connection) -> Result<(), rusqlite::Error> {
     Ok(())
 }
 
+fn apply_v7(conn: &Connection) -> Result<(), rusqlite::Error> {
+    conn.execute_batch(schema::V7_CREATE_SMART_COLLECTIONS)?;
+    Ok(())
+}
+
 /// Roll back migrations from the current version down to `target`.
 /// Each revert runs inside its own transaction so partial progress is
 /// preserved if an intermediate step fails.
@@ -170,6 +176,10 @@ fn revert_migration(conn: &Connection, version: i64) -> Result<(), rusqlite::Err
             conn.execute_batch("DROP TABLE IF EXISTS analysis_history;")?;
             Ok(())
         }
+        7 => {
+            conn.execute_batch("DROP TABLE IF EXISTS smart_collections;")?;
+            Ok(())
+        }
         6 => {
             conn.execute_batch("DROP TABLE IF EXISTS variant_groups;")?;
             // SQLite cannot drop the variant_group_id column — no-op.
@@ -207,7 +217,7 @@ mod tests {
         let conn = open_conn();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
-        assert_eq!(v, 6);
+        assert_eq!(v, 7);
     }
 
     #[test]
@@ -216,7 +226,7 @@ mod tests {
         run_migrations(&conn).unwrap();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
-        assert_eq!(v, 6);
+        assert_eq!(v, 7);
     }
 
     #[test]
@@ -230,11 +240,11 @@ mod tests {
     }
 
     #[test]
-    fn downgrade_from_v5_to_v1() {
+    fn downgrade_from_v6_to_v1() {
         let conn = open_conn();
         // Migrate all the way up.
         run_migrations(&conn).unwrap();
-        assert_eq!(current_version(&conn).unwrap(), 6);
+        assert_eq!(current_version(&conn).unwrap(), 7);
 
         // Downgrade back to v1.
         downgrade_to(&conn, 1).unwrap();
@@ -242,6 +252,10 @@ mod tests {
 
         let exists =
             |sql: &str| -> bool { conn.query_row(sql, [], |r| r.get::<_, i64>(0)).unwrap() > 0 };
+        // v7 tables should be gone.
+        assert!(!exists(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='smart_collections'"
+        ));
         // v6 tables should be gone.
         assert!(!exists(
             "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='variant_groups'"
@@ -275,6 +289,6 @@ mod tests {
 
         // Verify we can re-migrate back up.
         run_migrations(&conn).unwrap();
-        assert_eq!(current_version(&conn).unwrap(), 6);
+        assert_eq!(current_version(&conn).unwrap(), 7);
     }
 }

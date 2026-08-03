@@ -107,6 +107,11 @@ pub fn run() {
             ollama::check_ollama_status,
             commands::backup::export_database,
             commands::backup::import_database,
+            commands::smart_collections::list_smart_collections,
+            commands::smart_collections::create_smart_collection,
+            commands::smart_collections::update_smart_collection,
+            commands::smart_collections::delete_smart_collection,
+            commands::smart_collections::get_smart_collection_images,
             commands::comfyui::detect_comfyui_path,
             lan_server::get_lan_info,
         ])

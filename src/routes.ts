@@ -28,6 +28,7 @@ export const ROUTES = {
   TAGS: '/tags',
   EXPORT: '/export',
   FAVORITES: '/favorites',
+  SMART_COLLECTIONS: '/collections',
   SETTINGS: '/settings',
   TRASH: '/trash',
 } as const;
@@ -87,6 +88,13 @@ export const routeDefs: RouteDef[] = [
     load: () => import('./features/favorites/FavoritesPage'),
   },
   {
+    path: ROUTES.SMART_COLLECTIONS,
+    i18nKey: 'nav.smartCollections',
+    cmdDescKey: 'commandPalette.descSmartCollections',
+    component: lazy(() => import('./features/collections/SmartCollectionsPage')),
+    load: () => import('./features/collections/SmartCollectionsPage'),
+  },
+  {
     path: ROUTES.SETTINGS,
     i18nKey: 'nav.settings',
     cmdDescKey: 'commandPalette.descSettings',
@@ -118,6 +126,7 @@ export function getRouteDef(path: string): RouteDef | undefined {
 export const sidebarRoutes: RouteDef[] = [
   getRouteDef(ROUTES.GALLERY)!,
   getRouteDef(ROUTES.FAVORITES)!,
+  getRouteDef(ROUTES.SMART_COLLECTIONS)!,
   getRouteDef(ROUTES.DASHBOARD)!,
   getRouteDef(ROUTES.IMPORT)!,
   getRouteDef(ROUTES.SEARCH)!,

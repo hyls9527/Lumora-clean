@@ -127,3 +127,14 @@ pub const V6_CREATE_VARIANT_GROUPS: &str = "CREATE TABLE IF NOT EXISTS variant_g
 
 pub const V6_ADD_VARIANT_GROUP_ID: &str =
     "ALTER TABLE images ADD COLUMN variant_group_id TEXT REFERENCES variant_groups(id);";
+
+// ---------------------------------------------------------------------------
+// V7 - Smart collections (rule-based auto groups)
+// ---------------------------------------------------------------------------
+
+pub const V7_CREATE_SMART_COLLECTIONS: &str = "CREATE TABLE IF NOT EXISTS smart_collections (
+    id         TEXT PRIMARY KEY,
+    name       TEXT NOT NULL,
+    rules_json TEXT NOT NULL DEFAULT '[]',
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);";

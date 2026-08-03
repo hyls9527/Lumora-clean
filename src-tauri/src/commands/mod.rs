@@ -9,5 +9,6 @@ pub mod fs;
 pub mod images;
 pub mod rename;
 pub mod settings;
+pub mod smart_collections;
 pub mod tags;
 pub mod trash;
