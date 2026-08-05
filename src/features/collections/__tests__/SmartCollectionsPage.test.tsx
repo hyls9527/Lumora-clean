@@ -232,4 +232,70 @@ describe('SmartCollectionsPage', () => {
       expect(api.getSmartCollectionImages).toHaveBeenCalledWith('c1', 2, 40);
     });
   });
+
+  it('renders date rule summaries', async () => {
+    vi.mocked(api.listSmartCollections).mockResolvedValue([
+      {
+        ...baseCollection,
+        rules: [
+          { field: 'date', op: 'gte', value: '2025-01-01' },
+          { field: 'date', op: 'lte', value: '2025-06-30' },
+        ],
+      },
+    ]);
+
+    render(<SmartCollectionsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('日期 ≥ 2025-01-01')).toBeTruthy();
+      expect(screen.getByText('日期 ≤ 2025-06-30')).toBeTruthy();
+    });
+  });
+
+  it('resets operator when switching rule field', async () => {
+    render(<SmartCollectionsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('暂无智能收藏')).toBeTruthy();
+    });
+    fireEvent.click(screen.getByText('+ 新建收藏'));
+
+    const fieldSelect = screen.getAllByRole('combobox')[0];
+    const opSelect = screen.getAllByRole('combobox')[1];
+    expect((opSelect as HTMLSelectElement).value).toBe('equals');
+
+    fireEvent.change(fieldSelect, { target: { value: 'rating' } });
+    expect((opSelect as HTMLSelectElement).value).toBe('gte');
+
+    fireEvent.change(fieldSelect, { target: { value: 'prompt' } });
+    expect((opSelect as HTMLSelectElement).value).toBe('contains');
+
+    fireEvent.change(fieldSelect, { target: { value: 'date' } });
+    expect((opSelect as HTMLSelectElement).value).toBe('gte');
+  });
+
+  it('creates a collection with a date rule', async () => {
+    render(<SmartCollectionsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('暂无智能收藏')).toBeTruthy();
+    });
+    fireEvent.click(screen.getByText('+ 新建收藏'));
+    fireEvent.change(screen.getByPlaceholderText('输入收藏名称'), {
+      target: { value: '本月作品' },
+    });
+    fireEvent.change(screen.getAllByRole('combobox')[0], {
+      target: { value: 'date' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('YYYY-MM-DD'), {
+      target: { value: '2025-01-01' },
+    });
+    fireEvent.click(screen.getByText('保存'));
+
+    await waitFor(() => {
+      expect(api.createSmartCollection).toHaveBeenCalledWith('本月作品', [
+        { field: 'date', op: 'gte', value: '2025-01-01' },
+      ]);
+    });
+  });
 });

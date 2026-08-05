@@ -8,7 +8,7 @@ use crate::schema::types::{row_to_record, PaginatedResult};
 /// One rule inside a smart collection.
 /// Supported combos:
 ///   model  + equals, format + equals, rating + gte/lte,
-///   prompt + contains, tag + equals/in (comma-separated names).
+///   date + gte/lte, prompt + contains, tag + equals/in (comma-separated names).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SmartCollectionRule {
     pub field: String,
@@ -27,6 +27,30 @@ pub struct SmartCollection {
     pub count: i64,
 }
 
+fn validate_date(value: &str) -> AppResult<()> {
+    let v = value.trim();
+    let bytes = v.as_bytes();
+    let ok = bytes.len() == 10
+        && bytes[4] == b'-'
+        && bytes[7] == b'-'
+        && v[0..4].chars().all(|c| c.is_ascii_digit())
+        && v[5..7].chars().all(|c| c.is_ascii_digit())
+        && v[8..10].chars().all(|c| c.is_ascii_digit());
+    if !ok {
+        return Err(AppError::InvalidInput(
+            "日期规则必须是 YYYY-MM-DD 格式".into(),
+        ));
+    }
+    let month: u32 = v[5..7].parse().unwrap_or(0);
+    let day: u32 = v[8..10].parse().unwrap_or(0);
+    if !(1..=12).contains(&month) || !(1..=31).contains(&day) {
+        return Err(AppError::InvalidInput(
+            "日期规则必须是 YYYY-MM-DD 格式".into(),
+        ));
+    }
+    Ok(())
+}
+
 fn validate_rules(rules: &[SmartCollectionRule]) -> AppResult<()> {
     if rules.is_empty() {
         return Err(AppError::InvalidInput(
@@ -42,6 +66,7 @@ fn validate_rules(rules: &[SmartCollectionRule]) -> AppResult<()> {
                     .parse::<u32>()
                     .map_err(|_| AppError::InvalidInput("评分规则的值必须是数字".into()))?;
             }
+            ("date", "gte" | "lte") => validate_date(&rule.value)?,
             ("prompt", "contains") => {}
             ("tag", "equals") => {}
             ("tag", "in") => {
@@ -96,6 +121,18 @@ fn build_where(
                 let cmp = if rule.op == "gte" { ">=" } else { "<=" };
                 conditions.push(format!("i.rating {cmp} ?{next}"));
                 params.push(Box::new(value.min(5)));
+            }
+            ("date", "gte") => {
+                validate_date(&rule.value)?;
+                conditions.push(format!("i.created_at >= ?{next}"));
+                params.push(Box::new(rule.value.trim().to_string()));
+            }
+            ("date", "lte") => {
+                validate_date(&rule.value)?;
+                // Half-open range: created_at < (value + 1 day) includes the
+                // whole end day, matching list_images_filtered semantics.
+                conditions.push(format!("i.created_at < date(?{next}, '+1 day')"));
+                params.push(Box::new(rule.value.trim().to_string()));
             }
             ("prompt", "contains") => {
                 conditions.push(format!(
@@ -581,5 +618,126 @@ mod tests {
         )
         .unwrap();
         assert_eq!(count, 1);
+    }
+
+    #[test]
+    fn date_rules_match_range_including_end_day() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "a", "png", "2025-01-01T10:00:00", 0, None);
+            insert_image(&conn, "b", "png", "2025-01-15T10:00:00", 0, None);
+            insert_image(&conn, "c", "png", "2025-02-01T10:00:00", 0, None);
+        }
+        let count = count_matching(
+            &db.conn().lock().unwrap(),
+            &[rule("date", "gte", "2025-01-10")],
+        )
+        .unwrap();
+        assert_eq!(count, 2);
+
+        // lte includes the whole end day.
+        let count = count_matching(
+            &db.conn().lock().unwrap(),
+            &[rule("date", "lte", "2025-01-15")],
+        )
+        .unwrap();
+        assert_eq!(count, 2);
+    }
+
+    #[test]
+    fn invalid_date_rejected() {
+        let db = test_db();
+        for bad in ["2025-13-01", "2025-01-32", "2025/01/01", "abc"] {
+            let err = create_smart_collection_inner(
+                &db,
+                "Bad date".into(),
+                vec![rule("date", "gte", bad)],
+            )
+            .unwrap_err();
+            assert!(matches!(err, AppError::InvalidInput(_)), "value: {bad}");
+        }
+    }
+
+    #[test]
+    fn rating_lte_matches() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "a", "png", "2025-01-01", 3, None);
+            insert_image(&conn, "b", "png", "2025-01-02", 4, None);
+            insert_image(&conn, "c", "png", "2025-01-03", 5, None);
+        }
+        let count =
+            count_matching(&db.conn().lock().unwrap(), &[rule("rating", "lte", "4")]).unwrap();
+        assert_eq!(count, 2);
+    }
+
+    #[test]
+    fn rating_value_clamped_to_five() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "a", "png", "2025-01-01", 5, None);
+            insert_image(&conn, "b", "png", "2025-01-02", 4, None);
+        }
+        let count =
+            count_matching(&db.conn().lock().unwrap(), &[rule("rating", "gte", "7")]).unwrap();
+        assert_eq!(count, 1);
+    }
+
+    #[test]
+    fn tag_in_empty_value_rejected() {
+        let db = test_db();
+        let err = create_smart_collection_inner(
+            &db,
+            "Empty tags".into(),
+            vec![rule("tag", "in", "  ,  ")],
+        )
+        .unwrap_err();
+        assert!(matches!(err, AppError::InvalidInput(_)));
+    }
+
+    #[test]
+    fn update_missing_collection_not_found() {
+        let db = test_db();
+        let err = update_smart_collection_inner(
+            &db,
+            "missing".into(),
+            "X".into(),
+            vec![rule("format", "equals", "png")],
+        )
+        .unwrap_err();
+        assert!(matches!(err, AppError::NotFound(_)));
+    }
+
+    #[test]
+    fn delete_missing_collection_not_found() {
+        let db = test_db();
+        let err = delete_smart_collection_inner(&db, "missing".into()).unwrap_err();
+        assert!(matches!(err, AppError::NotFound(_)));
+    }
+
+    #[test]
+    fn collection_images_pagination_offset() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            for i in 0..45 {
+                insert_image(&conn, &format!("p-{i:02}"), "png", "2025-01-01", 0, None);
+            }
+        }
+        let collection =
+            create_smart_collection_inner(&db, "All".into(), vec![rule("format", "equals", "png")])
+                .unwrap();
+        assert_eq!(collection.count, 45);
+
+        let page1 = get_smart_collection_images_inner(&db, collection.id.clone(), 1, 40).unwrap();
+        assert_eq!(page1.total, 45);
+        assert_eq!(page1.items.len(), 40);
+
+        let page2 = get_smart_collection_images_inner(&db, collection.id, 2, 40).unwrap();
+        assert_eq!(page2.total, 45);
+        assert_eq!(page2.items.len(), 5);
     }
 }

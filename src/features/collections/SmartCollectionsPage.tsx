@@ -22,6 +22,7 @@ const FIELD_OPTIONS: { key: Field; labelKey: string }[] = [
   { key: 'model', labelKey: 'fields.model' },
   { key: 'prompt', labelKey: 'fields.prompt' },
   { key: 'rating', labelKey: 'fields.rating' },
+  { key: 'date', labelKey: 'fields.date' },
   { key: 'format', labelKey: 'fields.format' },
   { key: 'tag', labelKey: 'fields.tag' },
 ];
@@ -30,6 +31,10 @@ const OP_OPTIONS: Record<Field, { key: Op; labelKey: string }[]> = {
   model: [{ key: 'equals', labelKey: 'ops.equals' }],
   format: [{ key: 'equals', labelKey: 'ops.equals' }],
   rating: [
+    { key: 'gte', labelKey: 'ops.gte' },
+    { key: 'lte', labelKey: 'ops.lte' },
+  ],
+  date: [
     { key: 'gte', labelKey: 'ops.gte' },
     { key: 'lte', labelKey: 'ops.lte' },
   ],
@@ -55,6 +60,10 @@ function ruleText(
       return rule.op === 'gte'
         ? t('summaryRatingGte', { value: rule.value })
         : t('summaryRatingLte', { value: rule.value });
+    case 'date':
+      return rule.op === 'gte'
+        ? t('summaryDateGte', { value: rule.value })
+        : t('summaryDateLte', { value: rule.value });
     case 'prompt':
       return t('summaryPrompt', { value: rule.value });
     case 'tag':
@@ -434,7 +443,13 @@ export function SmartCollectionsPage() {
                 <input
                   value={rule.value}
                   onChange={(e) => updateRule(index, { value: e.target.value })}
-                  placeholder={rule.field === 'tag' && rule.op === 'in' ? t('tagValueHint') : t('valuePlaceholder')}
+                  placeholder={
+                    rule.field === 'tag' && rule.op === 'in'
+                      ? t('tagValueHint')
+                      : rule.field === 'date'
+                        ? t('datePlaceholder')
+                        : t('valuePlaceholder')
+                  }
                   style={{ ...inputStyle, flex: 1 }}
                 />
                 <button
