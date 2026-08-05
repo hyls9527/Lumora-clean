@@ -20,6 +20,36 @@ pub struct SemanticSearchResult {
     pub similarity: f64,
 }
 
+/// L2-normalize a vector so cosine similarity can be derived from the
+/// sqlite-vec L2 distance (cos = 1 - d^2 / 2 for unit vectors). Zero vectors
+/// are returned unchanged because they cannot be normalized.
+pub fn normalize(v: &[f64]) -> Vec<f64> {
+    let norm: f64 = v.iter().map(|x| x * x).sum::<f64>().sqrt();
+    if norm <= f64::EPSILON {
+        return v.to_vec();
+    }
+    v.iter().map(|x| x / norm).collect()
+}
+
+/// Validate that a query vector has the same dimensions as the stored
+/// embeddings. Fails fast with a friendly message instead of letting
+/// sqlite-vec report an opaque dimension mismatch.
+pub(crate) fn validate_query_dimension(conn: &Connection, dim: usize) -> AppResult<()> {
+    let stored: Option<i64> = conn
+        .query_row("SELECT dimensions FROM embeddings LIMIT 1", [], |r| {
+            r.get(0)
+        })
+        .ok();
+    if let Some(d) = stored {
+        if d as usize != dim {
+            return Err(AppError::InvalidInput(format!(
+                "嵌入维度不匹配：索引为 {d} 维，当前查询为 {dim} 维"
+            )));
+        }
+    }
+    Ok(())
+}
+
 // ---------------------------------------------------------------------------
 // Internal DB operations
 // ---------------------------------------------------------------------------
@@ -34,6 +64,8 @@ pub fn upsert_embedding(
     image_id: &str,
     embedding: &[f64],
 ) -> Result<(), rusqlite::Error> {
+    // Store normalized vectors so KNN distance maps to cosine similarity.
+    let embedding = normalize(embedding);
     // Convert f64 slice to bytes (little-endian)
     let bytes: Vec<u8> = embedding
         .iter()
@@ -51,7 +83,7 @@ pub fn upsert_embedding(
     )?;
 
     // For vec0 table: delete-then-insert (vec0 doesn't support INSERT OR REPLACE)
-    let vec_json = serde_json::to_string(embedding).unwrap_or_default();
+    let vec_json = serde_json::to_string(&embedding).unwrap_or_default();
     tx.execute(
         "DELETE FROM vec_embeddings WHERE image_id = ?1",
         rusqlite::params![image_id],
@@ -129,8 +161,12 @@ pub fn search_semantic_db(
     conn: &Connection,
     query_embedding: &[f64],
     limit: i64,
+    min_similarity: Option<f64>,
 ) -> Result<Vec<SemanticSearchResult>, rusqlite::Error> {
-    let query_json = serde_json::to_string(query_embedding).unwrap_or_default();
+    // Normalize the query so distances are comparable to stored unit vectors.
+    let query = normalize(query_embedding);
+    let query_json = serde_json::to_string(&query).unwrap_or_default();
+    let min_sim = min_similarity.unwrap_or(-1.0).clamp(-1.0, 1.0);
 
     let mut stmt = conn.prepare(
         "SELECT image_id, distance FROM vec_embeddings
@@ -140,15 +176,21 @@ pub fn search_semantic_db(
     )?;
 
     let rows = stmt.query_map(rusqlite::params![query_json, limit], |row| {
+        let distance: f64 = row.get(1)?;
+        // For unit vectors: cosine similarity = 1 - d^2 / 2.
+        let similarity = 1.0 - (distance * distance) / 2.0;
         Ok(SemanticSearchResult {
             id: row.get(0)?,
-            similarity: 1.0 - row.get::<_, f64>(1)?, // Convert distance to similarity
+            similarity,
         })
     })?;
 
     let mut results = Vec::new();
     for row in rows {
-        results.push(row?);
+        let result = row?;
+        if result.similarity >= min_sim {
+            results.push(result);
+        }
     }
     Ok(results)
 }
@@ -181,12 +223,15 @@ pub async fn search_semantic_cmd(
     db: tauri::State<'_, DbHandle>,
     query_embedding: Vec<f64>,
     limit: Option<i64>,
+    min_similarity: Option<f64>,
 ) -> AppResult<Vec<SemanticSearchResult>> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    validate_query_dimension(&conn, query_embedding.len())?;
     Ok(search_semantic_db(
         &conn,
         &query_embedding,
         limit.unwrap_or(20),
+        min_similarity,
     )?)
 }
 
@@ -236,6 +281,43 @@ pub fn get_embedding_stats_db(conn: &Connection) -> Result<EmbeddingStats, rusql
         total,
         missing,
     })
+}
+
+/// Rewrite stored embeddings that are not unit vectors (legacy data written
+/// before normalization). Idempotent: already-normalized vectors are skipped.
+pub fn normalize_embeddings_db(conn: &Connection) -> Result<usize, rusqlite::Error> {
+    let mut stmt = conn.prepare(
+        "SELECT image_id, embedding FROM embeddings WHERE status = 'embedded'",
+    )?;
+    let rows = stmt
+        .query_map([], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, Vec<u8>>(1)?,
+            ))
+        })?
+        .collect::<Result<Vec<_>, _>>()?;
+    drop(stmt);
+
+    let mut rewritten = 0usize;
+    for (image_id, bytes) in rows {
+        let vec: Vec<f64> = bytes
+            .chunks_exact(8)
+            .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
+            .collect();
+        let norm: f64 = vec.iter().map(|x| x * x).sum::<f64>().sqrt();
+        if (norm - 1.0).abs() > 1e-6 {
+            upsert_embedding(conn, &image_id, &vec)?;
+            rewritten += 1;
+        }
+    }
+    Ok(rewritten)
+}
+
+#[command]
+pub async fn normalize_embeddings_cmd(db: tauri::State<'_, DbHandle>) -> AppResult<usize> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    Ok(normalize_embeddings_db(&conn)?)
 }
 
 #[command]
@@ -467,7 +549,7 @@ mod tests {
         // Search with a query embedding close to img-0
         let mut query: Vec<f64> = vec![0.0; 768];
         query[0] = 0.05; // Close to img-0's first dimension (0.0)
-        let results = search_semantic_db(&conn, &query, 10).unwrap();
+        let results = search_semantic_db(&conn, &query, 10, None).unwrap();
 
         assert!(!results.is_empty());
         assert!(results.len() <= 3);
@@ -498,8 +580,178 @@ mod tests {
         }
 
         let query: Vec<f64> = vec![0.0; 768];
-        let results = search_semantic_db(&conn, &query, 2).unwrap();
+        let results = search_semantic_db(&conn, &query, 2, None).unwrap();
         assert!(results.len() <= 2);
+    }
+
+    #[test]
+    fn normalize_makes_unit_vectors_and_keeps_zero() {
+        let v = vec![3.0, 4.0];
+        let n = normalize(&v);
+        assert!((n[0] - 0.6).abs() < 1e-9);
+        assert!((n[1] - 0.8).abs() < 1e-9);
+
+        let zero = vec![0.0, 0.0];
+        assert_eq!(normalize(&zero), zero);
+    }
+
+    #[test]
+    fn upsert_stores_normalized_embedding() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+        conn.execute(
+            "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+             VALUES ('img-1', '/test.png', 'hash1', 100, 'png', '2025-01-01')",
+            [],
+        )
+        .unwrap();
+
+        let mut embedding = vec![0.0; 768];
+        embedding[0] = 3.0;
+        embedding[1] = 4.0;
+        upsert_embedding(&conn, "img-1", &embedding).unwrap();
+
+        let bytes: Vec<u8> = conn
+            .query_row(
+                "SELECT embedding FROM embeddings WHERE image_id = 'img-1'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let stored: Vec<f64> = bytes
+            .chunks_exact(8)
+            .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
+            .collect();
+        let norm: f64 = stored.iter().map(|x| x * x).sum::<f64>().sqrt();
+        assert!((norm - 1.0).abs() < 1e-9);
+        assert!((stored[0] - 0.6).abs() < 1e-9);
+        assert!((stored[1] - 0.8).abs() < 1e-9);
+    }
+
+    #[test]
+    fn cosine_similarity_from_normalized_distance() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+        conn.execute(
+            "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+             VALUES ('img-a', '/a.png', 'h1', 100, 'png', '2025-01-01')",
+            [],
+        )
+        .unwrap();
+
+        // Query [1,0,...] vs stored [0.6,0.8,...] => cosine 0.6.
+        let mut stored = vec![0.0; 768];
+        stored[0] = 0.6;
+        stored[1] = 0.8;
+        upsert_embedding(&conn, "img-a", &stored).unwrap();
+
+        let mut query = vec![0.0; 768];
+        query[0] = 1.0;
+        let results = search_semantic_db(&conn, &query, 10, None).unwrap();
+        assert_eq!(results.len(), 1);
+        assert!((results[0].similarity - 0.6).abs() < 1e-6);
+    }
+
+    #[test]
+    fn min_similarity_filters_low_matches() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+        for (id, x, y) in [("a", 1.0, 0.0), ("b", 0.5, 0.5), ("c", 0.0, -1.0)] {
+            conn.execute(
+                "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+                 VALUES (?1, ?2, 'h', 100, 'png', '2025-01-01')",
+                rusqlite::params![id, format!("/{id}.png")],
+            )
+            .unwrap();
+            let mut emb = vec![0.0; 768];
+            emb[0] = x;
+            emb[1] = y;
+            upsert_embedding(&conn, id, &emb).unwrap();
+        }
+
+        let mut query = vec![0.0; 768];
+        query[0] = 1.0;
+        let results = search_semantic_db(&conn, &query, 10, Some(0.5)).unwrap();
+        // a: cos 1.0, b: cos 0.707, c: cos 0.0 -> c filtered out.
+        assert_eq!(results.len(), 2);
+        assert!(results.iter().all(|r| r.similarity >= 0.5));
+    }
+
+    #[test]
+    fn dimension_mismatch_returns_friendly_error() {
+        let db = DbHandle::open_memory().unwrap();
+        {
+            let conn = db.conn().lock().unwrap();
+            conn.execute(
+                "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+                 VALUES ('img-1', '/test.png', 'hash1', 100, 'png', '2025-01-01')",
+                [],
+            )
+            .unwrap();
+            upsert_embedding(&conn, "img-1", &vec![0.0; 768]).unwrap();
+        }
+
+        let conn = db.conn().lock().unwrap();
+        let err = validate_query_dimension(&conn, 512).unwrap_err();
+        assert!(matches!(err, AppError::InvalidInput(_)));
+        assert!(err.to_string().contains("768"));
+    }
+
+    #[test]
+    fn normalize_embeddings_rewrites_legacy_vectors() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+        conn.execute(
+            "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+             VALUES ('img-1', '/test.png', 'hash1', 100, 'png', '2025-01-01')",
+            [],
+        )
+        .unwrap();
+
+        // Insert a legacy (non-normalized) vector directly, bypassing upsert.
+        let legacy: Vec<f64> = vec![3.0, 4.0, 0.0]; // dims don't matter for the test helper
+        let padded: Vec<f64> = legacy
+            .iter()
+            .copied()
+            .chain(std::iter::repeat(0.0).take(768 - 3))
+            .collect();
+        let bytes: Vec<u8> = padded
+            .iter()
+            .flat_map(|f| f.to_le_bytes().to_vec())
+            .collect();
+        conn.execute(
+            "INSERT INTO embeddings (image_id, embedding, dimensions, status)
+             VALUES ('img-1', ?1, 768, 'embedded')",
+            rusqlite::params![bytes],
+        )
+        .unwrap();
+        conn.execute(
+            "INSERT INTO vec_embeddings (image_id, embedding) VALUES ('img-1', ?1)",
+            rusqlite::params![serde_json::to_string(&padded).unwrap()],
+        )
+        .unwrap();
+
+        let rewritten = normalize_embeddings_db(&conn).unwrap();
+        assert_eq!(rewritten, 1);
+
+        // Second pass is idempotent.
+        let rewritten = normalize_embeddings_db(&conn).unwrap();
+        assert_eq!(rewritten, 0);
+
+        // Stored vector is now a unit vector.
+        let stored_bytes: Vec<u8> = conn
+            .query_row(
+                "SELECT embedding FROM embeddings WHERE image_id = 'img-1'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let stored: Vec<f64> = stored_bytes
+            .chunks_exact(8)
+            .map(|c| f64::from_le_bytes(c.try_into().unwrap()))
+            .collect();
+        let norm: f64 = stored.iter().map(|x| x * x).sum::<f64>().sqrt();
+        assert!((norm - 1.0).abs() < 1e-9);
     }
 
     #[test]

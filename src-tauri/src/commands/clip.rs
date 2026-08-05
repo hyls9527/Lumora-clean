@@ -118,7 +118,14 @@ pub async fn clip_embed_image_cmd(
             ));
         }
     }
-    clip_embed_image(&image_path)
+    let embedding = clip_embed_image(&image_path)?;
+    // Fail fast with a friendly message when the CLIP model's output
+    // dimension does not match the vector index (e.g. 512 vs 768).
+    {
+        let conn = db.conn().lock().map_err(|_| crate::error::AppError::Lock)?;
+        crate::commands::embeddings::validate_query_dimension(&conn, embedding.len())?;
+    }
+    Ok(embedding)
 }
 
 /// Generate text embedding using CLIP sidecar.

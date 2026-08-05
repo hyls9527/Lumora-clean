@@ -4,6 +4,7 @@
  */
 
 import { invoke, onWriteCommand } from '../tauri';
+import { ensureNormalizedEmbeddings } from './semantic';
 
 interface CachedEntry {
   results: { id: string; similarity: number }[];
@@ -119,10 +120,11 @@ export async function searchSemanticCached(
   const cached = getCachedResult(query);
   if (cached !== null && isCacheValid()) return cached;
 
+  await ensureNormalizedEmbeddings();
   const embedding = await invoke<number[]>('embed_text_cmd', { text: query });
   const rawResults = await invoke<Array<{ id: string; similarity: number }>>(
     'search_semantic_cmd',
-    { queryEmbedding: embedding, limit: limit ?? 20 },
+    { queryEmbedding: embedding, limit: limit ?? 20, minSimilarity: 0 },
   );
 
   const results = rawResults ?? [];

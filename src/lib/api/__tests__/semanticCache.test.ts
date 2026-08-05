@@ -61,6 +61,7 @@ describe('SemanticSearchCache', () => {
 
     const spy = vi.spyOn(tauri, 'invoke');
     spy.mockImplementation(async (cmd: string) => {
+      if (cmd === 'normalize_embeddings_cmd') return 0;
       if (cmd === 'embed_text_cmd') return mockEmbedding;
       if (cmd === 'search_semantic_cmd') return mockResults;
       return null;
@@ -68,11 +69,13 @@ describe('SemanticSearchCache', () => {
 
     const results = await searchSemanticCached('mountain landscape');
 
-    expect(spy).toHaveBeenCalledTimes(2);
-    expect(spy).toHaveBeenNthCalledWith(1, 'embed_text_cmd', { text: 'mountain landscape' });
-    expect(spy).toHaveBeenNthCalledWith(2, 'search_semantic_cmd', {
+    expect(spy).toHaveBeenCalledTimes(3);
+    expect(spy).toHaveBeenNthCalledWith(1, 'normalize_embeddings_cmd');
+    expect(spy).toHaveBeenNthCalledWith(2, 'embed_text_cmd', { text: 'mountain landscape' });
+    expect(spy).toHaveBeenNthCalledWith(3, 'search_semantic_cmd', {
       queryEmbedding: mockEmbedding,
       limit: 20,
+      minSimilarity: 0,
     });
     expect(results).toEqual([{ id: 'img-3', similarity: 75 }]);
     expect(getCachedResult('mountain landscape')).toEqual([{ id: 'img-3', similarity: 75 }]);

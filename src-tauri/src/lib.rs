@@ -97,6 +97,7 @@ pub fn run() {
             commands::embeddings::embed_text_cmd,
             commands::embeddings::generate_embedding_for_image_cmd,
             commands::embeddings::embed_missing_cmd,
+            commands::embeddings::normalize_embeddings_cmd,
             commands::ai::analyze_image_cmd,
             commands::ai::get_analysis_result_cmd,
             commands::ai::get_analysis_history_cmd,

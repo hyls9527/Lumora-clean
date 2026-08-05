@@ -9,6 +9,22 @@ export interface SemanticSearchResult {
   similarity: number;
 }
 
+let embeddingsNormalized = false;
+
+/**
+ * Rewrite legacy (non-normalized) embeddings once per session so stored
+ * vectors are unit vectors and KNN distance maps to cosine similarity.
+ * Idempotent and cheap when there is nothing to fix.
+ */
+export async function ensureNormalizedEmbeddings(): Promise<void> {
+  if (embeddingsNormalized) return;
+  try {
+    await invoke<number>('normalize_embeddings_cmd');
+  } finally {
+    embeddingsNormalized = true;
+  }
+}
+
 /**
  * Perform a semantic search using Ollama embeddings + sqlite-vec.
  * Calls Tauri commands `embed_text_cmd` + `search_semantic_cmd`.
@@ -18,6 +34,7 @@ export async function searchSemantic(
   limit?: number,
 ): Promise<SemanticSearchResult[]> {
   if (!query.trim()) return [];
+  await ensureNormalizedEmbeddings();
 
   // Step 1: Get query embedding from Ollama
   const embedding = await invoke<number[]>('embed_text_cmd', { text: query });
@@ -26,6 +43,7 @@ export async function searchSemantic(
   const results = await invoke<SemanticSearchResult[]>('search_semantic_cmd', {
     queryEmbedding: embedding,
     limit: limit ?? 20,
+    minSimilarity: 0, // Drop negative-cosine (irrelevant) matches
   });
 
   return results.map(r => ({
@@ -51,6 +69,7 @@ export async function searchByImage(
   limit?: number,
   excludeId?: string,
 ): Promise<SemanticSearchResult[]> {
+  await ensureNormalizedEmbeddings();
   // Step 1: Get image embedding via CLIP
   const embedding = await invoke<number[]>('clip_embed_image_cmd', {
     imagePath: filePath,
@@ -60,6 +79,7 @@ export async function searchByImage(
   const results = await invoke<SemanticSearchResult[]>('search_semantic_cmd', {
     queryEmbedding: embedding,
     limit: limit ?? 20,
+    minSimilarity: 0, // Drop negative-cosine (irrelevant) matches
   });
 
   return results
