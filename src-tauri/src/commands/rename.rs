@@ -39,6 +39,15 @@ pub fn batch_rename(
     template: String,
     dry_run: bool,
 ) -> AppResult<RenameResult> {
+    batch_rename_inner(&db, ids, template, dry_run)
+}
+
+fn batch_rename_inner(
+    db: &DbHandle,
+    ids: Vec<String>,
+    template: String,
+    dry_run: bool,
+) -> AppResult<RenameResult> {
     // Phase 1: load all records and tags while holding the lock (DB only, no I/O)
     struct RenameTask {
         id: String,
@@ -361,5 +370,111 @@ mod tests {
         let name = resolve_conflict(dir.path(), "photo.png", &used_names);
         assert!(name.starts_with("photo_") && name.ends_with(".png"));
         assert!(!used_names.contains(&name));
+    }
+
+    fn test_db() -> crate::db::DbHandle {
+        crate::db::DbHandle::open_memory().unwrap()
+    }
+
+    fn insert_image_at(conn: &rusqlite::Connection, id: &str, path: &str) {
+        conn.execute(
+            "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+             VALUES (?1, ?2, 'h', 1, 'png', '2025-01-01')",
+            params![id, path],
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn batch_rename_dry_run_does_not_touch_files() {
+        let db = test_db();
+        let dir = tempfile::tempdir().unwrap();
+        let old = dir.path().join("old_cat.png");
+        std::fs::write(&old, b"x").unwrap();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image_at(&conn, "r1", old.to_str().unwrap());
+        }
+
+        let result = batch_rename_inner(&db, vec!["r1".into()], "{id}".into(), true).unwrap();
+
+        assert_eq!(result.renamed, 1);
+        assert_eq!(result.items[0].new_name, "r1.png");
+        assert!(old.exists());
+        assert!(!dir.path().join("r1.png").exists());
+    }
+
+    #[test]
+    fn batch_rename_moves_file_and_updates_db() {
+        let db = test_db();
+        let dir = tempfile::tempdir().unwrap();
+        let old = dir.path().join("old_cat.png");
+        std::fs::write(&old, b"x").unwrap();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image_at(&conn, "r1", old.to_str().unwrap());
+        }
+
+        let result = batch_rename_inner(&db, vec!["r1".into()], "{id}".into(), false).unwrap();
+
+        assert_eq!(result.renamed, 1);
+        assert!(!old.exists());
+        assert!(dir.path().join("r1.png").exists());
+        let conn = db.conn().lock().unwrap();
+        let new_path: String = conn
+            .query_row("SELECT file_path FROM images WHERE id = 'r1'", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert!(new_path.ends_with("r1.png"));
+    }
+
+    #[test]
+    fn batch_rename_skips_when_name_unchanged() {
+        let db = test_db();
+        let dir = tempfile::tempdir().unwrap();
+        let old = dir.path().join("r1.png");
+        // No file on disk: desired name equals the old name, so the task is
+        // skipped without any I/O (resolve_conflict would otherwise treat the
+        // existing file itself as a conflict).
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image_at(&conn, "r1", old.to_str().unwrap());
+        }
+
+        let result = batch_rename_inner(&db, vec!["r1".into()], "{id}".into(), false).unwrap();
+
+        assert_eq!(result.skipped, 1);
+        assert_eq!(result.renamed, 0);
+    }
+
+    #[test]
+    fn batch_rename_reports_missing_image() {
+        let db = test_db();
+        let result = batch_rename_inner(&db, vec!["nope".into()], "{id}".into(), true).unwrap();
+        assert_eq!(result.errors, 1);
+        assert_eq!(result.items[0].status, "error");
+    }
+
+    #[test]
+    fn batch_rename_resolves_conflicts_within_batch() {
+        let db = test_db();
+        let dir = tempfile::tempdir().unwrap();
+        let a = dir.path().join("a.png");
+        let b = dir.path().join("b.png");
+        std::fs::write(&a, b"x").unwrap();
+        std::fs::write(&b, b"y").unwrap();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image_at(&conn, "a", a.to_str().unwrap());
+            insert_image_at(&conn, "b", b.to_str().unwrap());
+        }
+
+        let result =
+            batch_rename_inner(&db, vec!["a".into(), "b".into()], "same".into(), true).unwrap();
+
+        let names: Vec<String> = result.items.iter().map(|i| i.new_name.clone()).collect();
+        assert!(names.contains(&"same.png".to_string()));
+        assert!(names.contains(&"same_1.png".to_string()));
     }
 }
