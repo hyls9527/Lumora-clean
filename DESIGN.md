@@ -1,5 +1,8 @@
 # DESIGN.md — 古卷·灯火
 
+> **核心规范**：Lumora 只为 AI 生图创作者而做，打破常规——不是更好看的图库，
+> 是另一种图库。详见 `docs/CORE-PRINCIPLE.md`。
+
 ## Design Direction
 
 高级、克制、安静、宏大、神圣、怀旧、诗意、传说感。

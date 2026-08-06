@@ -4,6 +4,8 @@ Vite + React 19 + TypeScript + Tailwind CSS v4。
 
 **Rule 0 – Read ARCHITECTURE.md First**: Before reading ANY source file, read `ARCHITECTURE.md`. It has the full code map, data model, IPC contracts, and test structure. Only read source code when the architecture doc doesn't answer your question. Never read files speculatively — search first (`search_files`), then read only the exact file you need.
 
+**Rule 0.5 – Break the Convention**: Lumora is built for AI image creators only. Before any feature, read `docs/CORE-PRINCIPLE.md` and pass its four questions. Reject ordinary-gallery features; never copy Eagle/Lightroom forms; AI is the subject, not a button. Code conventions and quality gates still apply (Rule 11).
+
 **Rule 1 – Think First**: State assumptions. If uncertain, ask. Surface tradeoffs; don't pick silently.
 
 **Rule 2 – Simplicity**: Minimum code. No speculative features, no "in case" flexibility, no error handling for impossible scenarios. 200 lines → 50 if possible.
