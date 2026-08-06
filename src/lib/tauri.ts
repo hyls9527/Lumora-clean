@@ -61,6 +61,8 @@ function mockResponse(cmd: string): unknown {
     return null;
   if (cmd === 'get_best_scored_recent')
     return null;
+  if (cmd === 'get_score_curation_summary')
+    return { hang: 0, wen: 0, la: 0, unscored: 0, recentLa: [] };
   if (cmd === 'is_directory')
     return false;
   if (cmd === 'get_analysis_history_cmd')

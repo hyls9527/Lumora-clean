@@ -86,3 +86,28 @@ export async function scoreBackfill(
   }
   return { processed, remaining };
 }
+
+export interface ScoreCurationSummary {
+  hang: number;
+  wen: number;
+  la: number;
+  unscored: number;
+  recentLa: string[];
+}
+
+/**
+ * Aggregate the library by judgment tier plus recent "拉" images.
+ * Calls Tauri command `get_score_curation_summary`.
+ */
+export async function getScoreCurationSummary(): Promise<ScoreCurationSummary> {
+  const result = await invoke<ScoreCurationSummary>(
+    'get_score_curation_summary',
+  );
+  return {
+    hang: result?.hang ?? 0,
+    wen: result?.wen ?? 0,
+    la: result?.la ?? 0,
+    unscored: result?.unscored ?? 0,
+    recentLa: result?.recentLa ?? [],
+  };
+}

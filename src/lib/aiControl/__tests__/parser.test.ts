@@ -93,6 +93,13 @@ describe('AI control intent parser', () => {
     }
   });
 
+  it('parses curation summary intents', () => {
+    for (const input of ['回收建议', '库里有多少拉的', '现在有哪些拉的']) {
+      const intent = parseIntent(input, capabilities);
+      expect(intent?.capabilityId, input).toBe('curationSummary');
+    }
+  });
+
   it('parses empty trash intents', () => {
     const intent = parseIntent('清空回收站', capabilities);
     expect(intent?.capabilityId).toBe('emptyTrash');

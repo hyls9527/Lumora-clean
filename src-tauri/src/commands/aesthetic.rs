@@ -296,6 +296,68 @@ pub fn get_best_scored_recent(
     get_best_scored_recent_inner(&conn, batch.unwrap_or(20))
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ScoreCurationSummary {
+    pub hang: i64,
+    pub wen: i64,
+    pub la: i64,
+    pub unscored: i64,
+    pub recent_la: Vec<String>,
+}
+
+/// Aggregate the library by judgment tier, plus the most recent "拉" images.
+/// This powers the AI-native recycle suggestion ("回收建议").
+pub fn get_score_curation_summary_inner(conn: &Connection) -> AppResult<ScoreCurationSummary> {
+    let mut counts = [0i64; 4];
+    let mut stmt = conn.prepare(
+        "SELECT score_label, COUNT(*) FROM images WHERE deleted = 0 GROUP BY score_label",
+    )?;
+    let rows = stmt.query_map([], |row| {
+        Ok((row.get::<_, Option<String>>(0)?, row.get::<_, i64>(1)?))
+    })?;
+    for row in rows {
+        let (label, count) = row?;
+        match label.as_deref() {
+            Some(SCORE_LABEL_HANG) => counts[0] += count,
+            Some(SCORE_LABEL_WEN) => counts[1] += count,
+            Some(SCORE_LABEL_LA) => counts[2] += count,
+            _ => counts[3] += count,
+        }
+    }
+
+    let mut stmt = conn.prepare(
+        "SELECT file_path FROM images
+         WHERE deleted = 0 AND score_label = ?1
+         ORDER BY imported_at DESC LIMIT 5",
+    )?;
+    let recent_la: Vec<String> = stmt
+        .query_map(params![SCORE_LABEL_LA], |row| {
+            let path: String = row.get(0)?;
+            Ok(std::path::Path::new(&path)
+                .file_name()
+                .map(|n| n.to_string_lossy().to_string())
+                .unwrap_or_default())
+        })?
+        .filter_map(|r| r.ok())
+        .collect();
+
+    Ok(ScoreCurationSummary {
+        hang: counts[0],
+        wen: counts[1],
+        la: counts[2],
+        unscored: counts[3],
+        recent_la,
+    })
+}
+
+#[tauri::command]
+pub fn get_score_curation_summary(
+    db: tauri::State<'_, DbHandle>,
+) -> AppResult<ScoreCurationSummary> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    get_score_curation_summary_inner(&conn)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -534,5 +596,33 @@ mod tests {
         }
         let conn = db.conn().lock().unwrap();
         assert!(get_best_scored_recent_inner(&conn, 20).unwrap().is_none());
+    }
+
+    #[test]
+    fn score_curation_summary_counts_tiers_and_recent_la() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "c1");
+            insert_image(&conn, "c2");
+            insert_image(&conn, "c3");
+            insert_image(&conn, "c4");
+            conn.execute("UPDATE images SET score_label = '夯' WHERE id = 'c1'", [])
+                .unwrap();
+            conn.execute("UPDATE images SET score_label = '稳' WHERE id = 'c2'", [])
+                .unwrap();
+            conn.execute("UPDATE images SET score_label = '拉' WHERE id = 'c3'", [])
+                .unwrap();
+            // c4 stays unscored.
+        }
+
+        let conn = db.conn().lock().unwrap();
+        let summary = get_score_curation_summary_inner(&conn).unwrap();
+        assert_eq!(summary.hang, 1);
+        assert_eq!(summary.wen, 1);
+        assert_eq!(summary.la, 1);
+        assert_eq!(summary.unscored, 1);
+        assert_eq!(summary.recent_la.len(), 1);
+        assert!(summary.recent_la[0].ends_with("c3.png"));
     }
 }

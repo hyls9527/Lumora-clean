@@ -17,6 +17,7 @@ import {
 } from '../api/smartCollections';
 import {
   getBestScoredRecent,
+  getScoreCurationSummary,
   moveScoreTierToTrash,
   scoreBackfill,
 } from '../api/aesthetic';
@@ -221,6 +222,34 @@ export const capabilities: Capability[] = [
         useToastStore.getState().addToast('error', '评分补齐失败');
       });
       return '正在后台为全库补齐评分';
+    },
+  },
+  {
+    id: 'curationSummary',
+    name: '回收建议',
+    pattern: {
+      regex:
+        /^(?:回收建议|库里(?:现在|目前)?(?:有|还有)?多少(?:张)?(?:拉|拉的)|现在有哪些拉的|拉(?:的)?有(?:多少|几)张)$/,
+      extract: () => ({}),
+      preview: () => '汇总库里「拉」的图',
+    },
+    execute: async () => {
+      const summary = await getScoreCurationSummary();
+      const judged = summary.hang + summary.wen + summary.la;
+      const laPercent =
+        judged > 0 ? Math.round((summary.la / judged) * 100) : 0;
+      let message = `库里有 ${summary.la} 张「拉」`;
+      if (judged > 0) {
+        message += `（占已评审 ${laPercent}%）`;
+      }
+      if (summary.unscored > 0) {
+        message += `，还有 ${summary.unscored} 张未评审`;
+      }
+      if (summary.recentLa.length > 0) {
+        message += `；最近：${summary.recentLa.join('、')}`;
+      }
+      message += '。要我移进回收站吗？';
+      return message;
     },
   },
   {

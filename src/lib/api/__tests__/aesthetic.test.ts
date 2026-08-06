@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   getBestScoredRecent,
+  getScoreCurationSummary,
   moveScoreTierToTrash,
   scoreBackfill,
   scoreMissing,
@@ -75,5 +76,24 @@ describe('aesthetic API', () => {
     const result = await scoreBackfill(50);
     expect(result).toEqual({ processed: 0, remaining: 100 });
     expect(invoke).toHaveBeenCalledTimes(1);
+  });
+
+  it('fetches the curation summary', async () => {
+    vi.mocked(invoke).mockResolvedValue({
+      hang: 3,
+      wen: 5,
+      la: 2,
+      unscored: 1,
+      recentLa: ['a.png', 'b.png'],
+    });
+    const summary = await getScoreCurationSummary();
+    expect(invoke).toHaveBeenCalledWith('get_score_curation_summary');
+    expect(summary).toEqual({
+      hang: 3,
+      wen: 5,
+      la: 2,
+      unscored: 1,
+      recentLa: ['a.png', 'b.png'],
+    });
   });
 });
