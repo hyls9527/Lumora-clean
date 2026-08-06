@@ -89,3 +89,13 @@ jobs:
       - name: Clippy
         working-directory: src-tauri
         run: cargo clippy --all-targets -- -D warnings
+
+      - name: Install llvm-tools
+        run: rustup component add llvm-tools-preview
+
+      - name: Install llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: Coverage
+        working-directory: src-tauri
+        run: cargo llvm-cov --lib --fail-under-lines 0
