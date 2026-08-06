@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   getBestScoredRecent,
   moveScoreTierToTrash,
+  scoreBackfill,
   scoreMissing,
 } from '../aesthetic';
 
@@ -58,5 +59,21 @@ describe('aesthetic API', () => {
   it('returns null when no scored image exists', async () => {
     vi.mocked(invoke).mockResolvedValue(null);
     expect(await getBestScoredRecent()).toBeNull();
+  });
+
+  it('backfills until nothing is left', async () => {
+    vi.mocked(invoke)
+      .mockResolvedValueOnce({ processed: 50, remaining: 30 })
+      .mockResolvedValueOnce({ processed: 30, remaining: 0 });
+    const result = await scoreBackfill(50);
+    expect(result).toEqual({ processed: 80, remaining: 0 });
+    expect(invoke).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops when the scoring engine is unavailable', async () => {
+    vi.mocked(invoke).mockResolvedValue({ processed: 0, remaining: 100 });
+    const result = await scoreBackfill(50);
+    expect(result).toEqual({ processed: 0, remaining: 100 });
+    expect(invoke).toHaveBeenCalledTimes(1);
   });
 });

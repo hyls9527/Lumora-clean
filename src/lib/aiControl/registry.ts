@@ -9,6 +9,7 @@ import type { RoutePath } from '../../routes';
 import { useSemanticSearchStore } from '../../stores/semanticSearchStore';
 import { useTrashStore } from '../../stores/trashStore';
 import { useSettingsStore } from '../../stores/settingsStore';
+import { useToastStore } from '../../stores/toastStore';
 import {
   createSmartCollection,
   listSmartCollections,
@@ -17,6 +18,7 @@ import {
 import {
   getBestScoredRecent,
   moveScoreTierToTrash,
+  scoreBackfill,
 } from '../api/aesthetic';
 
 const PAGE_PATHS: Record<string, RoutePath> = {
@@ -192,6 +194,33 @@ export const capabilities: Capability[] = [
         best.aestheticScore != null ? `，美学 ${best.aestheticScore.toFixed(1)}` : '';
       const hps = best.hpsScore != null ? `，HPS ${best.hpsScore.toFixed(1)}` : '';
       return `最夯的是「${best.fileName}」${aesthetic}${hps}（${best.scoreLabel ?? '未评分'}）`;
+    },
+  },
+  {
+    id: 'scoreBackfill',
+    name: '补齐全库评分',
+    pattern: {
+      regex:
+        /^(?:(?:把|给|将)?\s*(?:全库|全图库|所有图(?:片)?|全部图(?:片)?)?\s*(?:的)?\s*评分\s*(?:补上|补齐|补完)?|补\s*(?:上|齐|完)?\s*评分|(?:把|给|将)?\s*(?:全库|全图库|所有图(?:片)?|全部图(?:片)?)?\s*都?\s*评(?:一遍|一下))$/,
+      extract: () => ({}),
+      preview: () => '为全库补齐评分',
+    },
+    execute: async () => {
+      const task = scoreBackfill(50).then((result) => {
+        if (result.processed > 0) {
+          useToastStore
+            .getState()
+            .addToast('success', `已为 ${result.processed} 张图补齐评分`);
+        } else if (result.remaining > 0) {
+          useToastStore
+            .getState()
+            .addToast('warning', '评分引擎不可用，保持未评分');
+        }
+      });
+      task.catch(() => {
+        useToastStore.getState().addToast('error', '评分补齐失败');
+      });
+      return '正在后台为全库补齐评分';
     },
   },
   {

@@ -62,3 +62,27 @@ export async function getBestScoredRecent(
     scoreLabel: result.scoreLabel ?? undefined,
   };
 }
+
+export interface ScoreBackfillResult {
+  processed: number;
+  remaining: number;
+}
+
+/**
+ * Backfill judgments for every unscored image, in batches.
+ * Stops when nothing is left or when the engine is unavailable (processed 0
+ * while remaining > 0 would otherwise spin forever).
+ */
+export async function scoreBackfill(
+  limit = 50,
+): Promise<ScoreBackfillResult> {
+  let processed = 0;
+  let remaining = 0;
+  for (;;) {
+    const result = await scoreMissing(limit);
+    processed += result.processed;
+    remaining = result.remaining;
+    if (remaining === 0 || result.processed === 0) break;
+  }
+  return { processed, remaining };
+}

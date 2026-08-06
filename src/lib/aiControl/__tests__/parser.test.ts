@@ -86,6 +86,13 @@ describe('AI control intent parser', () => {
     );
   });
 
+  it('parses score backfill intents', () => {
+    for (const input of ['把评分补上', '给全库评分', '补评分', '把所有图都评一遍']) {
+      const intent = parseIntent(input, capabilities);
+      expect(intent?.capabilityId, input).toBe('scoreBackfill');
+    }
+  });
+
   it('parses empty trash intents', () => {
     const intent = parseIntent('清空回收站', capabilities);
     expect(intent?.capabilityId).toBe('emptyTrash');
