@@ -426,6 +426,51 @@ mod tests {
     }
 
     #[test]
+    fn probe_jpeg_dimensions() {
+        let mut bytes = vec![0u8; 64];
+        bytes[0] = 0xFF;
+        bytes[1] = 0xD8;
+        bytes[2] = 0xFF;
+        bytes[3] = 0xE0;
+        bytes[4] = 0x00;
+        bytes[5] = 0x10; // APP0 segment length 16 -> SOF0 at offset 20
+        let sof = 20;
+        bytes[sof] = 0xFF;
+        bytes[sof + 1] = 0xC0;
+        bytes[sof + 2] = 0x00;
+        bytes[sof + 3] = 0x11;
+        bytes[sof + 4] = 0x08;
+        let h = 1080u16;
+        let w = 1920u16;
+        bytes[sof + 5] = (h >> 8) as u8;
+        bytes[sof + 6] = h as u8;
+        bytes[sof + 7] = (w >> 8) as u8;
+        bytes[sof + 8] = w as u8;
+
+        let (w2, h2) = probe_jpeg(&bytes);
+        assert_eq!(w2, Some(1920));
+        assert_eq!(h2, Some(1080));
+    }
+
+    #[test]
+    fn probe_webp_dimensions() {
+        let mut bytes = vec![0u8; 64];
+        bytes[..4].copy_from_slice(b"RIFF");
+        bytes[8..12].copy_from_slice(b"WEBP");
+        bytes[12..16].copy_from_slice(b"VP8 ");
+        let w = 640u16;
+        let h = 480u16;
+        bytes[26] = w as u8;
+        bytes[27] = (w >> 8) as u8;
+        bytes[28] = h as u8;
+        bytes[29] = (h >> 8) as u8;
+
+        let (w2, h2) = probe_webp(&bytes);
+        assert_eq!(w2, Some(640));
+        assert_eq!(h2, Some(480));
+    }
+
+    #[test]
     fn variant_groups_created_for_same_prompt() {
         use crate::db::migrations::run_migrations;
         use rusqlite::Connection;

@@ -11,6 +11,10 @@ use crate::schema::types::row_to_record;
 #[tauri::command]
 pub fn soft_delete_image(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<()> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    soft_delete_impl(&conn, &id)
+}
+
+fn soft_delete_impl(conn: &rusqlite::Connection, id: &str) -> AppResult<()> {
     let changed = conn.execute(
         "UPDATE images SET deleted = 1, deleted_at = datetime('now') WHERE id = ?1 AND deleted = 0",
         params![id],
@@ -27,6 +31,10 @@ pub fn soft_delete_image(db: tauri::State<'_, DbHandle>, id: String) -> AppResul
 #[tauri::command]
 pub fn restore_image(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<()> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    restore_impl(&conn, &id)
+}
+
+fn restore_impl(conn: &rusqlite::Connection, id: &str) -> AppResult<()> {
     let changed = conn.execute(
         "UPDATE images SET deleted = 0, deleted_at = NULL WHERE id = ?1 AND deleted = 1",
         params![id],
@@ -106,6 +114,14 @@ pub fn list_trash(
     per_page: u32,
 ) -> AppResult<PaginatedResult> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    list_trash_inner(&conn, page, per_page)
+}
+
+fn list_trash_inner(
+    conn: &rusqlite::Connection,
+    page: u32,
+    per_page: u32,
+) -> AppResult<PaginatedResult> {
     let offset = page.saturating_sub(1) * per_page;
     let total: i64 = conn.query_row("SELECT COUNT(*) FROM images WHERE deleted = 1", [], |r| {
         r.get(0)
@@ -130,6 +146,10 @@ pub fn list_trash(
 #[tauri::command]
 pub fn empty_trash(db: tauri::State<'_, DbHandle>) -> AppResult<u64> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    empty_trash_inner(&conn)
+}
+
+fn empty_trash_inner(conn: &rusqlite::Connection) -> AppResult<u64> {
     let mut stmt = conn.prepare("SELECT id FROM images WHERE deleted = 1")?;
     let ids: Vec<String> = stmt
         .query_map([], |row| row.get(0))?
@@ -153,9 +173,13 @@ pub fn empty_trash(db: tauri::State<'_, DbHandle>) -> AppResult<u64> {
 #[tauri::command]
 pub fn batch_soft_delete(db: tauri::State<'_, DbHandle>, ids: Vec<String>) -> AppResult<u64> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    batch_soft_delete_inner(&conn, &ids)
+}
+
+fn batch_soft_delete_inner(conn: &rusqlite::Connection, ids: &[String]) -> AppResult<u64> {
     let tx = conn.unchecked_transaction()?;
     let mut affected: u64 = 0;
-    for id in &ids {
+    for id in ids {
         let n = tx
             .execute(
                 "UPDATE images SET deleted = 1, deleted_at = datetime('now') WHERE id = ?1 AND deleted = 0",
@@ -172,9 +196,13 @@ pub fn batch_soft_delete(db: tauri::State<'_, DbHandle>, ids: Vec<String>) -> Ap
 #[tauri::command]
 pub fn batch_restore(db: tauri::State<'_, DbHandle>, ids: Vec<String>) -> AppResult<u64> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    batch_restore_inner(&conn, &ids)
+}
+
+fn batch_restore_inner(conn: &rusqlite::Connection, ids: &[String]) -> AppResult<u64> {
     let tx = conn.unchecked_transaction()?;
     let mut affected: u64 = 0;
-    for id in &ids {
+    for id in ids {
         let n = tx.execute(
             "UPDATE images SET deleted = 0, deleted_at = NULL WHERE id = ?1 AND deleted = 1",
             rusqlite::params![id],
@@ -190,9 +218,13 @@ pub fn batch_restore(db: tauri::State<'_, DbHandle>, ids: Vec<String>) -> AppRes
 #[tauri::command]
 pub fn batch_permanent_delete(db: tauri::State<'_, DbHandle>, ids: Vec<String>) -> AppResult<u64> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    batch_permanent_delete_inner(&conn, &ids)
+}
+
+fn batch_permanent_delete_inner(conn: &rusqlite::Connection, ids: &[String]) -> AppResult<u64> {
     let affected = ids.len() as u64;
     let tx = conn.unchecked_transaction()?;
-    for id in &ids {
+    for id in ids {
         permanent_delete_tx(&tx, id)?;
     }
     tx.commit()?;
@@ -209,9 +241,17 @@ pub fn batch_add_tag(
     tag_id: String,
 ) -> AppResult<u64> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    batch_add_tag_inner(&conn, &image_ids, &tag_id)
+}
+
+fn batch_add_tag_inner(
+    conn: &rusqlite::Connection,
+    image_ids: &[String],
+    tag_id: &str,
+) -> AppResult<u64> {
     let tx = conn.unchecked_transaction()?;
     let mut affected: u64 = 0;
-    for image_id in &image_ids {
+    for image_id in image_ids {
         let n = tx.execute(
             "INSERT OR IGNORE INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
             rusqlite::params![image_id, tag_id],
@@ -232,9 +272,17 @@ pub fn batch_remove_tag(
     tag_id: String,
 ) -> AppResult<u64> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    batch_remove_tag_inner(&conn, &image_ids, &tag_id)
+}
+
+fn batch_remove_tag_inner(
+    conn: &rusqlite::Connection,
+    image_ids: &[String],
+    tag_id: &str,
+) -> AppResult<u64> {
     let tx = conn.unchecked_transaction()?;
     let mut affected: u64 = 0;
-    for image_id in &image_ids {
+    for image_id in image_ids {
         let n = tx.execute(
             "DELETE FROM image_tags WHERE image_id = ?1 AND tag_id = ?2",
             rusqlite::params![image_id, tag_id],
@@ -257,8 +305,8 @@ mod tests {
     fn insert_test_image(conn: &rusqlite::Connection, id: &str) {
         conn.execute(
             "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
-             VALUES (?1, '/test.png', 'h1', 100, 'png', '2025-01-01')",
-            params![id],
+             VALUES (?1, ?2, 'h1', 100, 'png', '2025-01-01')",
+            params![id, format!("/{id}.png")],
         )
         .unwrap();
     }
@@ -372,5 +420,89 @@ mod tests {
         let conn = db.conn().lock().unwrap();
         let result = permanent_delete_impl(&conn, "nonexistent");
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn soft_delete_and_restore_via_inner() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+        insert_test_image(&conn, "img-1");
+
+        soft_delete_impl(&conn, "img-1").unwrap();
+        let deleted: i64 = conn
+            .query_row("SELECT deleted FROM images WHERE id = 'img-1'", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert_eq!(deleted, 1);
+
+        restore_impl(&conn, "img-1").unwrap();
+        let deleted: i64 = conn
+            .query_row("SELECT deleted FROM images WHERE id = 'img-1'", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert_eq!(deleted, 0);
+
+        assert!(soft_delete_impl(&conn, "missing").is_err());
+        assert!(restore_impl(&conn, "img-1").is_err());
+    }
+
+    #[test]
+    fn batch_trash_ops_and_tags() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+        for id in ["a", "b", "c"] {
+            insert_test_image(&conn, id);
+        }
+        conn.execute("INSERT INTO tags (id, name) VALUES ('t1', 'x')", [])
+            .unwrap();
+
+        let n = batch_soft_delete_inner(&conn, &["a".into(), "b".into()]).unwrap();
+        assert_eq!(n, 2);
+
+        let n = batch_restore_inner(&conn, &["a".into()]).unwrap();
+        assert_eq!(n, 1);
+
+        let n = batch_add_tag_inner(&conn, &["a".into(), "c".into()], "t1").unwrap();
+        assert_eq!(n, 2);
+
+        let n = batch_remove_tag_inner(&conn, &["a".into()], "t1").unwrap();
+        assert_eq!(n, 1);
+
+        let n = batch_permanent_delete_inner(&conn, &["b".into(), "c".into()]).unwrap();
+        assert_eq!(n, 2);
+
+        let remaining: i64 = conn
+            .query_row("SELECT COUNT(*) FROM images", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(remaining, 1);
+    }
+
+    #[test]
+    fn list_trash_paginates_and_empty_trash_cascades() {
+        let db = DbHandle::open_memory().unwrap();
+        let conn = db.conn().lock().unwrap();
+        for i in 0..45 {
+            insert_test_image(&conn, &format!("t-{i:02}"));
+        }
+        for i in 0..10 {
+            soft_delete_impl(&conn, &format!("t-{i:02}")).unwrap();
+        }
+
+        let page1 = list_trash_inner(&conn, 1, 40).unwrap();
+        assert_eq!(page1.total, 10);
+        assert_eq!(page1.items.len(), 10);
+        let page2 = list_trash_inner(&conn, 2, 40).unwrap();
+        assert_eq!(page2.items.len(), 0);
+
+        let removed = empty_trash_inner(&conn).unwrap();
+        assert_eq!(removed, 10);
+        let count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM images WHERE deleted = 1", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert_eq!(count, 0);
     }
 }

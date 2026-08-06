@@ -10,6 +10,15 @@ pub struct ClipEmbeddingResponse {
     pub error: Option<String>,
 }
 
+fn parse_clip_response(output: &[u8]) -> AppResult<ClipEmbeddingResponse> {
+    let response: ClipEmbeddingResponse = serde_json::from_slice(output)
+        .map_err(|e| AppError::External(format!("Failed to parse CLIP response: {}", e)))?;
+    if let Some(error) = response.error {
+        return Err(AppError::External(format!("CLIP error: {}", error)));
+    }
+    Ok(response)
+}
+
 /// Generate image embedding using CLIP sidecar.
 pub fn clip_embed_image(image_path: &str) -> AppResult<Vec<f64>> {
     let sidecar_path = get_sidecar_path()?;
@@ -27,13 +36,7 @@ pub fn clip_embed_image(image_path: &str) -> AppResult<Vec<f64>> {
         )));
     }
 
-    let response: ClipEmbeddingResponse = serde_json::from_slice(&output.stdout)
-        .map_err(|e| AppError::External(format!("Failed to parse CLIP response: {}", e)))?;
-
-    if let Some(error) = response.error {
-        return Err(AppError::External(format!("CLIP error: {}", error)));
-    }
-
+    let response = parse_clip_response(&output.stdout)?;
     Ok(response.embedding)
 }
 
@@ -54,13 +57,7 @@ pub fn clip_embed_text(text: &str) -> AppResult<Vec<f64>> {
         )));
     }
 
-    let response: ClipEmbeddingResponse = serde_json::from_slice(&output.stdout)
-        .map_err(|e| AppError::External(format!("Failed to parse CLIP response: {}", e)))?;
-
-    if let Some(error) = response.error {
-        return Err(AppError::External(format!("CLIP error: {}", error)));
-    }
-
+    let response = parse_clip_response(&output.stdout)?;
     Ok(response.embedding)
 }
 
@@ -84,6 +81,26 @@ fn get_sidecar_path() -> AppResult<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn parse_clip_response_ok() {
+        let raw = br#"{"embedding":[1.0,2.0]}"#;
+        let r = parse_clip_response(raw).unwrap();
+        assert_eq!(r.embedding, vec![1.0, 2.0]);
+        assert!(r.error.is_none());
+    }
+
+    #[test]
+    fn parse_clip_response_reports_sidecar_error() {
+        let raw = br#"{"embedding":[],"error":"boom"}"#;
+        let err = parse_clip_response(raw).unwrap_err();
+        assert!(err.to_string().contains("boom"));
+    }
+
+    #[test]
+    fn parse_clip_response_rejects_invalid_json() {
+        assert!(parse_clip_response(b"not json").is_err());
+    }
 
     #[test]
     fn test_get_sidecar_path() {

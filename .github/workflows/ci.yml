@@ -98,4 +98,4 @@ jobs:
 
       - name: Coverage
         working-directory: src-tauri
-        run: cargo llvm-cov --lib --fail-under-lines 68 --fail-under-functions 64 --fail-under-regions 68
+        run: cargo llvm-cov --lib --fail-under-lines 71 --fail-under-functions 67 --fail-under-regions 71
