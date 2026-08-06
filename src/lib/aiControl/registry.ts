@@ -14,7 +14,10 @@ import {
   listSmartCollections,
   type SmartCollectionRule,
 } from '../api/smartCollections';
-import { moveScoreTierToTrash } from '../api/aesthetic';
+import {
+  getBestScoredRecent,
+  moveScoreTierToTrash,
+} from '../api/aesthetic';
 
 const PAGE_PATHS: Record<string, RoutePath> = {
   图库: '/gallery',
@@ -169,6 +172,26 @@ export const capabilities: Capability[] = [
       const count = await moveScoreTierToTrash(tier);
       deps.navigate('/trash');
       return `已把 ${count} 张「${tier}」的图移到回收站`;
+    },
+  },
+  {
+    id: 'bestScoredRecent',
+    name: '看这批最夯的',
+    pattern: {
+      regex:
+        /^(?:这批|刚才这批|最近这批)?(?:里|中)?(?:最夯|最能打|评分最高|最好|最强)(?:的)?(?:是)?(?:哪张|哪一张|那张)?(?:图|作品)?$/,
+      extract: () => ({}),
+      preview: () => '找出最近这批最夯的图',
+    },
+    execute: async () => {
+      const best = await getBestScoredRecent(20);
+      if (!best) {
+        return '最近这批还没出评分，AI 正在后台评审';
+      }
+      const aesthetic =
+        best.aestheticScore != null ? `，美学 ${best.aestheticScore.toFixed(1)}` : '';
+      const hps = best.hpsScore != null ? `，HPS ${best.hpsScore.toFixed(1)}` : '';
+      return `最夯的是「${best.fileName}」${aesthetic}${hps}（${best.scoreLabel ?? '未评分'}）`;
     },
   },
   {

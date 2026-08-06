@@ -34,3 +34,31 @@ export async function moveScoreTierToTrash(tier: string): Promise<number> {
   const result = await invoke<number>('move_score_tier_to_trash', { tier });
   return result ?? 0;
 }
+
+export interface BestScoredImage {
+  id: string;
+  fileName: string;
+  hpsScore?: number;
+  aestheticScore?: number;
+  scoreLabel?: string;
+}
+
+/**
+ * Pick the best-scored image from the most recent imports.
+ * Calls Tauri command `get_best_scored_recent`.
+ */
+export async function getBestScoredRecent(
+  batch = 20,
+): Promise<BestScoredImage | null> {
+  const result = await invoke<BestScoredImage | null>('get_best_scored_recent', {
+    batch,
+  });
+  if (!result) return null;
+  return {
+    id: result.id,
+    fileName: result.fileName,
+    hpsScore: result.hpsScore ?? undefined,
+    aestheticScore: result.aestheticScore ?? undefined,
+    scoreLabel: result.scoreLabel ?? undefined,
+  };
+}

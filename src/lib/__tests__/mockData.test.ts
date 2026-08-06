@@ -70,6 +70,7 @@ describe('browser mock mode data contracts', () => {
 
   it('uses null only where it is a valid semantic value', async () => {
     expect(await invoke('get_analysis_result_cmd')).toBeNull();
+    expect(await invoke('get_best_scored_recent')).toBeNull();
     expect(await invoke('detect_comfyui_path')).toBeNull();
   });
 });

@@ -78,6 +78,14 @@ describe('AI control intent parser', () => {
     });
   });
 
+  it('parses best-scored-recent intents', () => {
+    const intent = parseIntent('这批最夯的是哪张', capabilities);
+    expect(intent?.capabilityId).toBe('bestScoredRecent');
+    expect(parseIntent('评分最高的是哪张图', capabilities)?.capabilityId).toBe(
+      'bestScoredRecent',
+    );
+  });
+
   it('parses empty trash intents', () => {
     const intent = parseIntent('清空回收站', capabilities);
     expect(intent?.capabilityId).toBe('emptyTrash');

@@ -230,6 +230,72 @@ pub fn move_score_tier_to_trash(db: tauri::State<'_, DbHandle>, tier: String) ->
     move_score_tier_to_trash_inner(&conn, tier.trim())
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BestScoredImage {
+    pub id: String,
+    pub file_name: String,
+    pub hps_score: Option<f64>,
+    pub aesthetic_score: Option<f64>,
+    pub score_label: Option<String>,
+}
+
+/// Pick the best-scored image from the most recent `batch` imports.
+/// Aesthetic score (0-10, absolute) is the primary ranking key because HPS v2
+/// logits are only comparable within the same prompt. Returns None when the
+/// batch has no scored image yet.
+pub fn get_best_scored_recent_inner(
+    conn: &Connection,
+    batch: i64,
+) -> AppResult<Option<BestScoredImage>> {
+    let batch = batch.clamp(1, 200);
+    let mut stmt = conn.prepare(
+        "SELECT id, file_path, hps_score, aesthetic_score, score_label
+         FROM images
+         WHERE deleted = 0
+         ORDER BY imported_at DESC
+         LIMIT ?1",
+    )?;
+    let rows = stmt.query_map(params![batch], |row| {
+        Ok(BestScoredImage {
+            id: row.get(0)?,
+            file_name: std::path::Path::new(&row.get::<_, String>(1)?)
+                .file_name()
+                .map(|n| n.to_string_lossy().to_string())
+                .unwrap_or_default(),
+            hps_score: row.get(2).ok(),
+            aesthetic_score: row.get(3).ok(),
+            score_label: row.get(4).ok(),
+        })
+    })?;
+    let images: Vec<BestScoredImage> = rows.filter_map(|r| r.ok()).collect();
+
+    let best = images.into_iter().max_by(|a, b| {
+        let key = |x: &BestScoredImage| {
+            (
+                x.aesthetic_score.unwrap_or(f64::MIN),
+                x.hps_score.unwrap_or(f64::MIN),
+            )
+        };
+        key(a)
+            .partial_cmp(&key(b))
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+
+    match best {
+        Some(b) if b.aesthetic_score.is_some() || b.hps_score.is_some() => Ok(Some(b)),
+        _ => Ok(None),
+    }
+}
+
+#[tauri::command]
+pub fn get_best_scored_recent(
+    db: tauri::State<'_, DbHandle>,
+    batch: Option<i64>,
+) -> AppResult<Option<BestScoredImage>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    get_best_scored_recent_inner(&conn, batch.unwrap_or(20))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -426,5 +492,47 @@ mod tests {
         let conn = db.conn().lock().unwrap();
         let err = move_score_tier_to_trash_inner(&conn, "神").unwrap_err();
         assert!(matches!(err, AppError::InvalidInput(_)));
+    }
+
+    #[test]
+    fn best_scored_recent_ranks_by_aesthetic() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "b1");
+            insert_image(&conn, "b2");
+            insert_image(&conn, "b3");
+            conn.execute(
+                "UPDATE images SET aesthetic_score = 8.7, hps_score = 27.5, score_label = '夯'
+                 WHERE id = 'b1'",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "UPDATE images SET aesthetic_score = 6.2, hps_score = 26.1, score_label = '稳'
+                 WHERE id = 'b2'",
+                [],
+            )
+            .unwrap();
+            // b3 stays unscored.
+        }
+
+        let conn = db.conn().lock().unwrap();
+        let best = get_best_scored_recent_inner(&conn, 20).unwrap().unwrap();
+        assert_eq!(best.id, "b1");
+        assert_eq!(best.aesthetic_score, Some(8.7));
+        assert_eq!(best.score_label.as_deref(), Some(SCORE_LABEL_HANG));
+    }
+
+    #[test]
+    fn best_scored_recent_returns_none_when_batch_unscored() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "u1");
+            insert_image(&conn, "u2");
+        }
+        let conn = db.conn().lock().unwrap();
+        assert!(get_best_scored_recent_inner(&conn, 20).unwrap().is_none());
     }
 }

@@ -39,6 +39,21 @@ jobs:
       - name: Coverage
         run: npx vitest run --coverage
 
+  python-sidecar:
+    name: Python (Sidecar unit tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - run: python -m pip install pytest
+
+      - name: Sidecar tests
+        run: python -m pytest src-tauri/sidecar -q
+
   rust:
     name: Rust (Tests + Build)
     runs-on: ubuntu-latest

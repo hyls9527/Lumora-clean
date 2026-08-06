@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { moveScoreTierToTrash, scoreMissing } from '../aesthetic';
+import {
+  getBestScoredRecent,
+  moveScoreTierToTrash,
+  scoreMissing,
+} from '../aesthetic';
 
 vi.mock('../../tauri', () => ({
   invoke: vi.fn(),
@@ -34,5 +38,25 @@ describe('aesthetic API', () => {
       tier: '拉',
     });
     expect(count).toBe(3);
+  });
+
+  it('fetches the best scored recent image', async () => {
+    vi.mocked(invoke).mockResolvedValue({
+      id: 'x',
+      fileName: 'a.png',
+      hpsScore: 27.5,
+      aestheticScore: 8.7,
+      scoreLabel: '夯',
+    });
+    const best = await getBestScoredRecent();
+    expect(invoke).toHaveBeenCalledWith('get_best_scored_recent', { batch: 20 });
+    expect(best?.fileName).toBe('a.png');
+    expect(best?.aestheticScore).toBe(8.7);
+    expect(best?.scoreLabel).toBe('夯');
+  });
+
+  it('returns null when no scored image exists', async () => {
+    vi.mocked(invoke).mockResolvedValue(null);
+    expect(await getBestScoredRecent()).toBeNull();
   });
 });
