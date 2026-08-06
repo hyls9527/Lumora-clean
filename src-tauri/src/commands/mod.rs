@@ -1,3 +1,4 @@
+pub mod aesthetic;
 pub mod ai;
 pub mod backup;
 pub mod clip;

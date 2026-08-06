@@ -4,7 +4,7 @@ import type { ImageRecord } from '../../types/image';
 
 /** A single filter rule inside a smart collection. */
 export interface SmartCollectionRule {
-  field: 'model' | 'prompt' | 'rating' | 'date' | 'format' | 'tag';
+  field: 'model' | 'prompt' | 'rating' | 'score' | 'date' | 'format' | 'tag';
   op: 'equals' | 'contains' | 'gte' | 'lte' | 'in';
   value: string;
 }

@@ -27,6 +27,10 @@ describe('browser mock mode data contracts', () => {
       total: 0,
       missing: 0,
     });
+    expect(await invoke('score_missing_cmd')).toEqual({
+      processed: 0,
+      remaining: 0,
+    });
     expect(await invoke('get_lan_info')).toMatchObject({
       ip: expect.any(String),
       port: expect.any(Number),

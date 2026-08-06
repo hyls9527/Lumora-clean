@@ -11,6 +11,7 @@ import { useTrashStore } from '../../stores/trashStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import {
   createSmartCollection,
+  listSmartCollections,
   type SmartCollectionRule,
 } from '../api/smartCollections';
 
@@ -37,6 +38,15 @@ function parseRules(text: string): SmartCollectionRule[] {
     .map((s) => s.trim())
     .filter(Boolean);
   for (const part of parts) {
+    const tier = part.match(/^(夯|稳|拉|拉了)$/);
+    if (tier) {
+      rules.push({
+        field: 'score',
+        op: 'equals',
+        value: tier[1] === '拉了' ? '拉' : tier[1],
+      });
+      continue;
+    }
     let m =
       part.match(/评分\s*(\d+)\s*(?:以上|不低于)/) ??
       part.match(/评分\s*(?:>=|≥|大于等于)\s*(\d+)/);
@@ -111,6 +121,37 @@ export const capabilities: Capability[] = [
       }
       await createSmartCollection(name, rules);
       return `已创建智能相册「${name}」`;
+    },
+  },
+  {
+    id: 'scoreCuration',
+    name: '按审美档筛图',
+    pattern: {
+      regex:
+        /^(?:哪些|把|看(?:看)?|找(?:出|出来)?)\s*(?:图|作品)?(?:是)?\s*(夯|稳|拉|拉了)(?:的)?(?:图|作品)?(?:找出来|拿出来)?$/,
+      extract: (m) => ({ tier: m[1] === '拉了' ? '拉' : m[1] }),
+      preview: (p) => `筛出「${String(p.tier)}」的图`,
+    },
+    execute: async (params, deps) => {
+      const tier = String(params.tier);
+      const rules: SmartCollectionRule[] = [
+        { field: 'score', op: 'equals', value: tier },
+      ];
+      const name = `${tier}的`;
+      const existing = await listSmartCollections();
+      const found = existing.find(
+        (c) =>
+          c.name === name &&
+          c.rules.length === 1 &&
+          c.rules[0].field === 'score' &&
+          c.rules[0].op === 'equals' &&
+          c.rules[0].value === tier,
+      );
+      if (!found) {
+        await createSmartCollection(name, rules);
+      }
+      deps.navigate('/collections');
+      return `已筛出「${tier}」的图`;
     },
   },
   {

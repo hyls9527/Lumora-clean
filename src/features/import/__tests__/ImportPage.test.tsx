@@ -28,7 +28,12 @@ vi.mock('../../../lib/api/embeddings', () => ({
   getEmbeddingStats: vi.fn(),
 }));
 
+vi.mock('../../../lib/api/aesthetic', () => ({
+  scoreMissing: vi.fn().mockResolvedValue({ processed: 0, remaining: 0 }),
+}));
+
 import * as embeddingsApi from '../../../lib/api/embeddings';
+import * as aestheticApi from '../../../lib/api/aesthetic';
 
 vi.mock('@tauri-apps/plugin-dialog', () => ({
   open: vi.fn(),
@@ -152,11 +157,27 @@ describe('ImportPage', () => {
   it('does not call importImages when droppedPaths is empty', () => {
     render(<ImportPage droppedPaths={[]} onPathsConsumed={vi.fn()} />);
     expect(mockImportImages).not.toHaveBeenCalled();
+    expect(aestheticApi.scoreMissing).not.toHaveBeenCalled();
   });
 
   it('does not call importImages when droppedPaths is undefined', () => {
     render(<ImportPage />);
     expect(mockImportImages).not.toHaveBeenCalled();
+  });
+
+  it('triggers aesthetic judgment after a successful import', async () => {
+    mockImportImages.mockResolvedValue({
+      imported: 4,
+      skipped: 0,
+      totalScanned: 4,
+      items: [],
+    });
+
+    await act(async () => {
+      render(<ImportPage droppedPaths={['C:\\photos\\test.png']} onPathsConsumed={vi.fn()} />);
+    });
+
+    expect(aestheticApi.scoreMissing).toHaveBeenCalledWith(4);
   });
 
   it('prompts to build the semantic index after a successful import', async () => {

@@ -27,6 +27,12 @@ const RUST_IMAGE_RECORD_FIELDS = [
   'favorite',
   'metadata_json',
   'deleted_at',
+  'hps_score',
+  'hps_style',
+  'aesthetic_score',
+  'scoring_model',
+  'scored_at',
+  'score_label',
 ] as const;
 
 const TS_IMAGE_RECORD_FIELDS = [
@@ -44,6 +50,12 @@ const TS_IMAGE_RECORD_FIELDS = [
   'favorite',
   'metadataJson',
   'deletedAt',
+  'hpsScore',
+  'hpsStyle',
+  'aestheticScore',
+  'scoringModel',
+  'scoredAt',
+  'scoreLabel',
 ] as const;
 
 /** Convert snake_case to camelCase (mirrors the logic in ai.ts). */
@@ -81,6 +93,12 @@ const MOCK_TAURI_RECORD: TauriImageRecord = {
   rating: 3,
   favorite: true,
   metadataJson: JSON.stringify({ model: 'SDXL', prompt: 'a cat on mars', tags: ['animal', 'space'], negative_prompt: 'ugly', steps: 30, sampler: 'euler', cfg_scale: 8.0, seed: 999 }),
+  hpsScore: 27.3,
+  hpsStyle: 'Animation',
+  aestheticScore: 8.7,
+  scoringModel: 'test@v1',
+  scoredAt: '2024-01-03T00:00:00Z',
+  scoreLabel: '夯',
 };
 
 describe('toImageRecord conversion', () => {
@@ -104,6 +122,25 @@ describe('toImageRecord conversion', () => {
     expect(result.sampler).toBe('euler');
     expect(result.cfgScale).toBe(8.0);
     expect(result.seed).toBe(999);
+    expect(result.hpsScore).toBe(27.3);
+    expect(result.hpsStyle).toBe('Animation');
+    expect(result.aestheticScore).toBe(8.7);
+    expect(result.scoringModel).toBe('test@v1');
+    expect(result.scoredAt).toBe('2024-01-03T00:00:00Z');
+    expect(result.scoreLabel).toBe('夯');
+  });
+
+  it('maps null score fields to undefined', () => {
+    const result = toImageRecord({
+      ...MOCK_TAURI_RECORD,
+      hpsScore: null,
+      aestheticScore: null,
+      scoreLabel: null,
+    });
+    expect(result.hpsScore).toBeUndefined();
+    expect(result.aestheticScore).toBeUndefined();
+    expect(result.scoreLabel).toBeUndefined();
+    expect(result.hpsStyle).toBe('Animation');
   });
 
   it('handles null metadataJson gracefully', () => {

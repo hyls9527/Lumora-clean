@@ -379,6 +379,7 @@
     "summaryTagEquals": "Tag = {value}",
     "summaryTagIn": "Tag in {value}",
     "fields": {
+      "score": "Aesthetic",
       "model": "Model",
       "prompt": "Prompt",
       "rating": "Rating",
@@ -386,6 +387,8 @@
       "format": "Format",
       "tag": "Tag"
     },
+    "summaryScore": "Judgment = {value}",
+    "scoreValueHint": "夯 / 稳 / 拉",
     "ops": {
       "equals": "Equals",
       "contains": "Contains",

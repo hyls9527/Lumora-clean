@@ -21,6 +21,18 @@ pub struct ImageRecord {
     pub deleted_at: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub variant_group_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hps_score: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hps_style: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub aesthetic_score: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scoring_model: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scored_at: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub score_label: Option<String>,
 }
 
 /// Paginated wrapper returned by list commands.
@@ -135,5 +147,11 @@ pub fn row_to_record(row: &rusqlite::Row<'_>) -> Result<ImageRecord, rusqlite::E
         metadata_json: row.get("metadata_json")?,
         deleted_at: row.get("deleted_at").ok(),
         variant_group_id: row.get("variant_group_id").ok(),
+        hps_score: row.get("hps_score").ok(),
+        hps_style: row.get("hps_style").ok(),
+        aesthetic_score: row.get("aesthetic_score").ok(),
+        scoring_model: row.get("scoring_model").ok(),
+        scored_at: row.get("scored_at").ok(),
+        score_label: row.get("score_label").ok(),
     })
 }

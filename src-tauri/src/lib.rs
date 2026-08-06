@@ -104,6 +104,8 @@ pub fn run() {
             commands::ai::apply_ai_tags_cmd,
             commands::clip::clip_embed_image_cmd,
             commands::clip::clip_embed_text_cmd,
+            commands::aesthetic::score_image_cmd,
+            commands::aesthetic::score_missing_cmd,
             ollama::get_ollama_host,
             ollama::check_ollama_status,
             commands::backup::export_database,

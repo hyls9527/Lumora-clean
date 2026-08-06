@@ -138,3 +138,17 @@ pub const V7_CREATE_SMART_COLLECTIONS: &str = "CREATE TABLE IF NOT EXISTS smart_
     rules_json TEXT NOT NULL DEFAULT '[]',
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );";
+
+// ---------------------------------------------------------------------------
+// V8 - Aesthetic judgment layer (夯 / 稳 / 拉)
+// ---------------------------------------------------------------------------
+
+pub const V8_ADD_SCORE_COLUMNS: &str = "ALTER TABLE images ADD COLUMN hps_score REAL;
+ALTER TABLE images ADD COLUMN hps_style TEXT;
+ALTER TABLE images ADD COLUMN aesthetic_score REAL;
+ALTER TABLE images ADD COLUMN scoring_model TEXT;
+ALTER TABLE images ADD COLUMN scored_at TEXT;
+ALTER TABLE images ADD COLUMN score_label TEXT;";
+
+pub const V8_INDEX_SCORE_LABEL: &str =
+    "CREATE INDEX IF NOT EXISTS idx_images_score_label ON images(score_label) WHERE deleted = 0;";

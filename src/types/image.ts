@@ -29,4 +29,11 @@ export interface ImageRecord {
   sampler?: string;
   cfgScale?: number;
   seed?: number;
+  /** AI judgment layer (internal; never rendered as rating controls). */
+  hpsScore?: number;
+  hpsStyle?: string;
+  aestheticScore?: number;
+  scoringModel?: string;
+  scoredAt?: string;
+  scoreLabel?: string; // 夯 / 稳 / 拉
 }

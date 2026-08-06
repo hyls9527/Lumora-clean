@@ -22,6 +22,7 @@ const FIELD_OPTIONS: { key: Field; labelKey: string }[] = [
   { key: 'model', labelKey: 'fields.model' },
   { key: 'prompt', labelKey: 'fields.prompt' },
   { key: 'rating', labelKey: 'fields.rating' },
+  { key: 'score', labelKey: 'fields.score' },
   { key: 'date', labelKey: 'fields.date' },
   { key: 'format', labelKey: 'fields.format' },
   { key: 'tag', labelKey: 'fields.tag' },
@@ -34,6 +35,7 @@ const OP_OPTIONS: Record<Field, { key: Op; labelKey: string }[]> = {
     { key: 'gte', labelKey: 'ops.gte' },
     { key: 'lte', labelKey: 'ops.lte' },
   ],
+  score: [{ key: 'equals', labelKey: 'ops.equals' }],
   date: [
     { key: 'gte', labelKey: 'ops.gte' },
     { key: 'lte', labelKey: 'ops.lte' },
@@ -60,6 +62,8 @@ function ruleText(
       return rule.op === 'gte'
         ? t('summaryRatingGte', { value: rule.value })
         : t('summaryRatingLte', { value: rule.value });
+    case 'score':
+      return t('summaryScore', { value: rule.value });
     case 'date':
       return rule.op === 'gte'
         ? t('summaryDateGte', { value: rule.value })
@@ -446,6 +450,8 @@ export function SmartCollectionsPage() {
                   placeholder={
                     rule.field === 'tag' && rule.op === 'in'
                       ? t('tagValueHint')
+                      : rule.field === 'score'
+                        ? t('scoreValueHint')
                       : rule.field === 'date'
                         ? t('datePlaceholder')
                         : t('valuePlaceholder')

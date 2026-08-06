@@ -736,6 +736,12 @@ mod tests {
             metadata_json: metadata.map(|s| s.to_string()),
             deleted_at: None,
             variant_group_id: None,
+            hps_score: None,
+            hps_style: None,
+            aesthetic_score: None,
+            scoring_model: None,
+            scored_at: None,
+            score_label: None,
         }
     }
 

@@ -158,7 +158,6 @@ describe('CommandPalette', () => {
 
   it('wraps Tab focus within the palette panel', () => {
     render(<CommandPalette navigate={mockNavigate} />);
-    const input = screen.getByPlaceholderText('搜索命令...');
 
     // Focus the last focusable (a command button) and Tab forward to wrap.
     const buttons = screen.getAllByRole('button');

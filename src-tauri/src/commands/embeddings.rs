@@ -286,15 +286,11 @@ pub fn get_embedding_stats_db(conn: &Connection) -> Result<EmbeddingStats, rusql
 /// Rewrite stored embeddings that are not unit vectors (legacy data written
 /// before normalization). Idempotent: already-normalized vectors are skipped.
 pub fn normalize_embeddings_db(conn: &Connection) -> Result<usize, rusqlite::Error> {
-    let mut stmt = conn.prepare(
-        "SELECT image_id, embedding FROM embeddings WHERE status = 'embedded'",
-    )?;
+    let mut stmt =
+        conn.prepare("SELECT image_id, embedding FROM embeddings WHERE status = 'embedded'")?;
     let rows = stmt
         .query_map([], |row| {
-            Ok((
-                row.get::<_, String>(0)?,
-                row.get::<_, Vec<u8>>(1)?,
-            ))
+            Ok((row.get::<_, String>(0)?, row.get::<_, Vec<u8>>(1)?))
         })?
         .collect::<Result<Vec<_>, _>>()?;
     drop(stmt);

@@ -42,6 +42,33 @@ describe('AI control intent parser', () => {
     });
   });
 
+  it('parses smart collection creation with score tiers', () => {
+    const intent = parseIntent('建相册 夯货：夯', capabilities);
+    expect(intent?.capabilityId).toBe('createCollection');
+    expect(intent?.params).toMatchObject({
+      name: '夯货',
+      rules: [{ field: 'score', op: 'equals', value: '夯' }],
+    });
+
+    const la = parseIntent('建相册 翻车：拉了', capabilities);
+    expect(la?.params).toMatchObject({
+      rules: [{ field: 'score', op: 'equals', value: '拉' }],
+    });
+  });
+
+  it('parses score curation intents', () => {
+    const cases: Array<[string, string]> = [
+      ['哪些拉了', '拉'],
+      ['哪些是夯的', '夯'],
+      ['把稳的找出来', '稳'],
+    ];
+    for (const [input, tier] of cases) {
+      const intent = parseIntent(input, capabilities);
+      expect(intent?.capabilityId).toBe('scoreCuration');
+      expect(intent?.params).toEqual({ tier });
+    }
+  });
+
   it('parses empty trash intents', () => {
     const intent = parseIntent('清空回收站', capabilities);
     expect(intent?.capabilityId).toBe('emptyTrash');

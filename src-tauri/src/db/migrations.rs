@@ -3,7 +3,7 @@ use rusqlite::Connection;
 use super::schema;
 
 /// Current schema version — bump when adding migrations.
-pub const SCHEMA_VERSION: i64 = 7;
+pub const SCHEMA_VERSION: i64 = 8;
 
 /// Run all pending migrations inside a single transaction.
 pub fn run_migrations(conn: &Connection) -> Result<(), rusqlite::Error> {
@@ -53,6 +53,7 @@ fn apply_migration(conn: &Connection, version: i64) -> Result<(), rusqlite::Erro
         5 => apply_v5(conn),
         6 => apply_v6(conn),
         7 => apply_v7(conn),
+        8 => apply_v8(conn),
         _ => Err(rusqlite::Error::InvalidQuery),
     }
 }
@@ -123,6 +124,20 @@ fn apply_v7(conn: &Connection) -> Result<(), rusqlite::Error> {
     Ok(())
 }
 
+fn apply_v8(conn: &Connection) -> Result<(), rusqlite::Error> {
+    // ALTER TABLE ADD COLUMN may fail if any column already exists after a
+    // downgrade+re-upgrade cycle (SQLite can't drop columns). Ignore the
+    // "duplicate column" error to keep this idempotent, like v3/v6.
+    match conn.execute_batch(schema::V8_ADD_SCORE_COLUMNS) {
+        Ok(()) => {}
+        Err(rusqlite::Error::SqliteFailure(e, Some(msg)))
+            if e.code == rusqlite::ErrorCode::Unknown && msg.contains("duplicate column") => {}
+        Err(e) => return Err(e),
+    }
+    conn.execute_batch(schema::V8_INDEX_SCORE_LABEL)?;
+    Ok(())
+}
+
 /// Roll back migrations from the current version down to `target`.
 /// Each revert runs inside its own transaction so partial progress is
 /// preserved if an intermediate step fails.
@@ -176,6 +191,10 @@ fn revert_migration(conn: &Connection, version: i64) -> Result<(), rusqlite::Err
             conn.execute_batch("DROP TABLE IF EXISTS analysis_history;")?;
             Ok(())
         }
+        8 => {
+            // SQLite cannot drop the score columns (no-op).
+            Ok(())
+        }
         7 => {
             conn.execute_batch("DROP TABLE IF EXISTS smart_collections;")?;
             Ok(())
@@ -217,7 +236,7 @@ mod tests {
         let conn = open_conn();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
-        assert_eq!(v, 7);
+        assert_eq!(v, 8);
     }
 
     #[test]
@@ -226,7 +245,7 @@ mod tests {
         run_migrations(&conn).unwrap();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
-        assert_eq!(v, 7);
+        assert_eq!(v, 8);
     }
 
     #[test]
@@ -244,7 +263,7 @@ mod tests {
         let conn = open_conn();
         // Migrate all the way up.
         run_migrations(&conn).unwrap();
-        assert_eq!(current_version(&conn).unwrap(), 7);
+        assert_eq!(current_version(&conn).unwrap(), 8);
 
         // Downgrade back to v1.
         downgrade_to(&conn, 1).unwrap();
@@ -289,6 +308,6 @@ mod tests {
 
         // Verify we can re-migrate back up.
         run_migrations(&conn).unwrap();
-        assert_eq!(current_version(&conn).unwrap(), 7);
+        assert_eq!(current_version(&conn).unwrap(), 8);
     }
 }

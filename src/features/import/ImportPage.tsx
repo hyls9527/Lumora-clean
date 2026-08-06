@@ -10,6 +10,7 @@ import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { t as tok } from '../../lib/tokens';
 import { detectComfyuiPath } from '../../lib/api/comfyui';
 import { getEmbeddingStats } from '../../lib/api/embeddings';
+import { scoreMissing } from '../../lib/api/aesthetic';
 import { importTargetsFromDrop } from '../../lib/dropPaths';
 
 interface ImportPageProps {
@@ -56,6 +57,10 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
           { name: folderPath.split(/[/\\]/).pop() ?? folderPath, status: 'done' },
           ...prev.slice(0, 9),
         ]);
+        const toScore = Math.min(Math.max(result.imported, 0), 50);
+        if (toScore > 0) {
+          void scoreMissing(toScore).catch(() => {});
+        }
         try {
           const stats = await getEmbeddingStats();
           setIndexHint(stats.missing > 0 ? stats.missing : null);

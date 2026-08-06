@@ -66,6 +66,13 @@ fn validate_rules(rules: &[SmartCollectionRule]) -> AppResult<()> {
                     .parse::<u32>()
                     .map_err(|_| AppError::InvalidInput("评分规则的值必须是数字".into()))?;
             }
+            ("score", "equals") => {
+                if !matches!(rule.value.trim(), "夯" | "稳" | "拉") {
+                    return Err(AppError::InvalidInput(
+                        "审美档规则的值必须是：夯 / 稳 / 拉".into(),
+                    ));
+                }
+            }
             ("date", "gte" | "lte") => validate_date(&rule.value)?,
             ("prompt", "contains") => {}
             ("tag", "equals") => {}
@@ -139,6 +146,16 @@ fn build_where(
                     "instr(lower(COALESCE(json_extract(i.metadata_json, '$.prompt'), '')), lower(?{next})) > 0"
                 ));
                 params.push(Box::new(rule.value.clone()));
+            }
+            ("score", "equals") => {
+                let value = rule.value.trim();
+                if !matches!(value, "夯" | "稳" | "拉") {
+                    return Err(AppError::InvalidInput(
+                        "审美档规则的值必须是：夯 / 稳 / 拉".into(),
+                    ));
+                }
+                conditions.push(format!("i.score_label = ?{next}"));
+                params.push(Box::new(value.to_string()));
             }
             ("tag", "equals") => {
                 conditions.push(format!(
@@ -695,6 +712,44 @@ mod tests {
             vec![rule("tag", "in", "  ,  ")],
         )
         .unwrap_err();
+        assert!(matches!(err, AppError::InvalidInput(_)));
+    }
+
+    #[test]
+    fn score_rule_matches_tiers() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "a", "png", "2025-01-01", 0, None);
+            insert_image(&conn, "b", "png", "2025-01-02", 0, None);
+            insert_image(&conn, "c", "png", "2025-01-03", 0, None);
+            conn.execute("UPDATE images SET score_label = '夯' WHERE id = 'a'", [])
+                .unwrap();
+            conn.execute("UPDATE images SET score_label = '拉' WHERE id = 'b'", [])
+                .unwrap();
+        }
+        let conn = db.conn().lock().unwrap();
+        let count = count_matching(&conn, &[rule("score", "equals", "夯")]).unwrap();
+        assert_eq!(count, 1);
+        let count = count_matching(&conn, &[rule("score", "equals", "拉")]).unwrap();
+        assert_eq!(count, 1);
+        let count = count_matching(&conn, &[rule("score", "equals", "稳")]).unwrap();
+        assert_eq!(count, 0);
+    }
+
+    #[test]
+    fn invalid_score_rule_rejected() {
+        let db = test_db();
+        let err = create_smart_collection_inner(
+            &db,
+            "Bad score".into(),
+            vec![rule("score", "equals", "神")],
+        )
+        .unwrap_err();
+        assert!(matches!(err, AppError::InvalidInput(_)));
+        let err =
+            create_smart_collection_inner(&db, "Bad op".into(), vec![rule("score", "gte", "夯")])
+                .unwrap_err();
         assert!(matches!(err, AppError::InvalidInput(_)));
     }
 

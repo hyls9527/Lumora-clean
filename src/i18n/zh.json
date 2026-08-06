@@ -379,6 +379,7 @@
     "summaryTagEquals": "标签 = {value}",
     "summaryTagIn": "标签属于 {value}",
     "fields": {
+      "score": "审美档",
       "model": "模型",
       "prompt": "Prompt",
       "rating": "评分",
@@ -386,6 +387,8 @@
       "format": "格式",
       "tag": "标签"
     },
+    "summaryScore": "审美 = {value}",
+    "scoreValueHint": "夯 / 稳 / 拉",
     "ops": {
       "equals": "等于",
       "contains": "包含",

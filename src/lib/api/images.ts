@@ -19,6 +19,12 @@ export interface TauriImageRecord {
   favorite: boolean;
   metadataJson: string | null;
   variantGroupId?: string | null;
+  hpsScore?: number | null;
+  hpsStyle?: string | null;
+  aestheticScore?: number | null;
+  scoringModel?: string | null;
+  scoredAt?: string | null;
+  scoreLabel?: string | null;
 }
 
 interface TauriPaginatedResult {
@@ -84,6 +90,12 @@ export function toImageRecord(raw: TauriImageRecord): ImageRecord {
     favorite: raw.favorite,
     deletedAt: raw.deletedAt ?? undefined,
     variantGroupId: raw.variantGroupId ?? undefined,
+    hpsScore: raw.hpsScore ?? undefined,
+    hpsStyle: raw.hpsStyle ?? undefined,
+    aestheticScore: raw.aestheticScore ?? undefined,
+    scoringModel: raw.scoringModel ?? undefined,
+    scoredAt: raw.scoredAt ?? undefined,
+    scoreLabel: raw.scoreLabel ?? undefined,
     model,
     prompt,
     tags,
