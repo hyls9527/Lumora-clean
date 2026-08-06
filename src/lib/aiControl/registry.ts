@@ -14,6 +14,7 @@ import {
   listSmartCollections,
   type SmartCollectionRule,
 } from '../api/smartCollections';
+import { moveScoreTierToTrash } from '../api/aesthetic';
 
 const PAGE_PATHS: Record<string, RoutePath> = {
   图库: '/gallery',
@@ -152,6 +153,22 @@ export const capabilities: Capability[] = [
       }
       deps.navigate('/collections');
       return `已筛出「${tier}」的图`;
+    },
+  },
+  {
+    id: 'moveScoreTierToTrash',
+    name: '把某档图移到回收站',
+    pattern: {
+      regex:
+        /^(?:把|将)\s*(夯|稳|拉|拉了)(?:的)?(?:图|作品)?(?:都)?(?:移|丢|送)(?:到|进)?(?:回收站|垃圾桶)$/,
+      extract: (m) => ({ tier: m[1] === '拉了' ? '拉' : m[1] }),
+      preview: (p) => `把「${String(p.tier)}」的图移到回收站`,
+    },
+    execute: async (params, deps) => {
+      const tier = String(params.tier);
+      const count = await moveScoreTierToTrash(tier);
+      deps.navigate('/trash');
+      return `已把 ${count} 张「${tier}」的图移到回收站`;
     },
   },
   {

@@ -25,3 +25,12 @@ export async function scoreMissing(
     remaining: result?.remaining ?? 0,
   };
 }
+
+/**
+ * Move every non-deleted image of a judgment tier (夯 / 稳 / 拉) to trash.
+ * Calls Tauri command `move_score_tier_to_trash`.
+ */
+export async function moveScoreTierToTrash(tier: string): Promise<number> {
+  const result = await invoke<number>('move_score_tier_to_trash', { tier });
+  return result ?? 0;
+}

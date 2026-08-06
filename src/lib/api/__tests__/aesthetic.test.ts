@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { scoreMissing } from '../aesthetic';
+import { moveScoreTierToTrash, scoreMissing } from '../aesthetic';
 
 vi.mock('../../tauri', () => ({
   invoke: vi.fn(),
@@ -25,5 +25,14 @@ describe('aesthetic API', () => {
     const result = await scoreMissing();
     expect(invoke).toHaveBeenCalledWith('score_missing_cmd', { limit: 5 });
     expect(result).toEqual({ processed: 0, remaining: 0 });
+  });
+
+  it('moves a score tier to trash', async () => {
+    vi.mocked(invoke).mockResolvedValue(3);
+    const count = await moveScoreTierToTrash('拉');
+    expect(invoke).toHaveBeenCalledWith('move_score_tier_to_trash', {
+      tier: '拉',
+    });
+    expect(count).toBe(3);
   });
 });

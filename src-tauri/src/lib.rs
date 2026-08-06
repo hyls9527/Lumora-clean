@@ -106,6 +106,7 @@ pub fn run() {
             commands::clip::clip_embed_text_cmd,
             commands::aesthetic::score_image_cmd,
             commands::aesthetic::score_missing_cmd,
+            commands::aesthetic::move_score_tier_to_trash,
             ollama::get_ollama_host,
             ollama::check_ollama_status,
             commands::backup::export_database,

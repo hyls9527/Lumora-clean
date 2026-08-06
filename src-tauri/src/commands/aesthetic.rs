@@ -193,6 +193,43 @@ pub async fn score_missing_cmd(
     })
 }
 
+/// Move every non-deleted image with the given judgment tier to trash.
+/// This is the AI-native "auto-curation" action: the AI preview confirms the
+/// batch, then the move happens in one transaction.
+pub fn move_score_tier_to_trash_inner(conn: &Connection, tier: &str) -> AppResult<u64> {
+    if !(tier == SCORE_LABEL_HANG || tier == SCORE_LABEL_WEN || tier == SCORE_LABEL_LA) {
+        return Err(AppError::InvalidInput(
+            "审美档必须是：夯 / 稳 / 拉".to_string(),
+        ));
+    }
+
+    let mut stmt = conn.prepare("SELECT id FROM images WHERE deleted = 0 AND score_label = ?1")?;
+    let ids: Vec<String> = stmt
+        .query_map(params![tier], |row| row.get(0))?
+        .filter_map(|r| r.ok())
+        .collect();
+    drop(stmt);
+
+    let tx = conn.unchecked_transaction()?;
+    let mut affected: u64 = 0;
+    for id in &ids {
+        let n = tx.execute(
+            "UPDATE images SET deleted = 1, deleted_at = datetime('now')
+             WHERE id = ?1 AND deleted = 0",
+            params![id],
+        )?;
+        affected += n as u64;
+    }
+    tx.commit()?;
+    Ok(affected)
+}
+
+#[tauri::command]
+pub fn move_score_tier_to_trash(db: tauri::State<'_, DbHandle>, tier: String) -> AppResult<u64> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    move_score_tier_to_trash_inner(&conn, tier.trim())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -334,5 +371,60 @@ mod tests {
         let missing = list_missing_score_images_db(&conn, 10).unwrap();
         assert_eq!(missing.len(), 1);
         assert_eq!(missing[0].0, "m1");
+    }
+
+    #[test]
+    fn move_score_tier_to_trash_moves_only_matching() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "m1");
+            insert_image(&conn, "m2");
+            insert_image(&conn, "m3");
+            conn.execute(
+                "UPDATE images SET score_label = '拉' WHERE id IN ('m1','m2')",
+                [],
+            )
+            .unwrap();
+            conn.execute("UPDATE images SET score_label = '夯' WHERE id = 'm3'", [])
+                .unwrap();
+        }
+
+        let conn = db.conn().lock().unwrap();
+        let affected = move_score_tier_to_trash_inner(&conn, SCORE_LABEL_LA).unwrap();
+        assert_eq!(affected, 2);
+
+        let in_trash: i64 = conn
+            .query_row("SELECT COUNT(*) FROM images WHERE deleted = 1", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert_eq!(in_trash, 2);
+
+        let still_la: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM images WHERE deleted = 0 AND score_label = '拉'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(still_la, 0);
+
+        let hang_kept: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM images WHERE deleted = 0 AND score_label = '夯'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(hang_kept, 1);
+    }
+
+    #[test]
+    fn move_score_tier_to_trash_rejects_invalid_tier() {
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        let err = move_score_tier_to_trash_inner(&conn, "神").unwrap_err();
+        assert!(matches!(err, AppError::InvalidInput(_)));
     }
 }

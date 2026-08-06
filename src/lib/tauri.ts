@@ -19,6 +19,7 @@ const WRITE_COMMANDS = new Set([
   'import_database',
   'batch_convert',
   'score_missing_cmd',
+  'move_score_tier_to_trash',
 ]);
 
 /** Registered callbacks invoked after write commands. */
@@ -77,6 +78,8 @@ function mockResponse(cmd: string): unknown {
     return { processed: 0, remaining: 0 };
   if (cmd === 'score_missing_cmd')
     return { processed: 0, remaining: 0 };
+  if (cmd === 'move_score_tier_to_trash')
+    return 0;
   if (cmd === 'get_lan_info')
     return { ip: '127.0.0.1', port: 8079, token: 'mock-token' };
   if (cmd === 'get_app_version') return '0.8.0';
@@ -100,6 +103,7 @@ let _loadAttempted = false;
 /** User-friendly error messages for common Tauri command failures */
 const ERROR_MESSAGES: Record<string, string> = {
   'score_missing_cmd': '审美评审失败',
+  'move_score_tier_to_trash': '批量移入回收站失败',
   'list_images': '加载图片列表失败',
   'list_images_filtered': '加载图片列表失败',
   'batch_rename': '批量重命名失败',

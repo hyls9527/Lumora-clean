@@ -31,6 +31,7 @@ describe('browser mock mode data contracts', () => {
       processed: 0,
       remaining: 0,
     });
+    expect(await invoke('move_score_tier_to_trash')).toBe(0);
     expect(await invoke('get_lan_info')).toMatchObject({
       ip: expect.any(String),
       port: expect.any(Number),

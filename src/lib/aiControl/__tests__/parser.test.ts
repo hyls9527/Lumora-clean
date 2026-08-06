@@ -69,6 +69,15 @@ describe('AI control intent parser', () => {
     }
   });
 
+  it('parses move-score-tier-to-trash intents', () => {
+    const intent = parseIntent('把拉的移到回收站', capabilities);
+    expect(intent?.capabilityId).toBe('moveScoreTierToTrash');
+    expect(intent?.params).toEqual({ tier: '拉' });
+    expect(parseIntent('把夯的丢垃圾桶', capabilities)?.params).toEqual({
+      tier: '夯',
+    });
+  });
+
   it('parses empty trash intents', () => {
     const intent = parseIntent('清空回收站', capabilities);
     expect(intent?.capabilityId).toBe('emptyTrash');

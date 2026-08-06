@@ -7,15 +7,17 @@ Engines (all optional, graceful degradation):
      CLIP ViT-L/14 + MLP -> absolute aesthetic score (0-10), drives the
      夯 / 稳 / 拉 judgment. Weights: sac+logos+ava1-l14-linearMSE.pth.
   2. HPS v2 (Apache-2.0)
-     Raw human-preference logit for a prompt. Only meaningful when comparing
-     images generated from the same prompt, so it is stored raw and never
-     used to fake an absolute tier.
+     Official checkpoint (xswu/HPSv2 on Hugging Face) + CLIP ViT-H-14, loaded
+     directly with open_clip. Raw human-preference logit for a prompt; only
+     meaningful when comparing images generated from the same prompt, so it is
+     stored raw and never used to fake an absolute tier.
 
 When no engine is usable the sidecar prints a JSON `error` and exits 0, so
 the Rust side can leave the image "unscored" instead of failing loudly.
 
-Note: first run downloads the CLIP backbone. In networks where
-huggingface.co is unreachable, set HF_ENDPOINT=https://hf-mirror.com first.
+Note: first run downloads the CLIP backbone. The sidecar defaults
+HF_ENDPOINT to https://hf-mirror.com (reliable in CN networks); set your own
+HF_ENDPOINT to override.
 """
 
 import json
@@ -25,12 +27,14 @@ import urllib.request
 from importlib.metadata import version as pkg_version
 from pathlib import Path
 
+if os.environ.get("HF_ENDPOINT") is None:
+    os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+
 SIDECAR_VERSION = "1.0.0"
 EXPECTED_DEPS = {
     "open-clip-torch": "~=2.30.0",
     "torch": "~=2.5.0",
     "Pillow": "~=11.0",
-    "hpsv2": "~=1.0.0",
 }
 
 WEIGHTS_FILENAME = "sac+logos+ava1-l14-linearMSE.pth"
@@ -96,6 +100,11 @@ class _AestheticMLP:
 
 # Global model cache: (clip_model, preprocess, mlp)
 _aesthetic = None
+# Global HPS v2 cache: (clip_model, preprocess, tokenizer)
+_hps = None
+
+HPS_REPO = "xswu/HPSv2"
+HPS_FILENAME = "HPS_v2_compressed.pt"
 
 
 def _ensure_weights() -> str:
@@ -174,23 +183,54 @@ def classify_style(image_path: str):
     return list(STYLE_TEXTS.keys())[idx]
 
 
+def _ensure_hps_weights() -> str:
+    cache = _cache_dir() / "hps"
+    for path in cache.rglob(HPS_FILENAME):
+        if path.is_file():
+            return str(path)
+    from huggingface_hub import hf_hub_download
+
+    return hf_hub_download(HPS_REPO, HPS_FILENAME, cache_dir=str(cache))
+
+
+def load_hps():
+    """Load HPS v2: CLIP ViT-H-14 + the official preference checkpoint."""
+    global _hps
+    if _hps is not None:
+        return _hps
+
+    import torch
+    import open_clip
+
+    # Random init is fine: the checkpoint below replaces every weight.
+    model, _, preprocess = open_clip.create_model_and_transforms(
+        "ViT-H-14", pretrained=None
+    )
+    checkpoint = torch.load(_ensure_hps_weights(), map_location="cpu")
+    model.load_state_dict(checkpoint["state_dict"])
+    model = model.to(_device()).eval()
+    tokenizer = open_clip.get_tokenizer("ViT-H-14")
+
+    _hps = (model, preprocess, tokenizer)
+    return _hps
+
+
 def hps_score(image_path: str, prompt: str):
     """Raw HPS v2 preference logit for a prompt; None when unavailable."""
     if not prompt or not prompt.strip():
         return None
-    try:
-        import torch
-        import hpsv2
 
-        result = hpsv2.score(image_path, prompt)
-        if isinstance(result, torch.Tensor):
-            result = result.detach().cpu()
-            if result.numel() == 1:
-                return float(result.item())
-            return float(result.flatten()[0].item())
-        return float(list(result)[0])
-    except Exception:
-        return None
+    import torch
+    from PIL import Image
+
+    model, preprocess, tokenizer = load_hps()
+    image = preprocess(Image.open(image_path).convert("RGB")).unsqueeze(0).to(_device())
+    text = tokenizer([prompt]).to(_device())
+    with torch.no_grad():
+        image_features = model.encode_image(image)
+        text_features = model.encode_text(text)
+        logits = image_features @ text_features.T
+        return float(torch.diagonal(logits)[0].item())
 
 
 def score_image(image_path: str, prompt: str) -> dict:
