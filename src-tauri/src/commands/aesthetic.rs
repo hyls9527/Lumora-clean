@@ -358,6 +358,82 @@ pub fn get_score_curation_summary(
     get_score_curation_summary_inner(&conn)
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BestVariantImage {
+    pub id: String,
+    pub file_name: String,
+    pub hps_score: Option<f64>,
+    pub aesthetic_score: Option<f64>,
+    pub score_label: Option<String>,
+    pub group_size: i64,
+}
+
+/// Pick the best image of the most recently imported variant group (same
+/// prompt). HPS v2 is only comparable within the same prompt, so it ranks
+/// first here; aesthetic score breaks ties.
+pub fn get_best_in_latest_variant_group_inner(
+    conn: &Connection,
+) -> AppResult<Option<BestVariantImage>> {
+    let group_id: Option<String> = conn
+        .query_row(
+            "SELECT variant_group_id FROM images
+             WHERE deleted = 0 AND variant_group_id IS NOT NULL
+             ORDER BY imported_at DESC LIMIT 1",
+            [],
+            |r| r.get(0),
+        )
+        .ok();
+    let Some(group_id) = group_id else {
+        return Ok(None);
+    };
+
+    let group_size: i64 = conn.query_row(
+        "SELECT COUNT(*) FROM images WHERE deleted = 0 AND variant_group_id = ?1",
+        params![group_id],
+        |r| r.get(0),
+    )?;
+
+    let mut stmt = conn.prepare(
+        "SELECT id, file_path, hps_score, aesthetic_score, score_label
+         FROM images
+         WHERE deleted = 0 AND variant_group_id = ?1",
+    )?;
+    let rows = stmt.query_map(params![group_id], |row| {
+        Ok(BestVariantImage {
+            id: row.get(0)?,
+            file_name: std::path::Path::new(&row.get::<_, String>(1)?)
+                .file_name()
+                .map(|n| n.to_string_lossy().to_string())
+                .unwrap_or_default(),
+            hps_score: row.get(2).ok(),
+            aesthetic_score: row.get(3).ok(),
+            score_label: row.get(4).ok(),
+            group_size,
+        })
+    })?;
+    let images: Vec<BestVariantImage> = rows.filter_map(|r| r.ok()).collect();
+
+    Ok(images.into_iter().max_by(|a, b| {
+        let key = |x: &BestVariantImage| {
+            (
+                x.hps_score.unwrap_or(f64::MIN),
+                x.aesthetic_score.unwrap_or(f64::MIN),
+            )
+        };
+        key(a)
+            .partial_cmp(&key(b))
+            .unwrap_or(std::cmp::Ordering::Equal)
+    }))
+}
+
+#[tauri::command]
+pub fn get_best_in_latest_variant_group(
+    db: tauri::State<'_, DbHandle>,
+) -> AppResult<Option<BestVariantImage>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    get_best_in_latest_variant_group_inner(&conn)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -624,5 +700,70 @@ mod tests {
         assert_eq!(summary.unscored, 1);
         assert_eq!(summary.recent_la.len(), 1);
         assert!(summary.recent_la[0].ends_with("c3.png"));
+    }
+
+    #[test]
+    fn best_in_latest_variant_group_ranks_by_hps() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            conn.execute(
+                "INSERT INTO variant_groups (id, prompt) VALUES ('g1', 'same prompt')",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "INSERT INTO variant_groups (id, prompt) VALUES ('g2', 'other prompt')",
+                [],
+            )
+            .unwrap();
+            insert_image(&conn, "v1");
+            insert_image(&conn, "v2");
+            insert_image(&conn, "v3");
+            conn.execute(
+                "UPDATE images SET variant_group_id = 'g1',
+                 imported_at = '2025-01-03T00:00:00Z',
+                 hps_score = 27.5, aesthetic_score = 7.0, score_label = '稳'
+                 WHERE id = 'v1'",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "UPDATE images SET variant_group_id = 'g1',
+                 imported_at = '2025-01-02T00:00:00Z',
+                 hps_score = 28.2, aesthetic_score = 8.0, score_label = '夯'
+                 WHERE id = 'v2'",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "UPDATE images SET variant_group_id = 'g2',
+                 imported_at = '2025-01-01T00:00:00Z'
+                 WHERE id = 'v3'",
+                [],
+            )
+            .unwrap();
+        }
+
+        let conn = db.conn().lock().unwrap();
+        let best = get_best_in_latest_variant_group_inner(&conn)
+            .unwrap()
+            .unwrap();
+        assert_eq!(best.id, "v2");
+        assert_eq!(best.group_size, 2);
+        assert_eq!(best.hps_score, Some(28.2));
+    }
+
+    #[test]
+    fn best_in_latest_variant_group_none_without_groups() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "solo");
+        }
+        let conn = db.conn().lock().unwrap();
+        assert!(get_best_in_latest_variant_group_inner(&conn)
+            .unwrap()
+            .is_none());
     }
 }

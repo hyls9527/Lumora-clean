@@ -111,3 +111,32 @@ export async function getScoreCurationSummary(): Promise<ScoreCurationSummary> {
     recentLa: result?.recentLa ?? [],
   };
 }
+
+export interface BestVariantImage {
+  id: string;
+  fileName: string;
+  hpsScore?: number;
+  aestheticScore?: number;
+  scoreLabel?: string;
+  groupSize: number;
+}
+
+/**
+ * Pick the best image of the most recently imported variant group (same
+ * prompt), ranked by HPS v2 then aesthetic.
+ * Calls Tauri command `get_best_in_latest_variant_group`.
+ */
+export async function getBestInLatestVariantGroup(): Promise<BestVariantImage | null> {
+  const result = await invoke<BestVariantImage | null>(
+    'get_best_in_latest_variant_group',
+  );
+  if (!result) return null;
+  return {
+    id: result.id,
+    fileName: result.fileName,
+    hpsScore: result.hpsScore ?? undefined,
+    aestheticScore: result.aestheticScore ?? undefined,
+    scoreLabel: result.scoreLabel ?? undefined,
+    groupSize: result.groupSize ?? 0,
+  };
+}

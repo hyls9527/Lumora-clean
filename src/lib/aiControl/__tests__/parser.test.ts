@@ -100,6 +100,17 @@ describe('AI control intent parser', () => {
     }
   });
 
+  it('parses best-in-variant-group intents', () => {
+    for (const input of [
+      '同 prompt 最夯的是哪张',
+      '这批变体里哪张最夯',
+      '同一个 prompt 里评分最高的是哪张',
+    ]) {
+      const intent = parseIntent(input, capabilities);
+      expect(intent?.capabilityId, input).toBe('bestInVariantGroup');
+    }
+  });
+
   it('parses empty trash intents', () => {
     const intent = parseIntent('清空回收站', capabilities);
     expect(intent?.capabilityId).toBe('emptyTrash');

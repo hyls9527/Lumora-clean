@@ -71,6 +71,7 @@ describe('browser mock mode data contracts', () => {
   it('uses null only where it is a valid semantic value', async () => {
     expect(await invoke('get_analysis_result_cmd')).toBeNull();
     expect(await invoke('get_best_scored_recent')).toBeNull();
+    expect(await invoke('get_best_in_latest_variant_group')).toBeNull();
     expect(await invoke('get_score_curation_summary')).toEqual({
       hang: 0,
       wen: 0,

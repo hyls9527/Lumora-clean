@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
+  getBestInLatestVariantGroup,
   getBestScoredRecent,
   getScoreCurationSummary,
   moveScoreTierToTrash,
@@ -95,5 +96,26 @@ describe('aesthetic API', () => {
       unscored: 1,
       recentLa: ['a.png', 'b.png'],
     });
+  });
+
+  it('fetches the best image in the latest variant group', async () => {
+    vi.mocked(invoke).mockResolvedValue({
+      id: 'v2',
+      fileName: 'v2.png',
+      hpsScore: 28.2,
+      aestheticScore: 8.0,
+      scoreLabel: '夯',
+      groupSize: 2,
+    });
+    const best = await getBestInLatestVariantGroup();
+    expect(invoke).toHaveBeenCalledWith('get_best_in_latest_variant_group');
+    expect(best?.fileName).toBe('v2.png');
+    expect(best?.hpsScore).toBe(28.2);
+    expect(best?.groupSize).toBe(2);
+  });
+
+  it('returns null when no variant group exists', async () => {
+    vi.mocked(invoke).mockResolvedValue(null);
+    expect(await getBestInLatestVariantGroup()).toBeNull();
   });
 });

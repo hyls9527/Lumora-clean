@@ -17,6 +17,7 @@ import {
 } from '../api/smartCollections';
 import {
   getBestScoredRecent,
+  getBestInLatestVariantGroup,
   getScoreCurationSummary,
   moveScoreTierToTrash,
   scoreBackfill,
@@ -250,6 +251,29 @@ export const capabilities: Capability[] = [
       }
       message += '。要我移进回收站吗？';
       return message;
+    },
+  },
+  {
+    id: 'bestInVariantGroup',
+    name: '同 prompt 最夯',
+    pattern: {
+      regex:
+        /^(?:(?:同 ?prompt|同 ?一个 ?prompt|同一 ?prompt|同款|这批变体|这个变体组|同一批)\s*(?:里|中)?\s*(?:最夯|最能打|评分最高|最好|最强)(?:的)?(?:是)?(?:哪张|哪一张|那张)?|(?:同 ?prompt|同 ?一个 ?prompt|同一 ?prompt|这批变体|这个变体组)\s*(?:里|中)?\s*(?:哪张|哪一张)(?:图|作品)?(?:最夯|最能打|评分最高|最好|最强))(?:图|作品)?$/,
+      extract: () => ({}),
+      preview: () => '找同 prompt 变体里最夯的图',
+    },
+    execute: async () => {
+      const best = await getBestInLatestVariantGroup();
+      if (!best) {
+        return '还没有可比较的变体组（需要同一 prompt 的多张图）';
+      }
+      const hps =
+        best.hpsScore != null ? `，HPS ${best.hpsScore.toFixed(1)}` : '';
+      const aesthetic =
+        best.aestheticScore != null
+          ? `，美学 ${best.aestheticScore.toFixed(1)}`
+          : '';
+      return `「${best.fileName}」是同 prompt 变体里最夯的${hps}${aesthetic}（组内共 ${best.groupSize} 张）`;
     },
   },
   {
