@@ -9,6 +9,7 @@ Element.prototype.scrollIntoView = vi.fn();
 
 // Mock the stores
 const mockClose = vi.fn();
+const mockNavigate = vi.fn();
 const mockCommands = [
   {
     id: 'nav-gallery',
@@ -44,10 +45,17 @@ vi.mock('../../../lib/i18n', () => ({
         noResults: '没有找到结果',
         sectionNavigation: '导航',
         sectionAction: '操作',
+        modeCommand: '命令',
+        modeAi: 'AI 控制',
+        aiPlaceholder: '说明你的意图...',
+        aiExamples: '试试：找月光的森林',
+        aiNoMatch: '没听懂',
+        aiRun: '执行',
       };
       return translations[key] ?? key;
     },
   })),
+  notifyLanguageChanged: vi.fn(),
 }));
 
 afterEach(() => {
@@ -61,38 +69,38 @@ beforeEach(() => {
 
 describe('CommandPalette', () => {
   it('renders when isOpen is true', () => {
-    render(<CommandPalette />);
+    render(<CommandPalette navigate={mockNavigate} />);
 
     expect(screen.getByPlaceholderText('搜索命令...')).toBeDefined();
   });
 
   it('renders navigation section', () => {
-    render(<CommandPalette />);
+    render(<CommandPalette navigate={mockNavigate} />);
 
     expect(screen.getByText('导航')).toBeDefined();
   });
 
   it('renders action section', () => {
-    render(<CommandPalette />);
+    render(<CommandPalette navigate={mockNavigate} />);
 
     expect(screen.getByText('操作')).toBeDefined();
   });
 
   it('renders all commands', () => {
-    render(<CommandPalette />);
+    render(<CommandPalette navigate={mockNavigate} />);
 
     expect(screen.getByText('创作者图库')).toBeDefined();
     expect(screen.getByText('导入图片')).toBeDefined();
   });
 
   it('renders shortcuts', () => {
-    render(<CommandPalette />);
+    render(<CommandPalette navigate={mockNavigate} />);
 
     expect(screen.getByText('⌘1')).toBeDefined();
   });
 
   it('filters commands when typing', () => {
-    render(<CommandPalette />);
+    render(<CommandPalette navigate={mockNavigate} />);
 
     const input = screen.getByPlaceholderText('搜索命令...');
     fireEvent.change(input, { target: { value: '导入' } });
@@ -102,7 +110,7 @@ describe('CommandPalette', () => {
   });
 
   it('shows no results message when no matches', () => {
-    render(<CommandPalette />);
+    render(<CommandPalette navigate={mockNavigate} />);
 
     const input = screen.getByPlaceholderText('搜索命令...');
     fireEvent.change(input, { target: { value: 'xyz123' } });
@@ -111,20 +119,20 @@ describe('CommandPalette', () => {
   });
 
   it('has listbox role for accessibility', () => {
-    render(<CommandPalette />);
+    render(<CommandPalette navigate={mockNavigate} />);
 
     expect(screen.getByRole('listbox')).toBeDefined();
   });
 
   it('has correct panel border radius', () => {
-    render(<CommandPalette />);
+    render(<CommandPalette navigate={mockNavigate} />);
 
     const panel = screen.getByRole('listbox').parentElement;
     expect(panel?.style.borderRadius).toBe('6px');
   });
 
   it('closes on Escape when it is the topmost modal', () => {
-    render(<CommandPalette />);
+    render(<CommandPalette navigate={mockNavigate} />);
     fireEvent.keyDown(screen.getByPlaceholderText('搜索命令...'), { key: 'Escape' });
     expect(mockClose).toHaveBeenCalledTimes(1);
   });
@@ -138,7 +146,7 @@ describe('CommandPalette', () => {
     render(
       <>
         <ModalBelow />
-        <CommandPalette />
+        <CommandPalette navigate={mockNavigate} />
       </>,
     );
 
@@ -149,7 +157,7 @@ describe('CommandPalette', () => {
   });
 
   it('wraps Tab focus within the palette panel', () => {
-    render(<CommandPalette />);
+    render(<CommandPalette navigate={mockNavigate} />);
     const input = screen.getByPlaceholderText('搜索命令...');
 
     // Focus the last focusable (a command button) and Tab forward to wrap.
@@ -158,9 +166,40 @@ describe('CommandPalette', () => {
     lastButton.focus();
 
     fireEvent.keyDown(lastButton, { key: 'Tab' });
-    expect(document.activeElement).toBe(input);
+    expect(document.activeElement).toBe(buttons[0]);
 
-    fireEvent.keyDown(input, { key: 'Tab', shiftKey: true });
+    fireEvent.keyDown(buttons[0], { key: 'Tab', shiftKey: true });
     expect(document.activeElement).toBe(lastButton);
+  });
+
+  it('switches to AI mode and shows parsed intent preview', () => {
+    render(<CommandPalette navigate={mockNavigate} />);
+
+    fireEvent.click(screen.getByText('AI 控制'));
+    const input = screen.getByPlaceholderText('说明你的意图...');
+    fireEvent.change(input, { target: { value: '找月光的森林' } });
+
+    expect(screen.getByText('语义搜索「月光的森林」')).toBeDefined();
+  });
+
+  it('shows no-match hint for unrecognized AI commands', () => {
+    render(<CommandPalette navigate={mockNavigate} />);
+
+    fireEvent.click(screen.getByText('AI 控制'));
+    const input = screen.getByPlaceholderText('说明你的意图...');
+    fireEvent.change(input, { target: { value: '随便说点什么' } });
+
+    expect(screen.getByText('没听懂')).toBeDefined();
+  });
+
+  it('executes a parsed navigation intent through AI mode', () => {
+    render(<CommandPalette navigate={mockNavigate} />);
+
+    fireEvent.click(screen.getByText('AI 控制'));
+    const input = screen.getByPlaceholderText('说明你的意图...');
+    fireEvent.change(input, { target: { value: '打开设置' } });
+    fireEvent.click(screen.getByText('执行'));
+
+    expect(mockNavigate).toHaveBeenCalledWith('/settings');
   });
 });

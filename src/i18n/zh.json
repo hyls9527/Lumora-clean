@@ -283,6 +283,13 @@
   "commandPalette": {
     "placeholder": "输入命令或搜索…",
     "ariaLabel": "命令面板",
+    "modeCommand": "命令",
+    "modeAi": "AI 控制",
+    "aiPlaceholder": "用一句话告诉 Lumora 你想做什么…",
+    "aiExamples": "试试：「找月光的森林」\n「建相册 高分：评分≥4」\n「清空回收站」\n「打开智能相册」",
+    "aiNoMatch": "这句指令我没听懂，换个说法试试",
+    "aiRun": "执行",
+    "aiLoading": "执行中…",
     "noResults": "未找到匹配命令",
     "sectionNavigation": "导航",
     "sectionAction": "操作",

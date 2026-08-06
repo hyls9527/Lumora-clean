@@ -146,7 +146,7 @@ function App() {
           {renderPage()}
         </div>
       </main>
-      <CommandPalette />
+      <CommandPalette navigate={navigate} />
       <DropOverlay isVisible={isDragging} />
       {isMobile && <MobileNav activeRoute={route} onNavigate={navigate} />}
       {!splashDone && <SplashScreen ready={appReady} onFinish={handleSplashFinish} />}
