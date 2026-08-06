@@ -76,3 +76,38 @@ pub async fn check_ollama_status(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Mutex;
+
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    #[test]
+    fn from_env_reads_ollama_host() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        std::env::set_var("OLLAMA_HOST", "http://example.com:1234");
+        let cfg = OllamaConfig::from_env();
+        assert_eq!(cfg.host(), "http://example.com:1234");
+        std::env::remove_var("OLLAMA_HOST");
+    }
+
+    #[test]
+    fn from_env_defaults_to_localhost() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        std::env::remove_var("OLLAMA_HOST");
+        let cfg = OllamaConfig::from_env();
+        assert_eq!(cfg.host(), "http://localhost:11434");
+    }
+
+    #[test]
+    fn url_joins_host_and_path() {
+        let cfg = OllamaConfig {
+            host: "http://localhost:11434".into(),
+            client: reqwest::Client::new(),
+        };
+        assert_eq!(cfg.url("/api/tags"), "http://localhost:11434/api/tags");
+        assert_eq!(cfg.url("health"), "http://localhost:11434health");
+    }
+}

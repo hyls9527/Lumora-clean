@@ -30,3 +30,14 @@ pub async fn set_setting(app: tauri::AppHandle, key: String, value: String) -> A
 pub fn get_app_version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn app_version_matches_cargo_manifest() {
+        assert_eq!(get_app_version(), env!("CARGO_PKG_VERSION"));
+        assert!(!get_app_version().is_empty());
+    }
+}

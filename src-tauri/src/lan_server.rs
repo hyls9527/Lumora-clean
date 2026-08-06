@@ -404,4 +404,119 @@ mod tests {
         let port = listener.local_addr().unwrap().port();
         assert!((8079..8090).contains(&port));
     }
+
+    #[test]
+    fn handlers_serve_health_images_tags_and_file() {
+        use axum::body::Body;
+        use axum::http::Request;
+        use tower::ServiceExt;
+
+        let db = crate::db::DbHandle::open_memory().unwrap();
+        {
+            let conn = db.conn().lock().unwrap();
+            conn.execute(
+                "INSERT INTO images
+                 (id, file_path, file_hash, file_size_kb, format, created_at, imported_at, rating, favorite)
+                 VALUES ('i1', '/tmp/lumora-nonexistent.png', 'h', 1, 'png',
+                         '2025-01-01', '2025-01-01T00:00:00Z', 3, 1)",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "INSERT INTO tags (id, name, color) VALUES ('t1', 'landscape', '#fff')",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "INSERT INTO image_tags (image_id, tag_id) VALUES ('i1', 't1')",
+                [],
+            )
+            .unwrap();
+        }
+
+        let state = ServerState {
+            db,
+            token: "token123".into(),
+        };
+        let app = Router::new()
+            .route("/health", get(health_handler))
+            .route("/api/images", get(images_handler))
+            .route("/api/images/{id}/file", get(image_file_handler))
+            .route("/api/tags", get(tags_handler))
+            .with_state(state);
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            let health = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri("/health")
+                        .body(Body::from(""))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(health.status(), 200);
+
+            let unauth = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri("/api/images")
+                        .body(Body::from(""))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(unauth.status(), 401);
+
+            let images = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri("/api/images?token=token123")
+                        .body(Body::from(""))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(images.status(), 200);
+            let body = axum::body::to_bytes(images.into_body(), usize::MAX)
+                .await
+                .unwrap();
+            let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+            assert_eq!(json["total"], 1);
+            assert_eq!(json["items"][0]["id"], "i1");
+            assert_eq!(json["items"][0]["rating"], 3);
+
+            let tags = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri("/api/tags?token=token123")
+                        .body(Body::from(""))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            let body = axum::body::to_bytes(tags.into_body(), usize::MAX)
+                .await
+                .unwrap();
+            let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+            assert_eq!(json[0]["name"], "landscape");
+
+            let missing_file = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri("/api/images/i1/file?token=token123")
+                        .body(Body::from(""))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(missing_file.status(), 404);
+        });
+    }
 }

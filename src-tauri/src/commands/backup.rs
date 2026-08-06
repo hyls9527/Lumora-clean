@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::Path;
 use tauri::State;
 
 use crate::db::DbHandle;
@@ -8,17 +8,17 @@ use crate::error::{AppError, AppResult};
 /// Export database to a user-selected location.
 #[tauri::command]
 pub async fn export_database(db: State<'_, DbHandle>, destination: String) -> AppResult<String> {
-    let db_path = db.path();
-    let dest = PathBuf::from(&destination);
+    export_database_inner(db.path(), Path::new(&destination))
+}
 
+fn export_database_inner(db_path: &Path, dest: &Path) -> AppResult<String> {
     // Ensure destination directory exists
     if let Some(parent) = dest.parent() {
         fs::create_dir_all(parent)
             .map_err(|e| AppError::Io(format!("Failed to create directory: {e}")))?;
     }
 
-    fs::copy(db_path, &dest)
-        .map_err(|e| AppError::Io(format!("Failed to export database: {e}")))?;
+    fs::copy(db_path, dest).map_err(|e| AppError::Io(format!("Failed to export database: {e}")))?;
 
     Ok(dest.to_string_lossy().to_string())
 }
@@ -27,9 +27,10 @@ pub async fn export_database(db: State<'_, DbHandle>, destination: String) -> Ap
 /// Writes to a staging file first, then replaces on restart.
 #[tauri::command]
 pub async fn import_database(db: State<'_, DbHandle>, source: String) -> AppResult<String> {
-    let db_path = db.path();
-    let src = PathBuf::from(&source);
+    import_database_inner(db.path(), Path::new(&source))
+}
 
+fn import_database_inner(db_path: &Path, src: &Path) -> AppResult<String> {
     if !src.exists() {
         return Err(AppError::InvalidInput(
             "Source file does not exist".to_string(),
@@ -38,7 +39,7 @@ pub async fn import_database(db: State<'_, DbHandle>, source: String) -> AppResu
 
     // Validate it's a SQLite file (magic bytes)
     let header =
-        fs::read(&src).map_err(|e| AppError::Io(format!("Failed to read source file: {e}")))?;
+        fs::read(src).map_err(|e| AppError::Io(format!("Failed to read source file: {e}")))?;
     if header.len() < 16 || &header[0..16] != b"SQLite format 3\0" {
         return Err(AppError::InvalidInput(
             "Source file is not a valid SQLite database".to_string(),
@@ -47,7 +48,7 @@ pub async fn import_database(db: State<'_, DbHandle>, source: String) -> AppResu
 
     // Write to staging file first to avoid corrupting active DB
     let staging = db_path.with_extension("db.import");
-    fs::copy(&src, &staging).map_err(|e| AppError::Io(format!("Failed to stage import: {e}")))?;
+    fs::copy(src, &staging).map_err(|e| AppError::Io(format!("Failed to stage import: {e}")))?;
 
     // Replace original — connection may hold WAL, but staging is safe
     fs::copy(&staging, db_path)
@@ -55,4 +56,61 @@ pub async fn import_database(db: State<'_, DbHandle>, source: String) -> AppResu
     let _ = fs::remove_file(&staging);
 
     Ok("Database imported successfully. Please restart the application.".to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn export_copies_db_file() {
+        let dir = tempfile::tempdir().unwrap();
+        let db_path = dir.path().join("lumora.db");
+        std::fs::write(&db_path, b"SQLite format 3\0test-data").unwrap();
+        let dest = dir.path().join("backup").join("lumora.db");
+
+        let result = export_database_inner(&db_path, &dest).unwrap();
+
+        assert!(dest.exists());
+        assert_eq!(std::fs::read(&dest).unwrap(), b"SQLite format 3\0test-data");
+        assert!(result.ends_with("lumora.db"));
+    }
+
+    #[test]
+    fn import_rejects_missing_source() {
+        let dir = tempfile::tempdir().unwrap();
+        let db_path = dir.path().join("lumora.db");
+        let err =
+            import_database_inner(&db_path, Path::new("C:/definitely/missing.db")).unwrap_err();
+        assert!(matches!(err, AppError::InvalidInput(_)));
+    }
+
+    #[test]
+    fn import_rejects_non_sqlite_header() {
+        let dir = tempfile::tempdir().unwrap();
+        let db_path = dir.path().join("lumora.db");
+        let src = dir.path().join("bad.db");
+        std::fs::write(&src, b"not sqlite").unwrap();
+
+        let err = import_database_inner(&db_path, &src).unwrap_err();
+        assert!(matches!(err, AppError::InvalidInput(_)));
+    }
+
+    #[test]
+    fn import_stages_and_replaces_db() {
+        let dir = tempfile::tempdir().unwrap();
+        let db_path = dir.path().join("lumora.db");
+        std::fs::write(&db_path, b"old").unwrap();
+        let src = dir.path().join("new.db");
+        std::fs::write(&src, b"SQLite format 3\0new-data").unwrap();
+
+        let msg = import_database_inner(&db_path, &src).unwrap();
+
+        assert!(msg.contains("restart"));
+        assert_eq!(
+            std::fs::read(&db_path).unwrap(),
+            b"SQLite format 3\0new-data"
+        );
+        assert!(!db_path.with_extension("db.import").exists());
+    }
 }

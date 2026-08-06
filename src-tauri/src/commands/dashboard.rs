@@ -7,7 +7,10 @@ use crate::schema::types::{DashboardStats, FormatCount, RatingCount, TagCount};
 #[tauri::command]
 pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> AppResult<DashboardStats> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    get_dashboard_stats_inner(&conn)
+}
 
+fn get_dashboard_stats_inner(conn: &rusqlite::Connection) -> AppResult<DashboardStats> {
     // Total images (non-deleted)
     let total_images: i64 =
         conn.query_row("SELECT COUNT(*) FROM images WHERE deleted = 0", [], |r| {
@@ -85,4 +88,64 @@ pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> AppResult<Dashboar
         top_tags,
         recent_imports,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::db::DbHandle;
+    use rusqlite::params;
+
+    #[test]
+    fn dashboard_stats_aggregate_correctly() {
+        let db = DbHandle::open_memory().unwrap();
+        {
+            let conn = db.conn().lock().unwrap();
+            for i in 0..7 {
+                conn.execute(
+                    "INSERT INTO images
+                     (id, file_path, file_hash, file_size_kb, format, created_at, imported_at, rating)
+                     VALUES (?1, ?2, 'h', 100, 'png', '2025-01-01', ?3, ?4)",
+                    params![
+                        format!("img-{i}"),
+                        format!("/{i}.png"),
+                        format!("2025-01-0{}T00:00:00Z", (i % 9) + 1),
+                        i % 5,
+                    ],
+                )
+                .unwrap();
+            }
+            // Deleted images are excluded from every aggregate.
+            conn.execute(
+                "INSERT INTO images
+                 (id, file_path, file_hash, file_size_kb, format, created_at, rating, deleted)
+                 VALUES ('del', '/del.png', 'h', 999, 'jpg', '2025-01-01', 0, 1)",
+                [],
+            )
+            .unwrap();
+            conn.execute("INSERT INTO tags (id, name) VALUES ('t1', 'landscape')", [])
+                .unwrap();
+            conn.execute(
+                "INSERT INTO image_tags (image_id, tag_id) VALUES ('img-0', 't1')",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "INSERT INTO image_tags (image_id, tag_id) VALUES ('img-1', 't1')",
+                [],
+            )
+            .unwrap();
+        }
+
+        let conn = db.conn().lock().unwrap();
+        let stats = get_dashboard_stats_inner(&conn).unwrap();
+        assert_eq!(stats.total_images, 7);
+        assert_eq!(stats.total_size_kb, 700);
+        assert_eq!(stats.format_counts[0].format, "png");
+        assert_eq!(stats.format_counts[0].count, 7);
+        assert_eq!(stats.rating_counts.len(), 5);
+        assert_eq!(stats.top_tags[0].name, "landscape");
+        assert_eq!(stats.top_tags[0].count, 2);
+        assert_eq!(stats.recent_imports.len(), 5);
+    }
 }
