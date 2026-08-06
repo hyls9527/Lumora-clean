@@ -13,6 +13,9 @@ Engines (all optional, graceful degradation):
 
 When no engine is usable the sidecar prints a JSON `error` and exits 0, so
 the Rust side can leave the image "unscored" instead of failing loudly.
+
+Note: first run downloads the CLIP backbone. In networks where
+huggingface.co is unreachable, set HF_ENDPOINT=https://hf-mirror.com first.
 """
 
 import json
@@ -76,7 +79,8 @@ class _AestheticMLP:
         )
 
     def load_state_dict(self, state):
-        self.layers.load_state_dict(state)
+        stripped = {k.replace("layers.", "", 1): v for k, v in state.items()}
+        self.layers.load_state_dict(stripped)
 
     def to(self, device):
         self.layers = self.layers.to(device)
@@ -115,7 +119,7 @@ def load_aesthetic():
     import open_clip
 
     model, _, preprocess = open_clip.create_model_and_transforms(
-        "ViT-L-14", pretrained="openai"
+        "ViT-L-14", pretrained="openai", force_quick_gelu=True
     )
     model = model.to(_device()).eval()
 
