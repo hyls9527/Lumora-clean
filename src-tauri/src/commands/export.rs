@@ -25,6 +25,16 @@ pub fn export_images(
     format: String,
     rename_template: Option<String>,
 ) -> AppResult<ExportResult> {
+    export_images_inner(&db, ids, dest_dir, format, rename_template)
+}
+
+fn export_images_inner(
+    db: &DbHandle,
+    ids: Vec<String>,
+    dest_dir: String,
+    format: String,
+    rename_template: Option<String>,
+) -> AppResult<ExportResult> {
     // Validate format early (fixes #10)
     let allowed = [
         "original", "png", "jpg", "jpeg", "webp", "avif", "bmp", "gif", "tiff", "tif",
@@ -107,6 +117,22 @@ pub fn export_images(
 #[allow(clippy::too_many_arguments)]
 pub fn batch_convert(
     db: tauri::State<'_, DbHandle>,
+    ids: Vec<String>,
+    format: String,
+    quality: Option<u8>,
+    max_width: Option<u32>,
+    max_height: Option<u32>,
+    dest_dir: Option<String>,
+    dry_run: bool,
+) -> AppResult<BatchConvertResult> {
+    batch_convert_inner(
+        &db, ids, format, quality, max_width, max_height, dest_dir, dry_run,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn batch_convert_inner(
+    db: &DbHandle,
     ids: Vec<String>,
     format: String,
     quality: Option<u8>,
@@ -1167,288 +1193,82 @@ mod tests {
         assert!(result.items[0].error.as_deref().unwrap().contains("不存在"));
     }
 
-    // ---------------------------------------------------------------------------
-    // Inner helper — replicates batch_convert logic without tauri::State
-    // so it can be tested with a plain &DbHandle
-    // ---------------------------------------------------------------------------
+    #[test]
+    fn export_images_copies_original() {
+        let (db, _dir) = setup_test_db();
+        let conn = db.conn().lock().unwrap();
+        let img_dir = tempdir().unwrap();
+        let p = img_dir.path().join("img.png");
+        insert_test_image(&conn, "id1", &p.to_string_lossy(), "png");
+        drop(conn);
 
-    #[allow(clippy::too_many_arguments)]
-    fn batch_convert_inner(
-        db: &DbHandle,
-        ids: Vec<String>,
-        format: String,
-        quality: Option<u8>,
-        max_width: Option<u32>,
-        max_height: Option<u32>,
-        dest_dir: Option<String>,
-        dry_run: bool,
-    ) -> AppResult<BatchConvertResult> {
-        // Validate format early
-        let allowed = [
-            "original", "png", "jpg", "jpeg", "webp", "avif", "bmp", "gif", "tiff", "tif",
-        ];
-        if !allowed.contains(&format.as_str()) {
-            return Err(AppError::InvalidInput(format!("不支持的格式: {format}")));
-        }
-        if let Some(q) = quality {
-            if q == 0 || q > 100 {
-                return Err(AppError::InvalidInput("质量参数必须在 1-100 之间".into()));
-            }
-        }
+        let out_dir = tempdir().unwrap();
+        let result = export_images_inner(
+            &db,
+            vec!["id1".into()],
+            out_dir.path().to_string_lossy().into_owned(),
+            "original".into(),
+            None,
+        )
+        .unwrap();
 
-        let opts = ConvertOptions {
-            format: format.clone(),
-            quality,
-            max_width,
-            max_height,
-        };
+        assert_eq!(result.success, 1);
+        assert_eq!(result.failed, 0);
+        assert!(out_dir.path().join("img.png").exists());
+    }
 
-        // Phase 1: load all records while holding the lock (DB only, no I/O)
-        struct ConvertTask {
-            id: String,
-            old_format: String,
-            file_path: String,
-            new_ext: String,
-            new_path: std::path::PathBuf,
-            old_path: std::path::PathBuf,
-            no_work: bool,
-            error: Option<String>,
-        }
+    #[test]
+    fn export_images_converts_format() {
+        let (db, _dir) = setup_test_db();
+        let conn = db.conn().lock().unwrap();
+        let img_dir = tempdir().unwrap();
+        let p = img_dir.path().join("img.png");
+        insert_test_image(&conn, "id1", &p.to_string_lossy(), "png");
+        drop(conn);
 
-        let tasks: Vec<ConvertTask> = {
-            let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-            ids.iter()
-                .map(|id| {
-                    let record = match conn.query_row(
-                        "SELECT * FROM images WHERE id = ?1",
-                        params![id],
-                        row_to_record,
-                    ) {
-                        Ok(r) => r,
-                        Err(_) => {
-                            return ConvertTask {
-                                id: id.clone(),
-                                old_format: String::new(),
-                                file_path: String::new(),
-                                new_ext: opts.format.clone(),
-                                new_path: std::path::PathBuf::new(),
-                                old_path: std::path::PathBuf::new(),
-                                no_work: false,
-                                error: Some(format!("图片不存在: {id}")),
-                            };
-                        }
-                    };
+        let out_dir = tempdir().unwrap();
+        let result = export_images_inner(
+            &db,
+            vec!["id1".into()],
+            out_dir.path().to_string_lossy().into_owned(),
+            "jpg".into(),
+            None,
+        )
+        .unwrap();
 
-                    let new_ext = resolve_extension(&record.format, &opts.format);
-                    let no_resize = opts.max_width.is_none() && opts.max_height.is_none();
+        assert_eq!(result.success, 1);
+        assert!(out_dir.path().join("img.jpg").exists());
+    }
 
-                    if opts.format == "original" && no_resize {
-                        return ConvertTask {
-                            id: id.clone(),
-                            old_format: record.format.clone(),
-                            file_path: record.file_path.clone(),
-                            new_ext: record.format.clone(),
-                            new_path: std::path::PathBuf::new(),
-                            old_path: std::path::PathBuf::new(),
-                            no_work: true,
-                            error: None,
-                        };
-                    }
+    #[test]
+    fn export_images_rejects_unknown_format() {
+        let (db, _dir) = setup_test_db();
+        let out_dir = tempdir().unwrap();
+        let err = export_images_inner(
+            &db,
+            vec!["id1".into()],
+            out_dir.path().to_string_lossy().into_owned(),
+            "heic".into(),
+            None,
+        )
+        .unwrap_err();
+        assert!(matches!(err, AppError::InvalidInput(_)));
+    }
 
-                    let old_path = std::path::PathBuf::from(&record.file_path);
-                    let new_path = if let Some(ref dir) = dest_dir {
-                        let dest = std::path::Path::new(dir);
-                        let stem = old_path
-                            .file_stem()
-                            .map(|s| s.to_string_lossy().into_owned())
-                            .unwrap_or_else(|| record.id.clone());
-                        dest.join(format!("{stem}.{new_ext}"))
-                    } else {
-                        old_path.with_extension(new_ext)
-                    };
+    #[test]
+    fn export_images_counts_missing_images_as_failed() {
+        let (db, _dir) = setup_test_db();
+        let out_dir = tempdir().unwrap();
+        let result = export_images_inner(
+            &db,
+            vec!["missing".into()],
+            out_dir.path().to_string_lossy().into_owned(),
+            "original".into(),
+            None,
+        )
+        .unwrap();
 
-                    if dest_dir.is_none() && opts.format == "original" && old_path == new_path {
-                        return ConvertTask {
-                            id: id.clone(),
-                            old_format: record.format.clone(),
-                            file_path: record.file_path.clone(),
-                            new_ext: record.format.clone(),
-                            new_path: std::path::PathBuf::new(),
-                            old_path,
-                            no_work: true,
-                            error: None,
-                        };
-                    }
-
-                    ConvertTask {
-                        id: id.clone(),
-                        old_format: record.format.clone(),
-                        file_path: record.file_path,
-                        new_ext: new_ext.to_string(),
-                        new_path,
-                        old_path,
-                        no_work: false,
-                        error: None,
-                    }
-                })
-                .collect()
-        };
-        // Lock released
-
-        // Phase 2: perform conversion I/O without holding the lock
-        struct ConvertOutcome {
-            id: String,
-            old_format: String,
-            new_format: String,
-            status: String,
-            error: Option<String>,
-            new_path_str: Option<String>,
-        }
-
-        let outcomes: Vec<ConvertOutcome> = tasks
-            .into_iter()
-            .map(|task| {
-                if let Some(err) = task.error {
-                    return ConvertOutcome {
-                        id: task.id,
-                        old_format: task.old_format,
-                        new_format: task.new_ext,
-                        status: "error".into(),
-                        error: Some(err),
-                        new_path_str: None,
-                    };
-                }
-                if task.no_work {
-                    return ConvertOutcome {
-                        id: task.id,
-                        old_format: task.old_format.clone(),
-                        new_format: task.old_format,
-                        status: "skipped".into(),
-                        error: None,
-                        new_path_str: None,
-                    };
-                }
-                if dry_run {
-                    return ConvertOutcome {
-                        id: task.id,
-                        old_format: task.old_format,
-                        new_format: task.new_ext,
-                        status: "ok".into(),
-                        error: None,
-                        new_path_str: None,
-                    };
-                }
-                if let Some(parent) = task.new_path.parent() {
-                    if let Err(e) = fs::create_dir_all(parent) {
-                        return ConvertOutcome {
-                            id: task.id,
-                            old_format: task.old_format,
-                            new_format: task.new_ext,
-                            status: "error".into(),
-                            error: Some(format!("创建目录失败: {e}")),
-                            new_path_str: None,
-                        };
-                    }
-                }
-                match export_single(&task.file_path, &task.new_path, &opts) {
-                    Ok(_) => {
-                        if task.new_path != task.old_path {
-                            let _ = fs::remove_file(&task.old_path);
-                        }
-                        ConvertOutcome {
-                            id: task.id,
-                            old_format: task.old_format,
-                            new_format: task.new_ext,
-                            status: "ok".into(),
-                            error: None,
-                            new_path_str: Some(task.new_path.to_string_lossy().into_owned()),
-                        }
-                    }
-                    Err(e) => ConvertOutcome {
-                        id: task.id,
-                        old_format: task.old_format,
-                        new_format: task.new_ext,
-                        status: "error".into(),
-                        error: Some(format!("转换失败: {e}")),
-                        new_path_str: None,
-                    },
-                }
-            })
-            .collect();
-
-        // Phase 3: update DB for successfully converted images
-        {
-            let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-            for outcome in &outcomes {
-                if outcome.status == "ok" && outcome.new_path_str.is_some() && !dry_run {
-                    let new_path_str = outcome.new_path_str.as_deref().unwrap();
-                    let new_format_str = if opts.format == "original" {
-                        outcome.old_format.clone()
-                    } else if opts.format == "jpg" || opts.format == "jpeg" {
-                        "jpeg".to_string()
-                    } else {
-                        opts.format.clone()
-                    };
-                    if let Err(e) = conn.execute(
-                        "UPDATE images SET file_path = ?1, format = ?2 WHERE id = ?3",
-                        params![new_path_str, new_format_str, outcome.id],
-                    ) {
-                        log::error!(
-                            "DB update failed for {} after conversion: {}",
-                            outcome.id,
-                            e
-                        );
-                    }
-                }
-            }
-        }
-
-        // Build result
-        let mut items: Vec<BatchConvertItem> = Vec::with_capacity(outcomes.len());
-        let mut converted = 0u32;
-        let mut skipped = 0u32;
-        let mut failed = 0u32;
-
-        for outcome in &outcomes {
-            match outcome.status.as_str() {
-                "ok" => {
-                    converted += 1;
-                    items.push(BatchConvertItem {
-                        id: outcome.id.clone(),
-                        old_format: outcome.old_format.clone(),
-                        new_format: outcome.new_format.clone(),
-                        status: "ok".into(),
-                        error: None,
-                    });
-                }
-                "skipped" => {
-                    skipped += 1;
-                    items.push(BatchConvertItem {
-                        id: outcome.id.clone(),
-                        old_format: outcome.old_format.clone(),
-                        new_format: outcome.new_format.clone(),
-                        status: "ok".into(),
-                        error: None,
-                    });
-                }
-                _ => {
-                    failed += 1;
-                    items.push(BatchConvertItem {
-                        id: outcome.id.clone(),
-                        old_format: outcome.old_format.clone(),
-                        new_format: outcome.new_format.clone(),
-                        status: "error".into(),
-                        error: outcome.error.clone(),
-                    });
-                }
-            }
-        }
-
-        Ok(BatchConvertResult {
-            items,
-            converted,
-            skipped,
-            failed,
-        })
+        assert_eq!(result.success, 0);
+        assert_eq!(result.failed, 1);
     }
 }
