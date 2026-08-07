@@ -162,6 +162,21 @@ export async function getScoreExplanation(
     'get_score_explanation',
     { fileName },
   );
+  return mapExplanation(result);
+}
+
+/**
+ * Explain the most recently imported scored image.
+ * Calls Tauri command `get_recent_score_explanation`.
+ */
+export async function getRecentScoreExplanation(): Promise<ScoreExplanation | null> {
+  const result = await invoke<ScoreExplanation | null>(
+    'get_recent_score_explanation',
+  );
+  return mapExplanation(result);
+}
+
+function mapExplanation(result: ScoreExplanation | null): ScoreExplanation | null {
   if (!result) return null;
   return {
     fileName: result.fileName,

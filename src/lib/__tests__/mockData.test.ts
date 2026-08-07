@@ -73,6 +73,7 @@ describe('browser mock mode data contracts', () => {
     expect(await invoke('get_best_scored_recent')).toBeNull();
     expect(await invoke('get_best_in_latest_variant_group')).toBeNull();
     expect(await invoke('get_score_explanation')).toBeNull();
+    expect(await invoke('get_recent_score_explanation')).toBeNull();
     expect(await invoke('get_score_curation_summary')).toEqual({
       hang: 0,
       wen: 0,

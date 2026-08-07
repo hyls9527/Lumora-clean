@@ -18,6 +18,7 @@ import {
 import {
   getBestScoredRecent,
   getBestInLatestVariantGroup,
+  getRecentScoreExplanation,
   getScoreExplanation,
   getScoreCurationSummary,
   moveScoreTierToTrash,
@@ -195,8 +196,9 @@ export const capabilities: Capability[] = [
       }
       const aesthetic =
         best.aestheticScore != null ? `，美学 ${best.aestheticScore.toFixed(1)}` : '';
-      const hps = best.hpsScore != null ? `，HPS ${best.hpsScore.toFixed(1)}` : '';
-      return `最夯的是「${best.fileName}」${aesthetic}${hps}（${best.scoreLabel ?? '未评分'}）`;
+      // Cross-prompt batch: HPS is not comparable across prompts, so only
+      // the absolute aesthetic score is shown here.
+      return `最夯的是「${best.fileName}」${aesthetic}（${best.scoreLabel ?? '未评分'}）`;
     },
   },
   {
@@ -282,19 +284,26 @@ export const capabilities: Capability[] = [
     name: '为什么这张图是夯/拉',
     pattern: {
       regex:
-        /^(?:为什么|为啥|凭啥)(.+?)(?:是|算|被评(?:成|为)?)(夯|稳|拉|拉了)(?:的)?(?:图|作品)?$/,
+        /^(?:为什么|为啥|凭啥)(.+?)(?:是|算|被评(?:成|为)?)(夯|稳|拉|拉了)(?:的)?(?:图|作品)?$|^(?:为什么|为啥|凭啥)(.+?)(?:会|能)?(?:出现在|在)?\s*这里$/,
       extract: (m) => ({
-        name: m[1].trim(),
-        tier: m[2] === '拉了' ? '拉' : m[2],
+        name: (m[1] ?? m[3] ?? '').trim(),
+        tier: m[2] ? (m[2] === '拉了' ? '拉' : m[2]) : '',
       }),
       preview: (p) =>
-        `解释「${String(p.name)}」为什么是${String(p.tier)}`,
+        p.tier
+          ? `解释「${String(p.name)}」为什么是${String(p.tier)}`
+          : `解释「${String(p.name)}」为什么在这里`,
     },
     execute: async (params) => {
       const name = String(params.name);
-      const explanation = await getScoreExplanation(name);
+      const looksLikeFile = /\.[a-zA-Z0-9]+$/.test(name);
+      const explanation = looksLikeFile
+        ? await getScoreExplanation(name)
+        : await getRecentScoreExplanation();
       if (!explanation) {
-        return `库里没找到「${name}」`;
+        return looksLikeFile
+          ? `库里没找到「${name}」`
+          : '还没有已评分的图，说「把评分补上」就行';
       }
       if (explanation.aestheticScore == null) {
         return `「${explanation.fileName}」还没评分，说「把评分补上」就行`;

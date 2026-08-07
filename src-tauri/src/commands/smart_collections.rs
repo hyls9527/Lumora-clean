@@ -51,6 +51,10 @@ fn validate_date(value: &str) -> AppResult<()> {
     Ok(())
 }
 
+fn is_score_tier(value: &str) -> bool {
+    matches!(value.trim(), "夯" | "稳" | "拉")
+}
+
 fn validate_rules(rules: &[SmartCollectionRule]) -> AppResult<()> {
     if rules.is_empty() {
         return Err(AppError::InvalidInput(
@@ -67,7 +71,7 @@ fn validate_rules(rules: &[SmartCollectionRule]) -> AppResult<()> {
                     .map_err(|_| AppError::InvalidInput("评分规则的值必须是数字".into()))?;
             }
             ("score", "equals") => {
-                if !matches!(rule.value.trim(), "夯" | "稳" | "拉") {
+                if !is_score_tier(&rule.value) {
                     return Err(AppError::InvalidInput(
                         "审美档规则的值必须是：夯 / 稳 / 拉".into(),
                     ));
@@ -149,7 +153,7 @@ fn build_where(
             }
             ("score", "equals") => {
                 let value = rule.value.trim();
-                if !matches!(value, "夯" | "稳" | "拉") {
+                if !is_score_tier(value) {
                     return Err(AppError::InvalidInput(
                         "审美档规则的值必须是：夯 / 稳 / 拉".into(),
                     ));

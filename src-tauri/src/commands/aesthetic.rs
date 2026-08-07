@@ -11,6 +11,50 @@ pub const SCORE_LABEL_HANG: &str = "夯";
 pub const SCORE_LABEL_WEN: &str = "稳";
 pub const SCORE_LABEL_LA: &str = "拉";
 
+struct BestImageRow {
+    id: String,
+    file_name: String,
+    hps_score: Option<f64>,
+    aesthetic_score: Option<f64>,
+    score_label: Option<String>,
+}
+
+fn row_to_best_image(row: &rusqlite::Row<'_>) -> rusqlite::Result<BestImageRow> {
+    Ok(BestImageRow {
+        id: row.get(0)?,
+        file_name: std::path::Path::new(&row.get::<_, String>(1)?)
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+            .unwrap_or_default(),
+        hps_score: row.get(2).ok(),
+        aesthetic_score: row.get(3).ok(),
+        score_label: row.get(4).ok(),
+    })
+}
+
+/// Pick the best row; `primary_hps` selects HPS-first ranking (same-prompt
+/// comparison), otherwise aesthetic-first (cross-prompt comparison).
+fn max_best_image(images: Vec<BestImageRow>, primary_hps: bool) -> Option<BestImageRow> {
+    images.into_iter().max_by(|a, b| {
+        let key = |x: &BestImageRow| {
+            if primary_hps {
+                (
+                    x.hps_score.unwrap_or(f64::MIN),
+                    x.aesthetic_score.unwrap_or(f64::MIN),
+                )
+            } else {
+                (
+                    x.aesthetic_score.unwrap_or(f64::MIN),
+                    x.hps_score.unwrap_or(f64::MIN),
+                )
+            }
+        };
+        key(a)
+            .partial_cmp(&key(b))
+            .unwrap_or(std::cmp::Ordering::Equal)
+    })
+}
+
 /// Raw response from the aesthetic sidecar.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct AestheticScoreResponse {
@@ -40,18 +84,7 @@ pub fn map_score_label(aesthetic_score: Option<f64>) -> Option<&'static str> {
 }
 
 fn get_sidecar_path() -> AppResult<String> {
-    // In development, use Python directly (same convention as CLIP sidecar).
-    let sidecar_py = std::env::current_dir()
-        .map_err(|e| AppError::External(format!("Failed to get current dir: {}", e)))?
-        .join("src-tauri")
-        .join("sidecar")
-        .join("aesthetic_server.py");
-    if sidecar_py.exists() {
-        return Ok(sidecar_py.to_string_lossy().to_string());
-    }
-    Err(AppError::External(
-        "Aesthetic sidecar not found".to_string(),
-    ))
+    crate::commands::sidecar_path_for("aesthetic_server.py")
 }
 
 /// Run the sidecar for one image. The sidecar degrades gracefully: when no
@@ -256,34 +289,21 @@ pub fn get_best_scored_recent_inner(
          ORDER BY imported_at DESC
          LIMIT ?1",
     )?;
-    let rows = stmt.query_map(params![batch], |row| {
-        Ok(BestScoredImage {
-            id: row.get(0)?,
-            file_name: std::path::Path::new(&row.get::<_, String>(1)?)
-                .file_name()
-                .map(|n| n.to_string_lossy().to_string())
-                .unwrap_or_default(),
-            hps_score: row.get(2).ok(),
-            aesthetic_score: row.get(3).ok(),
-            score_label: row.get(4).ok(),
-        })
-    })?;
-    let images: Vec<BestScoredImage> = rows.filter_map(|r| r.ok()).collect();
+    let rows = stmt.query_map(params![batch], row_to_best_image)?;
+    let images: Vec<BestImageRow> = rows.filter_map(|r| r.ok()).collect();
 
-    let best = images.into_iter().max_by(|a, b| {
-        let key = |x: &BestScoredImage| {
-            (
-                x.aesthetic_score.unwrap_or(f64::MIN),
-                x.hps_score.unwrap_or(f64::MIN),
-            )
-        };
-        key(a)
-            .partial_cmp(&key(b))
-            .unwrap_or(std::cmp::Ordering::Equal)
-    });
+    let best = max_best_image(images, false);
 
     match best {
-        Some(b) if b.aesthetic_score.is_some() || b.hps_score.is_some() => Ok(Some(b)),
+        Some(b) if b.aesthetic_score.is_some() || b.hps_score.is_some() => {
+            Ok(Some(BestScoredImage {
+                id: b.id,
+                file_name: b.file_name,
+                hps_score: b.hps_score,
+                aesthetic_score: b.aesthetic_score,
+                score_label: b.score_label,
+            }))
+        }
         _ => Ok(None),
     }
 }
@@ -299,8 +319,11 @@ pub fn get_best_scored_recent(
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ScoreCurationSummary {
+    /// 夯 (keep / sample candidate) count.
     pub hang: i64,
+    /// 稳 (usable but flawed) count.
     pub wen: i64,
+    /// 拉 (recycle) count.
     pub la: i64,
     pub unscored: i64,
     pub recent_la: Vec<String>,
@@ -399,31 +422,16 @@ pub fn get_best_in_latest_variant_group_inner(
          FROM images
          WHERE deleted = 0 AND variant_group_id = ?1",
     )?;
-    let rows = stmt.query_map(params![group_id], |row| {
-        Ok(BestVariantImage {
-            id: row.get(0)?,
-            file_name: std::path::Path::new(&row.get::<_, String>(1)?)
-                .file_name()
-                .map(|n| n.to_string_lossy().to_string())
-                .unwrap_or_default(),
-            hps_score: row.get(2).ok(),
-            aesthetic_score: row.get(3).ok(),
-            score_label: row.get(4).ok(),
-            group_size,
-        })
-    })?;
-    let images: Vec<BestVariantImage> = rows.filter_map(|r| r.ok()).collect();
+    let rows = stmt.query_map(params![group_id], row_to_best_image)?;
+    let images: Vec<BestImageRow> = rows.filter_map(|r| r.ok()).collect();
 
-    Ok(images.into_iter().max_by(|a, b| {
-        let key = |x: &BestVariantImage| {
-            (
-                x.hps_score.unwrap_or(f64::MIN),
-                x.aesthetic_score.unwrap_or(f64::MIN),
-            )
-        };
-        key(a)
-            .partial_cmp(&key(b))
-            .unwrap_or(std::cmp::Ordering::Equal)
+    Ok(max_best_image(images, true).map(|b| BestVariantImage {
+        id: b.id,
+        file_name: b.file_name,
+        hps_score: b.hps_score,
+        aesthetic_score: b.aesthetic_score,
+        score_label: b.score_label,
+        group_size,
     }))
 }
 
@@ -444,6 +452,34 @@ pub struct ScoreExplanation {
     pub score_label: Option<String>,
     pub percentile: Option<f64>,
     pub style_total: i64,
+}
+
+fn finish_explanation(
+    conn: &Connection,
+    file_path: String,
+    hps_score: Option<f64>,
+    hps_style: Option<String>,
+    aesthetic_score: Option<f64>,
+    score_label: Option<String>,
+) -> AppResult<ScoreExplanation> {
+    let mut explanation = ScoreExplanation {
+        file_name: std::path::Path::new(&file_path)
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+            .unwrap_or_default(),
+        hps_score,
+        hps_style,
+        aesthetic_score,
+        score_label,
+        percentile: None,
+        style_total: 0,
+    };
+    if let Some(score) = explanation.aesthetic_score {
+        let (percentile, total) = style_percentile(conn, explanation.hps_style.as_deref(), score)?;
+        explanation.percentile = percentile;
+        explanation.style_total = total;
+    }
+    Ok(explanation)
 }
 
 fn style_percentile(
@@ -501,31 +537,24 @@ pub fn get_score_explanation_inner(
                 OR instr(file_path, '\\' || ?1) > 0)
          ORDER BY imported_at DESC LIMIT 1",
     )?;
-    let mut explanation = stmt
+    let row = stmt
         .query_row(params![file_name], |row| {
-            Ok(ScoreExplanation {
-                file_name: std::path::Path::new(&row.get::<_, String>(0)?)
-                    .file_name()
-                    .map(|n| n.to_string_lossy().to_string())
-                    .unwrap_or_default(),
-                hps_score: row.get(1).ok(),
-                hps_style: row.get(2).ok(),
-                aesthetic_score: row.get(3).ok(),
-                score_label: row.get(4).ok(),
-                percentile: None,
-                style_total: 0,
-            })
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, Option<f64>>(1)?,
+                row.get::<_, Option<String>>(2)?,
+                row.get::<_, Option<f64>>(3)?,
+                row.get::<_, Option<String>>(4)?,
+            ))
         })
         .optional()?;
 
-    if let Some(ref mut exp) = explanation {
-        if let Some(score) = exp.aesthetic_score {
-            let (percentile, total) = style_percentile(conn, exp.hps_style.as_deref(), score)?;
-            exp.percentile = percentile;
-            exp.style_total = total;
-        }
+    match row {
+        Some((path, hps, style, aes, label)) => Ok(Some(finish_explanation(
+            conn, path, hps, style, aes, label,
+        )?)),
+        None => Ok(None),
     }
-    Ok(explanation)
 }
 
 #[tauri::command]
@@ -535,6 +564,46 @@ pub fn get_score_explanation(
 ) -> AppResult<Option<ScoreExplanation>> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     get_score_explanation_inner(&conn, &file_name)
+}
+
+/// Explain the most recently imported scored image: the context-free answer
+/// to "why is this image here".
+pub fn get_recent_score_explanation_inner(
+    conn: &Connection,
+) -> AppResult<Option<ScoreExplanation>> {
+    let mut stmt = conn.prepare(
+        "SELECT file_path, hps_score, hps_style, aesthetic_score, score_label
+         FROM images
+         WHERE deleted = 0
+           AND (aesthetic_score IS NOT NULL OR hps_score IS NOT NULL)
+         ORDER BY imported_at DESC LIMIT 1",
+    )?;
+    let row = stmt
+        .query_row([], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, Option<f64>>(1)?,
+                row.get::<_, Option<String>>(2)?,
+                row.get::<_, Option<f64>>(3)?,
+                row.get::<_, Option<String>>(4)?,
+            ))
+        })
+        .optional()?;
+
+    match row {
+        Some((path, hps, style, aes, label)) => Ok(Some(finish_explanation(
+            conn, path, hps, style, aes, label,
+        )?)),
+        None => Ok(None),
+    }
+}
+
+#[tauri::command]
+pub fn get_recent_score_explanation(
+    db: tauri::State<'_, DbHandle>,
+) -> AppResult<Option<ScoreExplanation>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    get_recent_score_explanation_inner(&conn)
 }
 
 #[cfg(test)]
@@ -934,5 +1003,44 @@ mod tests {
         assert!(get_score_explanation_inner(&conn, "ghost.png")
             .unwrap()
             .is_none());
+    }
+
+    #[test]
+    fn recent_score_explanation_picks_newest_scored_image() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "old");
+            insert_image(&conn, "new");
+            conn.execute(
+                "UPDATE images SET aesthetic_score = 6.0, hps_style = 'Photo',
+                 score_label = '稳', imported_at = '2025-01-01T00:00:00Z'
+                 WHERE id = 'old'",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "UPDATE images SET aesthetic_score = 8.0, hps_style = 'Animation',
+                 score_label = '夯', imported_at = '2025-02-01T00:00:00Z'
+                 WHERE id = 'new'",
+                [],
+            )
+            .unwrap();
+        }
+        let conn = db.conn().lock().unwrap();
+        let exp = get_recent_score_explanation_inner(&conn).unwrap().unwrap();
+        assert_eq!(exp.file_name, "new.png");
+        assert_eq!(exp.hps_style.as_deref(), Some("Animation"));
+    }
+
+    #[test]
+    fn recent_score_explanation_none_without_scored_images() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "plain");
+        }
+        let conn = db.conn().lock().unwrap();
+        assert!(get_recent_score_explanation_inner(&conn).unwrap().is_none());
     }
 }

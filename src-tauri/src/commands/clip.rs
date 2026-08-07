@@ -63,19 +63,7 @@ pub fn clip_embed_text(text: &str) -> AppResult<Vec<f64>> {
 
 /// Get the path to the CLIP sidecar executable.
 fn get_sidecar_path() -> AppResult<String> {
-    // In development, use Python directly
-    let sidecar_py = std::env::current_dir()
-        .map_err(|e| AppError::External(format!("Failed to get current dir: {}", e)))?
-        .join("src-tauri")
-        .join("sidecar")
-        .join("clip_server.py");
-
-    if sidecar_py.exists() {
-        return Ok(sidecar_py.to_string_lossy().to_string());
-    }
-
-    // In production, use compiled sidecar
-    Err(AppError::External("CLIP sidecar not found".to_string()))
+    crate::commands::sidecar_path_for("clip_server.py")
 }
 
 #[cfg(test)]

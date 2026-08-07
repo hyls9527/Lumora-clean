@@ -111,6 +111,7 @@ pub fn run() {
             commands::aesthetic::get_score_curation_summary,
             commands::aesthetic::get_best_in_latest_variant_group,
             commands::aesthetic::get_score_explanation,
+            commands::aesthetic::get_recent_score_explanation,
             ollama::get_ollama_host,
             ollama::check_ollama_status,
             commands::backup::export_database,
