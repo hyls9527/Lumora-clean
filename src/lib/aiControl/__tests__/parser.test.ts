@@ -111,6 +111,15 @@ describe('AI control intent parser', () => {
     }
   });
 
+  it('parses score-explanation intents', () => {
+    const intent = parseIntent('为什么 b.png 是拉的', capabilities);
+    expect(intent?.capabilityId).toBe('scoreExplanation');
+    expect(intent?.params).toEqual({ name: 'b.png', tier: '拉' });
+    const second = parseIntent('为啥这张图被评成夯', capabilities);
+    expect(second?.capabilityId).toBe('scoreExplanation');
+    expect(second?.params).toEqual({ name: '这张图', tier: '夯' });
+  });
+
   it('parses empty trash intents', () => {
     const intent = parseIntent('清空回收站', capabilities);
     expect(intent?.capabilityId).toBe('emptyTrash');

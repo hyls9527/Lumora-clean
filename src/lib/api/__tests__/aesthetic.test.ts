@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   getBestInLatestVariantGroup,
   getBestScoredRecent,
+  getScoreExplanation,
   getScoreCurationSummary,
   moveScoreTierToTrash,
   scoreBackfill,
@@ -117,5 +118,29 @@ describe('aesthetic API', () => {
   it('returns null when no variant group exists', async () => {
     vi.mocked(invoke).mockResolvedValue(null);
     expect(await getBestInLatestVariantGroup()).toBeNull();
+  });
+
+  it('fetches a score explanation with percentile', async () => {
+    vi.mocked(invoke).mockResolvedValue({
+      fileName: 'b.png',
+      hpsScore: 26.1,
+      hpsStyle: 'Photo',
+      aestheticScore: 6.2,
+      scoreLabel: '稳',
+      percentile: 50,
+      styleTotal: 2,
+    });
+    const exp = await getScoreExplanation('b.png');
+    expect(invoke).toHaveBeenCalledWith('get_score_explanation', {
+      fileName: 'b.png',
+    });
+    expect(exp?.fileName).toBe('b.png');
+    expect(exp?.percentile).toBe(50);
+    expect(exp?.styleTotal).toBe(2);
+  });
+
+  it('returns null when the image is not in the library', async () => {
+    vi.mocked(invoke).mockResolvedValue(null);
+    expect(await getScoreExplanation('ghost.png')).toBeNull();
   });
 });

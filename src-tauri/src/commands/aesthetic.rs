@@ -1,3 +1,4 @@
+use rusqlite::OptionalExtension;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 use std::process::Command;
@@ -434,6 +435,108 @@ pub fn get_best_in_latest_variant_group(
     get_best_in_latest_variant_group_inner(&conn)
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ScoreExplanation {
+    pub file_name: String,
+    pub hps_score: Option<f64>,
+    pub hps_style: Option<String>,
+    pub aesthetic_score: Option<f64>,
+    pub score_label: Option<String>,
+    pub percentile: Option<f64>,
+    pub style_total: i64,
+}
+
+fn style_percentile(
+    conn: &Connection,
+    style: Option<&str>,
+    score: f64,
+) -> AppResult<(Option<f64>, i64)> {
+    let total: i64 = match style {
+        Some(s) => conn.query_row(
+            "SELECT COUNT(*) FROM images
+             WHERE deleted = 0 AND hps_style = ?1 AND aesthetic_score IS NOT NULL",
+            params![s],
+            |r| r.get(0),
+        )?,
+        None => conn.query_row(
+            "SELECT COUNT(*) FROM images
+             WHERE deleted = 0 AND aesthetic_score IS NOT NULL",
+            [],
+            |r| r.get(0),
+        )?,
+    };
+    if total == 0 {
+        return Ok((None, 0));
+    }
+    let within: i64 = match style {
+        Some(s) => conn.query_row(
+            "SELECT COUNT(*) FROM images
+             WHERE deleted = 0 AND hps_style = ?1 AND aesthetic_score <= ?2",
+            params![s, score],
+            |r| r.get(0),
+        )?,
+        None => conn.query_row(
+            "SELECT COUNT(*) FROM images
+             WHERE deleted = 0 AND aesthetic_score <= ?1",
+            params![score],
+            |r| r.get(0),
+        )?,
+    };
+    Ok((Some(within as f64 / total as f64 * 100.0), total))
+}
+
+/// Explain why a specific image is 夯 / 稳 / 拉: style, scores and the
+/// within-style percentile. None means the image is not in the library.
+pub fn get_score_explanation_inner(
+    conn: &Connection,
+    file_name: &str,
+) -> AppResult<Option<ScoreExplanation>> {
+    let file_name = file_name.trim();
+    let mut stmt = conn.prepare(
+        "SELECT file_path, hps_score, hps_style, aesthetic_score, score_label
+         FROM images
+         WHERE deleted = 0
+           AND (?1 = '' OR file_path = ?1
+                OR instr(file_path, '/' || ?1) > 0
+                OR instr(file_path, '\\' || ?1) > 0)
+         ORDER BY imported_at DESC LIMIT 1",
+    )?;
+    let mut explanation = stmt
+        .query_row(params![file_name], |row| {
+            Ok(ScoreExplanation {
+                file_name: std::path::Path::new(&row.get::<_, String>(0)?)
+                    .file_name()
+                    .map(|n| n.to_string_lossy().to_string())
+                    .unwrap_or_default(),
+                hps_score: row.get(1).ok(),
+                hps_style: row.get(2).ok(),
+                aesthetic_score: row.get(3).ok(),
+                score_label: row.get(4).ok(),
+                percentile: None,
+                style_total: 0,
+            })
+        })
+        .optional()?;
+
+    if let Some(ref mut exp) = explanation {
+        if let Some(score) = exp.aesthetic_score {
+            let (percentile, total) = style_percentile(conn, exp.hps_style.as_deref(), score)?;
+            exp.percentile = percentile;
+            exp.style_total = total;
+        }
+    }
+    Ok(explanation)
+}
+
+#[tauri::command]
+pub fn get_score_explanation(
+    db: tauri::State<'_, DbHandle>,
+    file_name: String,
+) -> AppResult<Option<ScoreExplanation>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    get_score_explanation_inner(&conn, &file_name)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -763,6 +866,72 @@ mod tests {
         }
         let conn = db.conn().lock().unwrap();
         assert!(get_best_in_latest_variant_group_inner(&conn)
+            .unwrap()
+            .is_none());
+    }
+
+    #[test]
+    fn score_explanation_reports_percentile_within_style() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "a");
+            insert_image(&conn, "b");
+            insert_image(&conn, "c");
+            conn.execute(
+                "UPDATE images SET hps_style = 'Photo', aesthetic_score = 8.7,
+                 score_label = '夯' WHERE id = 'a'",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "UPDATE images SET hps_style = 'Photo', aesthetic_score = 6.2,
+                 score_label = '稳' WHERE id = 'b'",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "UPDATE images SET hps_style = 'Animation', aesthetic_score = 9.5,
+                 score_label = '夯' WHERE id = 'c'",
+                [],
+            )
+            .unwrap();
+        }
+
+        let conn = db.conn().lock().unwrap();
+        let exp = get_score_explanation_inner(&conn, "b.png")
+            .unwrap()
+            .unwrap();
+        assert_eq!(exp.file_name, "b.png");
+        assert_eq!(exp.hps_style.as_deref(), Some("Photo"));
+        assert_eq!(exp.aesthetic_score, Some(6.2));
+        // Within Photo (2 scored images), 6.2 beats only itself -> 50%.
+        assert!((exp.percentile.unwrap() - 50.0).abs() < 1e-9);
+        assert_eq!(exp.style_total, 2);
+    }
+
+    #[test]
+    fn score_explanation_marks_unscored_images() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "plain");
+        }
+        let conn = db.conn().lock().unwrap();
+        let exp = get_score_explanation_inner(&conn, "plain.png")
+            .unwrap()
+            .unwrap();
+        assert_eq!(exp.file_name, "plain.png");
+        assert!(exp.aesthetic_score.is_none());
+        assert!(exp.percentile.is_none());
+        assert_eq!(exp.style_total, 0);
+    }
+
+    #[test]
+    fn score_explanation_returns_none_for_missing_image() {
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        assert!(get_score_explanation_inner(&conn, "ghost.png")
             .unwrap()
             .is_none());
     }

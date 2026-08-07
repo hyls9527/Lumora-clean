@@ -18,6 +18,7 @@ import {
 import {
   getBestScoredRecent,
   getBestInLatestVariantGroup,
+  getScoreExplanation,
   getScoreCurationSummary,
   moveScoreTierToTrash,
   scoreBackfill,
@@ -274,6 +275,41 @@ export const capabilities: Capability[] = [
           ? `，美学 ${best.aestheticScore.toFixed(1)}`
           : '';
       return `「${best.fileName}」是同 prompt 变体里最夯的${hps}${aesthetic}（组内共 ${best.groupSize} 张）`;
+    },
+  },
+  {
+    id: 'scoreExplanation',
+    name: '为什么这张图是夯/拉',
+    pattern: {
+      regex:
+        /^(?:为什么|为啥|凭啥)(.+?)(?:是|算|被评(?:成|为)?)(夯|稳|拉|拉了)(?:的)?(?:图|作品)?$/,
+      extract: (m) => ({
+        name: m[1].trim(),
+        tier: m[2] === '拉了' ? '拉' : m[2],
+      }),
+      preview: (p) =>
+        `解释「${String(p.name)}」为什么是${String(p.tier)}`,
+    },
+    execute: async (params) => {
+      const name = String(params.name);
+      const explanation = await getScoreExplanation(name);
+      if (!explanation) {
+        return `库里没找到「${name}」`;
+      }
+      if (explanation.aestheticScore == null) {
+        return `「${explanation.fileName}」还没评分，说「把评分补上」就行`;
+      }
+      const aesthetic = explanation.aestheticScore.toFixed(1);
+      const hps =
+        explanation.hpsScore != null
+          ? `，HPS ${explanation.hpsScore.toFixed(1)}`
+          : '';
+      const classLabel = explanation.hpsStyle ?? '全库';
+      const percentile =
+        explanation.percentile != null
+          ? `，在${classLabel}类里超过 ${Math.round(explanation.percentile)}% 的图（同类 ${explanation.styleTotal} 张）`
+          : '';
+      return `「${explanation.fileName}」是「${explanation.scoreLabel ?? '未评分'}」：美学 ${aesthetic}${hps}${percentile}`;
     },
   },
   {

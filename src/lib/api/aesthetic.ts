@@ -140,3 +140,36 @@ export async function getBestInLatestVariantGroup(): Promise<BestVariantImage | 
     groupSize: result.groupSize ?? 0,
   };
 }
+
+export interface ScoreExplanation {
+  fileName: string;
+  hpsScore?: number;
+  hpsStyle?: string;
+  aestheticScore?: number;
+  scoreLabel?: string;
+  percentile?: number;
+  styleTotal: number;
+}
+
+/**
+ * Explain why a specific image is 夯 / 稳 / 拉 (style + within-style
+ * percentile). Calls Tauri command `get_score_explanation`.
+ */
+export async function getScoreExplanation(
+  fileName: string,
+): Promise<ScoreExplanation | null> {
+  const result = await invoke<ScoreExplanation | null>(
+    'get_score_explanation',
+    { fileName },
+  );
+  if (!result) return null;
+  return {
+    fileName: result.fileName,
+    hpsScore: result.hpsScore ?? undefined,
+    hpsStyle: result.hpsStyle ?? undefined,
+    aestheticScore: result.aestheticScore ?? undefined,
+    scoreLabel: result.scoreLabel ?? undefined,
+    percentile: result.percentile ?? undefined,
+    styleTotal: result.styleTotal ?? 0,
+  };
+}
