@@ -2,7 +2,7 @@
 
 All notable changes to Lumora are documented here.
 
-## v0.9.0 (unreleased)
+## v0.9.0 (2026-08-08)
 
 ### Added
 - 智能收藏（规则自动分组）：模型 / 评分 / 格式 / Prompt / 标签 5 类筛选规则，可组合（AND）实时匹配；列表卡片显示规则摘要与命中数，详情页展示图片网格并支持分页；侧边栏新增"智能收藏"入口
@@ -13,6 +13,20 @@ All notable changes to Lumora are documented here.
 
 ### Tests
 - 前端 692 → 700 测试；Rust 129 → 137 测试
+
+### AI 原生评分体系（夯 → 拉）
+- 三档判断层：improved-aesthetic-predictor 0-10 分档（夯 ≥8.5 / 稳 ≥6.0 / 拉 <6.0），HPS v2 直连官方检查点提供同 prompt 偏好分（Apache-2.0，无 AGPL 依赖）
+- 数据库 v8 评分字段（hps_score / hps_style / aesthetic_score / scoring_model / scored_at / score_label）与智能收藏 score 规则
+- AI 原生控制：建相册夯/稳/拉、哪些拉了、把拉的移到回收站、补评分（全库回填）、回收建议、这批最夯、同 prompt 变体组最夯、为什么这张图是夯/拉（同类百分位解释）
+- 导入后自动评分（上限 50）+ 后台全库回填；模型不可用时优雅降级「未评分」
+
+### 工程化
+- CI 新增 Python sidecar 单元测试门禁（12 测试）
+- Rust llvm-cov 覆盖率门槛：行 ≥77 / 函数 ≥70 / 区域 ≥77；前端覆盖率门槛保持（70/70/55/70）
+- 修复测试副本假覆盖：export/batch_convert 改为真实命令测试；补齐 trash / rename / dashboard / backup / settings / ollama / lan handler / clip 解析 / JPEG/WebP 探测测试
+
+### Tests
+- 前端 738 测试；Rust 197 测试；Python sidecar 12 测试；tsc / fmt / clippy 全净
 
 ## v0.8.1 (2026-08-02)
 
