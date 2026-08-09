@@ -111,6 +111,19 @@ powershell -NoProfile -ExecutionPolicy Bypass -File test-vm/scripts/smoke-instal
 - AiAnalysisSection：store selector `?? []` 每次返回新空数组，useSyncExternalStore
   无限重渲染（打开详情崩溃）。
 
+## 功能链路 E2E（cdp-features.mjs）
+
+带真实元数据（A1111 parameters：prompt/model/sampler）的图片，验证：
+按评分排序、标签创建→图片关联→删除、精确搜索（moonlight 命中）、批量选择并删除。
+
+验证结果（2026-08-10）：5/5 通过。
+
+期间修复：SearchPage 五处 i18n key 双重前缀（`tT("search.searchResults")` 之类），
+导致 aria-label/title 变成字面 key。
+
+已知产品缺口：`add_tag_to_image` 写入的 image_tags 关联在 UI 详情/卡片没有展示路径
+（前端 ImageRecord.tags 只来自 metadata_json），标签管理页创建的标签无法在图片上看到。
+
 自动应答：`answer/autounattend.xml` + `answer/vmwaretools-setup.bat`（首登静默装 Tools），
 打包好的 `answer.iso` 也保留着。
 

@@ -76,3 +76,8 @@ e2e-desktop:
 # 前置：同上 + VM 内 D:\lumora-test-images 有测试图片
 e2e-dataflow:
     node scripts/cdp-dataflow.mjs
+
+# VM 桌面功能链路 E2E（排序/标签/精确搜索/批量删除）
+# 前置：同上 + VM 内 D:\lumora-test-images-meta 有带元数据的测试图片
+e2e-features:
+    node scripts/cdp-features.mjs

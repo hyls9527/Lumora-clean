@@ -198,7 +198,7 @@ export function SearchPage() {
               <select
                 value={filters.searchField}
                 onChange={(e) => setSearchField(e.target.value)}
-                aria-label={tT("search.searchField")}
+                aria-label={tT('searchField')}
                 style={{
                   padding: isMobile ? '12px 10px' : '14px 12px',
                   fontSize: 13,
@@ -398,7 +398,7 @@ export function SearchPage() {
             >
               尝试使用更具体的画面描述，如风格、色调、构图。
               <br />
-              也可以降低{tT("search.similarityThreshold")}，或切换到以图搜图模式。
+              也可以降低{tT('similarityThreshold')}，或切换到以图搜图模式。
             </div>
           </div>
         )}
@@ -413,7 +413,7 @@ export function SearchPage() {
 
         {/* Results grid */}
         {!currentLoading && !currentError && paginatedResults.length > 0 && (
-          <section aria-label={tT("search.searchResults")}>
+          <section aria-label={tT('searchResults')}>
             <div
               style={{
                 display: 'grid',
@@ -460,11 +460,11 @@ export function SearchPage() {
 
         {/* High similarity compare */}
         {paginatedResults.some((r) => (r.similarity ?? 0) >= 90) && (
-          <section aria-label={tT("search.highSimilarityCompare")} style={{ marginTop: 32, borderTop: `1px solid ${tok.border}`, borderBottom: `1px solid ${tok.border}`, padding: '12px 0' }}>
-            <Collapsible title={tT("search.highSimilarityCompare")}>
+          <section aria-label={tT('highSimilarityCompare')} style={{ marginTop: 32, borderTop: `1px solid ${tok.border}`, borderBottom: `1px solid ${tok.border}`, padding: '12px 0' }}>
+            <Collapsible title={tT('highSimilarityCompare')}>
               <div style={{ padding: '32px 0', textAlign: 'center' }}>
                 <p style={{ fontSize: 13, color: tok.textSecondary }}>
-                  {tT("search.selectTwoImages")}
+                  {tT('selectTwoImages')}
                 </p>
               </div>
             </Collapsible>
