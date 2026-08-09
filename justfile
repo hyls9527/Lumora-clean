@@ -62,3 +62,7 @@ vm-smoke:
 # VM 便携版冒烟
 vm-portable:
     powershell -NoProfile -ExecutionPolicy Bypass -File test-vm/scripts/smoke-install.ps1 -Portable
+
+# 浏览器真实交互 E2E（Playwright + 系统 Edge）
+e2e:
+    npx playwright test

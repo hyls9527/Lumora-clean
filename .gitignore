@@ -59,3 +59,7 @@ test-vm/archive/
 test-vm/screenshots/
 test-vm/answer.iso
 test-vm/results/
+
+# Playwright 产物
+playwright-report/
+test-results/
