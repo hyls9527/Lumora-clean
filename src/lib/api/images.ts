@@ -25,6 +25,8 @@ export interface TauriImageRecord {
   scoringModel?: string | null;
   scoredAt?: string | null;
   scoreLabel?: string | null;
+  /** Tags associated via image_tags table (display names). */
+  tags?: string[];
 }
 
 interface TauriPaginatedResult {
@@ -77,6 +79,10 @@ function parseMetadata(json: string | null): {
 /** 将 Tauri 记录转换为前端 ImageRecord */
 export function toImageRecord(raw: TauriImageRecord): ImageRecord {
   const { model, prompt, tags, negativePrompt, steps, sampler, cfgScale, seed } = parseMetadata(raw.metadataJson);
+  // 优先后端 image_tags 关联，合并 metadata 标签并去重
+  const mergedTags = Array.from(
+    new Set([...(raw.tags ?? []), ...tags]),
+  );
   return {
     id: raw.id,
     filePath: raw.filePath,
@@ -98,7 +104,7 @@ export function toImageRecord(raw: TauriImageRecord): ImageRecord {
     scoreLabel: raw.scoreLabel ?? undefined,
     model,
     prompt,
-    tags,
+    tags: mergedTags,
     negativePrompt,
     steps,
     sampler,

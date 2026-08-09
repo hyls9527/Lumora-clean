@@ -2,7 +2,7 @@ use rusqlite::params;
 
 use crate::db::DbHandle;
 use crate::error::AppResult;
-use crate::schema::types::{row_to_record, ImageRecord};
+use crate::schema::types::{attach_tags, row_to_record, ImageRecord};
 
 // ---------------------------------------------------------------------------
 // Commands
@@ -23,6 +23,8 @@ pub fn search_images(db: tauri::State<'_, DbHandle>, query: String) -> AppResult
     let items = stmt
         .query_map(params![escaped], row_to_record)?
         .collect::<Result<Vec<_>, _>>()?;
+    let mut items = items;
+    attach_tags(&conn, &mut items)?;
     Ok(items)
 }
 
@@ -48,6 +50,8 @@ pub fn search_images_advanced(
         let items = stmt
             .query_map(params![escaped], row_to_record)?
             .collect::<Result<Vec<_>, _>>()?;
+        let mut items = items;
+        attach_tags(&conn, &mut items)?;
         return Ok(items);
     }
 
@@ -64,6 +68,8 @@ pub fn search_images_advanced(
         let items = stmt
             .query_map(params![seed_val], row_to_record)?
             .collect::<Result<Vec<_>, _>>()?;
+        let mut items = items;
+        attach_tags(&conn, &mut items)?;
         return Ok(items);
     }
 
@@ -89,6 +95,8 @@ pub fn search_images_advanced(
     let items = stmt
         .query_map(params![json_path, pattern], row_to_record)?
         .collect::<Result<Vec<_>, _>>()?;
+    let mut items = items;
+    attach_tags(&conn, &mut items)?;
     Ok(items)
 }
 

@@ -768,6 +768,7 @@ mod tests {
             scoring_model: None,
             scored_at: None,
             score_label: None,
+            tags: vec![],
         }
     }
 

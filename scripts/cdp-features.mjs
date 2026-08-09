@@ -80,16 +80,31 @@ async function run() {
       imageId: firstId,
       tagId: tag.id,
     });
-    const imageTags = await tauriInvoke(page, 'get_image_tags', {
-      imageId: firstId,
-    });
-    if (!imageTags.some((x) => x.name === '测试标签')) {
-      throw new Error('图片标签关联未写入');
-    }
-    record('标签创建→图片关联（后端真实写入）', true);
+    // 回图库刷新：卡片与详情应真实展示关联标签
+    await sidebar
+      .getByRole('button', { name: '创作者图库', exact: true })
+      .click();
+    await page
+      .getByRole('heading', { name: '创作者图库' })
+      .waitFor({ timeout: 15_000 });
+    await waitCards(page, 3);
+    await page
+      .locator('[data-image-id]')
+      .first()
+      .getByText('测试标签', { exact: true })
+      .waitFor({ timeout: 10_000 });
+    await page.locator('[data-image-id]').first().click();
+    await page.waitForTimeout(500);
+    await page.keyboard.press('Enter');
+    const dialog = page.getByRole('dialog', { name: '图片详情' });
+    await dialog.waitFor({ timeout: 10_000 });
+    await dialog.getByText('测试标签', { exact: true }).waitFor({ timeout: 10_000 });
+    await page.keyboard.press('Escape');
+    await dialog.waitFor({ state: 'detached', timeout: 10_000 });
+    record('标签创建→关联→卡片与详情真实展示', true);
   } catch (e) {
     await page.keyboard.press('Escape').catch(() => {});
-    record('标签创建→图片关联（后端真实写入）', false, e.message.split('\n')[0]);
+    record('标签创建→关联→卡片与详情真实展示', false, e.message.split('\n')[0]);
   }
 
   // 3. 标签删除（标签页）

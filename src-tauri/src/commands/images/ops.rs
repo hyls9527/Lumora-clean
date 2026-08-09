@@ -2,7 +2,7 @@ use rusqlite::params;
 
 use crate::db::DbHandle;
 use crate::error::{AppError, AppResult};
-use crate::schema::types::{row_to_record, ImageRecord, PaginatedResult};
+use crate::schema::types::{attach_tags, row_to_record, ImageRecord, PaginatedResult};
 
 /// Return base64-encoded image data for a given file_path.
 /// Falls back when Tauri's asset protocol is not available.
@@ -110,6 +110,8 @@ pub fn list_images(
     let items = stmt
         .query_map(params![per_page, offset], row_to_record)?
         .collect::<Result<Vec<_>, _>>()?;
+    let mut items = items;
+    attach_tags(&conn, &mut items)?;
     Ok(PaginatedResult {
         items,
         total,
@@ -151,6 +153,8 @@ pub fn list_favorites(db: tauri::State<'_, DbHandle>) -> AppResult<Vec<ImageReco
     let items = stmt
         .query_map([], row_to_record)?
         .collect::<Result<Vec<_>, _>>()?;
+    let mut items = items;
+    attach_tags(&conn, &mut items)?;
     Ok(items)
 }
 
@@ -175,6 +179,8 @@ pub fn get_variant_group_images(
     let items = stmt
         .query_map(params![variant_group_id], row_to_record)?
         .collect::<Result<Vec<_>, _>>()?;
+    let mut items = items;
+    attach_tags(&conn, &mut items)?;
     Ok(items)
 }
 
@@ -298,6 +304,8 @@ fn list_images_filtered_inner(
             row_to_record,
         )?
         .collect::<Result<Vec<_>, _>>()?;
+    let mut items = items;
+    attach_tags(&conn, &mut items)?;
 
     Ok(PaginatedResult {
         items,

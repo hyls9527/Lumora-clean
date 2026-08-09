@@ -121,8 +121,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File test-vm/scripts/smoke-instal
 期间修复：SearchPage 五处 i18n key 双重前缀（`tT("search.searchResults")` 之类），
 导致 aria-label/title 变成字面 key。
 
-已知产品缺口：`add_tag_to_image` 写入的 image_tags 关联在 UI 详情/卡片没有展示路径
-（前端 ImageRecord.tags 只来自 metadata_json），标签管理页创建的标签无法在图片上看到。
+已修复：`add_tag_to_image` 的关联现在会随 list_images/搜索/回收站返回（后端批量联查
+image_tags），前端合并展示在卡片与详情中。
 
 自动应答：`answer/autounattend.xml` + `answer/vmwaretools-setup.bat`（首登静默装 Tools），
 打包好的 `answer.iso` 也保留着。

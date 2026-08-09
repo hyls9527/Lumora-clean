@@ -3,9 +3,7 @@ use rusqlite::params;
 use crate::error::{AppError, AppResult};
 
 use crate::db::DbHandle;
-use crate::schema::types::PaginatedResult;
-
-use crate::schema::types::row_to_record;
+use crate::schema::types::{attach_tags, row_to_record, PaginatedResult};
 
 /// Soft-delete: set deleted=1 and record the deletion timestamp.
 #[tauri::command]
@@ -133,6 +131,8 @@ fn list_trash_inner(
     let items = stmt
         .query_map(params![per_page, offset], row_to_record)?
         .collect::<Result<Vec<_>, _>>()?;
+    let mut items = items;
+    attach_tags(conn, &mut items)?;
     Ok(PaginatedResult {
         items,
         total,

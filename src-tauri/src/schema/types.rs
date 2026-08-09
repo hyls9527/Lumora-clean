@@ -1,4 +1,7 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+
+use crate::error::AppResult;
 
 /// Core image record stored in SQLite — matches `images` table 1:1.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,6 +36,9 @@ pub struct ImageRecord {
     pub scored_at: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub score_label: Option<String>,
+    /// Tags associated via image_tags (display names). Empty when none.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
 }
 
 /// Paginated wrapper returned by list commands.
@@ -153,5 +159,38 @@ pub fn row_to_record(row: &rusqlite::Row<'_>) -> Result<ImageRecord, rusqlite::E
         scoring_model: row.get("scoring_model").ok(),
         scored_at: row.get("scored_at").ok(),
         score_label: row.get("score_label").ok(),
+        tags: Vec::new(),
     })
+}
+
+/// Batch-load tag names for a set of image records (one grouped query).
+pub(crate) fn attach_tags(
+    conn: &rusqlite::Connection,
+    items: &mut [ImageRecord],
+) -> AppResult<()> {
+    if items.is_empty() {
+        return Ok(());
+    }
+    let placeholders = items.iter().map(|_| "?").collect::<Vec<_>>().join(",");
+    let sql = format!(
+        "SELECT t.name, it.image_id FROM image_tags it \
+         JOIN tags t ON t.id = it.tag_id \
+         WHERE it.image_id IN ({placeholders}) ORDER BY t.name"
+    );
+    let mut stmt = conn.prepare(&sql)?;
+    let ids: Vec<&str> = items.iter().map(|r| r.id.as_str()).collect();
+    let rows = stmt.query_map(rusqlite::params_from_iter(ids), |row| {
+        Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+    })?;
+    let mut by_image: HashMap<String, Vec<String>> = HashMap::new();
+    for row in rows {
+        let (name, image_id) = row?;
+        by_image.entry(image_id).or_default().push(name);
+    }
+    for item in items.iter_mut() {
+        if let Some(tags) = by_image.remove(&item.id) {
+            item.tags = tags;
+        }
+    }
+    Ok(())
 }
