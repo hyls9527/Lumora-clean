@@ -66,3 +66,8 @@ vm-portable:
 # 浏览器真实交互 E2E（Playwright + 系统 Edge）
 e2e:
     npx playwright test
+
+# 桌面真实交互 E2E（CDP 连接 VM 内运行的 Lumora WebView2）
+# 前置：VM 内启动带 --remote-debugging-port=9222 的 debug 版并连上 devUrl
+e2e-desktop:
+    node scripts/cdp-e2e.mjs

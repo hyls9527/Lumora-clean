@@ -79,6 +79,24 @@ powershell -NoProfile -ExecutionPolicy Bypass -File test-vm/scripts/smoke-instal
 
 报告输出到 `test-vm/results/smoke-<时间戳>.txt`。
 
+## 桌面真实交互 E2E（CDP 方案）
+
+直接驱动 VM 桌面里真实运行的 Lumora（Tauri + WebView2），用 Playwright 的
+`connectOverCDP` 连接 WebView2 的调试端口，完成与浏览器 E2E 相同的交互链路。
+
+验证结果（2026-08-09）：5/5 通过 —— 启动进图库、侧边栏导航完整、
+语义搜索 → 设置 → 返回图库、命令面板导航到导入页、深色主题切换。
+
+启用步骤（测试专用，生产配置不带调试端口）：
+
+1. 临时在 `src-tauri/tauri.conf.json` 的窗口配置加
+   `"additionalBrowserArgs": "--remote-debugging-port=9222"`，`cargo build` 后拷入 VM。
+2. VM 内启动 Vite dev server（debug 版走 devUrl）：`npm run dev`。
+3. 在 VM 桌面会话启动 debug 版（vmrun 投递受限时用 psexec -i 1）。
+4. VM 内运行 `node scripts/cdp-e2e.mjs`。
+
+脚本：`scripts/cdp-e2e.mjs`（连接 http://127.0.0.1:9222）。
+
 自动应答：`answer/autounattend.xml` + `answer/vmwaretools-setup.bat`（首登静默装 Tools），
 打包好的 `answer.iso` 也保留着。
 

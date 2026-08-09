@@ -63,3 +63,6 @@ test-vm/results/
 # Playwright 产物
 playwright-report/
 test-results/
+
+# 桌面 E2E 本地工具（msedgedriver 体积大、版本绑定本机 Edge）
+scripts/tools/
