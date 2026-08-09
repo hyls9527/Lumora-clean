@@ -49,3 +49,13 @@ backups/
 
 # Local dev server logs
 tauri-dev*.log
+
+# Local Tauri build logs
+tauri-build.err
+tauri-build.log
+
+# VM 测试资产：只入库 README/脚本/应答文件，不入库截图与归档
+test-vm/archive/
+test-vm/screenshots/
+test-vm/answer.iso
+test-vm/results/
