@@ -71,3 +71,8 @@ e2e:
 # 前置：VM 内启动带 --remote-debugging-port=9222 的 debug 版并连上 devUrl
 e2e-desktop:
     node scripts/cdp-e2e.mjs
+
+# VM 桌面真实数据流 E2E（真实图片导入/评分/收藏/删除/回收站）
+# 前置：同上 + VM 内 D:\lumora-test-images 有测试图片
+e2e-dataflow:
+    node scripts/cdp-dataflow.mjs

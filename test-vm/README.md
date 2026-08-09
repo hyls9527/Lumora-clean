@@ -97,6 +97,20 @@ powershell -NoProfile -ExecutionPolicy Bypass -File test-vm/scripts/smoke-instal
 
 脚本：`scripts/cdp-e2e.mjs`（连接 http://127.0.0.1:9222）。
 
+## 真实数据流 E2E（cdp-dataflow.mjs）
+
+用真实图片（`D:\lumora-test-images`，3 张 PNG）走完整数据链路：
+真实导入 → 图库展示 → 评分 4 星 → 收藏 → 详情 → 仅收藏筛选 →
+删除到回收站 → 恢复 → 永久删除。每次运行前建议重置数据库
+（`D:\Users\tester\AppData\Roaming\com.lumora.app\lumora.db`）。
+
+验证结果（2026-08-09）：9/9 通过。
+
+期间发现并修复两个真实 bug：
+- GalleryPage：`useMemo` 写在 JSX 条件分支里，导入真实图片后 hooks 数量变化导致崩溃；
+- AiAnalysisSection：store selector `?? []` 每次返回新空数组，useSyncExternalStore
+  无限重渲染（打开详情崩溃）。
+
 自动应答：`answer/autounattend.xml` + `answer/vmwaretools-setup.bat`（首登静默装 Tools），
 打包好的 `answer.iso` 也保留着。
 

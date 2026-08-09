@@ -27,6 +27,9 @@ const valueStyle: React.CSSProperties = {
   color: tok.text,
 };
 
+// 稳定空数组：selector 不能每次返回新引用，否则 useSyncExternalStore 无限重渲染
+const EMPTY_TAGS: string[] = [];
+
 export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
   const { t } = useTranslation('aiAnalysis');
   const [applying, setApplying] = useState(false);
@@ -35,8 +38,10 @@ export function AiAnalysisSection({ imageId }: AiAnalysisSectionProps) {
   const result = useAiAnalysisStore((s) => s.results[imageId]);
   const history = useAiAnalysisStore((s) => s.history[imageId]);
   const analyzingId = useAiAnalysisStore((s) => s.analyzingId);
-  const acceptedTags = useAiAnalysisStore((s) => s.acceptedTags[imageId] ?? []);
-  const rejectedTags = useAiAnalysisStore((s) => s.rejectedTags[imageId] ?? []);
+  const acceptedTags =
+    useAiAnalysisStore((s) => s.acceptedTags[imageId]) ?? EMPTY_TAGS;
+  const rejectedTags =
+    useAiAnalysisStore((s) => s.rejectedTags[imageId]) ?? EMPTY_TAGS;
 
   const analyze = useAiAnalysisStore((s) => s.analyze);
   const acceptTag = useAiAnalysisStore((s) => s.acceptTag);

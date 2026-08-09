@@ -262,6 +262,30 @@ export function GalleryPage() {
     ],
   });
 
+  // 必须在顶层无条件调用（不能放进 JSX 条件分支，否则有数据时 hooks 数量变化导致崩溃）
+  const renderedCards = useMemo(
+    () =>
+      images.map((img, index) => (
+        <div
+          key={img.id}
+          style={{
+            breakInside: 'avoid',
+            marginBottom: 12,
+          }}
+        >
+          <LazyLoad height={img.height || 200}>
+            <ImageCard
+              image={img}
+              focused={focusedIndex === index}
+              onOpen={() => setDetailImage(img)}
+              onClick={() => setFocusedIndex(index)}
+            />
+          </LazyLoad>
+        </div>
+      )),
+    [images, focusedIndex],
+  );
+
   return (
     <div style={{ flex: 1, minWidth: 0, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {/* Toolbar */}
@@ -415,28 +439,7 @@ export function GalleryPage() {
               className={filters.view === 'grid' ? 'gallery-grid' : 'gallery-list'}
               style={columnCount > 0 && filters.view === 'grid' ? { columnCount } : undefined}
             >
-              {useMemo(
-                () =>
-                  images.map((img, index) => (
-                    <div
-                      key={img.id}
-                      style={{
-                        breakInside: 'avoid',
-                        marginBottom: 12,
-                      }}
-                    >
-                      <LazyLoad height={img.height || 200}>
-                        <ImageCard
-                          image={img}
-                          focused={focusedIndex === index}
-                          onOpen={() => setDetailImage(img)}
-                          onClick={() => setFocusedIndex(index)}
-                        />
-                      </LazyLoad>
-                    </div>
-                  )),
-                [images, focusedIndex],
-              )}
+              {renderedCards}
             </div>
           </InfiniteScroll>
 
