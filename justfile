@@ -81,3 +81,8 @@ e2e-dataflow:
 # 前置：同上 + VM 内 D:\lumora-test-images-meta 有带元数据的测试图片
 e2e-features:
     node scripts/cdp-features.mjs
+
+# VM 桌面高级链路 E2E（变体组对比/真实导出/AI 控制/智能收藏）
+# 前置：meta 图片 + D:\lumora-test-images-variant（2 张同 prompt 变体图）
+e2e-advanced:
+    node scripts/cdp-advanced.mjs

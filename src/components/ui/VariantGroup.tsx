@@ -77,10 +77,10 @@ export function VariantGroup({
     if (groupId && currentGroupId !== groupId) {
       fetchVariants(groupId);
     }
-    return () => {
-      clearVariants();
-    };
-  }, [groupId, fetchVariants, clearVariants, currentGroupId]);
+  }, [groupId, fetchVariants, currentGroupId]);
+
+  // 只在组件卸载时清空，避免 currentGroupId 更新触发 cleanup 导致无限加载
+  useEffect(() => () => clearVariants(), [clearVariants]);
 
   if (!groupId) return null;
 

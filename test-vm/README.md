@@ -124,6 +124,16 @@ powershell -NoProfile -ExecutionPolicy Bypass -File test-vm/scripts/smoke-instal
 已修复：`add_tag_to_image` 的关联现在会随 list_images/搜索/回收站返回（后端批量联查
 image_tags），前端合并展示在卡片与详情中。
 
+## 高级链路 E2E（cdp-advanced.mjs）
+
+变体组对比（2 张同 prompt 图）、真实导出（success=3 且目录文件落盘）、
+AI 控制（自然语言“打开设置”跳转）、智能收藏（评分≥4 规则创建/幂等）。
+
+验证结果（2026-08-10）：5/5 通过。
+
+期间修复：VariantGroup 的 effect cleanup 每次调用 clearVariants，导致
+currentGroupId 更新后无限重新加载（详情变体区一直转圈）——清理只应在卸载时执行。
+
 自动应答：`answer/autounattend.xml` + `answer/vmwaretools-setup.bat`（首登静默装 Tools），
 打包好的 `answer.iso` 也保留着。
 
