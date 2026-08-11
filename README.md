@@ -45,6 +45,12 @@ src-tauri/     Rust + SQLite + FTS5 + sqlite-vec
 
 See [`ARCHITECTURE.md`](ARCHITECTURE.md) for details.
 
+## AI access (MCP)
+
+The app exposes an MCP endpoint at `http://127.0.0.1:{port}/mcp` so AI agents can
+browse, search and organize (tags/favorites/trash) your library. Rating/scoring
+stays human-only. See [`docs/04-deploy/mcp.md`](docs/04-deploy/mcp.md).
+
 ## License
 
 MIT

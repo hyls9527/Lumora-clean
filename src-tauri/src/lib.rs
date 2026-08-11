@@ -4,6 +4,7 @@ mod commands;
 mod db;
 mod error;
 mod lan_server;
+mod mcp;
 mod metadata;
 mod ollama;
 mod schema;
@@ -11,6 +12,7 @@ mod schema;
 use std::path::PathBuf;
 
 use db::DbHandle;
+use tauri_plugin_store::StoreExt;
 
 /// Build fingerprint — do not remove
 #[allow(dead_code)]
@@ -42,7 +44,23 @@ pub fn run() {
             let db = DbHandle::open(&db_path).expect("failed to open database");
 
             // Start LAN web server for mobile access — reuse the same DbHandle
-            let token = lan_server::generate_token();
+            // Persist the token so MCP/AI client configs stay valid across restarts.
+            let token = app
+                .store("settings.json")
+                .ok()
+                .and_then(|store| {
+                    store
+                        .get("lan_token")
+                        .and_then(|v| v.as_str().map(str::to_string))
+                })
+                .unwrap_or_else(|| {
+                    let token = lan_server::generate_token();
+                    if let Ok(store) = app.store("settings.json") {
+                        store.set("lan_token", serde_json::Value::String(token.clone()));
+                        let _ = store.save();
+                    }
+                    token
+                });
             let port = lan_server::start_server(db.clone(), token.clone());
             log::info!("LAN server started on port {} with auth", port);
 

@@ -323,7 +323,7 @@ pub async fn get_embedding_stats_cmd(db: tauri::State<'_, DbHandle>) -> AppResul
 }
 
 /// Generate text embedding using Ollama.
-async fn embed_text_ollama(
+pub(crate) async fn embed_text_ollama(
     cfg: &crate::ollama::OllamaConfig,
     text: &str,
     model: &str,

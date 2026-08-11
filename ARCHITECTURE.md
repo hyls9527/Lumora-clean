@@ -65,6 +65,13 @@ Lumora 是一个 Tauri 2 桌面应用，采用前后端分离架构：
 └─────────────────────────────────────────────────────────────┘
 ```
 
+## MCP 接入（AI 可访问）
+
+- 端点：`/mcp`（MCP Streamable HTTP），与局域网服务同端口、同 token 鉴权
+- 实现：`src-tauri/src/mcp.rs`（rmcp + axum），挂载于 `lan_server::build_router`
+- 工具：读取类 `list_images` / `search_images` / `get_image` / `get_image_file` / `list_tags` / `get_stats` / `semantic_search`；管理类 `create_tag` / `add_tag_to_image` / `remove_tag_from_image` / `toggle_favorite` / `move_to_trash` / `restore_from_trash`；评分不开放给 AI
+- 客户端配置与说明：`docs/04-deploy/mcp.md`
+
 ## 数据模型
 
 ### SQLite Schema (v6)

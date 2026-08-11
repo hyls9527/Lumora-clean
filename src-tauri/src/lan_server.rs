@@ -1,9 +1,10 @@
 use std::net::TcpListener;
 
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, Query, Request, State},
     http::{HeaderMap, StatusCode},
-    response::IntoResponse,
+    middleware::{self, Next},
+    response::{IntoResponse, Response},
     routing::get,
     Json, Router,
 };
@@ -102,14 +103,12 @@ pub fn start_server(db: DbHandle, token: String) -> u16 {
         }
     };
     let port = listener.local_addr().map(|a| a.port()).unwrap_or(8079);
-    let state = ServerState { db, token };
-    let app = Router::new()
-        .route("/health", get(health_handler))
-        .route("/", get(mobile_ui_handler))
-        .route("/api/images", get(images_handler))
-        .route("/api/images/{id}/file", get(image_file_handler))
-        .route("/api/tags", get(tags_handler))
-        .with_state(state);
+
+    let state = ServerState {
+        db: db.clone(),
+        token,
+    };
+    let app = build_router(state);
 
     std::thread::spawn(move || {
         let rt = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
@@ -129,6 +128,24 @@ pub fn start_server(db: DbHandle, token: String) -> u16 {
     });
 
     port
+}
+
+/// Build the full LAN router: mobile API + MCP endpoint.
+fn build_router(state: ServerState) -> Router {
+    // MCP endpoint for AI agents, protected by the same LAN token.
+    let mcp_service = crate::mcp::service(state.db.clone());
+    let mcp_router = Router::new()
+        .route("/mcp", axum::routing::any_service(mcp_service))
+        .route_layer(middleware::from_fn_with_state(state.clone(), mcp_auth));
+
+    Router::new()
+        .route("/health", get(health_handler))
+        .route("/", get(mobile_ui_handler))
+        .route("/api/images", get(images_handler))
+        .route("/api/images/{id}/file", get(image_file_handler))
+        .route("/api/tags", get(tags_handler))
+        .merge(mcp_router)
+        .with_state(state)
 }
 
 /// Bind a listener on the first available port starting from 8079.
@@ -181,6 +198,18 @@ fn verify_auth(
         Some(t) if tokens_match(&t, &state.token) => Ok(()),
         _ => Err(StatusCode::UNAUTHORIZED),
     }
+}
+
+/// Auth guard for the MCP endpoint. Accepts the same token as the LAN API.
+async fn mcp_auth(
+    State(state): State<ServerState>,
+    headers: HeaderMap,
+    Query(params): Query<PaginationParams>,
+    request: Request,
+    next: Next,
+) -> Result<Response, StatusCode> {
+    verify_auth(&state, &headers, params.token.as_ref())?;
+    Ok(next.run(request).await)
 }
 
 /// Constant-time string comparison (avoids timing side channels on the LAN).
@@ -356,6 +385,9 @@ async fn tags_handler(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use axum::body::Body;
+    use axum::http::Request;
+    use tower::ServiceExt;
 
     #[test]
     fn local_ip_returns_non_empty() {
@@ -517,6 +549,228 @@ mod tests {
                 .await
                 .unwrap();
             assert_eq!(missing_file.status(), 404);
+        });
+    }
+
+    fn mcp_request(
+        uri: &str,
+        token: Option<&str>,
+        session: Option<&str>,
+        body: &str,
+    ) -> Request<Body> {
+        let mut req = Request::builder()
+            .method("POST")
+            .uri(uri)
+            .header(axum::http::header::CONTENT_TYPE, "application/json")
+            .header(
+                axum::http::header::ACCEPT,
+                "application/json, text/event-stream",
+            )
+            .header(axum::http::header::HOST, "127.0.0.1:8079")
+            .body(Body::from(body.to_string()))
+            .unwrap();
+        if let Some(t) = token {
+            req.headers_mut().insert(
+                axum::http::header::AUTHORIZATION,
+                format!("Bearer {t}").parse().unwrap(),
+            );
+        }
+        if let Some(s) = session {
+            req.headers_mut()
+                .insert("mcp-session-id", s.parse().unwrap());
+        }
+        req
+    }
+
+    async fn mcp_call(app: &Router, session: &str, body: &str) -> String {
+        let resp = app
+            .clone()
+            .oneshot(mcp_request("/mcp", Some("token123"), Some(session), body))
+            .await
+            .unwrap();
+        assert_eq!(resp.status(), 200);
+        let body = axum::body::to_bytes(resp.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        String::from_utf8_lossy(&body).to_string()
+    }
+
+    async fn call_tool(app: &Router, session: &str, id: u32, name: &str, args: &str) -> String {
+        let body = format!(
+            r#"{{"jsonrpc":"2.0","id":{id},"method":"tools/call","params":{{"name":"{name}","arguments":{args}}}}}"#
+        );
+        mcp_call(app, session, &body).await
+    }
+
+    #[test]
+    fn mcp_endpoint_initializes_lists_and_calls_tools() {
+        let db = crate::db::DbHandle::open_memory().unwrap();
+        {
+            let conn = db.conn().lock().unwrap();
+            conn.execute(
+                "INSERT INTO images
+                 (id, file_path, file_hash, file_size_kb, format, created_at, imported_at, rating, favorite)
+                 VALUES ('i1', '/tmp/lumora-mcp.png', 'h', 1, 'png',
+                         '2025-01-01', '2025-01-01T00:00:00Z', 3, 1)",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "INSERT INTO tags (id, name, color) VALUES ('t1', 'landscape', '#fff')",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "INSERT INTO image_tags (image_id, tag_id) VALUES ('i1', 't1')",
+                [],
+            )
+            .unwrap();
+        }
+
+        let app = build_router(ServerState {
+            db,
+            token: "token123".into(),
+        });
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            let init_body = r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}"#;
+
+            let unauth = app
+                .clone()
+                .oneshot(mcp_request("/mcp", None, None, init_body))
+                .await
+                .unwrap();
+            assert_eq!(unauth.status(), 401);
+
+            let init = app
+                .clone()
+                .oneshot(mcp_request("/mcp", Some("token123"), None, init_body))
+                .await
+                .unwrap();
+            assert_eq!(init.status(), 200);
+            let session = init
+                .headers()
+                .get("mcp-session-id")
+                .expect("initialize must return a session id")
+                .to_str()
+                .unwrap()
+                .to_string();
+            let body = axum::body::to_bytes(init.into_body(), usize::MAX)
+                .await
+                .unwrap();
+            let text = String::from_utf8_lossy(&body);
+            assert!(text.contains("serverInfo"), "initialize body: {text}");
+
+            let list = app
+                .clone()
+                .oneshot(mcp_request(
+                    "/mcp",
+                    Some("token123"),
+                    Some(&session),
+                    r#"{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}"#,
+                ))
+                .await
+                .unwrap();
+            assert_eq!(list.status(), 200);
+            let body = axum::body::to_bytes(list.into_body(), usize::MAX)
+                .await
+                .unwrap();
+            let text = String::from_utf8_lossy(&body);
+            for tool in [
+                "list_images",
+                "search_images",
+                "get_image",
+                "get_image_file",
+                "list_tags",
+                "get_stats",
+                "semantic_search",
+                "create_tag",
+                "add_tag_to_image",
+                "remove_tag_from_image",
+                "toggle_favorite",
+                "move_to_trash",
+                "restore_from_trash",
+            ] {
+                assert!(text.contains(tool), "tools/list missing {tool}: {text}");
+            }
+
+            let call = app
+                .clone()
+                .oneshot(mcp_request(
+                    "/mcp",
+                    Some("token123"),
+                    Some(&session),
+                    r#"{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"list_images","arguments":{"page":1,"per_page":10}}}"#,
+                ))
+                .await
+                .unwrap();
+            assert_eq!(call.status(), 200);
+            let body = axum::body::to_bytes(call.into_body(), usize::MAX)
+                .await
+                .unwrap();
+            let text = String::from_utf8_lossy(&body);
+            assert!(text.contains("total"), "call body: {text}");
+            assert!(text.contains("\\\"i1\\\""), "call body: {text}");
+            assert!(text.contains("isError\":false"), "call body: {text}");
+
+            let created = call_tool(
+                &app,
+                &session,
+                4,
+                "create_tag",
+                r#"{"name":"mcp-tag"}"#,
+            )
+            .await;
+            assert!(created.contains("mcp-tag"), "create_tag body: {created}");
+            assert!(created.contains("isError\":false"), "create_tag body: {created}");
+
+            for (id, name, args) in [
+                (
+                    5,
+                    "remove_tag_from_image",
+                    r#"{"image_id":"i1","tag_id":"t1"}"#,
+                ),
+                (
+                    6,
+                    "add_tag_to_image",
+                    r#"{"image_id":"i1","tag_id":"t1"}"#,
+                ),
+                (7, "toggle_favorite", r#"{"id":"i1"}"#),
+                (8, "move_to_trash", r#"{"id":"i1"}"#),
+            ] {
+                let out = call_tool(&app, &session, id, name, args).await;
+                assert!(out.contains("ok"), "{name} body: {out}");
+                assert!(out.contains("isError\":false"), "{name} body: {out}");
+            }
+
+            let after_trash = call_tool(
+                &app,
+                &session,
+                9,
+                "list_images",
+                r#"{"page":1,"per_page":10}"#,
+            )
+            .await;
+            assert!(
+                after_trash.contains("\\\"total\\\":0"),
+                "list after trash body: {after_trash}"
+            );
+
+            let restored = call_tool(&app, &session, 10, "restore_from_trash", r#"{"id":"i1"}"#).await;
+            assert!(restored.contains("ok"), "restore body: {restored}");
+
+            let after_restore = call_tool(
+                &app,
+                &session,
+                11,
+                "list_images",
+                r#"{"page":1,"per_page":10}"#,
+            )
+            .await;
+            assert!(
+                after_restore.contains("\\\"total\\\":1"),
+                "list after restore body: {after_restore}"
+            );
         });
     }
 }

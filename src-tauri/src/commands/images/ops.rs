@@ -136,6 +136,11 @@ pub fn update_rating(db: tauri::State<'_, DbHandle>, id: String, rating: u32) ->
 #[tauri::command]
 pub fn toggle_favorite(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<()> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    toggle_favorite_impl(&conn, &id)
+}
+
+/// Internal: flip the favorite flag for an image.
+pub fn toggle_favorite_impl(conn: &rusqlite::Connection, id: &str) -> AppResult<()> {
     conn.execute(
         "UPDATE images SET favorite = CASE WHEN favorite = 0 THEN 1 ELSE 0 END WHERE id = ?1",
         params![id],

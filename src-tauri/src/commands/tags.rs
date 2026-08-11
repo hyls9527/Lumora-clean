@@ -110,6 +110,15 @@ pub fn remove_tag_from_image(
     tag_id: String,
 ) -> AppResult<()> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    remove_tag_from_image_impl(&conn, &image_id, &tag_id)
+}
+
+/// Internal: remove a tag from an image (no-op when the association is absent).
+pub fn remove_tag_from_image_impl(
+    conn: &rusqlite::Connection,
+    image_id: &str,
+    tag_id: &str,
+) -> AppResult<()> {
     conn.execute(
         "DELETE FROM image_tags WHERE image_id = ?1 AND tag_id = ?2",
         params![image_id, tag_id],

@@ -12,7 +12,7 @@ pub fn soft_delete_image(db: tauri::State<'_, DbHandle>, id: String) -> AppResul
     soft_delete_impl(&conn, &id)
 }
 
-fn soft_delete_impl(conn: &rusqlite::Connection, id: &str) -> AppResult<()> {
+pub(crate) fn soft_delete_impl(conn: &rusqlite::Connection, id: &str) -> AppResult<()> {
     let changed = conn.execute(
         "UPDATE images SET deleted = 1, deleted_at = datetime('now') WHERE id = ?1 AND deleted = 0",
         params![id],
@@ -32,7 +32,7 @@ pub fn restore_image(db: tauri::State<'_, DbHandle>, id: String) -> AppResult<()
     restore_impl(&conn, &id)
 }
 
-fn restore_impl(conn: &rusqlite::Connection, id: &str) -> AppResult<()> {
+pub(crate) fn restore_impl(conn: &rusqlite::Connection, id: &str) -> AppResult<()> {
     let changed = conn.execute(
         "UPDATE images SET deleted = 0, deleted_at = NULL WHERE id = ?1 AND deleted = 1",
         params![id],

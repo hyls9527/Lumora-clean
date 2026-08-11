@@ -105,7 +105,7 @@ pub fn search_images_advanced(
 // ---------------------------------------------------------------------------
 
 /// Escape FTS5 special characters so user input doesn't break MATCH queries.
-pub(super) fn escape_fts5(query: &str) -> String {
+pub(crate) fn escape_fts5(query: &str) -> String {
     let mut escaped = String::with_capacity(query.len());
     for ch in query.chars() {
         match ch {

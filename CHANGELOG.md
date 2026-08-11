@@ -2,6 +2,12 @@
 
 All notable changes to Lumora are documented here.
 
+## Unreleased
+
+### Added
+- MCP（Model Context Protocol）接入：内嵌 Streamable HTTP 服务端，位于 `/mcp`，复用局域网 token 鉴权；AI 客户端（Claude、Cursor 等）可浏览、搜索、读取图片，并可管理标签 / 收藏 / 回收站（移入与恢复）；评分保持人工，不向 AI 开放
+- 局域网 token 持久化（`settings.json` 中的 `lan_token`），AI 客户端配置跨重启保持有效
+
 ## v0.9.0 (2026-08-08)
 
 ### Added

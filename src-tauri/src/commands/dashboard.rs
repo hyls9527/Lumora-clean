@@ -10,7 +10,7 @@ pub fn get_dashboard_stats(db: tauri::State<'_, DbHandle>) -> AppResult<Dashboar
     get_dashboard_stats_inner(&conn)
 }
 
-fn get_dashboard_stats_inner(conn: &rusqlite::Connection) -> AppResult<DashboardStats> {
+pub(crate) fn get_dashboard_stats_inner(conn: &rusqlite::Connection) -> AppResult<DashboardStats> {
     // Total images (non-deleted)
     let total_images: i64 =
         conn.query_row("SELECT COUNT(*) FROM images WHERE deleted = 0", [], |r| {

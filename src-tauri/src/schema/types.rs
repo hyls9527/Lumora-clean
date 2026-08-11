@@ -164,10 +164,7 @@ pub fn row_to_record(row: &rusqlite::Row<'_>) -> Result<ImageRecord, rusqlite::E
 }
 
 /// Batch-load tag names for a set of image records (one grouped query).
-pub(crate) fn attach_tags(
-    conn: &rusqlite::Connection,
-    items: &mut [ImageRecord],
-) -> AppResult<()> {
+pub(crate) fn attach_tags(conn: &rusqlite::Connection, items: &mut [ImageRecord]) -> AppResult<()> {
     if items.is_empty() {
         return Ok(());
     }
