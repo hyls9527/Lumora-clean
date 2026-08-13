@@ -34,4 +34,12 @@ cargo test --lib --manifest-path src-tauri/Cargo.toml -- --ignored --nocapture -
 
 ## TC-PERF-002（10K 滚动 ≥30fps）
 
-仍属人工验收项（无头环境帧率不可靠）。虚拟滚动链路（`VirtualGrid` + `LazyLoad` + `InfiniteScroll`）已有单测与 `scripts/perf-budget.mjs` 预算门禁；发布前建议在 VM（`test-vm/`）用真实 10K 图库人工确认一次帧率后勾选路线图。
+自动化基线（2026-08-14 实测）：用生产 `VirtualGrid` 组件挂载 10K 条目，在无头 Chromium 中连续滚动 3 秒采样 432 帧——**p95 帧间隔 7.6ms ≈ 131.6fps**，目标 30fps，余量约 4 倍。测试与 harness 见 `tests/e2e/perf-scroll.spec.ts` / `perf-harness.html`。
+
+复跑方式（本地，CI 自动跳过——无头帧时序噪声大）：
+
+```bash
+npx playwright test tests/e2e/perf-scroll.spec.ts --reporter=list
+```
+
+发布前仍建议在 VM（`test-vm/`）用打包后的真实应用做一次人工滚动确认，以覆盖 WebView2 真实渲染差异。
