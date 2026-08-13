@@ -152,3 +152,24 @@ ALTER TABLE images ADD COLUMN score_label TEXT;";
 
 pub const V8_INDEX_SCORE_LABEL: &str =
     "CREATE INDEX IF NOT EXISTS idx_images_score_label ON images(score_label) WHERE deleted = 0;";
+
+// ---------------------------------------------------------------------------
+// V9 - CLIP image-embedding index (512-dim) for image-to-image search.
+// The text-semantic index (V4, 768-dim, Ollama nomic-embed-text) and the
+// CLIP visual index live in separate vector spaces because the models emit
+// different dimensions and similarities are only meaningful within one space.
+// ---------------------------------------------------------------------------
+
+pub const V9_CREATE_CLIP_EMBEDDINGS: &str = "CREATE TABLE IF NOT EXISTS clip_embeddings (
+    image_id     TEXT PRIMARY KEY REFERENCES images(id),
+    embedding    BLOB NOT NULL,
+    dimensions   INTEGER NOT NULL DEFAULT 512,
+    status       TEXT NOT NULL DEFAULT 'embedded' CHECK(status IN ('embedded', 'pending', 'error')),
+    generated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);";
+
+pub const V9_CREATE_VEC_CLIP_TABLE: &str =
+    "CREATE VIRTUAL TABLE IF NOT EXISTS vec_embeddings_clip USING vec0(
+    image_id TEXT PRIMARY KEY,
+    embedding float[512]
+);";

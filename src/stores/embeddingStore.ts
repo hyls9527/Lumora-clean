@@ -2,10 +2,13 @@ import { create, type StateCreator } from 'zustand';
 import {
   getEmbeddingStatus,
   getEmbeddingStats,
+  getClipEmbeddingStats,
   generateEmbeddings,
   embedMissing,
+  embedClipMissing,
   type EmbeddingInfo,
   type EmbeddingStats,
+  type ClipEmbeddingStats,
 } from '../lib/api/embeddings';
 
 import type { ImageRecord } from '../types/image';
@@ -14,40 +17,53 @@ import type { ImageRecord } from '../types/image';
 export interface EmbeddingStoreDeps {
   getEmbeddingStatus: (imageId: string) => Promise<EmbeddingInfo>;
   getEmbeddingStats: () => Promise<EmbeddingStats>;
+  getClipEmbeddingStats: () => Promise<ClipEmbeddingStats>;
   generateEmbeddings: (images: ImageRecord[]) => Promise<void>;
   embedMissing: (limit: number) => Promise<{ processed: number; remaining: number }>;
+  embedClipMissing: (limit: number) => Promise<{ processed: number; remaining: number }>;
 }
 
 const defaultDeps: EmbeddingStoreDeps = {
   getEmbeddingStatus,
   getEmbeddingStats,
+  getClipEmbeddingStats,
   generateEmbeddings,
   embedMissing,
+  embedClipMissing,
 };
 
 interface EmbeddingStore {
   statusMap: Record<string, EmbeddingInfo>;
   stats: EmbeddingStats | null;
+  clipStats: ClipEmbeddingStats | null;
   statsLoading: boolean;
   generating: boolean;
   filling: boolean;
+  clipFilling: boolean;
   fillProgress: { processed: number; remaining: number } | null;
+  clipFillProgress: { processed: number; remaining: number } | null;
   error: string | null;
   fetchStatus: (imageId: string) => Promise<void>;
   fetchStatuses: (imageIds: string[]) => Promise<void>;
   fetchStats: () => Promise<void>;
+  fetchClipStats: () => Promise<void>;
   generate: (images: ImageRecord[]) => Promise<void>;
   fillMissing: (limit?: number) => Promise<void>;
+  fillClipMissing: (limit?: number) => Promise<void>;
+  fillAllMissing: (limit?: number) => Promise<void>;
 }
 
 export function createEmbeddingStore(deps: EmbeddingStoreDeps = defaultDeps): StateCreator<EmbeddingStore, [], []> {
   return (set, get) => ({
     statusMap: {},
     stats: null,
+    clipStats: null,
     statsLoading: false,
     generating: false,
     filling: false,
+    clipFilling: false,
     fillProgress: null,
+    clipFillProgress: null,
     error: null,
 
     fetchStatus: async (imageId: string) => {
@@ -91,6 +107,15 @@ export function createEmbeddingStore(deps: EmbeddingStoreDeps = defaultDeps): St
       }
     },
 
+    fetchClipStats: async () => {
+      try {
+        const clipStats = await deps.getClipEmbeddingStats();
+        set({ clipStats });
+      } catch {
+        // Non-critical: image-to-image index stats can lag without blocking UI.
+      }
+    },
+
     generate: async (images: ImageRecord[]) => {
       const prevStats = get().stats;
       set({ generating: true });
@@ -123,6 +148,31 @@ export function createEmbeddingStore(deps: EmbeddingStoreDeps = defaultDeps): St
       } finally {
         set({ filling: false });
       }
+    },
+
+    fillClipMissing: async (limit = 10) => {
+      set({ clipFilling: true, error: null });
+      try {
+        for (;;) {
+          const result = await deps.embedClipMissing(limit);
+          const clipStats = await deps.getClipEmbeddingStats();
+          set({
+            clipFillProgress: { processed: result.processed, remaining: result.remaining },
+            clipStats,
+          });
+          if (result.remaining <= 0) break;
+        }
+        set({ clipFillProgress: null });
+      } catch (err) {
+        set({ error: err instanceof Error ? err.message : '补齐视觉索引失败' });
+      } finally {
+        set({ clipFilling: false });
+      }
+    },
+
+    fillAllMissing: async (limit = 10) => {
+      await get().fillMissing(limit);
+      await get().fillClipMissing(limit);
     },
   });
 }

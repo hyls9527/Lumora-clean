@@ -4,8 +4,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 vi.mock('../../lib/api/embeddings', () => ({
   getEmbeddingStatus: vi.fn(),
   getEmbeddingStats: vi.fn(),
+  getClipEmbeddingStats: vi.fn(),
   generateEmbeddings: vi.fn(),
   embedMissing: vi.fn(),
+  embedClipMissing: vi.fn(),
 }));
 
 import { useEmbeddingStore } from '../embeddingStore';
@@ -14,18 +16,23 @@ import type { ImageRecord } from '../imageStore';
 
 const mockGetStatus = vi.mocked(api.getEmbeddingStatus);
 const mockGetStats = vi.mocked(api.getEmbeddingStats);
+const mockGetClipStats = vi.mocked(api.getClipEmbeddingStats);
 const mockGenerate = vi.mocked(api.generateEmbeddings);
 const mockEmbedMissing = vi.mocked(api.embedMissing);
+const mockEmbedClipMissing = vi.mocked(api.embedClipMissing);
 
 beforeEach(() => {
   vi.clearAllMocks();
   useEmbeddingStore.setState({
     statusMap: {},
     stats: null,
+    clipStats: null,
     statsLoading: false,
     generating: false,
     filling: false,
+    clipFilling: false,
     fillProgress: null,
+    clipFillProgress: null,
   });
 });
 
@@ -159,5 +166,22 @@ describe('fillMissing', () => {
 
     expect(useEmbeddingStore.getState().error).toBe('ollama offline');
     expect(useEmbeddingStore.getState().filling).toBe(false);
+  });
+});
+
+describe('fillClipMissing', () => {
+  it('loops until the CLIP image index is complete', async () => {
+    mockEmbedClipMissing
+      .mockResolvedValueOnce({ processed: 4, remaining: 1 })
+      .mockResolvedValueOnce({ processed: 1, remaining: 0 });
+    mockGetClipStats.mockResolvedValue({ embedded: 5, error: 0, total: 5, missing: 0 });
+
+    await useEmbeddingStore.getState().fillClipMissing(4);
+
+    expect(mockEmbedClipMissing).toHaveBeenCalledTimes(2);
+    expect(mockEmbedClipMissing).toHaveBeenCalledWith(4);
+    expect(useEmbeddingStore.getState().clipFilling).toBe(false);
+    expect(useEmbeddingStore.getState().clipFillProgress).toBeNull();
+    expect(useEmbeddingStore.getState().clipStats?.embedded).toBe(5);
   });
 });

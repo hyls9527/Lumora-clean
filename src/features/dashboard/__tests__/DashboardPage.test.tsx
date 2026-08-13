@@ -6,11 +6,15 @@ const { embeddingStoreMock } = vi.hoisted(() => ({
   embeddingStoreMock: vi.fn((selector: unknown) => {
     const state = {
       stats: { embedded: 50, pending: 30, error: 20, total: 100, missing: 0 },
+      clipStats: null,
       statsLoading: false,
       filling: false,
+      clipFilling: false,
       fillProgress: null,
+      clipFillProgress: null,
       fetchStats: vi.fn(),
-      fillMissing: vi.fn(),
+      fetchClipStats: vi.fn(),
+      fillAllMissing: vi.fn(),
     };
     return selector ? (selector as (s: unknown) => unknown)(state) : state;
   }),
@@ -65,15 +69,19 @@ describe('DashboardPage', () => {
       topTags: [],
       recentImports: [],
     });
-    const fillMissing = vi.fn();
+    const fillAllMissing = vi.fn();
     embeddingStoreMock.mockImplementation((selector: unknown) => {
       const state = {
         stats: { embedded: 50, pending: 30, error: 20, total: 100, missing: 3 },
+        clipStats: null,
         statsLoading: false,
         filling: false,
+        clipFilling: false,
         fillProgress: null,
+        clipFillProgress: null,
         fetchStats: vi.fn(),
-        fillMissing,
+        fetchClipStats: vi.fn(),
+        fillAllMissing,
       };
       return selector ? (selector as (s: unknown) => unknown)(state) : state;
     });
@@ -82,6 +90,6 @@ describe('DashboardPage', () => {
 
     await waitFor(() => expect(screen.getByText('missing')).toBeTruthy());
     fireEvent.click(screen.getByText('fillMissing'));
-    expect(fillMissing).toHaveBeenCalledTimes(1);
+    expect(fillAllMissing).toHaveBeenCalledTimes(1);
   });
 });

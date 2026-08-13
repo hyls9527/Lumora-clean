@@ -21,6 +21,14 @@ export interface EmbeddingStats {
   missing: number;
 }
 
+/** Aggregate stats for the CLIP image index (image-to-image search). */
+export interface ClipEmbeddingStats {
+  embedded: number;
+  error: number;
+  total: number;
+  missing: number;
+}
+
 /**
  * Get embedding status for a single image.
  * Calls Tauri command `get_embedding_status_cmd`.
@@ -90,6 +98,37 @@ export async function embedMissing(
 ): Promise<{ processed: number; remaining: number }> {
   const result = await invoke<{ processed: number; remaining: number }>(
     'embed_missing_cmd',
+    { limit },
+  );
+  return {
+    processed: result?.processed ?? 0,
+    remaining: result?.remaining ?? 0,
+  };
+}
+
+/**
+ * Get aggregate CLIP image-index stats.
+ * Calls Tauri command `get_clip_embedding_stats_cmd`.
+ */
+export async function getClipEmbeddingStats(): Promise<ClipEmbeddingStats> {
+  const result = await invoke<ClipEmbeddingStats>('get_clip_embedding_stats_cmd');
+  return {
+    embedded: result?.embedded ?? 0,
+    error: result?.error ?? 0,
+    total: result?.total ?? 0,
+    missing: result?.missing ?? 0,
+  };
+}
+
+/**
+ * Embed a batch of images missing from the CLIP image index.
+ * Calls Tauri command `embed_clip_missing_cmd`.
+ */
+export async function embedClipMissing(
+  limit = 10,
+): Promise<{ processed: number; remaining: number }> {
+  const result = await invoke<{ processed: number; remaining: number }>(
+    'embed_clip_missing_cmd',
     { limit },
   );
   return {

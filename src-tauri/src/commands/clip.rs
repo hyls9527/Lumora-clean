@@ -1,13 +1,19 @@
 use crate::error::{AppError, AppResult};
 use rusqlite;
 use serde::{Deserialize, Serialize};
-use std::process::Command;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ClipEmbeddingResponse {
     pub embedding: Vec<f64>,
     #[serde(default)]
     pub error: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ClipBatchResponse {
+    /// One entry per requested path. A `null` entry means that image failed
+    /// to embed (e.g. unreadable file) so the caller can mark it errored.
+    pub embeddings: Vec<Option<Vec<f64>>>,
 }
 
 fn parse_clip_response(output: &[u8]) -> AppResult<ClipEmbeddingResponse> {
@@ -21,9 +27,7 @@ fn parse_clip_response(output: &[u8]) -> AppResult<ClipEmbeddingResponse> {
 
 /// Generate image embedding using CLIP sidecar.
 pub fn clip_embed_image(image_path: &str) -> AppResult<Vec<f64>> {
-    let sidecar_path = get_sidecar_path()?;
-
-    let output = Command::new(&sidecar_path)
+    let output = crate::commands::sidecar_command("clip_server.py")?
         .args(["embed-image", image_path])
         .output()
         .map_err(|e| AppError::External(format!("Failed to run CLIP sidecar: {}", e)))?;
@@ -42,9 +46,7 @@ pub fn clip_embed_image(image_path: &str) -> AppResult<Vec<f64>> {
 
 /// Generate text embedding using CLIP sidecar.
 pub fn clip_embed_text(text: &str) -> AppResult<Vec<f64>> {
-    let sidecar_path = get_sidecar_path()?;
-
-    let output = Command::new(&sidecar_path)
+    let output = crate::commands::sidecar_command("clip_server.py")?
         .args(["embed-text", text])
         .output()
         .map_err(|e| AppError::External(format!("Failed to run CLIP sidecar: {}", e)))?;
@@ -61,9 +63,34 @@ pub fn clip_embed_text(text: &str) -> AppResult<Vec<f64>> {
     Ok(response.embedding)
 }
 
-/// Get the path to the CLIP sidecar executable.
-fn get_sidecar_path() -> AppResult<String> {
-    crate::commands::sidecar_path_for("clip_server.py")
+/// Generate embeddings for a batch of images in a single sidecar process so
+/// the CLIP model is loaded only once (each one-shot invocation re-loads the
+/// model, which costs tens of seconds on CPU). `None` marks unreadable files.
+pub fn clip_embed_images(paths: &[String]) -> AppResult<Vec<Option<Vec<f64>>>> {
+    let mut cmd = crate::commands::sidecar_command("clip_server.py")?;
+    cmd.arg("embed-images");
+    cmd.args(paths);
+
+    let output = cmd
+        .output()
+        .map_err(|e| AppError::External(format!("Failed to run CLIP sidecar: {}", e)))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(AppError::External(format!(
+            "CLIP sidecar failed: {}",
+            stderr
+        )));
+    }
+
+    let response: ClipBatchResponse = serde_json::from_slice(&output.stdout)
+        .map_err(|e| AppError::External(format!("Failed to parse CLIP response: {}", e)))?;
+    if response.embeddings.len() != paths.len() {
+        return Err(AppError::External(
+            "CLIP batch response length mismatch".to_string(),
+        ));
+    }
+    Ok(response.embeddings)
 }
 
 #[cfg(test)]
@@ -88,16 +115,6 @@ mod tests {
     #[test]
     fn parse_clip_response_rejects_invalid_json() {
         assert!(parse_clip_response(b"not json").is_err());
-    }
-
-    #[test]
-    fn test_get_sidecar_path() {
-        // This test will fail if not run from project root
-        // But it validates the logic
-        let result = get_sidecar_path();
-        // We don't assert success because it depends on working directory
-        // Just ensure it doesn't panic
-        let _ = result;
     }
 }
 
@@ -124,12 +141,8 @@ pub async fn clip_embed_image_cmd(
         }
     }
     let embedding = clip_embed_image(&image_path)?;
-    // Fail fast with a friendly message when the CLIP model's output
-    // dimension does not match the vector index (e.g. 512 vs 768).
-    {
-        let conn = db.conn().lock().map_err(|_| crate::error::AppError::Lock)?;
-        crate::commands::embeddings::validate_query_dimension(&conn, embedding.len())?;
-    }
+    // Dimension validation happens in `search_semantic_image_cmd` against the
+    // dedicated 512-dim CLIP index, not against the 768-dim text index.
     Ok(embedding)
 }
 

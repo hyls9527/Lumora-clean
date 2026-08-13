@@ -75,8 +75,8 @@ export async function searchByImage(
     imagePath: filePath,
   });
 
-  // Step 2: Search similar images via sqlite-vec
-  const results = await invoke<SemanticSearchResult[]>('search_semantic_cmd', {
+  // Step 2: Search the dedicated 512-dim CLIP image index via sqlite-vec.
+  const results = await invoke<SemanticSearchResult[]>('search_semantic_image_cmd', {
     queryEmbedding: embedding,
     limit: limit ?? 20,
     minSimilarity: 0, // Drop negative-cosine (irrelevant) matches

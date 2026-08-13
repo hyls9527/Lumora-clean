@@ -18,11 +18,15 @@ export function DashboardPage() {
   const { t } = useTranslation();
   const { t: tEmbed } = useTranslation('embedding');
   const embStats = useEmbeddingStore((s) => s.stats);
+  const clipStats = useEmbeddingStore((s) => s.clipStats);
   const embLoading = useEmbeddingStore((s) => s.statsLoading);
   const fetchEmbStats = useEmbeddingStore((s) => s.fetchStats);
-  const fillMissing = useEmbeddingStore((s) => s.fillMissing);
+  const fetchClipStats = useEmbeddingStore((s) => s.fetchClipStats);
+  const fillAllMissing = useEmbeddingStore((s) => s.fillAllMissing);
   const filling = useEmbeddingStore((s) => s.filling);
+  const clipFilling = useEmbeddingStore((s) => s.clipFilling);
   const fillProgress = useEmbeddingStore((s) => s.fillProgress);
+  const clipFillProgress = useEmbeddingStore((s) => s.clipFillProgress);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -40,7 +44,8 @@ export function DashboardPage() {
   useEffect(() => {
     load();
     fetchEmbStats();
-  }, [load, fetchEmbStats]);
+    void fetchClipStats();
+  }, [load, fetchEmbStats, fetchClipStats]);
 
   // Ensure all ratings 0-5 are present
   const ratingMap = new Map<number, number>();
@@ -216,25 +221,36 @@ export function DashboardPage() {
                     label={tEmbed('missing')}
                     value={embStats.missing}
                   />
-                  {embStats.missing > 0 && (
+                  <DotRow
+                    label={tEmbed('visualMissing')}
+                    value={clipStats?.missing ?? 0}
+                  />
+                  {(embStats.missing > 0 || (clipStats?.missing ?? 0) > 0) && (
                     <button
                       type="button"
-                      disabled={filling}
-                      onClick={() => void fillMissing()}
+                      disabled={filling || clipFilling}
+                      onClick={() => void fillAllMissing()}
                       style={{
                         alignSelf: 'flex-start',
                         fontSize: 11,
                         fontFamily: 'var(--font-display)',
-                        color: filling ? tokens.textMuted : tokens.bg,
-                        background: filling ? tokens.textFaint : tokens.accent,
+                        color: filling || clipFilling ? tokens.textMuted : tokens.bg,
+                        background: filling || clipFilling ? tokens.textFaint : tokens.accent,
                         border: 'none',
                         padding: '6px 14px',
                         borderRadius: 4,
-                        cursor: filling ? 'not-allowed' : 'pointer',
+                        cursor: filling || clipFilling ? 'not-allowed' : 'pointer',
                       }}
                     >
-                      {filling
-                        ? tEmbed('fillingProgress', { remaining: String(fillProgress?.remaining ?? 0) })
+                      {filling || clipFilling
+                        ? tEmbed('fillingProgress', {
+                            remaining: String(
+                              Math.max(
+                                fillProgress?.remaining ?? 0,
+                                clipFillProgress?.remaining ?? 0,
+                              ),
+                            ),
+                          })
                         : tEmbed('fillMissing')}
                     </button>
                   )}

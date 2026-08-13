@@ -18,11 +18,15 @@ const { semanticStoreMock, embeddingStoreMock } = vi.hoisted(() => ({
   embeddingStoreMock: vi.fn((selector: unknown) => {
     const state = {
       stats: null,
+      clipStats: null,
       statsLoading: false,
       filling: false,
+      clipFilling: false,
       fillProgress: null,
+      clipFillProgress: null,
       fetchStats: vi.fn(),
-      fillMissing: vi.fn(),
+      fetchClipStats: vi.fn(),
+      fillAllMissing: vi.fn(),
     };
     return selector ? (selector as (s: unknown) => unknown)(state) : state;
   }),
@@ -127,11 +131,15 @@ describe('SearchPage', () => {
     embeddingStoreMock.mockImplementation((selector: unknown) => {
       const state = {
         stats: { embedded: 8, pending: 0, error: 0, total: 10, missing: 2 },
+        clipStats: null,
         statsLoading: false,
         filling: false,
+        clipFilling: false,
         fillProgress: null,
+        clipFillProgress: null,
         fetchStats: vi.fn(),
-        fillMissing: vi.fn(),
+        fetchClipStats: vi.fn(),
+        fillAllMissing: vi.fn(),
       };
       return selector ? (selector as (s: unknown) => unknown)(state) : state;
     });

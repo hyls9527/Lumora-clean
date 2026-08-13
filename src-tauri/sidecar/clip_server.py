@@ -84,6 +84,22 @@ def embed_text(text: str) -> list[float]:
     return features[0].cpu().numpy().tolist()
 
 
+def embed_images(paths: list[str]) -> list:
+    """Generate embeddings for several images with one model load.
+
+    Failed images yield ``None`` (caller records them as errored) rather than
+    aborting the whole batch.
+    """
+    load_model()
+    results = []
+    for path in paths:
+        try:
+            results.append(embed_image(path))
+        except Exception:
+            results.append(None)
+    return results
+
+
 def _health_check() -> dict:
     """
     Perform a real health check:
@@ -142,6 +158,11 @@ def main():
             embedding = embed_image(image_path)
             print(json.dumps({"embedding": embedding}))
 
+        elif command == "embed-images" and len(sys.argv) > 2:
+            paths = sys.argv[2:]
+            embeddings = embed_images(paths)
+            print(json.dumps({"embeddings": embeddings}))
+
         elif command == "embed-text" and len(sys.argv) > 2:
             text = sys.argv[2]
             embedding = embed_text(text)
@@ -169,6 +190,11 @@ def main():
                     image_path = request.get("image_path")
                     embedding = embed_image(image_path)
                     print(json.dumps({"embedding": embedding}), flush=True)
+
+                elif command == "embed-images":
+                    paths = request.get("paths") or []
+                    embeddings = embed_images(paths)
+                    print(json.dumps({"embeddings": embeddings}), flush=True)
 
                 elif command == "embed-text":
                     text = request.get("text")

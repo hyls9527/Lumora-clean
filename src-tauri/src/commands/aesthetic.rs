@@ -1,7 +1,6 @@
 use rusqlite::OptionalExtension;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
-use std::process::Command;
 
 use crate::db::DbHandle;
 use crate::error::{AppError, AppResult};
@@ -83,16 +82,11 @@ pub fn map_score_label(aesthetic_score: Option<f64>) -> Option<&'static str> {
     }
 }
 
-fn get_sidecar_path() -> AppResult<String> {
-    crate::commands::sidecar_path_for("aesthetic_server.py")
-}
-
 /// Run the sidecar for one image. The sidecar degrades gracefully: when no
 /// scoring engine is usable it returns a JSON `error` field with exit code 0,
 /// so callers can persist partial results or leave the image unscored.
 pub fn score_image(image_path: &str, prompt: Option<&str>) -> AppResult<AestheticScoreResponse> {
-    let sidecar_path = get_sidecar_path()?;
-    let output = Command::new(&sidecar_path)
+    let output = crate::commands::sidecar_command("aesthetic_server.py")?
         .args(["score-image", image_path, prompt.unwrap_or("")])
         .output()
         .map_err(|e| AppError::External(format!("Failed to run aesthetic sidecar: {}", e)))?;

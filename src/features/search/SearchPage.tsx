@@ -49,10 +49,14 @@ export function SearchPage() {
   const { mode: searchMode } =
     useSemanticSearchStore();
   const embStats = useEmbeddingStore((s) => s.stats);
+  const clipStats = useEmbeddingStore((s) => s.clipStats);
   const filling = useEmbeddingStore((s) => s.filling);
+  const clipFilling = useEmbeddingStore((s) => s.clipFilling);
   const fillProgress = useEmbeddingStore((s) => s.fillProgress);
-  const fillMissing = useEmbeddingStore((s) => s.fillMissing);
+  const clipFillProgress = useEmbeddingStore((s) => s.clipFillProgress);
+  const fillAllMissing = useEmbeddingStore((s) => s.fillAllMissing);
   const fetchEmbStats = useEmbeddingStore((s) => s.fetchStats);
+  const fetchClipStats = useEmbeddingStore((s) => s.fetchClipStats);
 
   usePerformanceMonitor('SearchPage');
 
@@ -105,7 +109,8 @@ export function SearchPage() {
 
   useEffect(() => {
     void fetchEmbStats();
-  }, [fetchEmbStats]);
+    void fetchClipStats();
+  }, [fetchEmbStats, fetchClipStats]);
 
   return (
     <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -148,7 +153,8 @@ export function SearchPage() {
                 : '输入关键词开始搜索'}
             </p>
           )}
-          {searchMode === 'semantic' && embStats && embStats.missing > 0 && (
+          {searchMode === 'semantic' &&
+            ((embStats?.missing ?? 0) > 0 || (clipStats?.missing ?? 0) > 0) && (
             <div
               role="status"
               style={{
@@ -165,24 +171,35 @@ export function SearchPage() {
                 fontFamily: tok.fontBody,
               }}
             >
-              <span>{tT('indexIncomplete', { count: String(embStats.missing) })}</span>
+              <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {(embStats?.missing ?? 0) > 0 && (
+                  <span>{tT('indexIncomplete', { count: String(embStats?.missing ?? 0) })}</span>
+                )}
+                {(clipStats?.missing ?? 0) > 0 && (
+                  <span>{tT('clipIndexIncomplete', { count: String(clipStats?.missing ?? 0) })}</span>
+                )}
+              </span>
               <button
                 type="button"
-                disabled={filling}
-                onClick={() => void fillMissing()}
+                disabled={filling || clipFilling}
+                onClick={() => void fillAllMissing()}
                 style={{
                   fontSize: 11,
                   fontFamily: tok.fontDisplay,
-                  color: filling ? tok.textMuted : tok.bg,
-                  background: filling ? tok.textFaint : tok.accent,
+                  color: filling || clipFilling ? tok.textMuted : tok.bg,
+                  background: filling || clipFilling ? tok.textFaint : tok.accent,
                   border: 'none',
                   padding: '4px 12px',
                   borderRadius: 4,
-                  cursor: filling ? 'not-allowed' : 'pointer',
+                  cursor: filling || clipFilling ? 'not-allowed' : 'pointer',
                 }}
               >
-                {filling
-                  ? tT('fillingProgress', { remaining: String(fillProgress?.remaining ?? 0) })
+                {filling || clipFilling
+                  ? tT('fillingProgress', {
+                      remaining: String(
+                        Math.max(fillProgress?.remaining ?? 0, clipFillProgress?.remaining ?? 0),
+                      ),
+                    })
                   : tT('fillMissing')}
               </button>
             </div>

@@ -12,7 +12,7 @@ function setupMocks(embedding: number[], results: { id: string; similarity: numb
   mockInvoke.mockImplementation(async (cmd: string) => {
     if (cmd === 'normalize_embeddings_cmd') return 0;
     if (cmd === 'clip_embed_image_cmd') return embedding;
-    if (cmd === 'search_semantic_cmd') return results;
+    if (cmd === 'search_semantic_image_cmd') return results;
     return null;
   });
 }
@@ -49,7 +49,7 @@ describe('searchByImage', () => {
 
     await searchByImage('/path/to/image.png', 10);
 
-    expect(mockInvoke).toHaveBeenCalledWith('search_semantic_cmd', {
+    expect(mockInvoke).toHaveBeenCalledWith('search_semantic_image_cmd', {
       queryEmbedding: embedding,
       limit: 10,
       minSimilarity: 0,
@@ -86,7 +86,7 @@ describe('searchByImage', () => {
 
     await searchByImage('/path/to/image.png');
 
-    expect(mockInvoke).toHaveBeenCalledWith('search_semantic_cmd', {
+    expect(mockInvoke).toHaveBeenCalledWith('search_semantic_image_cmd', {
       queryEmbedding: [0.1],
       limit: 20,
       minSimilarity: 0,

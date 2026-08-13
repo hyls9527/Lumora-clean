@@ -7,7 +7,13 @@ const mockImportImages = vi.fn();
 
 const { embeddingStoreMock } = vi.hoisted(() => ({
   embeddingStoreMock: vi.fn((selector: unknown) => {
-    const state = { filling: false, fillProgress: null, fillMissing: vi.fn() };
+    const state = {
+      filling: false,
+      clipFilling: false,
+      fillProgress: null,
+      clipFillProgress: null,
+      fillAllMissing: vi.fn(),
+    };
     return selector ? (selector as (s: unknown) => unknown)(state) : state;
   }),
 }));
@@ -26,6 +32,7 @@ vi.mock('../../../stores/embeddingStore', () => ({
 
 vi.mock('../../../lib/api/embeddings', () => ({
   getEmbeddingStats: vi.fn(),
+  getClipEmbeddingStats: vi.fn(),
 }));
 
 vi.mock('../../../lib/api/aesthetic', () => ({
@@ -188,9 +195,21 @@ describe('ImportPage', () => {
       total: 3,
       missing: 3,
     });
-    const fillMissing = vi.fn();
+    vi.mocked(embeddingsApi.getClipEmbeddingStats).mockResolvedValue({
+      embedded: 0,
+      error: 0,
+      total: 3,
+      missing: 0,
+    });
+    const fillAllMissing = vi.fn();
     embeddingStoreMock.mockImplementation((selector: unknown) => {
-      const state = { filling: false, fillProgress: null, fillMissing };
+      const state = {
+        filling: false,
+        clipFilling: false,
+        fillProgress: null,
+        clipFillProgress: null,
+        fillAllMissing,
+      };
       return selector ? (selector as (s: unknown) => unknown)(state) : state;
     });
 
@@ -200,6 +219,6 @@ describe('ImportPage', () => {
       expect(screen.getByText(/还有 3 张图片未建立语义索引/)).toBeTruthy(),
     );
     fireEvent.click(screen.getByText('补齐索引'));
-    expect(fillMissing).toHaveBeenCalledTimes(1);
+    expect(fillAllMissing).toHaveBeenCalledTimes(1);
   });
 });

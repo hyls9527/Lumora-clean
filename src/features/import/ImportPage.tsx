@@ -9,7 +9,7 @@ import { useIsMobile } from '../../hooks/useMediaQuery';
 import { usePerformanceMonitor } from '../../hooks/usePerformance';
 import { t as tok } from '../../lib/tokens';
 import { detectComfyuiPath } from '../../lib/api/comfyui';
-import { getEmbeddingStats } from '../../lib/api/embeddings';
+import { getEmbeddingStats, getClipEmbeddingStats } from '../../lib/api/embeddings';
 import { scoreMissing } from '../../lib/api/aesthetic';
 import { importTargetsFromDrop } from '../../lib/dropPaths';
 
@@ -31,14 +31,17 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
   const [comfyuiPath, setComfyuiPath] = useState<string | null>(null);
   const [comfyuiDetecting, setComfyuiDetecting] = useState(false);
   const [indexHint, setIndexHint] = useState<number | null>(null);
+  const [clipHint, setClipHint] = useState<number | null>(null);
   const isMobile = useIsMobile();
 
   usePerformanceMonitor('ImportPage');
 
   const { loading, error, importImages } = useImageStore();
   const filling = useEmbeddingStore((s) => s.filling);
+  const clipFilling = useEmbeddingStore((s) => s.clipFilling);
   const fillProgress = useEmbeddingStore((s) => s.fillProgress);
-  const fillMissing = useEmbeddingStore((s) => s.fillMissing);
+  const clipFillProgress = useEmbeddingStore((s) => s.clipFillProgress);
+  const fillAllMissing = useEmbeddingStore((s) => s.fillAllMissing);
 
   const handleImport = useCallback(
     async (folderPath?: string) => {
@@ -46,6 +49,7 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
       setRecentImports([]);
       setImportResult(null);
       setIndexHint(null);
+      setClipHint(null);
       try {
         const result = await importImages(folderPath);
         setImportResult({
@@ -66,6 +70,12 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
           setIndexHint(stats.missing > 0 ? stats.missing : null);
         } catch {
           setIndexHint(null);
+        }
+        try {
+          const clipStats = await getClipEmbeddingStats();
+          setClipHint(clipStats.missing > 0 ? clipStats.missing : null);
+        } catch {
+          setClipHint(null);
         }
       } catch {
         // error 已在 store 中设置
@@ -296,7 +306,7 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
         )}
 
         {/* Semantic index completeness hint */}
-        {indexHint !== null && !loading && (
+        {(indexHint !== null || clipHint !== null) && !loading && (
           <div
             role="status"
             style={{
@@ -315,26 +325,33 @@ export function ImportPage({ droppedPaths, onPathsConsumed }: ImportPageProps = 
             }}
           >
             <span>
-              导入完成：还有 {indexHint} 张图片未建立语义索引，补齐后语义搜索更完整
+              导入完成：
+              {indexHint !== null && `还有 ${indexHint} 张图片未建立语义索引`}
+              {indexHint !== null && clipHint !== null && '；'}
+              {clipHint !== null && `还有 ${clipHint} 张图片未建立视觉索引`}
+              ，补齐后搜索更完整
             </span>
             <button
               type="button"
-              disabled={filling}
-              onClick={() => void fillMissing()}
+              disabled={filling || clipFilling}
+              onClick={() => void fillAllMissing()}
               style={{
                 fontSize: 11,
                 fontFamily: tok.fontDisplay,
-                color: filling ? tok.textMuted : tok.bg,
-                background: filling ? tok.textFaint : tok.accent,
+                color: filling || clipFilling ? tok.textMuted : tok.bg,
+                background: filling || clipFilling ? tok.textFaint : tok.accent,
                 border: 'none',
                 padding: '6px 14px',
                 borderRadius: 4,
-                cursor: filling ? 'not-allowed' : 'pointer',
+                cursor: filling || clipFilling ? 'not-allowed' : 'pointer',
                 flexShrink: 0,
               }}
             >
-              {filling
-                ? `补齐中，剩余 ${fillProgress?.remaining ?? 0} 张`
+              {filling || clipFilling
+                ? `补齐中，剩余 ${Math.max(
+                    fillProgress?.remaining ?? 0,
+                    clipFillProgress?.remaining ?? 0,
+                  )} 张`
                 : '补齐索引'}
             </button>
           </div>

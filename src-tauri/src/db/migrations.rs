@@ -3,7 +3,7 @@ use rusqlite::Connection;
 use super::schema;
 
 /// Current schema version — bump when adding migrations.
-pub const SCHEMA_VERSION: i64 = 8;
+pub const SCHEMA_VERSION: i64 = 9;
 
 /// Run all pending migrations inside a single transaction.
 pub fn run_migrations(conn: &Connection) -> Result<(), rusqlite::Error> {
@@ -54,6 +54,7 @@ fn apply_migration(conn: &Connection, version: i64) -> Result<(), rusqlite::Erro
         6 => apply_v6(conn),
         7 => apply_v7(conn),
         8 => apply_v8(conn),
+        9 => apply_v9(conn),
         _ => Err(rusqlite::Error::InvalidQuery),
     }
 }
@@ -138,6 +139,12 @@ fn apply_v8(conn: &Connection) -> Result<(), rusqlite::Error> {
     Ok(())
 }
 
+fn apply_v9(conn: &Connection) -> Result<(), rusqlite::Error> {
+    conn.execute_batch(schema::V9_CREATE_CLIP_EMBEDDINGS)?;
+    conn.execute_batch(schema::V9_CREATE_VEC_CLIP_TABLE)?;
+    Ok(())
+}
+
 /// Roll back migrations from the current version down to `target`.
 /// Each revert runs inside its own transaction so partial progress is
 /// preserved if an intermediate step fails.
@@ -195,6 +202,11 @@ fn revert_migration(conn: &Connection, version: i64) -> Result<(), rusqlite::Err
             // SQLite cannot drop the score columns (no-op).
             Ok(())
         }
+        9 => {
+            conn.execute_batch("DROP TABLE IF EXISTS vec_embeddings_clip;")?;
+            conn.execute_batch("DROP TABLE IF EXISTS clip_embeddings;")?;
+            Ok(())
+        }
         7 => {
             conn.execute_batch("DROP TABLE IF EXISTS smart_collections;")?;
             Ok(())
@@ -236,7 +248,7 @@ mod tests {
         let conn = open_conn();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
-        assert_eq!(v, 8);
+        assert_eq!(v, 9);
     }
 
     #[test]
@@ -245,7 +257,7 @@ mod tests {
         run_migrations(&conn).unwrap();
         run_migrations(&conn).unwrap();
         let v = current_version(&conn).unwrap();
-        assert_eq!(v, 8);
+        assert_eq!(v, 9);
     }
 
     #[test]
@@ -263,7 +275,7 @@ mod tests {
         let conn = open_conn();
         // Migrate all the way up.
         run_migrations(&conn).unwrap();
-        assert_eq!(current_version(&conn).unwrap(), 8);
+        assert_eq!(current_version(&conn).unwrap(), 9);
 
         // Downgrade back to v1.
         downgrade_to(&conn, 1).unwrap();
@@ -291,6 +303,13 @@ mod tests {
         assert!(!exists(
             "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='vec_embeddings'"
         ));
+        // clip_embeddings / vec_embeddings_clip (v9) dropped
+        assert!(!exists(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='clip_embeddings'"
+        ));
+        assert!(!exists(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='vec_embeddings_clip'"
+        ));
         // tags / image_tags (v2) dropped
         assert!(!exists(
             "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='tags'"
@@ -308,6 +327,6 @@ mod tests {
 
         // Verify we can re-migrate back up.
         run_migrations(&conn).unwrap();
-        assert_eq!(current_version(&conn).unwrap(), 8);
+        assert_eq!(current_version(&conn).unwrap(), 9);
     }
 }
