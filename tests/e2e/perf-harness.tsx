@@ -3,9 +3,8 @@
  * used by perf-scroll.spec.ts to measure TC-PERF-002 frame budget locally.
  */
 
-import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { VirtualGrid } from '/src/components/ui/VirtualGrid';
+import { VirtualGrid } from '../../src/components/ui/VirtualGrid';
 
 const COUNT = 10_000;
 const items = Array.from({ length: COUNT }, (_, i) => ({
@@ -22,7 +21,7 @@ if (root) {
         columnCount={4}
         rowHeight={220}
         gap={12}
-        renderItem={(item) => (
+        renderItem={(item: { id: string; label: string }) => (
           <div
             style={{
               height: 220,
