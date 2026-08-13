@@ -34,6 +34,17 @@ pub struct AnalysisHistoryItem {
     pub analyzed_at: String,
 }
 
+/// Prompt asking the vision model to emit a strict JSON analysis payload.
+/// Shared by both the Ollama and OpenAI-compatible backends.
+pub(crate) const ANALYSIS_PROMPT: &str = r#"Analyze this image and return a JSON object with these fields:
+- description: A detailed description of the image (2-3 sentences)
+- tags: An array of objects with "name" and "confidence" (0-1) for relevant tags
+- objects: An array of main objects/subjects in the image
+- color_palette: An array of 5 dominant hex colors
+- composition: Description of the composition technique used
+
+Return ONLY valid JSON, no other text."#;
+
 // ---------------------------------------------------------------------------
 // Ollama API integration
 // ---------------------------------------------------------------------------
@@ -80,7 +91,7 @@ async fn check_ollama_available(cfg: &crate::ollama::OllamaConfig) -> AppResult<
 
 /// Call Ollama API to analyze an image.
 /// Expects Ollama to be running locally with a vision model (e.g., llava).
-async fn call_ollama_analyze(
+pub(crate) async fn call_ollama_analyze(
     cfg: &crate::ollama::OllamaConfig,
     image_path: &str,
     model: &str,
@@ -94,20 +105,11 @@ async fn call_ollama_analyze(
     use base64::Engine;
     let image_base64 = base64::engine::general_purpose::STANDARD.encode(&image_bytes);
 
-    let prompt = r#"Analyze this image and return a JSON object with these fields:
-- description: A detailed description of the image (2-3 sentences)
-- tags: An array of objects with "name" and "confidence" (0-1) for relevant tags
-- objects: An array of main objects/subjects in the image
-- color_palette: An array of 5 dominant hex colors
-- composition: Description of the composition technique used
-
-Return ONLY valid JSON, no other text."#;
-
     let request = OllamaRequest {
         model: model.to_string(),
         messages: vec![OllamaMessage {
             role: "user".to_string(),
-            content: prompt.to_string(),
+            content: ANALYSIS_PROMPT.to_string(),
             images: Some(vec![image_base64]),
         }],
         stream: false,
@@ -134,10 +136,9 @@ Return ONLY valid JSON, no other text."#;
         .await
         .map_err(|e| format!("Failed to parse Ollama response: {}", e))?;
 
-    // Parse the JSON content from the model's response
+    // Parse the JSON content from the model's response (tolerates fences).
     let content = ollama_resp.message.content;
-    let result: AnalysisResult = serde_json::from_str(&content)
-        .map_err(|e| format!("Failed to parse analysis result: {}", e))?;
+    let result: AnalysisResult = crate::provider::parse_analysis_content(&content)?;
 
     Ok(result)
 }
@@ -259,14 +260,13 @@ pub fn get_analysis_history_db(
 
 #[command]
 pub async fn analyze_image_cmd(
+    app: tauri::AppHandle,
     db: tauri::State<'_, DbHandle>,
     cfg: tauri::State<'_, crate::ollama::OllamaConfig>,
     image_id: String,
     image_path: String,
     model: Option<String>,
 ) -> AppResult<AnalysisResult> {
-    let model_name = model.unwrap_or_else(|| "llava:latest".to_string());
-
     // Validate that image_path belongs to image_id (prevents arbitrary file read)
     // NOTE: Lock scope is minimal — released before any network I/O (Ollama API call).
     // This prevents blocking other DB operations during the potentially slow AI analysis.
@@ -286,8 +286,8 @@ pub async fn analyze_image_cmd(
         }
     }
 
-    // Call Ollama to analyze the image
-    let result = call_ollama_analyze(&cfg, &image_path, &model_name).await?;
+    // Analyze through the active provider (local Ollama or OpenAI-compatible).
+    let result = crate::provider::analyze_image(&app, &cfg, &image_path, model.as_deref()).await?;
 
     // Store the result in the database
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;

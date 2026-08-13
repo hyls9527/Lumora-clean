@@ -2,6 +2,7 @@ import { useSettingsStore } from '../../stores/settingsStore';
 import { exportDatabase, importDatabase } from '../../lib/api/backup';
 import { getLanInfo, type LanInfo } from '../../lib/api/lan';
 import { getAppVersion } from '../../lib/api/settings';
+import { getAiProviderConfig, setAiProviderConfig, type AiProviderConfig } from '../../lib/api/aiProvider';
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { useState, useEffect } from 'react';
 import { useTranslation } from '../../lib/i18n';
@@ -165,6 +166,8 @@ export function SettingsPage() {
   const [backupMsg, setBackupMsg] = useState('');
   const [lanInfo, setLanInfo] = useState<LanInfo | null>(null);
   const [appVersion, setAppVersion] = useState('');
+  const [aiCfg, setAiCfg] = useState<AiProviderConfig | null>(null);
+  const [aiMsg, setAiMsg] = useState('');
   const {
     available,
     checking,
@@ -181,6 +184,30 @@ export function SettingsPage() {
 
   useEffect(() => { getLanInfo().then(setLanInfo).catch(() => {}); }, []);
   useEffect(() => { getAppVersion().then(setAppVersion).catch(() => {}); }, []);
+  useEffect(() => { getAiProviderConfig().then(setAiCfg).catch(() => {}); }, []);
+
+  const saveAiConfig = async () => {
+    if (!aiCfg) return;
+    try {
+      await setAiProviderConfig(aiCfg);
+      setAiMsg(t('aiSaved'));
+    } catch {
+      setAiMsg(t('aiSaveFailed'));
+    }
+    setTimeout(() => setAiMsg(''), 3000);
+  };
+
+  const aiInputStyle: React.CSSProperties = {
+    width: 220,
+    padding: '8px 10px',
+    fontSize: 12,
+    fontFamily: 'var(--font-body)',
+    color: token.text,
+    background: token.surface,
+    border: `1px solid ${token.border}`,
+    borderRadius: 4,
+    outline: 'none',
+  };
 
   const handleExport = async () => {
     try {
@@ -294,6 +321,140 @@ export function SettingsPage() {
               {theme === 'light' ? '古卷·灯火' : '暗夜'}
             </span>
           </div>
+        </section>
+
+        {/* ── AI backend ── */}
+        <section style={{ marginBottom: 36 }}>
+          <SectionHeading>{t('aiBackend')}</SectionHeading>
+          {aiCfg && (
+            <>
+              <Row label={t('aiProviderLabel')}>
+                <SegmentedControl
+                  options={[
+                    { key: 'ollama' as const, label: t('aiLocal') },
+                    { key: 'openai' as const, label: t('aiOpenAI') },
+                  ]}
+                  value={aiCfg.provider === 'openai' ? 'openai' : 'ollama'}
+                  onChange={(v) => setAiCfg({ ...aiCfg, provider: v })}
+                />
+              </Row>
+              {aiCfg.provider === 'openai' && (
+                <div
+                  style={{
+                    marginTop: 12,
+                    padding: 12,
+                    background: token.surface,
+                    border: `1px solid ${token.border}`,
+                    borderRadius: 6,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 10,
+                  }}
+                >
+                  <label
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: 12,
+                      fontSize: 12,
+                      fontFamily: 'var(--font-body)',
+                      color: token.muted,
+                    }}
+                  >
+                    {t('aiBaseUrl')}
+                    <input
+                      type="text"
+                      value={aiCfg.openaiBaseUrl}
+                      onChange={(e) => setAiCfg({ ...aiCfg, openaiBaseUrl: e.target.value })}
+                      style={aiInputStyle}
+                    />
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: 12,
+                      fontSize: 12,
+                      fontFamily: 'var(--font-body)',
+                      color: token.muted,
+                    }}
+                  >
+                    {t('aiApiKey')}
+                    <input
+                      type="password"
+                      value={aiCfg.openaiApiKey}
+                      onChange={(e) => setAiCfg({ ...aiCfg, openaiApiKey: e.target.value })}
+                      style={aiInputStyle}
+                      placeholder="sk-…"
+                    />
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: 12,
+                      fontSize: 12,
+                      fontFamily: 'var(--font-body)',
+                      color: token.muted,
+                    }}
+                  >
+                    {t('aiEmbeddingModel')}
+                    <input
+                      type="text"
+                      value={aiCfg.openaiEmbeddingModel}
+                      onChange={(e) => setAiCfg({ ...aiCfg, openaiEmbeddingModel: e.target.value })}
+                      style={aiInputStyle}
+                    />
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: 12,
+                      fontSize: 12,
+                      fontFamily: 'var(--font-body)',
+                      color: token.muted,
+                    }}
+                  >
+                    {t('aiVisionModel')}
+                    <input
+                      type="text"
+                      value={aiCfg.openaiVisionModel}
+                      onChange={(e) => setAiCfg({ ...aiCfg, openaiVisionModel: e.target.value })}
+                      style={aiInputStyle}
+                    />
+                  </label>
+                </div>
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => void saveAiConfig()}
+                  style={{
+                    fontSize: 12,
+                    fontFamily: 'var(--font-display)',
+                    color: token.bg,
+                    background: token.accent,
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {t('aiSave')}
+                </button>
+                {aiMsg && (
+                  <span style={{ fontSize: 11, color: tok.success, fontFamily: 'var(--font-body)' }}>
+                    {aiMsg}
+                  </span>
+                )}
+              </div>
+            </>
+          )}
         </section>
 
         {/* ── Shortcuts ── */}

@@ -7,6 +7,7 @@ mod lan_server;
 mod mcp;
 mod metadata;
 mod ollama;
+mod provider;
 mod schema;
 
 use std::path::PathBuf;
@@ -119,6 +120,8 @@ pub fn run() {
             commands::embeddings::get_clip_embedding_stats_cmd,
             commands::embeddings::search_semantic_image_cmd,
             commands::embeddings::embed_clip_missing_cmd,
+            provider::get_ai_provider_cmd,
+            provider::set_ai_provider_cmd,
             commands::ai::analyze_image_cmd,
             commands::ai::get_analysis_result_cmd,
             commands::ai::get_analysis_history_cmd,

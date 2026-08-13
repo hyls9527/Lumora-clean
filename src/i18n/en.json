@@ -204,6 +204,17 @@
     "empty": "No tags yet. Create one to get started."
   },
   "settings": {
+    "aiBackend": "AI backend",
+    "aiProviderLabel": "Inference & embedding service",
+    "aiLocal": "Local Ollama",
+    "aiOpenAI": "OpenAI-compatible",
+    "aiBaseUrl": "API base URL",
+    "aiApiKey": "API key",
+    "aiEmbeddingModel": "Embedding model",
+    "aiVisionModel": "Vision model",
+    "aiSave": "Save AI settings",
+    "aiSaved": "AI settings saved",
+    "aiSaveFailed": "Failed to save AI settings",
     "title": "Settings",
     "language": "Language",
     "interfaceLanguage": "Interface Language",

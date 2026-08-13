@@ -204,6 +204,17 @@
     "empty": "暂无标签，创建一个开始使用吧"
   },
   "settings": {
+    "aiBackend": "AI 后端",
+    "aiProviderLabel": "推理与嵌入服务",
+    "aiLocal": "本地 Ollama",
+    "aiOpenAI": "OpenAI 兼容",
+    "aiBaseUrl": "API Base URL",
+    "aiApiKey": "API Key",
+    "aiEmbeddingModel": "嵌入模型",
+    "aiVisionModel": "视觉模型",
+    "aiSave": "保存 AI 设置",
+    "aiSaved": "AI 设置已保存",
+    "aiSaveFailed": "AI 设置保存失败",
     "title": "设置",
     "language": "语言",
     "interfaceLanguage": "界面语言",

@@ -2,6 +2,11 @@
 
 All notable changes to Lumora are documented here.
 
+## Unreleased
+
+### Added
+- 多 AI 后端：语义搜索嵌入与视觉分析可在本地 Ollama 与 OpenAI 兼容 API 间切换（设置页「AI 后端」配置 Base URL / Key / 模型；环境变量兜底；分析输出解析兼容 markdown 代码块与夹带文本）
+
 ## v0.10.0 (2026-08-14)
 
 ### Added

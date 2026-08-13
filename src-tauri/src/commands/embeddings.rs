@@ -383,24 +383,24 @@ pub(crate) async fn embed_text_ollama(
 
 #[command]
 pub async fn embed_text_cmd(
+    app: tauri::AppHandle,
     cfg: tauri::State<'_, crate::ollama::OllamaConfig>,
     text: String,
     model: Option<String>,
 ) -> AppResult<Vec<f64>> {
-    let model_name = model.unwrap_or_else(|| "nomic-embed-text".to_string());
-    embed_text_ollama(&cfg, &text, &model_name).await
+    crate::provider::embed_text(&app, &cfg, &text, model.as_deref()).await
 }
 
 #[command]
 pub async fn generate_embedding_for_image_cmd(
+    app: tauri::AppHandle,
     db: tauri::State<'_, DbHandle>,
     cfg: tauri::State<'_, crate::ollama::OllamaConfig>,
     image_id: String,
     description: String,
     model: Option<String>,
 ) -> AppResult<()> {
-    let model_name = model.unwrap_or_else(|| "nomic-embed-text".to_string());
-    let embedding = embed_text_ollama(&cfg, &description, &model_name).await?;
+    let embedding = crate::provider::embed_text(&app, &cfg, &description, model.as_deref()).await?;
 
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     Ok(upsert_embedding(&conn, &image_id, &embedding)?)
@@ -417,12 +417,12 @@ pub struct EmbedMissingResult {
 /// before the failure stay embedded.
 #[command]
 pub async fn embed_missing_cmd(
+    app: tauri::AppHandle,
     db: tauri::State<'_, DbHandle>,
     cfg: tauri::State<'_, crate::ollama::OllamaConfig>,
     limit: Option<i64>,
     model: Option<String>,
 ) -> AppResult<EmbedMissingResult> {
-    let model_name = model.unwrap_or_else(|| "nomic-embed-text".to_string());
     let batch = limit.unwrap_or(10).clamp(1, 50);
 
     let missing = {
@@ -432,7 +432,8 @@ pub async fn embed_missing_cmd(
 
     let mut processed = 0i64;
     for (image_id, description) in missing {
-        let embedding = embed_text_ollama(&cfg, &description, &model_name).await?;
+        let embedding =
+            crate::provider::embed_text(&app, &cfg, &description, model.as_deref()).await?;
         let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
         upsert_embedding(&conn, &image_id, &embedding)?;
         processed += 1;
