@@ -441,6 +441,9 @@ pub fn get_best_in_latest_variant_group(
 pub struct ScoreExplanation {
     pub file_name: String,
     pub hps_score: Option<f64>,
+    /// HPS is a same-prompt preference logit: it only means something when
+    /// at least one other scored image shares this image's variant group.
+    pub hps_comparable: bool,
     pub hps_style: Option<String>,
     pub aesthetic_score: Option<f64>,
     pub score_label: Option<String>,
@@ -462,18 +465,39 @@ fn finish_explanation(
             .map(|n| n.to_string_lossy().to_string())
             .unwrap_or_default(),
         hps_score,
+        hps_comparable: false,
         hps_style,
         aesthetic_score,
         score_label,
         percentile: None,
         style_total: 0,
     };
+    if explanation.hps_score.is_some() {
+        explanation.hps_comparable = same_prompt_scored_count(conn, &file_path)? >= 2;
+    }
     if let Some(score) = explanation.aesthetic_score {
         let (percentile, total) = style_percentile(conn, explanation.hps_style.as_deref(), score)?;
         explanation.percentile = percentile;
         explanation.style_total = total;
     }
     Ok(explanation)
+}
+
+/// Number of scored images in the same variant group as `file_path`
+/// (including the image itself). HPS is comparable only when this is >= 2.
+fn same_prompt_scored_count(conn: &Connection, file_path: &str) -> AppResult<i64> {
+    let count = conn.query_row(
+        "SELECT COUNT(*) FROM images
+         WHERE deleted = 0
+           AND hps_score IS NOT NULL
+           AND variant_group_id IS NOT NULL
+           AND variant_group_id = (
+             SELECT variant_group_id FROM images WHERE file_path = ?1
+           )",
+        params![file_path],
+        |r| r.get(0),
+    )?;
+    Ok(count)
 }
 
 fn style_percentile(
@@ -988,6 +1012,51 @@ mod tests {
         assert!(exp.aesthetic_score.is_none());
         assert!(exp.percentile.is_none());
         assert_eq!(exp.style_total, 0);
+    }
+
+    #[test]
+    fn score_explanation_marks_hps_comparable_only_within_variant_group() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            conn.execute(
+                "INSERT INTO variant_groups (id, prompt) VALUES ('vg-1', 'a cat')",
+                [],
+            )
+            .unwrap();
+            insert_image(&conn, "v1");
+            insert_image(&conn, "v2");
+            insert_image(&conn, "solo");
+            conn.execute(
+                "UPDATE images SET variant_group_id = 'vg-1', hps_score = 0.7,
+                 aesthetic_score = 8.0, score_label = '夯' WHERE id IN ('v1','v2')",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "UPDATE images SET hps_score = 0.9, aesthetic_score = 9.0,
+                 score_label = '夯' WHERE id = 'solo'",
+                [],
+            )
+            .unwrap();
+        }
+
+        let conn = db.conn().lock().unwrap();
+        let grouped = get_score_explanation_inner(&conn, "v1.png")
+            .unwrap()
+            .unwrap();
+        assert!(
+            grouped.hps_comparable,
+            "same-prompt variant should compare HPS"
+        );
+
+        let solo = get_score_explanation_inner(&conn, "solo.png")
+            .unwrap()
+            .unwrap();
+        assert!(
+            !solo.hps_comparable,
+            "a lone HPS logit must not be presented as comparable"
+        );
     }
 
     #[test]

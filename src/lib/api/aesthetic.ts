@@ -144,6 +144,7 @@ export async function getBestInLatestVariantGroup(): Promise<BestVariantImage | 
 export interface ScoreExplanation {
   fileName: string;
   hpsScore?: number;
+  hpsComparable?: boolean;
   hpsStyle?: string;
   aestheticScore?: number;
   scoreLabel?: string;
@@ -181,6 +182,7 @@ function mapExplanation(result: ScoreExplanation | null): ScoreExplanation | nul
   return {
     fileName: result.fileName,
     hpsScore: result.hpsScore ?? undefined,
+    hpsComparable: result.hpsComparable ?? false,
     hpsStyle: result.hpsStyle ?? undefined,
     aestheticScore: result.aestheticScore ?? undefined,
     scoreLabel: result.scoreLabel ?? undefined,

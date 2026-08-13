@@ -24,6 +24,7 @@ import {
   moveScoreTierToTrash,
   scoreBackfill,
 } from '../api/aesthetic';
+import { formatScoreExplanation } from './explain';
 
 const PAGE_PATHS: Record<string, RoutePath> = {
   图库: '/gallery',
@@ -308,17 +309,7 @@ export const capabilities: Capability[] = [
       if (explanation.aestheticScore == null) {
         return `「${explanation.fileName}」还没评分，说「把评分补上」就行`;
       }
-      const aesthetic = explanation.aestheticScore.toFixed(1);
-      const hps =
-        explanation.hpsScore != null
-          ? `，HPS ${explanation.hpsScore.toFixed(1)}`
-          : '';
-      const classLabel = explanation.hpsStyle ?? '全库';
-      const percentile =
-        explanation.percentile != null
-          ? `，在${classLabel}类里超过 ${Math.round(explanation.percentile)}% 的图（同类 ${explanation.styleTotal} 张）`
-          : '';
-      return `「${explanation.fileName}」是「${explanation.scoreLabel ?? '未评分'}」：美学 ${aesthetic}${hps}${percentile}`;
+      return formatScoreExplanation(explanation);
     },
   },
   {
