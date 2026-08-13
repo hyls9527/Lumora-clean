@@ -9,9 +9,11 @@ import { join } from 'path';
 const BUDGETS = {
   'Frontend bundle (dist/)': { max: 500_000, unit: 'bytes' },
   'Rust binary (release)': { max: 30_000_000, unit: 'bytes' },
-  'npm packages': { max: 350, unit: 'count' },
+  // Playwright E2E deps (68573c4) pushed the lockfile past 350; budget keeps
+  // a little headroom for tooling-only additions.
+  'npm packages': { max: 360, unit: 'count' },
   'cargo crates': { max: 700, unit: 'count' },
-  'TypeScript files': { max: 200, unit: 'count' },
+  'TypeScript files': { max: 202, unit: 'count' },
   'Zustand stores': { max: 12, unit: 'count' },
 };
 

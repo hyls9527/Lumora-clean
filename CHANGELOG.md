@@ -2,11 +2,21 @@
 
 All notable changes to Lumora are documented here.
 
-## Unreleased
+## v0.10.0 (2026-08-14)
 
 ### Added
 - MCP（Model Context Protocol）接入：内嵌 Streamable HTTP 服务端，位于 `/mcp`，复用局域网 token 鉴权；AI 客户端（Claude、Cursor 等）可浏览、搜索、读取图片，并可管理标签 / 收藏 / 回收站（移入与恢复）；评分保持人工，不向 AI 开放
 - 局域网 token 持久化（`settings.json` 中的 `lan_token`），AI 客户端配置跨重启保持有效
+- 以图搜图独立 CLIP 视觉索引（迁移 V9）：512 维 CLIP 向量库与 768 维语义索引分离，新增视觉索引缺失统计与一键补齐；CLIP sidecar 支持批量嵌入（单进程一次加载模型）
+- 真实环境端到端测试与 10K 性能预算：语义搜索 / 以图搜图真实链路断言 + 10K 语义搜索延迟预算（实测 68ms / 1.5s）
+
+### Fixed
+- Windows 下 CLIP / 审美评分 sidecar 无法启动（`os error 193`），统一经 Python 解释器启动（`LUMORA_PYTHON` 可覆盖）
+- 以图搜图真实环境维度不匹配（512 维 CLIP 向量查询 768 维索引）
+- 跨 prompt 的 HPS 展示误导：仅在同 prompt 变体内展示 HPS，并标注「组内」「仅同 prompt 变体内可比」
+
+### Tests
+- 前端 738 → 739 测试；Rust 198 → 201 测试（另 3 个真实环境 E2E 为 `#[ignore]`，本地手动跑）；Python sidecar 12
 
 ## v0.9.0 (2026-08-08)
 

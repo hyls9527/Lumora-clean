@@ -25,6 +25,7 @@ orchestration-summary.json
 __pycache__/
 *.pyc
 src-tauri/sidecar/__pycache__/
+.pytest-tmp/
 
 # Build artifacts
 *.msi
