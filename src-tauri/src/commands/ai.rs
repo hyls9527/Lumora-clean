@@ -346,6 +346,8 @@ pub async fn apply_ai_tags_cmd(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use axum::routing::{get, post};
+    use axum::{Json, Router};
 
     #[test]
     fn store_and_get_analysis() {
@@ -532,5 +534,45 @@ mod tests {
             )
             .unwrap();
         assert_eq!(assoc_count, 1);
+    }
+
+    #[test]
+    fn call_ollama_analyze_parses_mocked_chat_response() {
+        async fn tags() -> Json<serde_json::Value> {
+            Json(serde_json::json!({ "models": [] }))
+        }
+        async fn chat(Json(_body): Json<serde_json::Value>) -> Json<serde_json::Value> {
+            Json(serde_json::json!({
+                "message": {
+                    "role": "assistant",
+                    "content": "{\"description\":\"a cat\",\"tags\":[],\"objects\":[],\"color_palette\":[],\"composition\":\"\"}"
+                }
+            }))
+        }
+
+        let dir = tempfile::tempdir().unwrap();
+        let image_path = dir.path().join("cat.png");
+        let img = image::RgbImage::from_pixel(4, 4, image::Rgb([10, 20, 30]));
+        img.save(&image_path).unwrap();
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            let router = Router::new()
+                .route("/api/tags", get(tags))
+                .route("/api/chat", post(chat));
+            let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+            let port = listener.local_addr().unwrap().port();
+            let task = tokio::spawn(async move {
+                let _ = axum::serve(listener, router).await;
+            });
+
+            let cfg =
+                crate::ollama::OllamaConfig::from_host_for_test(format!("http://127.0.0.1:{port}"));
+            let result = call_ollama_analyze(&cfg, image_path.to_str().unwrap(), "llava")
+                .await
+                .unwrap();
+            assert_eq!(result.description, "a cat");
+            task.abort();
+        });
     }
 }

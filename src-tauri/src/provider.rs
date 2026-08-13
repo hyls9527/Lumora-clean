@@ -49,31 +49,55 @@ fn store_str(app: &tauri::AppHandle, key: &str) -> Option<String> {
         .filter(|s| !s.trim().is_empty())
 }
 
-fn env_or(key: &str, fallback: &str) -> String {
-    std::env::var(key)
-        .ok()
-        .filter(|s| !s.trim().is_empty())
-        .unwrap_or_else(|| fallback.to_string())
-}
-
 /// Load the effective provider config (settings → env → defaults).
 pub fn load_config(app: &tauri::AppHandle) -> AiProviderConfig {
+    resolve_config(&|key| store_str(app, key), &|key| {
+        std::env::var(key).ok().filter(|s| !s.trim().is_empty())
+    })
+}
+
+/// Pure config resolution: store value first, then env, then defaults.
+/// Extracted for unit testing without an `AppHandle`.
+pub(crate) fn resolve_config(
+    store: &dyn Fn(&str) -> Option<String>,
+    env: &dyn Fn(&str) -> Option<String>,
+) -> AiProviderConfig {
     let defaults = AiProviderConfig::default();
+    let pick = |store_key: &str, env_key: Option<&str>, fallback: &str| -> String {
+        store(store_key)
+            .or_else(|| env_key.and_then(env))
+            .unwrap_or_else(|| fallback.to_string())
+    };
     AiProviderConfig {
-        provider: store_str(app, "ai.provider")
-            .unwrap_or_else(|| env_or("LUMORA_AI_PROVIDER", PROVIDER_OLLAMA)),
-        openai_base_url: store_str(app, "ai.openai_base_url")
-            .unwrap_or_else(|| env_or("OPENAI_BASE_URL", &defaults.openai_base_url)),
-        openai_api_key: store_str(app, "ai.openai_api_key")
-            .unwrap_or_else(|| env_or("OPENAI_API_KEY", "")),
-        openai_embedding_model: store_str(app, "ai.openai_embedding_model")
-            .unwrap_or_else(|| env_or("OPENAI_EMBEDDING_MODEL", &defaults.openai_embedding_model)),
-        openai_vision_model: store_str(app, "ai.openai_vision_model")
-            .unwrap_or_else(|| env_or("OPENAI_VISION_MODEL", &defaults.openai_vision_model)),
-        ollama_embedding_model: store_str(app, "ai.ollama_embedding_model")
-            .unwrap_or(defaults.ollama_embedding_model),
-        ollama_vision_model: store_str(app, "ai.ollama_vision_model")
-            .unwrap_or(defaults.ollama_vision_model),
+        provider: store("ai.provider")
+            .or_else(|| env("LUMORA_AI_PROVIDER"))
+            .unwrap_or_else(|| defaults.provider.clone()),
+        openai_base_url: pick(
+            "ai.openai_base_url",
+            Some("OPENAI_BASE_URL"),
+            &defaults.openai_base_url,
+        ),
+        openai_api_key: pick("ai.openai_api_key", Some("OPENAI_API_KEY"), ""),
+        openai_embedding_model: pick(
+            "ai.openai_embedding_model",
+            Some("OPENAI_EMBEDDING_MODEL"),
+            &defaults.openai_embedding_model,
+        ),
+        openai_vision_model: pick(
+            "ai.openai_vision_model",
+            Some("OPENAI_VISION_MODEL"),
+            &defaults.openai_vision_model,
+        ),
+        ollama_embedding_model: pick(
+            "ai.ollama_embedding_model",
+            None,
+            &defaults.ollama_embedding_model,
+        ),
+        ollama_vision_model: pick(
+            "ai.ollama_vision_model",
+            None,
+            &defaults.ollama_vision_model,
+        ),
     }
 }
 
@@ -301,6 +325,8 @@ pub fn set_ai_provider_cmd(app: tauri::AppHandle, config: AiProviderConfig) -> A
 #[cfg(test)]
 mod tests {
     use super::*;
+    use axum::routing::post;
+    use axum::{Json, Router};
 
     #[test]
     fn default_config_uses_local_ollama() {
@@ -340,5 +366,140 @@ mod tests {
         let prose = format!("Here you go: {payload} hope it helps");
         let parsed = parse_analysis_content(&prose).unwrap();
         assert_eq!(parsed.description, "a cat");
+    }
+
+    #[test]
+    fn resolve_config_prefers_store_then_env_then_defaults() {
+        let store = |key: &str| match key {
+            "ai.provider" => Some("openai".to_string()),
+            "ai.openai_api_key" => Some("sk-store".to_string()),
+            _ => None,
+        };
+        let env = |key: &str| match key {
+            "OPENAI_BASE_URL" => Some("https://env.example/v1".to_string()),
+            "OPENAI_API_KEY" => Some("sk-env".to_string()),
+            _ => None,
+        };
+        let config = resolve_config(&store, &env);
+        assert_eq!(config.provider, "openai");
+        // Store wins over env for the key.
+        assert_eq!(config.openai_api_key, "sk-store");
+        // Env fills what store lacks.
+        assert_eq!(config.openai_base_url, "https://env.example/v1");
+        // Defaults fill the rest.
+        assert_eq!(config.openai_embedding_model, "text-embedding-3-small");
+    }
+
+    #[test]
+    fn resolve_config_falls_back_to_ollama_defaults() {
+        let none = |_: &str| None::<String>;
+        let config = resolve_config(&none, &none);
+        assert_eq!(config.provider, PROVIDER_OLLAMA);
+        assert_eq!(config.ollama_embedding_model, "nomic-embed-text");
+    }
+
+    #[test]
+    fn openai_embed_requires_api_key() {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            let config = AiProviderConfig {
+                provider: PROVIDER_OPENAI.to_string(),
+                openai_api_key: String::new(),
+                ..Default::default()
+            };
+            let err = openai_embed(&config, "hello").await.unwrap_err();
+            assert!(err.to_string().contains("API Key"));
+        });
+    }
+
+    #[test]
+    fn openai_embed_hits_compatible_endpoint() {
+        async fn handler(Json(_body): Json<Value>) -> Json<Value> {
+            Json(json!({ "data": [{ "embedding": [0.1, 0.2, 0.3] }] }))
+        }
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            let router = Router::new().route("/v1/embeddings", post(handler));
+            let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+            let port = listener.local_addr().unwrap().port();
+            let task = tokio::spawn(async move {
+                let _ = axum::serve(listener, router).await;
+            });
+
+            let config = AiProviderConfig {
+                provider: PROVIDER_OPENAI.to_string(),
+                openai_base_url: format!("http://127.0.0.1:{port}/v1"),
+                openai_api_key: "sk-test".to_string(),
+                ..Default::default()
+            };
+            let vec = openai_embed(&config, "hello").await.unwrap();
+            assert_eq!(vec, vec![0.1, 0.2, 0.3]);
+            task.abort();
+        });
+    }
+
+    #[test]
+    fn openai_embed_surfaces_http_errors() {
+        async fn handler() -> axum::http::StatusCode {
+            axum::http::StatusCode::UNAUTHORIZED
+        }
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            let router = Router::new().route("/v1/embeddings", post(handler));
+            let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+            let port = listener.local_addr().unwrap().port();
+            let task = tokio::spawn(async move {
+                let _ = axum::serve(listener, router).await;
+            });
+
+            let config = AiProviderConfig {
+                provider: PROVIDER_OPENAI.to_string(),
+                openai_base_url: format!("http://127.0.0.1:{port}/v1"),
+                openai_api_key: "sk-test".to_string(),
+                ..Default::default()
+            };
+            let err = openai_embed(&config, "hello").await.unwrap_err();
+            assert!(err.to_string().contains("401"));
+            task.abort();
+        });
+    }
+
+    #[test]
+    fn openai_analyze_hits_compatible_chat_endpoint() {
+        async fn handler(Json(_body): Json<Value>) -> Json<Value> {
+            Json(json!({
+                "choices": [{
+                    "message": {
+                        "content": "{\"description\":\"a cat\",\"tags\":[],\"objects\":[],\"color_palette\":[],\"composition\":\"\"}"
+                    }
+                }]
+            }))
+        }
+        let dir = tempfile::tempdir().unwrap();
+        let image_path = dir.path().join("cat.png");
+        let img = image::RgbImage::from_pixel(4, 4, image::Rgb([10, 20, 30]));
+        img.save(&image_path).unwrap();
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            let router = Router::new().route("/v1/chat/completions", post(handler));
+            let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+            let port = listener.local_addr().unwrap().port();
+            let task = tokio::spawn(async move {
+                let _ = axum::serve(listener, router).await;
+            });
+
+            let config = AiProviderConfig {
+                provider: PROVIDER_OPENAI.to_string(),
+                openai_base_url: format!("http://127.0.0.1:{port}/v1"),
+                openai_api_key: "sk-test".to_string(),
+                ..Default::default()
+            };
+            let result = openai_analyze(&config, image_path.to_str().unwrap())
+                .await
+                .unwrap();
+            assert_eq!(result.description, "a cat");
+            task.abort();
+        });
     }
 }

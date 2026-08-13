@@ -60,3 +60,32 @@ pub(crate) fn sidecar_command(name: &str) -> AppResult<std::process::Command> {
     let script = sidecar_path_for(name)?;
     Ok(std::process::Command::new(&script))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sidecar_path_resolves_manifest_location() {
+        let path = sidecar_path_for("clip_server.py").unwrap();
+        assert!(path.ends_with("clip_server.py"));
+        assert!(std::path::Path::new(&path).exists());
+    }
+
+    #[test]
+    fn sidecar_path_reports_missing_script() {
+        let err = sidecar_path_for("definitely-not-a-sidecar.py").unwrap_err();
+        assert!(err.to_string().contains("Sidecar not found"));
+    }
+
+    #[test]
+    fn sidecar_command_targets_the_script() {
+        let cmd = sidecar_command("clip_server.py").unwrap();
+        let args: Vec<String> = cmd
+            .get_args()
+            .map(|a| a.to_string_lossy().to_string())
+            .collect();
+        assert_eq!(args.len(), 1);
+        assert!(args[0].ends_with("clip_server.py"));
+    }
+}

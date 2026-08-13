@@ -266,7 +266,7 @@ impl ServerHandler for LumoraMcp {}
 // Tool implementations
 // ---------------------------------------------------------------------------
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 struct ImageDetail {
     #[serde(flatten)]
     record: ImageRecord,
@@ -274,7 +274,7 @@ struct ImageDetail {
     embedding: Option<EmbeddingInfo>,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 struct TagWithCount {
     id: String,
     name: String,
@@ -475,7 +475,7 @@ fn list_tags_impl(db: &DbHandle) -> Result<Vec<TagWithCount>, String> {
     let conn = lock_db(db)?;
     let mut stmt = conn
         .prepare(
-            "SELECT t.id, t.name, t.color, COUNT(it.image_id) AS cnt
+            "SELECT t.id, t.name, t.color, COUNT(i.id) AS cnt
              FROM tags t
              LEFT JOIN image_tags it ON it.tag_id = t.id
              LEFT JOIN images i ON i.id = it.image_id AND i.deleted = 0
@@ -553,4 +553,313 @@ async fn semantic_search_impl(
         }
     }
     Ok(items)
+}
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_db() -> DbHandle {
+        DbHandle::open_memory().unwrap()
+    }
+
+    fn insert_image(conn: &Connection, id: &str, path: &str) {
+        conn.execute(
+            "INSERT INTO images
+             (id, file_path, file_hash, file_size_kb, format, created_at, imported_at, rating, favorite)
+             VALUES (?1, ?2, 'h', 1, 'png', '2025-01-01', '2025-01-01T00:00:00Z', 3, 0)",
+            params![id, path],
+        )
+        .unwrap();
+    }
+
+    fn call_result_is_error(result: &CallToolResult) -> bool {
+        let value = serde_json::to_value(result).unwrap();
+        value
+            .get("isError")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false)
+    }
+
+    #[test]
+    fn service_constructs_without_network() {
+        let db = test_db();
+        let _service = service(db);
+    }
+
+    #[test]
+    fn list_images_paginates_and_attaches_tags() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "i1", "/a.png");
+            insert_image(&conn, "i2", "/b.png");
+            conn.execute("INSERT INTO tags (id, name) VALUES ('t1', 'nature')", [])
+                .unwrap();
+            conn.execute(
+                "INSERT INTO image_tags (image_id, tag_id) VALUES ('i1', 't1')",
+                [],
+            )
+            .unwrap();
+        }
+
+        let page = list_images_impl(&db, 1, 1).unwrap();
+        assert_eq!(page.total, 2);
+        assert_eq!(page.items.len(), 1);
+        assert_eq!(page.items[0].tags.len(), 1);
+        assert_eq!(page.items[0].tags[0], "nature");
+
+        let page2 = list_images_impl(&db, 2, 1).unwrap();
+        assert_eq!(page2.items.len(), 1);
+        assert_ne!(page2.items[0].id, page.items[0].id);
+    }
+
+    #[test]
+    fn search_images_matches_fts_over_prompt() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            conn.execute(
+                "INSERT INTO images
+                 (id, file_path, file_hash, file_size_kb, format, created_at, metadata_json)
+                 VALUES ('s1', '/sunset.png', 'h', 1, 'png', '2025-01-01', '{\"prompt\":\"golden sunset\"}')",
+                [],
+            )
+            .unwrap();
+            insert_image(&conn, "s2", "/plain.png");
+        }
+        let hits = search_images_impl(&db, "sunset", 10).unwrap();
+        assert_eq!(hits.len(), 1);
+        assert_eq!(hits[0].id, "s1");
+    }
+
+    #[test]
+    fn get_image_returns_detail_and_reports_missing() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "d1", "/d.png");
+        }
+        let detail = get_image_impl(&db, "d1").unwrap();
+        assert_eq!(detail.record.id, "d1");
+        assert!(detail.latest_analysis.is_none());
+        assert!(detail.embedding.is_none());
+
+        let err = get_image_impl(&db, "ghost").unwrap_err();
+        assert!(err.contains("not found"));
+    }
+
+    #[test]
+    fn image_file_resizes_png_and_falls_back_on_undecodable() {
+        let db = test_db();
+        let dir = tempfile::tempdir().unwrap();
+
+        let png_path = dir.path().join("ok.png");
+        let img = image::RgbImage::from_pixel(8, 8, image::Rgb([200, 30, 30]));
+        img.save(&png_path).unwrap();
+
+        let bin_path = dir.path().join("raw.webp");
+        std::fs::write(&bin_path, b"not a real image").unwrap();
+
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "png1", png_path.to_str().unwrap());
+            insert_image(&conn, "webp1", bin_path.to_str().unwrap());
+        }
+
+        let (data, mime) = image_file_impl(&db, "png1").unwrap();
+        assert_eq!(mime, "image/png");
+        assert!(image::load_from_memory(&data).is_ok());
+
+        let (raw, mime) = image_file_impl(&db, "webp1").unwrap();
+        assert_eq!(mime, "image/webp");
+        assert_eq!(raw, b"not a real image");
+
+        let err = image_file_impl(&db, "ghost").unwrap_err();
+        assert!(err.contains("not found"));
+    }
+
+    #[test]
+    fn list_tags_counts_and_excludes_deleted_images() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "i1", "/a.png");
+            conn.execute(
+                "INSERT INTO tags (id, name, color) VALUES ('t1', 'landscape', '#fff')",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "INSERT INTO image_tags (image_id, tag_id) VALUES ('i1', 't1')",
+                [],
+            )
+            .unwrap();
+            conn.execute("UPDATE images SET deleted = 1 WHERE id = 'i1'", [])
+                .unwrap();
+        }
+        let tags = list_tags_impl(&db).unwrap();
+        assert_eq!(tags.len(), 1);
+        assert_eq!(tags[0].name, "landscape");
+        assert_eq!(tags[0].count, 0);
+    }
+
+    #[test]
+    fn get_stats_returns_dashboard_stats() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "i1", "/a.png");
+        }
+        let stats = get_stats_impl(&db).unwrap();
+        assert_eq!(stats.total_images, 1);
+    }
+
+    #[test]
+    fn tool_wrappers_run_against_memory_db() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "i1", "/a.png");
+            insert_image(&conn, "i2", "/b.png");
+        }
+        let handler = LumoraMcp::new(db, OllamaConfig::from_env());
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            // Read tools.
+            let list = handler
+                .list_images(Parameters(ListImagesParams {
+                    page: Some(1),
+                    per_page: Some(10),
+                }))
+                .await
+                .unwrap();
+            assert!(!call_result_is_error(&list));
+
+            let search = handler
+                .search_images(Parameters(SearchImagesParams {
+                    query: "a".to_string(),
+                    limit: None,
+                }))
+                .await
+                .unwrap();
+            assert!(!call_result_is_error(&search));
+
+            let detail = handler
+                .get_image(Parameters(ImageIdParams {
+                    id: "i1".to_string(),
+                }))
+                .await
+                .unwrap();
+            assert!(!call_result_is_error(&detail));
+
+            let tags = handler.list_tags().await.unwrap();
+            assert!(!call_result_is_error(&tags));
+
+            let stats = handler.get_stats().await.unwrap();
+            assert!(!call_result_is_error(&stats));
+
+            // Write tools.
+            let created = handler
+                .create_tag(Parameters(CreateTagParams {
+                    name: "nature".to_string(),
+                    color: Some("#0f0".to_string()),
+                }))
+                .await
+                .unwrap();
+            assert!(!call_result_is_error(&created));
+            let tag_id: String = handler
+                .db
+                .conn()
+                .lock()
+                .unwrap()
+                .query_row("SELECT id FROM tags WHERE name = 'nature'", [], |r| {
+                    r.get(0)
+                })
+                .unwrap();
+
+            let attached = handler
+                .add_tag_to_image(Parameters(ImageTagParams {
+                    image_id: "i1".to_string(),
+                    tag_id: tag_id.clone(),
+                }))
+                .await
+                .unwrap();
+            assert!(!call_result_is_error(&attached));
+
+            let detached = handler
+                .remove_tag_from_image(Parameters(ImageTagParams {
+                    image_id: "i1".to_string(),
+                    tag_id,
+                }))
+                .await
+                .unwrap();
+            assert!(!call_result_is_error(&detached));
+
+            let favored = handler
+                .toggle_favorite(Parameters(ImageIdParams {
+                    id: "i2".to_string(),
+                }))
+                .await
+                .unwrap();
+            assert!(!call_result_is_error(&favored));
+
+            let trashed = handler
+                .move_to_trash(Parameters(ImageIdParams {
+                    id: "i2".to_string(),
+                }))
+                .await
+                .unwrap();
+            assert!(!call_result_is_error(&trashed));
+
+            let restored = handler
+                .restore_from_trash(Parameters(ImageIdParams {
+                    id: "i2".to_string(),
+                }))
+                .await
+                .unwrap();
+            assert!(!call_result_is_error(&restored));
+        });
+    }
+
+    #[test]
+    fn tool_wrappers_surface_domain_errors() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "i1", "/a.png");
+        }
+        let handler = LumoraMcp::new(db, OllamaConfig::from_env());
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            let missing = handler
+                .get_image(Parameters(ImageIdParams {
+                    id: "ghost".to_string(),
+                }))
+                .await
+                .unwrap();
+            assert!(call_result_is_error(&missing));
+
+            let empty_tag = handler
+                .create_tag(Parameters(CreateTagParams {
+                    name: "   ".to_string(),
+                    color: None,
+                }))
+                .await
+                .unwrap();
+            assert!(call_result_is_error(&empty_tag));
+
+            let bad_trash = handler
+                .move_to_trash(Parameters(ImageIdParams {
+                    id: "ghost".to_string(),
+                }))
+                .await
+                .unwrap();
+            assert!(call_result_is_error(&bad_trash));
+        });
+    }
 }

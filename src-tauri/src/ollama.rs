@@ -36,6 +36,16 @@ impl OllamaConfig {
     pub fn client(&self) -> &reqwest::Client {
         &self.client
     }
+
+    /// Test-only constructor with an explicit host (avoids racing on the
+    /// `OLLAMA_HOST` environment variable across parallel tests).
+    #[cfg(test)]
+    pub(crate) fn from_host_for_test(host: String) -> Self {
+        Self {
+            host,
+            client: reqwest::Client::new(),
+        }
+    }
 }
 
 /// Tauri command: return the Ollama host URL to the frontend.
@@ -103,11 +113,14 @@ mod tests {
 
     #[test]
     fn url_joins_host_and_path() {
-        let cfg = OllamaConfig {
-            host: "http://localhost:11434".into(),
-            client: reqwest::Client::new(),
-        };
+        let cfg = OllamaConfig::from_host_for_test("http://localhost:11434".into());
         assert_eq!(cfg.url("/api/tags"), "http://localhost:11434/api/tags");
         assert_eq!(cfg.url("health"), "http://localhost:11434health");
+    }
+
+    #[test]
+    fn client_is_shared_and_reusable() {
+        let cfg = OllamaConfig::from_host_for_test("http://localhost:11434".into());
+        let _ = cfg.client();
     }
 }
