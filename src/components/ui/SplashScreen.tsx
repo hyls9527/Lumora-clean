@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 const MIN_MS = 2000;
 const MAX_MS = 5000;
 const FADE_MS = 420;
+const WORDMARK = 'Lumora';
 
 interface SplashScreenProps {
   /** Whether the app content is ready to be revealed. */
@@ -64,97 +65,115 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
         pointerEvents: fading ? 'none' : 'auto',
       }}
     >
-      <div style={{ position: 'relative', width: 112, height: 112 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22 }}>
+        {/* drawn amber crosshair, then the letterpressed wordmark takes over */}
         <svg
-          viewBox="0 0 112 112"
+          width={34}
+          height={34}
+          viewBox="0 0 34 34"
           aria-hidden="true"
-          style={{ position: 'absolute', inset: -6, width: 'calc(100% + 12px)', height: 'calc(100% + 12px)' }}
+          style={{ animation: 'splashCrossFade 320ms ease 0.72s forwards' }}
         >
-          <circle
-            cx="56"
-            cy="56"
-            r="53"
-            fill="none"
+          <line
+            x1="17"
+            y1="2"
+            x2="17"
+            y2="32"
             stroke="var(--color-accent)"
-            strokeOpacity="0.55"
-            strokeWidth="1.5"
-            strokeDasharray="333"
-            strokeDashoffset="333"
-            style={{ animation: 'splashRing 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards' }}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeDasharray="40"
+            strokeDashoffset="40"
+            style={{ animation: 'splashCrossV 420ms cubic-bezier(0.4, 0, 0.2, 1) both' }}
+          />
+          <line
+            x1="2"
+            y1="17"
+            x2="32"
+            y2="17"
+            stroke="var(--color-accent)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeDasharray="40"
+            strokeDashoffset="40"
+            style={{ animation: 'splashCrossH 420ms cubic-bezier(0.4, 0, 0.2, 1) 0.18s both' }}
           />
         </svg>
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: 26,
-            background: 'linear-gradient(145deg, var(--color-accent-hover), var(--color-accent))',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            animation:
-              'splashMarkIn 850ms cubic-bezier(0.22, 1, 0.36, 1) both, splashGlow 2.2s ease-in-out 0.9s infinite',
-          }}
-        >
-          <span
+
+        {/* letterpress wordmark, glyph by glyph, with a single sheen sweep */}
+        <div style={{ position: 'relative', overflow: 'visible' }}>
+          <h1
             style={{
+              position: 'relative',
+              margin: 0,
               fontFamily: 'var(--font-display)',
-              fontSize: 52,
-              fontWeight: 700,
-              color: 'var(--color-bg)',
+              fontSize: 58,
+              fontWeight: 600,
+              color: 'var(--color-text)',
+              letterSpacing: '-0.01em',
               lineHeight: 1,
+              display: 'flex',
+              alignItems: 'flex-end',
+              whiteSpace: 'nowrap',
             }}
           >
-            L
-          </span>
-          <span
-            style={{
-              position: 'absolute',
-              top: 0,
-              bottom: 0,
-              width: '42%',
-              background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent)',
-              transform: 'translateX(-160%) skewX(-18deg)',
-              animation: 'splashSheen 1.15s ease-in-out 0.55s forwards',
-            }}
-          />
+            <span
+              style={{
+                position: 'absolute',
+                width: 1,
+                height: 1,
+                overflow: 'hidden',
+                clipPath: 'inset(50%)',
+              }}
+            >
+              LUMORA
+            </span>
+            {WORDMARK.split('').map((ch, i) => (
+              <span
+                key={i}
+                aria-hidden="true"
+                style={{
+                  display: 'inline-block',
+                  transformOrigin: 'center bottom',
+                  animation: `splashGlyph 640ms cubic-bezier(0.2, 0.7, 0.25, 1) ${0.18 + i * 0.06}s both`,
+                }}
+              >
+                {ch}
+              </span>
+            ))}
+            <span
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                width: '46%',
+                background: 'linear-gradient(90deg, transparent, rgba(122, 92, 18, 0.22), transparent)',
+                transform: 'translateX(-160%) skewX(-18deg)',
+                animation: 'splashSheen 900ms ease-in-out 0.72s forwards',
+              }}
+            />
+          </h1>
         </div>
-      </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-        <h1
-          style={{
-            margin: 0,
-            fontFamily: 'var(--font-display)',
-            fontSize: 30,
-            fontWeight: 600,
-            color: 'var(--color-text)',
-            letterSpacing: '0.16em',
-            textIndent: '0.16em',
-            animation: 'splashWord 900ms cubic-bezier(0.22, 1, 0.36, 1) 0.35s both',
-          }}
-        >
-          LUMORA
-        </h1>
         <div
           style={{
-            width: 72,
+            width: 88,
             height: 1,
             background: 'linear-gradient(90deg, transparent, var(--color-accent), transparent)',
             transformOrigin: 'center',
-            animation: 'splashRule 700ms ease 0.85s both',
+            animation: 'splashRule 640ms cubic-bezier(0.4, 0, 0.2, 1) 0.78s both',
           }}
         />
         <p
           style={{
             margin: 0,
-            fontSize: 12,
-            letterSpacing: '0.34em',
-            textIndent: '0.34em',
+            fontSize: 13,
+            letterSpacing: '0.32em',
+            textIndent: '0.32em',
             color: 'var(--color-text-secondary)',
             fontFamily: 'var(--font-body)',
-            animation: 'splashTag 700ms ease 1s both',
+            animation: 'splashTag 620ms cubic-bezier(0.4, 0, 0.2, 1) 0.92s both',
           }}
         >
           光之韵律
