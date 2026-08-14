@@ -19,6 +19,9 @@ pub const PROVIDER_OPENAI: &str = "openai";
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AiProviderConfig {
     pub provider: String,
+    /// Older frontends don't send this field; default to the safe local
+    /// backend instead of failing IPC deserialization.
+    #[serde(default = "default_vision_provider")]
     pub vision_provider: String,
     pub openai_base_url: String,
     pub openai_api_key: String,
@@ -26,6 +29,10 @@ pub struct AiProviderConfig {
     pub openai_vision_model: String,
     pub ollama_embedding_model: String,
     pub ollama_vision_model: String,
+}
+
+fn default_vision_provider() -> String {
+    PROVIDER_OLLAMA.to_string()
 }
 
 impl Default for AiProviderConfig {
@@ -70,13 +77,17 @@ pub(crate) fn resolve_config(
             .or_else(|| env_key.and_then(env))
             .unwrap_or_else(|| fallback.to_string())
     };
+    let provider = store("ai.provider")
+        .or_else(|| env("LUMORA_AI_PROVIDER"))
+        .unwrap_or_else(|| defaults.provider.clone());
     AiProviderConfig {
-        provider: store("ai.provider")
-            .or_else(|| env("LUMORA_AI_PROVIDER"))
-            .unwrap_or_else(|| defaults.provider.clone()),
+        provider: provider.clone(),
+        // Vision inherits the main provider unless explicitly overridden, so
+        // users upgrading from the single-provider era keep their previous
+        // vision backend instead of silently falling back to Ollama.
         vision_provider: store("ai.vision_provider")
             .or_else(|| env("LUMORA_VISION_PROVIDER"))
-            .unwrap_or_else(|| defaults.vision_provider.clone()),
+            .unwrap_or_else(|| provider.clone()),
         openai_base_url: pick(
             "ai.openai_base_url",
             Some("OPENAI_BASE_URL"),
@@ -265,7 +276,17 @@ fn require_openai_key(config: &AiProviderConfig) -> AppResult<()> {
 }
 
 fn is_loopback_url(base_url: &str) -> bool {
-    base_url.contains("://127.0.0.1") || base_url.contains("://localhost") || base_url.contains("://[::1]")
+    let Ok(url) = reqwest::Url::parse(base_url) else {
+        return false;
+    };
+    let Some(host) = url.host_str() else {
+        return false;
+    };
+    let host = host.trim_start_matches('[').trim_end_matches(']');
+    host.eq_ignore_ascii_case("localhost")
+        || host == "127.0.0.1"
+        || host == "::1"
+        || host == "0.0.0.0"
 }
 
 /// Extract the embedding vector from an OpenAI `/v1/embeddings` response.
@@ -378,6 +399,46 @@ mod tests {
             ..Default::default()
         };
         assert!(require_openai_key(&remote).is_err());
+    }
+
+    #[test]
+    fn vision_provider_inherits_main_provider_when_not_explicit() {
+        let store = |key: &str| match key {
+            "ai.provider" => Some(PROVIDER_OPENAI.to_string()),
+            _ => None,
+        };
+        let none = |_: &str| None::<String>;
+        let config = resolve_config(&store, &none);
+        // Upgrading users without an explicit vision_provider keep their
+        // previous vision backend instead of silently switching to Ollama.
+        assert_eq!(config.provider, PROVIDER_OPENAI);
+        assert_eq!(config.vision_provider, PROVIDER_OPENAI);
+    }
+
+    #[test]
+    fn is_loopback_url_matches_real_loopback_only() {
+        assert!(is_loopback_url("http://localhost:11434/v1"));
+        assert!(is_loopback_url("http://LOCALHOST:8090/v1"));
+        assert!(is_loopback_url("http://127.0.0.1:8090/v1"));
+        assert!(is_loopback_url("http://[::1]:8090/v1"));
+        assert!(is_loopback_url("http://0.0.0.0:8090/v1"));
+        // Hostnames that merely *contain* a loopback string are not loopback.
+        assert!(!is_loopback_url("https://localhost.evil.com/v1"));
+        assert!(!is_loopback_url("https://127.0.0.1.evil.com/v1"));
+        assert!(!is_loopback_url("https://api.example.com/v1"));
+        assert!(!is_loopback_url("not a url"));
+    }
+
+    #[test]
+    fn vision_provider_deserializes_when_field_missing() {
+        // Older frontends may omit vision_provider; IPC deserialization
+        // must not fail and should fall back to the local backend.
+        let cfg: AiProviderConfig = serde_json::from_str(
+            r#"{"provider":"openai","openai_base_url":"","openai_api_key":"","openai_embedding_model":"","openai_vision_model":"","ollama_embedding_model":"","ollama_vision_model":""}"#,
+        )
+        .unwrap();
+        assert_eq!(cfg.provider, PROVIDER_OPENAI);
+        assert_eq!(cfg.vision_provider, PROVIDER_OLLAMA);
     }
 
     #[test]

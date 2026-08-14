@@ -206,6 +206,7 @@
   "settings": {
     "aiBackend": "AI backend",
     "aiProviderLabel": "Inference & embedding service",
+    "aiVisionProviderLabel": "Vision analysis service",
     "aiLocal": "Local Ollama",
     "aiOpenAI": "OpenAI-compatible",
     "aiBaseUrl": "API base URL",

@@ -338,7 +338,17 @@ export function SettingsPage() {
                   onChange={(v) => setAiCfg({ ...aiCfg, provider: v })}
                 />
               </Row>
-              {aiCfg.provider === 'openai' && (
+              <Row label={t('aiVisionProviderLabel')}>
+                <SegmentedControl
+                  options={[
+                    { key: 'ollama' as const, label: t('aiLocal') },
+                    { key: 'openai' as const, label: t('aiOpenAI') },
+                  ]}
+                  value={aiCfg.visionProvider === 'openai' ? 'openai' : 'ollama'}
+                  onChange={(v) => setAiCfg({ ...aiCfg, visionProvider: v })}
+                />
+              </Row>
+              {(aiCfg.provider === 'openai' || aiCfg.visionProvider === 'openai') && (
                 <div
                   style={{
                     marginTop: 12,

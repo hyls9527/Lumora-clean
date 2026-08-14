@@ -206,6 +206,7 @@
   "settings": {
     "aiBackend": "AI 后端",
     "aiProviderLabel": "推理与嵌入服务",
+    "aiVisionProviderLabel": "视觉分析服务",
     "aiLocal": "本地 Ollama",
     "aiOpenAI": "OpenAI 兼容",
     "aiBaseUrl": "API Base URL",

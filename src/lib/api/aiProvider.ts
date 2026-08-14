@@ -4,9 +4,12 @@
 
 import { invoke } from '../tauri';
 
+/** Which backend serves a capability: local Ollama or any OpenAI-compatible API. */
+export type ProviderKind = 'ollama' | 'openai';
+
 export interface AiProviderConfig {
-  provider: string; // 'ollama' | 'openai'
-  visionProvider: string; // 'ollama' | 'openai'
+  provider: ProviderKind;
+  visionProvider: ProviderKind;
   openaiBaseUrl: string;
   openaiApiKey: string;
   openaiEmbeddingModel: string;
