@@ -6,6 +6,7 @@ All notable changes to Lumora are documented here.
 
 ### Added
 - 多 AI 后端：语义搜索嵌入与视觉分析可在本地 Ollama 与 OpenAI 兼容 API 间切换（设置页「AI 后端」配置 Base URL / Key / 模型；环境变量兜底；分析输出解析兼容 markdown 代码块与夹带文本）
+- 视觉分析后端独立于嵌入后端：`ai.vision_provider` 可将图片分析单独路由到 OpenAI 兼容端点（如本地 llama.cpp）；本地回环端点免 API Key，视觉请求超时放宽至 300s
 
 ### Fixed
 - MCP `list_tags` 的用量计数把已删除图片计入（改为 `COUNT(i.id)` 且按 `deleted = 0` 关联）

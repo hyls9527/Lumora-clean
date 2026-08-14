@@ -5,7 +5,7 @@
 Lumora 是一个 Tauri 2 桌面应用，采用前后端分离架构：
 - **前端：** React 19 + TypeScript + Tailwind CSS v4 + Zustand 5
 - **后端：** Rust (Tauri commands) + SQLite (rusqlite + FTS5 + sqlite-vec)
-- **AI：** Ollama (nomic-embed-text embedding + llava 图片分析)
+- **AI：** Ollama 或 OpenAI 兼容后端（`ai.provider` 嵌入 / `ai.vision_provider` 视觉分析，可独立切换；视觉索引 CLIP 512 维本地生成）
 
 ## 系统架构
 
