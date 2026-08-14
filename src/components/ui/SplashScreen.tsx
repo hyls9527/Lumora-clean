@@ -13,9 +13,10 @@ interface SplashScreenProps {
 }
 
 /**
- * Brand launch animation: logo mark pops in with a drawn ring and light
- * sheen, the LUMORA wordmark settles, then the whole screen fades out to
- * reveal the app. Stays at least MIN_MS and never longer than MAX_MS.
+ * Brand launch animation: an amber crosshair draws in, the serif wordmark
+ * settles glyph by glyph with a single sheen sweep and an amber rule, then
+ * the whole screen fades out to reveal the app. Stays at least MIN_MS and
+ * never longer than MAX_MS.
  */
 export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
   const [fading, setFading] = useState(false);
@@ -66,7 +67,7 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22 }}>
-        {/* drawn amber crosshair, then the letterpressed wordmark takes over */}
+        {/* drawn amber crosshair, then the serif wordmark takes over */}
         <svg
           width={34}
           height={34}
@@ -84,7 +85,7 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
             strokeLinecap="round"
             strokeDasharray="40"
             strokeDashoffset="40"
-            style={{ animation: 'splashCrossV 320ms cubic-bezier(0.4, 0, 0.2, 1) both' }}
+            style={{ animation: 'splashCross 320ms cubic-bezier(0.4, 0, 0.2, 1) both' }}
           />
           <line
             x1="2"
@@ -96,7 +97,7 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
             strokeLinecap="round"
             strokeDasharray="40"
             strokeDashoffset="40"
-            style={{ animation: 'splashCrossH 320ms cubic-bezier(0.4, 0, 0.2, 1) 0.14s both' }}
+            style={{ animation: 'splashCross 320ms cubic-bezier(0.4, 0, 0.2, 1) 0.14s both' }}
           />
         </svg>
 
