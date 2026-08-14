@@ -6,6 +6,7 @@ import { invoke } from '../tauri';
 
 export interface AiProviderConfig {
   provider: string; // 'ollama' | 'openai'
+  visionProvider: string; // 'ollama' | 'openai'
   openaiBaseUrl: string;
   openaiApiKey: string;
   openaiEmbeddingModel: string;

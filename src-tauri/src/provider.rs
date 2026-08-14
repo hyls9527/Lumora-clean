@@ -19,6 +19,7 @@ pub const PROVIDER_OPENAI: &str = "openai";
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AiProviderConfig {
     pub provider: String,
+    pub vision_provider: String,
     pub openai_base_url: String,
     pub openai_api_key: String,
     pub openai_embedding_model: String,
@@ -31,6 +32,7 @@ impl Default for AiProviderConfig {
     fn default() -> Self {
         Self {
             provider: PROVIDER_OLLAMA.to_string(),
+            vision_provider: PROVIDER_OLLAMA.to_string(),
             openai_base_url: "https://api.openai.com/v1".to_string(),
             openai_api_key: String::new(),
             openai_embedding_model: "text-embedding-3-small".to_string(),
@@ -72,6 +74,9 @@ pub(crate) fn resolve_config(
         provider: store("ai.provider")
             .or_else(|| env("LUMORA_AI_PROVIDER"))
             .unwrap_or_else(|| defaults.provider.clone()),
+        vision_provider: store("ai.vision_provider")
+            .or_else(|| env("LUMORA_VISION_PROVIDER"))
+            .unwrap_or_else(|| defaults.vision_provider.clone()),
         openai_base_url: pick(
             "ai.openai_base_url",
             Some("OPENAI_BASE_URL"),
@@ -108,6 +113,7 @@ pub fn save_config(app: &tauri::AppHandle, config: &AiProviderConfig) -> AppResu
         .map_err(|e| AppError::External(format!("failed to open store: {e}")))?;
     for (key, value) in [
         ("ai.provider", &config.provider),
+        ("ai.vision_provider", &config.vision_provider),
         ("ai.openai_base_url", &config.openai_base_url),
         ("ai.openai_api_key", &config.openai_api_key),
         ("ai.openai_embedding_model", &config.openai_embedding_model),
@@ -149,7 +155,7 @@ pub async fn analyze_image(
     model_override: Option<&str>,
 ) -> AppResult<AnalysisResult> {
     let config = load_config(app);
-    match config.provider.as_str() {
+    match config.vision_provider.as_str() {
         PROVIDER_OPENAI => openai_analyze(&config, image_path).await,
         _ => {
             let model = model_override
@@ -212,7 +218,7 @@ async fn openai_analyze(config: &AiProviderConfig, image_path: &str) -> AppResul
     let response = client
         .post(&url)
         .bearer_auth(&config.openai_api_key)
-        .timeout(std::time::Duration::from_secs(120))
+        .timeout(std::time::Duration::from_secs(300))
         .json(&json!({
             "model": config.openai_vision_model,
             "max_tokens": 800,
@@ -245,12 +251,21 @@ async fn openai_analyze(config: &AiProviderConfig, image_path: &str) -> AppResul
 }
 
 fn require_openai_key(config: &AiProviderConfig) -> AppResult<()> {
+    if is_loopback_url(&config.openai_base_url) {
+        // Local OpenAI-compatible servers (llama.cpp, Ollama's OpenAI layer)
+        // typically run without an API key.
+        return Ok(());
+    }
     if config.openai_api_key.trim().is_empty() {
         return Err(AppError::InvalidInput(
             "OpenAI 后端未配置 API Key（设置 → AI 后端）".to_string(),
         ));
     }
     Ok(())
+}
+
+fn is_loopback_url(base_url: &str) -> bool {
+    base_url.contains("://127.0.0.1") || base_url.contains("://localhost") || base_url.contains("://[::1]")
 }
 
 /// Extract the embedding vector from an OpenAI `/v1/embeddings` response.
@@ -332,8 +347,37 @@ mod tests {
     fn default_config_uses_local_ollama() {
         let defaults = AiProviderConfig::default();
         assert_eq!(defaults.provider, PROVIDER_OLLAMA);
+        assert_eq!(defaults.vision_provider, PROVIDER_OLLAMA);
         assert_eq!(defaults.ollama_embedding_model, "nomic-embed-text");
         assert_eq!(defaults.ollama_vision_model, "llava:latest");
+    }
+
+    #[test]
+    fn vision_provider_resolves_independently_and_localhost_skips_key() {
+        let store = |key: &str| match key {
+            "ai.vision_provider" => Some(PROVIDER_OPENAI.to_string()),
+            _ => None,
+        };
+        let none = |_: &str| None::<String>;
+        let config = resolve_config(&store, &none);
+        // Vision can switch to an OpenAI-compatible backend while the main
+        // provider (and therefore embeddings) stays on Ollama.
+        assert_eq!(config.vision_provider, PROVIDER_OPENAI);
+        assert_eq!(config.provider, PROVIDER_OLLAMA);
+
+        // Loopback OpenAI-compatible servers don't require an API key.
+        let local = AiProviderConfig {
+            openai_base_url: "http://127.0.0.1:8090/v1".to_string(),
+            openai_api_key: String::new(),
+            ..Default::default()
+        };
+        assert!(require_openai_key(&local).is_ok());
+        let remote = AiProviderConfig {
+            openai_base_url: "https://api.example.com/v1".to_string(),
+            openai_api_key: String::new(),
+            ..Default::default()
+        };
+        assert!(require_openai_key(&remote).is_err());
     }
 
     #[test]
