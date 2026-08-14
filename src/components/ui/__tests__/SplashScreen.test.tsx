@@ -22,16 +22,16 @@ describe('SplashScreen', () => {
   it('does not finish before the minimum duration even when ready', () => {
     const onFinish = vi.fn();
     render(<SplashScreen ready onFinish={onFinish} />);
-    vi.advanceTimersByTime(1999);
+    vi.advanceTimersByTime(1399);
     expect(onFinish).not.toHaveBeenCalled();
   });
 
   it('finishes after the minimum duration when ready', () => {
     const onFinish = vi.fn();
     render(<SplashScreen ready onFinish={onFinish} />);
-    vi.advanceTimersByTime(2000);
+    vi.advanceTimersByTime(1400);
     expect(onFinish).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(420);
+    vi.advanceTimersByTime(300);
     expect(onFinish).toHaveBeenCalledTimes(1);
   });
 
@@ -40,7 +40,7 @@ describe('SplashScreen', () => {
     render(<SplashScreen ready={false} onFinish={onFinish} />);
     vi.advanceTimersByTime(5000);
     expect(onFinish).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(420);
+    vi.advanceTimersByTime(300);
     expect(onFinish).toHaveBeenCalledTimes(1);
   });
 });

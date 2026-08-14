@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
-const MIN_MS = 2000;
+const MIN_MS = 1400;
 const MAX_MS = 5000;
-const FADE_MS = 420;
+const FADE_MS = 300;
 const WORDMARK = 'Lumora';
 
 interface SplashScreenProps {
@@ -61,7 +61,7 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
           'radial-gradient(circle at 50% 42%, var(--color-accent-subtle), transparent 55%), var(--color-bg)',
         opacity: fading ? 0 : 1,
         transform: fading ? 'scale(1.03)' : 'scale(1)',
-        transition: 'opacity 420ms ease, transform 420ms ease, background-color 500ms ease',
+        transition: 'opacity 300ms ease, transform 300ms ease, background-color 400ms ease',
         pointerEvents: fading ? 'none' : 'auto',
       }}
     >
@@ -72,7 +72,7 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
           height={34}
           viewBox="0 0 34 34"
           aria-hidden="true"
-          style={{ animation: 'splashCrossFade 320ms ease 0.72s forwards' }}
+          style={{ animation: 'splashCrossFade 240ms ease 0.62s forwards' }}
         >
           <line
             x1="17"
@@ -84,7 +84,7 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
             strokeLinecap="round"
             strokeDasharray="40"
             strokeDashoffset="40"
-            style={{ animation: 'splashCrossV 420ms cubic-bezier(0.4, 0, 0.2, 1) both' }}
+            style={{ animation: 'splashCrossV 320ms cubic-bezier(0.4, 0, 0.2, 1) both' }}
           />
           <line
             x1="2"
@@ -96,7 +96,7 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
             strokeLinecap="round"
             strokeDasharray="40"
             strokeDashoffset="40"
-            style={{ animation: 'splashCrossH 420ms cubic-bezier(0.4, 0, 0.2, 1) 0.18s both' }}
+            style={{ animation: 'splashCrossH 320ms cubic-bezier(0.4, 0, 0.2, 1) 0.14s both' }}
           />
         </svg>
 
@@ -135,7 +135,8 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
                 style={{
                   display: 'inline-block',
                   transformOrigin: 'center bottom',
-                  animation: `splashGlyph 640ms cubic-bezier(0.2, 0.7, 0.25, 1) ${0.18 + i * 0.06}s both`,
+                  willChange: 'transform, opacity',
+                  animation: `splashGlyph 500ms cubic-bezier(0.2, 0.7, 0.25, 1) ${0.1 + i * 0.045}s both`,
                 }}
               >
                 {ch}
@@ -150,7 +151,8 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
                 width: '46%',
                 background: 'linear-gradient(90deg, transparent, rgba(122, 92, 18, 0.22), transparent)',
                 transform: 'translateX(-160%) skewX(-18deg)',
-                animation: 'splashSheen 900ms ease-in-out 0.72s forwards',
+                willChange: 'transform',
+                animation: 'splashSheen 700ms ease-in-out 0.55s forwards',
               }}
             />
           </h1>
@@ -162,7 +164,8 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
             height: 1,
             background: 'linear-gradient(90deg, transparent, var(--color-accent), transparent)',
             transformOrigin: 'center',
-            animation: 'splashRule 640ms cubic-bezier(0.4, 0, 0.2, 1) 0.78s both',
+            willChange: 'transform, opacity',
+            animation: 'splashRule 500ms cubic-bezier(0.4, 0, 0.2, 1) 0.62s both',
           }}
         />
         <p
@@ -173,7 +176,8 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
             textIndent: '0.32em',
             color: 'var(--color-text-secondary)',
             fontFamily: 'var(--font-body)',
-            animation: 'splashTag 620ms cubic-bezier(0.4, 0, 0.2, 1) 0.92s both',
+            willChange: 'transform, opacity',
+            animation: 'splashTag 500ms cubic-bezier(0.4, 0, 0.2, 1) 0.72s both',
           }}
         >
           光之韵律
