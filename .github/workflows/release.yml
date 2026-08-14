@@ -70,7 +70,15 @@ jobs:
 
       - name: Rust tests
         working-directory: src-tauri
-        run: cargo test --lib
+        run: |
+          set -o pipefail
+          cargo test --lib 2>&1 | tee /tmp/rust-tests.log
+
+      - name: Report Rust test failure
+        if: failure()
+        run: |
+          MSG=$(tail -60 /tmp/rust-tests.log | head -c 3000)
+          echo "::error title=Rust tests failed::$MSG"
 
   build:
     name: Build Release
