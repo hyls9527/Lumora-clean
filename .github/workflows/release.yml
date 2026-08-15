@@ -70,6 +70,8 @@ jobs:
 
       - name: Rust tests
         working-directory: src-tauri
+        env:
+          RUST_BACKTRACE: '1'
         run: |
           set -o pipefail
           cargo test --lib 2>&1 | tee /tmp/rust-tests.log
@@ -77,7 +79,7 @@ jobs:
       - name: Report Rust test failure
         if: failure()
         run: |
-          MSG=$(tail -80 /tmp/rust-tests.log | head -c 3500)
+          MSG=$(tail -c 30000 /tmp/rust-tests.log)
           MSG=${MSG//%/%25}
           MSG=${MSG//$'\r'/}
           MSG=${MSG//$'\n'/%0A}
