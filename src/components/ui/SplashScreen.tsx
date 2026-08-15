@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import iconUrl from '../../assets/icon.png';
 
 const MIN_MS = 1400;
 const MAX_MS = 5000;
@@ -13,10 +14,10 @@ interface SplashScreenProps {
 }
 
 /**
- * Brand launch animation: an amber crosshair draws in, the serif wordmark
- * settles glyph by glyph with a single sheen sweep and an amber rule, then
- * the whole screen fades out to reveal the app. Stays at least MIN_MS and
- * never longer than MAX_MS.
+ * Brand launch animation: the lantern mark lights up with a warm glow,
+ * the serif wordmark settles glyph by glyph with a sheen sweep and an
+ * amber rule, then the whole screen fades out to reveal the app. Stays
+ * at least MIN_MS and never longer than MAX_MS.
  */
 export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
   const [fading, setFading] = useState(false);
@@ -67,39 +68,18 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22 }}>
-        {/* drawn amber crosshair, then the serif wordmark takes over */}
-        <svg
-          width={34}
-          height={34}
-          viewBox="0 0 34 34"
+        {/* lantern mark lights up with a warm glow */}
+        <img
+          src={iconUrl}
+          alt=""
           aria-hidden="true"
-          style={{ animation: 'splashCrossFade 240ms ease 0.62s forwards' }}
-        >
-          <line
-            x1="17"
-            y1="2"
-            x2="17"
-            y2="32"
-            stroke="var(--color-accent)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeDasharray="40"
-            strokeDashoffset="40"
-            style={{ animation: 'splashCross 320ms cubic-bezier(0.4, 0, 0.2, 1) both' }}
-          />
-          <line
-            x1="2"
-            y1="17"
-            x2="32"
-            y2="17"
-            stroke="var(--color-accent)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeDasharray="40"
-            strokeDashoffset="40"
-            style={{ animation: 'splashCross 320ms cubic-bezier(0.4, 0, 0.2, 1) 0.14s both' }}
-          />
-        </svg>
+          width={80}
+          height={80}
+          style={{
+            willChange: 'transform, opacity, filter',
+            animation: 'splashLogoIn 500ms cubic-bezier(0.2, 0.7, 0.25, 1) both',
+          }}
+        />
 
         {/* letterpress wordmark, glyph by glyph, with a single sheen sweep */}
         <div style={{ position: 'relative', overflow: 'visible' }}>
