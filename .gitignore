@@ -16,8 +16,8 @@ dist/
 Thumbs.db
 
 # Old project files (lumora-secondary-pages)
-assets/
-pages/
+/assets/
+/pages/
 lumora-secondary-pages.design
 orchestration-summary.json
 
