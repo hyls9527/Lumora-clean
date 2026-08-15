@@ -85,7 +85,14 @@ mod tests {
             .get_args()
             .map(|a| a.to_string_lossy().to_string())
             .collect();
-        assert_eq!(args.len(), 1);
-        assert!(args[0].ends_with("clip_server.py"));
+        // Windows launches via the Python interpreter (python <script>);
+        // Unix executes the script directly via its shebang. Either way,
+        // the script path must appear in the program or its arguments.
+        let program = cmd.get_program().to_string_lossy().to_string();
+        let all: Vec<String> = std::iter::once(program).chain(args).collect();
+        assert!(
+            all.iter().any(|a| a.ends_with("clip_server.py")),
+            "sidecar script missing from command: {all:?}"
+        );
     }
 }
