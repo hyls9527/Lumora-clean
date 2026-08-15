@@ -3,6 +3,7 @@ import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SettingsPage } from '../SettingsPage';
 import { getAiProviderConfig, setAiProviderConfig, type AiProviderConfig } from '../../../lib/api/aiProvider';
+import { getSetting, setSetting } from '../../../lib/api/settings';
 
 // Mock the store
 vi.mock('../../../stores/settingsStore', () => ({
@@ -50,6 +51,15 @@ vi.mock('../../../lib/api/aiProvider', () => ({
   // after teardown (same guard as the lan mock above).
   getAiProviderConfig: vi.fn(() => new Promise(() => {})),
   setAiProviderConfig: vi.fn(),
+}));
+
+// Mock settings API
+vi.mock('../../../lib/api/settings', () => ({
+  getAppVersion: vi.fn(() => Promise.resolve('0.8.0')),
+  // Default never resolves: unmocked tests must not schedule a state update
+  // after teardown (same guard as the lan mock above).
+  getSetting: vi.fn(() => new Promise(() => {})),
+  setSetting: vi.fn(() => Promise.resolve()),
 }));
 
 // Mock i18n
@@ -120,5 +130,16 @@ describe('SettingsPage', () => {
     expect(setAiProviderConfig).toHaveBeenCalledWith(
       expect.objectContaining({ provider: 'ollama', visionProvider: 'openai' }),
     );
+  });
+
+  it('loads the stored import mode and persists a switch to copy', async () => {
+    const user = userEvent.setup();
+    vi.mocked(getAiProviderConfig).mockResolvedValue(aiConfig);
+    vi.mocked(getSetting).mockResolvedValue('reference');
+    render(<SettingsPage />);
+    expect(await screen.findByText('importModeReferenceHint')).toBeDefined();
+    await user.click(screen.getByRole('button', { name: 'importModeCopy' }));
+    expect(setSetting).toHaveBeenCalledWith('store_mode', 'copy');
+    expect(screen.getByText('importModeCopyHint')).toBeDefined();
   });
 });

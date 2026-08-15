@@ -1,8 +1,11 @@
 use std::collections::hash_map::DefaultHasher;
 use std::fs;
 use std::hash::{Hash, Hasher};
+use std::path::{Path, PathBuf};
 
 use rusqlite::params;
+use tauri::Manager;
+use tauri_plugin_store::StoreExt;
 use uuid::Uuid;
 
 use crate::db::DbHandle;
@@ -18,16 +21,48 @@ const IMAGE_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "webp", "avif", "bmp",
 // ---------------------------------------------------------------------------
 
 /// Recursively scan `path` for image files, extract basic metadata, insert into DB.
+///
+/// Import mode comes from the `store_mode` setting:
+/// - `"copy"` — copy each image into the managed library directory
+///   (`<app_data>/library`); the app owns those files.
+/// - anything else (default) — reference files in place; the app only records paths.
 #[tauri::command]
-pub fn import_images(db: tauri::State<'_, DbHandle>, path: String) -> AppResult<ImportResult> {
+pub fn import_images(
+    app: tauri::AppHandle,
+    db: tauri::State<'_, DbHandle>,
+    path: String,
+) -> AppResult<ImportResult> {
     let entries = scan_folder(&path)?;
+    let copy_mode = app
+        .store("settings.json")
+        .ok()
+        .and_then(|s| {
+            s.get("store_mode")
+                .and_then(|v| v.as_str().map(String::from))
+        })
+        .is_some_and(|m| m == "copy");
     let total_scanned = entries.len() as u32;
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let tx = conn.unchecked_transaction()?;
     let mut imported = Vec::with_capacity(entries.len());
     let mut skipped: u32 = 0;
     for entry in &entries {
-        if insert_image(&tx, entry)? {
+        let mut file_path = entry.file_path.clone();
+        if copy_mode {
+            match copy_into_library(&app, &entry.file_path, &entry.format) {
+                Ok(stored) => file_path = stored,
+                Err(e) => {
+                    log::warn!("copy import failed for {}: {}", entry.file_path, e);
+                    skipped += 1;
+                    continue;
+                }
+            }
+        }
+        let entry = ImportEntry {
+            file_path,
+            ..entry.clone()
+        };
+        if insert_image(&tx, &entry)? {
             imported.push(load_record(&tx, &entry.id)?);
         } else {
             skipped += 1;
@@ -46,6 +81,7 @@ pub fn import_images(db: tauri::State<'_, DbHandle>, path: String) -> AppResult<
 // Helpers
 // ---------------------------------------------------------------------------
 
+#[derive(Clone)]
 pub(crate) struct ImportEntry {
     pub(crate) id: String,
     pub(crate) file_path: String,
@@ -56,6 +92,37 @@ pub(crate) struct ImportEntry {
     pub(crate) format: String,
     pub(crate) created_at: String,
     pub(crate) metadata_json: Option<String>,
+}
+
+/// Pick a unique destination path inside `dir` for `src`, appending a
+/// numeric suffix when the basename is already taken.
+fn resolve_library_path(dir: &Path, src: &str, format: &str) -> PathBuf {
+    let base = Path::new(src)
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .filter(|s| !s.is_empty())
+        .unwrap_or("image");
+    let mut target = dir.join(format!("{base}.{format}"));
+    let mut n = 1;
+    while target.exists() {
+        target = dir.join(format!("{base}-{n}.{format}"));
+        n += 1;
+    }
+    target
+}
+
+/// Copy an image into the managed library directory (`<app_data>/library`).
+fn copy_into_library(app: &tauri::AppHandle, src: &str, format: &str) -> AppResult<String> {
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| AppError::External(format!("failed to resolve app data dir: {e}")))?
+        .join("library");
+    fs::create_dir_all(&dir)
+        .map_err(|e| AppError::Io(format!("failed to create library dir: {e}")))?;
+    let target = resolve_library_path(&dir, src, format);
+    fs::copy(src, &target).map_err(|e| AppError::Io(format!("failed to copy {src}: {e}")))?;
+    Ok(target.to_string_lossy().into_owned())
 }
 
 pub(crate) fn scan_folder(root: &str) -> std::io::Result<Vec<ImportEntry>> {
@@ -361,6 +428,28 @@ mod tests {
 
     fn test_db() -> crate::db::DbHandle {
         crate::db::DbHandle::open_memory().unwrap()
+    }
+
+    #[test]
+    fn library_path_resolves_conflicts_with_suffix() {
+        let dir = tempfile::tempdir().unwrap();
+        let p1 = resolve_library_path(dir.path(), "/src/photo.png", "png");
+        assert_eq!(p1.file_name().unwrap().to_string_lossy(), "photo.png");
+        std::fs::write(&p1, b"1").unwrap();
+        let p2 = resolve_library_path(dir.path(), "/src/photo.png", "png");
+        assert_eq!(p2.file_name().unwrap().to_string_lossy(), "photo-1.png");
+        std::fs::write(&p2, b"2").unwrap();
+        let p3 = resolve_library_path(dir.path(), "/src/photo.png", "png");
+        assert_eq!(p3.file_name().unwrap().to_string_lossy(), "photo-2.png");
+        // different format keeps its own name namespace
+        let jpg = resolve_library_path(dir.path(), "/src/photo.jpg", "jpg");
+        assert_eq!(jpg.file_name().unwrap().to_string_lossy(), "photo.jpg");
+        // extensionless source keeps its name as the base
+        let fallback = resolve_library_path(dir.path(), "/src/unknown", "png");
+        assert_eq!(
+            fallback.file_name().unwrap().to_string_lossy(),
+            "unknown.png"
+        );
     }
 
     #[test]

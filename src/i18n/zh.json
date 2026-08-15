@@ -3,6 +3,17 @@
     "title": "Lumora",
     "subtitle": "光之韵律 · AI 创作者的图片管理器"
   },
+  "firstRun": {
+    "title": "欢迎使用 Lumora",
+    "subtitle": "在导入第一张图片前，请选择图片的存储方式（之后可在设置中更改）：",
+    "referenceTitle": "登记引用（不复制）",
+    "referenceDesc": "只记录图片路径，文件留在原处，不占用额外空间",
+    "copyTitle": "复制入库",
+    "copyDesc": "图片复制进应用数据目录，由 Lumora 统一管理",
+    "uninstallWarning": "⚠ 注意：复制入库的图片保存在应用数据目录中，卸载 Lumora 时会一并删除。请定期在「设置 → 备份」导出数据库；图片原件如需保留，请选择「登记引用」或自行备份。",
+    "confirm": "确定",
+    "changeLater": "之后可在「设置 → 导入方式」随时更改"
+  },
   "nav": {
     "creatorGallery": "创作者图库",
     "normalGallery": "普通图库",
@@ -207,6 +218,11 @@
     "aiBackend": "AI 后端",
     "aiProviderLabel": "推理与嵌入服务",
     "aiVisionProviderLabel": "视觉分析服务",
+    "importModeLabel": "导入方式",
+    "importModeReference": "登记引用（不复制）",
+    "importModeReferenceHint": "只记录图片路径，文件留在原处",
+    "importModeCopy": "复制入库",
+    "importModeCopyHint": "图片复制进应用数据目录（卸载时删除）",
     "aiLocal": "本地 Ollama",
     "aiOpenAI": "OpenAI 兼容",
     "aiBaseUrl": "API Base URL",

@@ -21,6 +21,8 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { useRouter, useRouteCommands, useGlobalShortcuts } from './hooks/useRouter';
 import { getRouteDef, preloadRoutes, type RoutePath } from './routes';
 import { SplashScreen } from './components/ui/SplashScreen';
+import { FirstRunModal } from './components/ui/FirstRunModal';
+import { getSetting, setSetting } from './lib/api/settings';
 import { t } from './lib/i18n';
 import { t as tok } from './lib/tokens';
 import { filterDropPaths } from './lib/dropPaths';
@@ -30,6 +32,7 @@ function App() {
   const [droppedPaths, setDroppedPaths] = useState<string[]>([]);
   const [appReady, setAppReady] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
+  const [firstRunOpen, setFirstRunOpen] = useState(false);
   const hydrate = useSettingsStore((s) => s.hydrate);
   const { toggle } = useCommandStore();
   const isMobile = useIsMobile();
@@ -70,6 +73,15 @@ function App() {
     void preloadRoutes();
     void hydrate().then(() => setAppReady(true));
   }, [hydrate]);
+
+  // First launch: ask how imports should store images before any import.
+  useEffect(() => {
+    void getSetting('store_mode')
+      .then((v) => {
+        if (v === null) setFirstRunOpen(true);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSplashFinish = useCallback(() => setSplashDone(true), []);
 
@@ -150,6 +162,13 @@ function App() {
       <DropOverlay isVisible={isDragging} />
       {isMobile && <MobileNav activeRoute={route} onNavigate={navigate} />}
       {!splashDone && <SplashScreen ready={appReady} onFinish={handleSplashFinish} />}
+      <FirstRunModal
+        open={splashDone && firstRunOpen}
+        onChoose={(mode) => {
+          void setSetting('store_mode', mode).catch(() => {});
+          setFirstRunOpen(false);
+        }}
+      />
     </div>
   );
 }

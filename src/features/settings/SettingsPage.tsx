@@ -1,7 +1,7 @@
 import { useSettingsStore } from '../../stores/settingsStore';
 import { exportDatabase, importDatabase } from '../../lib/api/backup';
 import { getLanInfo, type LanInfo } from '../../lib/api/lan';
-import { getAppVersion } from '../../lib/api/settings';
+import { getAppVersion, getSetting, setSetting } from '../../lib/api/settings';
 import { getAiProviderConfig, setAiProviderConfig, type AiProviderConfig } from '../../lib/api/aiProvider';
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { useState, useEffect } from 'react';
@@ -168,6 +168,7 @@ export function SettingsPage() {
   const [appVersion, setAppVersion] = useState('');
   const [aiCfg, setAiCfg] = useState<AiProviderConfig | null>(null);
   const [aiMsg, setAiMsg] = useState('');
+  const [importMode, setImportMode] = useState<'reference' | 'copy'>('reference');
   const {
     available,
     checking,
@@ -185,6 +186,13 @@ export function SettingsPage() {
   useEffect(() => { getLanInfo().then(setLanInfo).catch(() => {}); }, []);
   useEffect(() => { getAppVersion().then(setAppVersion).catch(() => {}); }, []);
   useEffect(() => { getAiProviderConfig().then(setAiCfg).catch(() => {}); }, []);
+  useEffect(() => {
+    getSetting('store_mode')
+      .then((v) => {
+        if (v === 'copy' || v === 'reference') setImportMode(v);
+      })
+      .catch(() => {});
+  }, []);
 
   const saveAiConfig = async () => {
     if (!aiCfg) return;
@@ -465,6 +473,34 @@ export function SettingsPage() {
               </div>
             </>
           )}
+        </section>
+
+        {/* ── Import mode ── */}
+        <section style={{ marginBottom: 36 }}>
+          <SectionHeading>{t('importModeLabel')}</SectionHeading>
+          <Row label={t('importModeLabel')}>
+            <SegmentedControl
+              options={[
+                { key: 'reference' as const, label: t('importModeReference') },
+                { key: 'copy' as const, label: t('importModeCopy') },
+              ]}
+              value={importMode}
+              onChange={(v) => {
+                setImportMode(v);
+                void setSetting('store_mode', v).catch(() => {});
+              }}
+            />
+          </Row>
+          <p
+            style={{
+              margin: '6px 0 0',
+              fontSize: 11,
+              fontFamily: 'var(--font-body)',
+              color: tok.textMuted,
+            }}
+          >
+            {importMode === 'copy' ? t('importModeCopyHint') : t('importModeReferenceHint')}
+          </p>
         </section>
 
         {/* ── Shortcuts ── */}

@@ -3,6 +3,17 @@
     "title": "Lumora",
     "subtitle": "Light Rhythm · AI Creator's Image Manager"
   },
+  "firstRun": {
+    "title": "Welcome to Lumora",
+    "subtitle": "Before your first import, choose how images are stored (changeable later in Settings):",
+    "referenceTitle": "Reference (no copy)",
+    "referenceDesc": "Only file paths are recorded; images stay where they are",
+    "copyTitle": "Copy into library",
+    "copyDesc": "Images are copied into the app data folder, managed by Lumora",
+    "uninstallWarning": "⚠ Note: images copied into the library live in the app data folder and are removed when Lumora is uninstalled. Back up the database regularly via Settings → Backup; keep original files elsewhere if you need them.",
+    "confirm": "OK",
+    "changeLater": "You can change this anytime in Settings → Import mode"
+  },
   "nav": {
     "creatorGallery": "Creator Gallery",
     "normalGallery": "Normal Gallery",
@@ -207,6 +218,11 @@
     "aiBackend": "AI backend",
     "aiProviderLabel": "Inference & embedding service",
     "aiVisionProviderLabel": "Vision analysis service",
+    "importModeLabel": "Import mode",
+    "importModeReference": "Reference (no copy)",
+    "importModeReferenceHint": "Records file paths only; files stay where they are",
+    "importModeCopy": "Copy into library",
+    "importModeCopyHint": "Copies images into the app data folder (removed on uninstall)",
     "aiLocal": "Local Ollama",
     "aiOpenAI": "OpenAI-compatible",
     "aiBaseUrl": "API base URL",
