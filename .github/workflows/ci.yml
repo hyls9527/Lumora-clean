@@ -85,11 +85,16 @@ jobs:
       - name: Report Rust test failure
         if: failure()
         run: |
-          MSG=$(tail -c 30000 /tmp/rust-tests.log)
+          MSG=$(grep -aE 'error(\[|:)|could not compile|failed to (run|build)|panicked|FAILED|failures:|test result|error:' /tmp/rust-tests.log | tail -c 30000)
           MSG=${MSG//%/%25}
           MSG=${MSG//$'\r'/}
           MSG=${MSG//$'\n'/%0A}
-          echo "::error title=Rust tests failed::$MSG"
+          echo "::error title=Rust failure (filtered)::$MSG"
+          TAIL=$(tail -c 30000 /tmp/rust-tests.log)
+          TAIL=${TAIL//%/%25}
+          TAIL=${TAIL//$'\r'/}
+          TAIL=${TAIL//$'\n'/%0A}
+          echo "::error title=Rust failure (log tail)::$TAIL"
 
       - name: Check
         working-directory: src-tauri
