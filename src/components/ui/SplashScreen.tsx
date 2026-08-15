@@ -68,7 +68,7 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22 }}>
-        {/* lantern mark lights up with a warm glow */}
+        {/* lantern mark fades in */}
         <img
           src={iconUrl}
           alt=""
@@ -76,7 +76,7 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
           width={80}
           height={80}
           style={{
-            willChange: 'transform, opacity, filter',
+            willChange: 'transform, opacity',
             animation: 'splashLogoIn 500ms cubic-bezier(0.2, 0.7, 0.25, 1) both',
           }}
         />
