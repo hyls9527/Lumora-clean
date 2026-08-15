@@ -47,6 +47,12 @@ cd src-tauri && cargo test  # 230 Rust tests
 npx tsc --noEmit            # type check
 ```
 
+## Documentation
+
+- [📘 快速上手教程](docs/06-user-guide/教程-快速上手.md) — 10 分钟从安装到会用
+- [📖 使用指南](docs/06-user-guide/使用指南.md) — 完整功能参考（搜索/AI 分析/智能收藏/导出模板）
+- [🏗 Architecture](ARCHITECTURE.md) — 系统架构与数据模型
+
 ## Architecture
 
 Tauri 2 app: React frontend, Rust backend, SQLite database.
