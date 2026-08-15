@@ -184,11 +184,12 @@ jobs:
           # Build platforms object with signatures
           PLATFORMS="{}"
 
-          # Windows: NSIS exe + .sig
+          # Windows: NSIS exe + .sig (via API asset endpoint — the
+          # releases/download path does not serve draft assets to Bearer auth)
           NSIS_EXE=$(echo "$ASSETS_JSON" | jq -r '.assets[] | select(.name | endswith("setup.exe")) | .name' | head -1)
+          NSIS_ID=$(echo "$ASSETS_JSON" | jq -r '.assets[] | select(.name | endswith("setup.exe")) | .id' | head -1)
           if [ -n "$NSIS_EXE" ]; then
-            SIG_URL="https://github.com/${REPO}/releases/download/${TAG}/${NSIS_EXE}.sig"
-            SIG=$(curl -sL -H "Authorization: Bearer ${GITHUB_TOKEN}" "$SIG_URL" 2>/dev/null || echo "")
+            SIG=$(curl -sL -H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/octet-stream" "https://api.github.com/repos/${REPO}/releases/assets/${NSIS_ID}" 2>/dev/null || echo "")
             if [ -z "$SIG" ] || [ "$(echo "$SIG" | wc -c)" -lt 100 ]; then
               echo "::error::Updater signature missing/invalid for ${NSIS_EXE}. Check bundle.createUpdaterArtifacts in tauri.conf.json and TAURI_SIGNING_PRIVATE_KEY secrets."
               exit 1
@@ -198,9 +199,9 @@ jobs:
 
           # macOS: app.tar.gz + .sig
           MAC_TAR=$(echo "$ASSETS_JSON" | jq -r '.assets[] | select(.name | endswith("app.tar.gz")) | .name' | head -1)
+          MAC_ID=$(echo "$ASSETS_JSON" | jq -r '.assets[] | select(.name | endswith("app.tar.gz")) | .id' | head -1)
           if [ -n "$MAC_TAR" ]; then
-            SIG_URL="https://github.com/${REPO}/releases/download/${TAG}/${MAC_TAR}.sig"
-            SIG=$(curl -sL -H "Authorization: Bearer ${GITHUB_TOKEN}" "$SIG_URL" 2>/dev/null || echo "")
+            SIG=$(curl -sL -H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/octet-stream" "https://api.github.com/repos/${REPO}/releases/assets/${MAC_ID}" 2>/dev/null || echo "")
             if [ -z "$SIG" ] || [ "$(echo "$SIG" | wc -c)" -lt 100 ]; then
               echo "::error::Updater signature missing/invalid for ${MAC_TAR}. Check bundle.createUpdaterArtifacts in tauri.conf.json and TAURI_SIGNING_PRIVATE_KEY secrets."
               exit 1
@@ -210,9 +211,9 @@ jobs:
 
           # Linux: AppImage + .sig
           APPIMAGE=$(echo "$ASSETS_JSON" | jq -r '.assets[] | select(.name | endswith(".AppImage")) | .name' | head -1)
+          APPIMAGE_ID=$(echo "$ASSETS_JSON" | jq -r '.assets[] | select(.name | endswith(".AppImage")) | .id' | head -1)
           if [ -n "$APPIMAGE" ]; then
-            SIG_URL="https://github.com/${REPO}/releases/download/${TAG}/${APPIMAGE}.sig"
-            SIG=$(curl -sL -H "Authorization: Bearer ${GITHUB_TOKEN}" "$SIG_URL" 2>/dev/null || echo "")
+            SIG=$(curl -sL -H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/octet-stream" "https://api.github.com/repos/${REPO}/releases/assets/${APPIMAGE_ID}" 2>/dev/null || echo "")
             if [ -z "$SIG" ] || [ "$(echo "$SIG" | wc -c)" -lt 100 ]; then
               echo "::error::Updater signature missing/invalid for ${APPIMAGE}. Check bundle.createUpdaterArtifacts in tauri.conf.json and TAURI_SIGNING_PRIVATE_KEY secrets."
               exit 1
