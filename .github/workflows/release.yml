@@ -189,6 +189,10 @@ jobs:
           if [ -n "$NSIS_EXE" ]; then
             SIG_URL="https://github.com/${REPO}/releases/download/${TAG}/${NSIS_EXE}.sig"
             SIG=$(curl -sL "$SIG_URL" 2>/dev/null || echo "")
+            if [ -z "$SIG" ] || [ "$(echo "$SIG" | wc -c)" -lt 100 ]; then
+              echo "::error::Updater signature missing/invalid for ${NSIS_EXE}. Check bundle.updater.active in tauri.conf.json and TAURI_SIGNING_PRIVATE_KEY secrets."
+              exit 1
+            fi
             PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "https://github.com/${REPO}/releases/download/${TAG}/${NSIS_EXE}" --arg sig "$SIG" '. + {"windows-x86_64": {signature: $sig, url: $url}}')
           fi
 
@@ -197,6 +201,10 @@ jobs:
           if [ -n "$MAC_TAR" ]; then
             SIG_URL="https://github.com/${REPO}/releases/download/${TAG}/${MAC_TAR}.sig"
             SIG=$(curl -sL "$SIG_URL" 2>/dev/null || echo "")
+            if [ -z "$SIG" ] || [ "$(echo "$SIG" | wc -c)" -lt 100 ]; then
+              echo "::error::Updater signature missing/invalid for ${MAC_TAR}. Check bundle.updater.active in tauri.conf.json and TAURI_SIGNING_PRIVATE_KEY secrets."
+              exit 1
+            fi
             PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "https://github.com/${REPO}/releases/download/${TAG}/${MAC_TAR}" --arg sig "$SIG" '. + {"darwin-aarch64": {signature: $sig, url: $url}}')
           fi
 
@@ -205,6 +213,10 @@ jobs:
           if [ -n "$APPIMAGE" ]; then
             SIG_URL="https://github.com/${REPO}/releases/download/${TAG}/${APPIMAGE}.sig"
             SIG=$(curl -sL "$SIG_URL" 2>/dev/null || echo "")
+            if [ -z "$SIG" ] || [ "$(echo "$SIG" | wc -c)" -lt 100 ]; then
+              echo "::error::Updater signature missing/invalid for ${APPIMAGE}. Check bundle.updater.active in tauri.conf.json and TAURI_SIGNING_PRIVATE_KEY secrets."
+              exit 1
+            fi
             PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "https://github.com/${REPO}/releases/download/${TAG}/${APPIMAGE}" --arg sig "$SIG" '. + {"linux-x86_64": {signature: $sig, url: $url}}')
           fi
 
