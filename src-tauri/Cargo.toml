@@ -1,7 +1,7 @@
 [package]
 name = "Lumora"
-version = "0.10.1"
-description = "Lumora — AI-powered image gallery by hyls9527"
+version = "0.10.2"
+description = "Lumora 鈥?AI-powered image gallery by hyls9527"
 authors = ["you"]
 license = "MIT"
 repository = "https://github.com/hyls9527/Lumora-clean"

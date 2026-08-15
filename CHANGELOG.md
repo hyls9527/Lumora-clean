@@ -2,6 +2,19 @@
 
 All notable changes to Lumora are documented here.
 
+## v0.10.2 (2026-08-16)
+
+### Added
+- 复制入库导入模式：「设置 → 导入方式」可选**登记引用**（只记录路径，默认）或**复制入库**（图片复制进应用数据目录统一管理）；首次启动弹出选择向导，并明确提示复制入库的图片随卸载删除
+- 启动动画重制：以品牌灯笼图标替代十字准线（纯 transform/opacity 动画，≤2s 揭幕；reduced-motion 下静态可见）
+- 使用指南与快速上手教程（`docs/06-user-guide/`，README 已加链接）
+
+### Fixed
+- `.gitignore` 的 `assets/` 规则未锚定根目录，导致 `src/assets/`（启动图标）无法入库、CI 构建失败风险
+
+### Tests
+- 新增导入路径冲突、导入方式设置、首次启动弹窗测试；前端 748、Rust 231
+
 ## v0.10.1 (2026-08-15)
 
 ### Added
