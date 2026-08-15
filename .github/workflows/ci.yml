@@ -83,7 +83,10 @@ jobs:
       - name: Report Rust test failure
         if: failure()
         run: |
-          MSG=$(tail -60 /tmp/rust-tests.log | head -c 3000)
+          MSG=$(tail -80 /tmp/rust-tests.log | head -c 3500)
+          MSG=${MSG//%/%25}
+          MSG=${MSG//$'\r'/}
+          MSG=${MSG//$'\n'/%0A}
           echo "::error title=Rust tests failed::$MSG"
 
       - name: Check
