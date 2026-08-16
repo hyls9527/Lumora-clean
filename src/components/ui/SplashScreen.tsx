@@ -123,19 +123,6 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
                 {ch}
               </span>
             ))}
-            <span
-              aria-hidden="true"
-              style={{
-                position: 'absolute',
-                top: 0,
-                bottom: 0,
-                width: '46%',
-                background: 'linear-gradient(90deg, transparent, rgba(122, 92, 18, 0.22), transparent)',
-                transform: 'translateX(-160%) skewX(-18deg)',
-                willChange: 'transform',
-                animation: 'splashSheen 700ms ease-in-out 0.55s forwards',
-              }}
-            />
           </h1>
         </div>
 

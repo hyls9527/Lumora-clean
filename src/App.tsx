@@ -76,11 +76,27 @@ function App() {
 
   // First launch: ask how imports should store images before any import.
   useEffect(() => {
-    void getSetting('store_mode')
-      .then((v) => {
-        if (v === null) setFirstRunOpen(true);
-      })
-      .catch(() => {});
+    let cancelled = false;
+    const check = (attempt: number) => {
+      void getSetting('store_mode')
+        .then((v) => {
+          if (cancelled) return;
+          if (v === null) {
+            if (attempt === 0) {
+              // Cold-start race: the store may not be hydrated yet, so a
+              // null here could be premature. Re-check once before showing.
+              setTimeout(() => check(1), 600);
+            } else {
+              setFirstRunOpen(true);
+            }
+          }
+        })
+        .catch(() => {});
+    };
+    check(0);
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleSplashFinish = useCallback(() => setSplashDone(true), []);

@@ -8,6 +8,12 @@ pub async fn get_setting(app: tauri::AppHandle, key: String) -> AppResult<Option
     let store = app
         .store("settings.json")
         .map_err(|e| AppError::External(format!("failed to open store: {e}")))?;
+    // Re-read from disk before reading: on cold start the store may not
+    // have been hydrated yet, which would make get() return None and
+    // re-trigger first-run dialogs even after the user already chose.
+    store
+        .reload()
+        .map_err(|e| AppError::External(format!("failed to reload store: {e}")))?;
     let value = store.get(&key).and_then(|v| v.as_str().map(String::from));
     Ok(value)
 }
