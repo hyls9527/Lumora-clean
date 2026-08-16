@@ -19,22 +19,72 @@ use tauri_plugin_store::StoreExt;
 #[allow(dead_code)]
 const _BUILD_ORIGIN: &str = "lumora:69983af6ad7b350a";
 
+/// Read the Windows system proxy (Internet Settings) and expose it to the
+/// updater's HTTP client via `HTTPS_PROXY`. Browsers pick the system proxy
+/// automatically, but reqwest only honours environment variables — without
+/// this, auto-updates try to reach GitHub directly and fail on networks
+/// that require a proxy.
+#[cfg(windows)]
+fn setup_system_proxy() {
+    use winreg::enums::HKEY_CURRENT_USER;
+    use winreg::RegKey;
+    let Ok(hkcu) = RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey(r"Software\Microsoft\Windows\CurrentVersion\Internet Settings")
+    else {
+        return;
+    };
+    let enabled: u32 = hkcu.get_value("ProxyEnable").unwrap_or(0);
+    if enabled != 1 {
+        return;
+    }
+    let Ok(server) = hkcu.get_value::<String, _>("ProxyServer") else {
+        return;
+    };
+    // Formats: "http=127.0.0.1:31181", "https=http://127.0.0.1:31181",
+    // "http=...;https=..." or a bare "host:port".
+    let https = server.split(';').map(str::trim).find_map(|part| {
+        if let Some(v) = part.strip_prefix("https=") {
+            Some(v.to_string())
+        } else if !part.contains('=') {
+            Some(part.to_string())
+        } else {
+            None
+        }
+    });
+    if let Some(proxy) = https {
+        log::info!("using system proxy for updates: {proxy}");
+        std::env::set_var("HTTPS_PROXY", proxy);
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    #[cfg(windows)]
+    setup_system_proxy();
+
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            // Focus the existing window when a second instance is launched.
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.set_focus();
+            }
+        }))
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .level(log::LevelFilter::Info)
+                .targets([
+                    tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Stdout),
+                    tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::LogDir {
+                        file_name: None,
+                    }),
+                ])
+                .build(),
+        )
         .setup(|app| {
-            if cfg!(debug_assertions) {
-                app.handle().plugin(
-                    tauri_plugin_log::Builder::default()
-                        .level(log::LevelFilter::Info)
-                        .build(),
-                )?;
-            }
-
             let app_dir = app
                 .path()
                 .app_data_dir()

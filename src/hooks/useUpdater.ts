@@ -125,12 +125,20 @@ export function useUpdater(): UpdaterState {
     setInstalling(true);
     setError(null);
     try {
-      await update.install();
+      // The Rust side hands off to the NSIS installer and exits; if the
+      // shell launch is blocked (antivirus, another instance) the promise
+      // never settles. Time out and tell the user instead of hanging.
+      const TIMEOUT_MS = 15000;
+      const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('安装无响应：安装器可能被拦截或需手动安装')), TIMEOUT_MS),
+      );
+      await Promise.race([update.install(), timeout]);
       if (!mountedRef.current) return;
       const { relaunch } = await import('@tauri-apps/plugin-process');
       await relaunch();
     } catch (err) {
       if (mountedRef.current) {
+        setInstalling(false);
         setError(err instanceof Error ? err.message : '重启安装失败');
       }
     } finally {
