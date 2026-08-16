@@ -2,6 +2,14 @@
 
 All notable changes to Lumora are documented here.
 
+## v0.10.4 (2026-08-16)
+
+### Fixed
+- 自动更新走系统代理：启动时读取 Windows 系统代理（Internet Settings）注入更新请求——此前应用直连 GitHub，在需要代理的网络（如浏览器正常但应用更新失败）无法下载更新包
+- 单实例锁：防止多个 Lumora 进程并存互相干扰更新安装（第二实例启动时聚焦已有窗口）
+- 发布版文件日志：此前日志插件仅 debug 模式启用，发布版无任何日志；现始终写入 `%APPDATA%\com.lumora.app\logs`
+- 安装超时提示：「重启并安装」15 秒无响应时提示安装器可能被拦截或需手动安装，不再无限卡死
+
 ## v0.10.3 (2026-08-16)
 
 ### Fixed
