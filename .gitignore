@@ -1,69 +1,11 @@
+```
 # Dependencies
 node_modules/
 
-# Rust build
-src-tauri/target/
-
-# Build output
-dist/
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Old project files (lumora-secondary-pages)
-/assets/
-/pages/
-lumora-secondary-pages.design
-orchestration-summary.json
-
-# Python
-__pycache__/
-*.pyc
-src-tauri/sidecar/__pycache__/
-.pytest-tmp/
-
-# Build artifacts
-*.msi
-
-# Tool-generated
-.understand-anything/
-.planning/
-*.exe
-*.dmg
-*.AppImage
+# Logs and temp files
+*.log
 
 # Environment
 .env
-.env.local
-.env.*.local
-.hermes/
-.deepx/
-.understand-anything/
-
-# Local database backups (large, machine-specific)
-backups/
-
-# Local dev server logs
-tauri-dev*.log
-
-# Local Tauri build logs
-tauri-build.err
-tauri-build.log
-
-# VM 测试资产：只入库 README/脚本/应答文件，不入库截图与归档
-test-vm/archive/
-test-vm/screenshots/
-test-vm/answer.iso
-test-vm/results/
-
-# Playwright 产物
-playwright-report/
-test-results/
-
-# 桌面 E2E 本地工具（msedgedriver 体积大、版本绑定本机 Edge）
-scripts/tools/
+.env.
+```
