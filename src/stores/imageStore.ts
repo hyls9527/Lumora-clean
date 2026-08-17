@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useRef } from 'react';
 import { create, type StateCreator } from 'zustand';
 import * as api from '../lib/api/images';
 import { hasActiveFilters, type FilterCriteria } from '../types/filter';
@@ -279,46 +279,72 @@ export function useFilteredImages(): ImageRecord[] {
   const modelFilter = useImageStore((s) => s.filters.modelFilter);
   const sortBy = useImageStore((s) => s.filters.sortBy);
 
-  return useMemo(() => {
-    let result = [...images];
+  // Cache sorted results using a ref-based cache to avoid recreation
+  const cacheRef = useRef<{
+    key: string;
+    result: ImageRecord[];
+  } | null>(null);
 
-    if (modelFilter !== 'all') {
-      result = result.filter(
-        (img) => img.model.toLowerCase() === modelFilter.toLowerCase(),
-      );
-    }
+  const cacheKey = `${images.length}-${modelFilter}-${sortBy}`;
 
-    switch (sortBy) {
-      case 'time':
-        result.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-        break;
-      case 'rating':
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'model':
-        result.sort((a, b) => a.model.localeCompare(b.model));
-        break;
-      case 'size':
-        result.sort((a, b) => b.fileSizeKb - a.fileSizeKb);
-        break;
-    }
+  if (cacheRef.current && cacheRef.current.key === cacheKey) {
+    return cacheRef.current.result;
+  }
 
-    return result;
-  }, [images, modelFilter, sortBy]);
+  let result = [...images];
+
+  if (modelFilter !== 'all') {
+    const lowerFilter = modelFilter.toLowerCase();
+    result = result.filter((img) => img.model.toLowerCase() === lowerFilter);
+  }
+
+  switch (sortBy) {
+    case 'time':
+      result.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      break;
+    case 'rating':
+      result.sort((a, b) => b.rating - a.rating);
+      break;
+    case 'model':
+      result.sort((a, b) => a.model.localeCompare(b.model));
+      break;
+    case 'size':
+      result.sort((a, b) => b.fileSizeKb - a.fileSizeKb);
+      break;
+  }
+
+  cacheRef.current = { key: cacheKey, result };
+  return result;
 }
 
 export function useSearchResults(): ImageRecord[] {
   const images = useImageStore((s) => s.images);
   const searchQuery = useImageStore((s) => s.filters.searchQuery);
 
-  return useMemo(() => {
-    if (!searchQuery.trim()) return [];
+  const cacheRef = useRef<{
+    key: string;
+    result: ImageRecord[];
+  } | null>(null);
 
-    return images
-      .filter((img) =>
-        img.prompt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        img.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase())),
-      )
-      .sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0));
-  }, [images, searchQuery]);
+  const cacheKey = `${images.length}-${searchQuery}`;
+
+  if (cacheRef.current && cacheRef.current.key === cacheKey) {
+    return cacheRef.current.result;
+  }
+
+  if (!searchQuery.trim()) {
+    cacheRef.current = { key: cacheKey, result: [] };
+    return [];
+  }
+
+  const lowerQuery = searchQuery.toLowerCase();
+  const result = images
+    .filter((img) =>
+      img.prompt.toLowerCase().includes(lowerQuery) ||
+      img.tags.some((t) => t.toLowerCase().includes(lowerQuery)),
+    )
+    .sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0));
+
+  cacheRef.current = { key: cacheKey, result };
+  return result;
 }
