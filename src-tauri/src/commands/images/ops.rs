@@ -15,21 +15,25 @@ pub fn get_image_base64_cmd(
     use base64::Engine;
     use std::path::Path;
 
-    // Derive allowed directory: <app_data_dir>/images/
+    // Derive allowed directories: <app_data_dir>/images and <app_data_dir>/library
     let db_path = db.path();
-    let images_dir = db_path
+    let app_data = db_path
         .parent()
-        .ok_or_else(|| AppError::InvalidInput("Cannot resolve app data directory".into()))?
-        .join("images");
+        .ok_or_else(|| AppError::InvalidInput("Cannot resolve app data directory".into()))?;
+    let allowed = [app_data.join("images"), app_data.join("library")];
 
     // Canonicalize to prevent ../ traversal
     let canonical = Path::new(&file_path)
         .canonicalize()
         .map_err(|_| AppError::NotFound(format!("File not found: {}", file_path)))?;
 
-    if !canonical.starts_with(&images_dir) {
+    let within_allowed = allowed
+        .iter()
+        .filter_map(|d| d.canonicalize().ok())
+        .any(|d| canonical.starts_with(&d));
+    if !within_allowed {
         return Err(AppError::InvalidInput(format!(
-            "Access denied: {} is outside images directory",
+            "Access denied: {} is outside the images/library directory",
             file_path
         )));
     }
@@ -52,18 +56,23 @@ pub fn get_thumbnail_base64_cmd(
     use std::path::Path;
 
     let db_path = db.path();
-    let images_dir = db_path
+    let app_data = db_path
         .parent()
-        .ok_or_else(|| AppError::InvalidInput("Cannot resolve app data directory".into()))?
-        .join("images");
+        .ok_or_else(|| AppError::InvalidInput("Cannot resolve app data directory".into()))?;
+    let allowed = [app_data.join("images"), app_data.join("library")];
 
+    // Canonicalize to prevent ../ traversal
     let canonical = Path::new(&file_path)
         .canonicalize()
         .map_err(|_| AppError::NotFound(format!("File not found: {}", file_path)))?;
 
-    if !canonical.starts_with(&images_dir) {
+    let within_allowed = allowed
+        .iter()
+        .filter_map(|d| d.canonicalize().ok())
+        .any(|d| canonical.starts_with(&d));
+    if !within_allowed {
         return Err(AppError::InvalidInput(format!(
-            "Access denied: {} is outside images directory",
+            "Access denied: {} is outside the images/library directory",
             file_path
         )));
     }
