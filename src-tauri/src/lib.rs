@@ -123,6 +123,8 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::images::import_images,
+            commands::images::get_image_base64_cmd,
+            commands::images::get_thumbnail_base64_cmd,
             commands::images::list_images,
             commands::images::list_images_filtered,
             commands::images::search_images,
