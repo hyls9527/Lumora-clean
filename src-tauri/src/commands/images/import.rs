@@ -41,16 +41,82 @@ pub fn import_images(
                 .and_then(|v| v.as_str().map(String::from))
         })
         .is_some_and(|m| m == "copy");
+    let library_dir = if copy_mode {
+        Some(app
+            .path()
+            .app_data_dir()
+            .map_err(|e| AppError::External(format!("failed to resolve app data dir: {e}")))?
+            .join("library"))
+    } else {
+        None
+    };
     let total_scanned = entries.len() as u32;
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let tx = conn.unchecked_transaction()?;
+    let mut copied: Vec<PathBuf> = Vec::new();
+    let result = run_import(&tx, &entries, library_dir.as_deref(), &mut copied);
+    match result {
+        Ok((imported, skipped)) => {
+            if let Err(e) = tx.commit() {
+                // The rows are rolled back — the library copies made for them
+                // would be orphaned files, so remove them again.
+                remove_files_quietly(&copied);
+                return Err(e.into());
+            }
+            Ok(ImportResult {
+                imported: imported.len() as u32,
+                skipped,
+                total_scanned,
+                items: imported,
+            })
+        }
+        Err(e) => {
+            remove_files_quietly(&copied);
+            Err(e)
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/// Core import loop, decoupled from the Tauri app handle so tests can drive it.
+///
+/// `library_dir` enables copy-mode (files are copied into the managed library
+/// before insertion). Every copied file is pushed onto `copied` so the caller
+/// can remove them again if the import fails — otherwise they would linger as
+/// orphaned files that no DB row references.
+fn run_import(
+    tx: &rusqlite::Transaction<'_>,
+    entries: &[ImportEntry],
+    library_dir: Option<&Path>,
+    copied: &mut Vec<PathBuf>,
+) -> AppResult<(Vec<ImageRecord>, u32)> {
     let mut imported = Vec::with_capacity(entries.len());
     let mut skipped: u32 = 0;
-    for entry in &entries {
+    for entry in entries {
         let mut file_path = entry.file_path.clone();
-        if copy_mode {
-            match copy_into_library(&app, &entry.file_path, &entry.format) {
-                Ok(stored) => file_path = stored,
+        let mut copied_path: Option<PathBuf> = None;
+        if let Some(dir) = library_dir {
+            // Copy-mode dedup: identical content is already registered.
+            // Checked inside the open transaction, so duplicates within one
+            // batch are caught too — re-importing the same library must not
+            // pile up duplicated copies.
+            let exists: i64 = tx.query_row(
+                "SELECT COUNT(*) FROM images WHERE file_hash = ?1",
+                params![entry.file_hash],
+                |r| r.get(0),
+            )?;
+            if exists > 0 {
+                skipped += 1;
+                continue;
+            }
+            match copy_into_library_dir(dir, &entry.file_path, &entry.format) {
+                Ok(stored) => {
+                    copied_path = Some(PathBuf::from(&stored));
+                    file_path = stored;
+                }
                 Err(e) => {
                     log::warn!("copy import failed for {}: {}", entry.file_path, e);
                     skipped += 1;
@@ -62,24 +128,42 @@ pub fn import_images(
             file_path,
             ..entry.clone()
         };
-        if insert_image(&tx, &entry)? {
-            imported.push(load_record(&tx, &entry.id)?);
-        } else {
-            skipped += 1;
+        match insert_image(tx, &entry) {
+            Ok(true) => {
+                imported.push(load_record(tx, &entry.id)?);
+                // Hand ownership of the copy to the caller, which removes it
+                // if the surrounding transaction later fails to commit.
+                if let Some(p) = copied_path {
+                    copied.push(p);
+                }
+            }
+            Ok(false) => {
+                // INSERT OR IGNORE skipped the row (path/hash already
+                // registered) — the fresh copy would be orphaned.
+                if let Some(p) = copied_path {
+                    remove_files_quietly(std::slice::from_ref(&p));
+                }
+                skipped += 1;
+            }
+            Err(e) => {
+                if let Some(p) = copied_path {
+                    remove_files_quietly(std::slice::from_ref(&p));
+                }
+                return Err(e.into());
+            }
         }
     }
-    tx.commit()?;
-    Ok(ImportResult {
-        imported: imported.len() as u32,
-        skipped,
-        total_scanned,
-        items: imported,
-    })
+    Ok((imported, skipped))
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+/// Best-effort cleanup of library copies made for a failed import.
+fn remove_files_quietly(paths: &[PathBuf]) {
+    for p in paths {
+        if let Err(e) = fs::remove_file(p) {
+            log::warn!("failed to clean up imported copy {}: {}", p.display(), e);
+        }
+    }
+}
 
 #[derive(Clone)]
 pub(crate) struct ImportEntry {
@@ -111,16 +195,12 @@ fn resolve_library_path(dir: &Path, src: &str, format: &str) -> PathBuf {
     target
 }
 
-/// Copy an image into the managed library directory (`<app_data>/library`).
-fn copy_into_library(app: &tauri::AppHandle, src: &str, format: &str) -> AppResult<String> {
-    let dir = app
-        .path()
-        .app_data_dir()
-        .map_err(|e| AppError::External(format!("failed to resolve app data dir: {e}")))?
-        .join("library");
-    fs::create_dir_all(&dir)
+/// Copy an image into the managed library directory, picking a unique
+/// destination name when the basename is already taken on disk.
+fn copy_into_library_dir(dir: &Path, src: &str, format: &str) -> AppResult<String> {
+    fs::create_dir_all(dir)
         .map_err(|e| AppError::Io(format!("failed to create library dir: {e}")))?;
-    let target = resolve_library_path(&dir, src, format);
+    let target = resolve_library_path(dir, src, format);
     fs::copy(src, &target).map_err(|e| AppError::Io(format!("failed to copy {src}: {e}")))?;
     Ok(target.to_string_lossy().into_owned())
 }
@@ -151,11 +231,7 @@ pub(crate) fn scan_folder(root: &str) -> std::io::Result<Vec<ImportEntry>> {
             let meta_json = metadata::probe_metadata_from_bytes(&buf, &ext);
             (w, h, meta_json)
         };
-        let created = meta
-            .modified()
-            .or_else(|_| meta.created())
-            .map(|t| chrono::DateTime::<chrono::Utc>::from(t).to_rfc3339())
-            .unwrap_or_else(|_| chrono::Utc::now().to_rfc3339());
+        let created = file_created_at(&meta);
         return Ok(vec![ImportEntry {
             id: Uuid::new_v4().to_string(),
             file_path: root.to_string(),
@@ -175,7 +251,15 @@ pub(crate) fn scan_folder(root: &str) -> std::io::Result<Vec<ImportEntry>> {
         if !IMAGE_EXTENSIONS.contains(&ext.as_str()) {
             continue;
         }
-        let meta = fs::metadata(&entry)?;
+        // The file may vanish (or be unreadable) between listing and stat:
+        // skip it rather than aborting the whole directory import.
+        let meta = match fs::metadata(&entry) {
+            Ok(m) => m,
+            Err(e) => {
+                log::warn!("skipping {}: {}", entry, e);
+                continue;
+            }
+        };
         let hash = file_hash(&entry, meta.len());
 
         let (w, h, meta_json) = if ext == "gif" {
@@ -196,10 +280,7 @@ pub(crate) fn scan_folder(root: &str) -> std::io::Result<Vec<ImportEntry>> {
             (w, h, meta_json)
         };
 
-        let created = chrono::DateTime::<chrono::Utc>::from(
-            meta.modified().unwrap_or(meta.created().unwrap()),
-        )
-        .to_rfc3339();
+        let created = file_created_at(&meta);
         entries.push(ImportEntry {
             id: Uuid::new_v4().to_string(),
             file_path: entry,
@@ -241,6 +322,19 @@ fn walk_dir(root: &str) -> std::io::Result<Vec<String>> {
         }
     }
     Ok(result)
+}
+
+/// Best available file timestamp as an RFC 3339 string.
+///
+/// Prefers `modified` (universally available), falls back to `created`
+/// (unavailable on some filesystems), then to the current time. Never
+/// panics — note that `a.unwrap_or(b.unwrap())` evaluates `b.unwrap()`
+/// eagerly even when `a` succeeded.
+fn file_created_at(meta: &fs::Metadata) -> String {
+    meta.modified()
+        .or_else(|_| meta.created())
+        .map(|t| chrono::DateTime::<chrono::Utc>::from(t).to_rfc3339())
+        .unwrap_or_else(|_| chrono::Utc::now().to_rfc3339())
 }
 
 fn file_hash(path: &str, size: u64) -> String {
@@ -789,5 +883,142 @@ mod tests {
         assert_eq!(files.len(), 1);
         assert!(files[0].contains("real"));
         assert!(!files[0].contains("loop"));
+    }
+
+    fn make_entry(id: &str, path: &str, hash: &str) -> ImportEntry {
+        ImportEntry {
+            id: id.into(),
+            file_path: path.into(),
+            file_hash: hash.into(),
+            file_size_kb: 1,
+            width: None,
+            height: None,
+            format: "png".into(),
+            created_at: "2025-01-01T00:00:00Z".into(),
+            metadata_json: None,
+        }
+    }
+
+    #[test]
+    fn copy_into_library_dir_copies_content_and_resolves_conflicts() {
+        let dir = tempfile::tempdir().unwrap();
+        let src_dir = tempfile::tempdir().unwrap();
+        let src = src_dir.path().join("cat.png");
+        std::fs::write(&src, b"image-bytes").unwrap();
+
+        let stored = copy_into_library_dir(dir.path(), src.to_str().unwrap(), "png").unwrap();
+        assert!(Path::new(&stored).exists());
+        assert_eq!(std::fs::read(&stored).unwrap(), b"image-bytes");
+
+        // Same basename again → suffixed copy, never an overwrite.
+        let stored2 = copy_into_library_dir(dir.path(), src.to_str().unwrap(), "png").unwrap();
+        assert_ne!(Path::new(&stored), Path::new(&stored2));
+        assert!(Path::new(&stored2).exists());
+        assert_eq!(std::fs::read(&stored2).unwrap(), b"image-bytes");
+    }
+
+    #[test]
+    fn run_import_copy_mode_dedupes_by_hash_within_batch() {
+        let dir = tempfile::tempdir().unwrap();
+        let lib = dir.path().join("library");
+        let a = dir.path().join("a.png");
+        let b = dir.path().join("b.png");
+        std::fs::write(&a, b"same-bytes").unwrap();
+        std::fs::write(&b, b"same-bytes").unwrap();
+
+        let meta = fs::metadata(&a).unwrap();
+        let hash = file_hash(a.to_str().unwrap(), meta.len());
+        let entries = vec![
+            make_entry("e1", a.to_str().unwrap(), &hash),
+            make_entry("e2", b.to_str().unwrap(), &hash),
+        ];
+
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        let tx = conn.unchecked_transaction().unwrap();
+        let mut copied = Vec::new();
+        let (imported, skipped) =
+            run_import(&tx, &entries, Some(&lib), &mut copied).unwrap();
+
+        // Identical content must import exactly once — no duplicated copies.
+        assert_eq!(imported.len(), 1);
+        assert_eq!(skipped, 1);
+        assert_eq!(copied.len(), 1);
+        assert!(fs::read_dir(&lib).unwrap().count() == 1);
+        assert!(imported[0].file_path.starts_with(lib.to_str().unwrap()));
+        tx.commit().unwrap();
+    }
+
+    #[test]
+    fn run_import_copy_mode_cleans_up_copy_when_row_is_ignored() {
+        let dir = tempfile::tempdir().unwrap();
+        let lib = dir.path().join("library");
+        let src_dir = tempfile::tempdir().unwrap();
+        let src = src_dir.path().join("cat.png");
+        std::fs::write(&src, b"fresh-content").unwrap();
+
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        let tx = conn.unchecked_transaction().unwrap();
+
+        // A previous registration points at the target name, but the file
+        // behind it is gone from disk — the resolver will reuse that name.
+        let phantom = lib.join("cat.png");
+        insert_image(&tx, &make_entry("pre", phantom.to_str().unwrap(), "old-hash")).unwrap();
+
+        let entries = vec![make_entry(
+            "e1",
+            src.to_str().unwrap(),
+            "brand-new-hash",
+        )];
+        let mut copied = Vec::new();
+        let (imported, skipped) =
+            run_import(&tx, &entries, Some(&lib), &mut copied).unwrap();
+
+        // Row ignored (UNIQUE file_path) → the fresh copy must be removed
+        // instead of lingering as an orphan.
+        assert!(imported.is_empty());
+        assert_eq!(skipped, 1);
+        assert!(copied.is_empty());
+        assert!(!phantom.exists());
+        assert!(fs::read_dir(&lib).unwrap().count() == 0);
+    }
+
+    #[test]
+    fn run_import_reference_mode_ignores_duplicate_paths() {
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        let tx = conn.unchecked_transaction().unwrap();
+        let entries = vec![
+            make_entry("r1", "/tmp/ref.png", "hash-r1"),
+            make_entry("r2", "/tmp/ref.png", "hash-r1"),
+        ];
+        let mut copied = Vec::new();
+        let (imported, skipped) = run_import(&tx, &entries, None, &mut copied).unwrap();
+        assert_eq!(imported.len(), 1);
+        assert_eq!(skipped, 1);
+        assert!(copied.is_empty());
+    }
+
+    #[test]
+    fn remove_files_quietly_removes_and_tolerates_missing() {
+        let dir = tempfile::tempdir().unwrap();
+        let a = dir.path().join("a.bin");
+        let missing = dir.path().join("missing.bin");
+        std::fs::write(&a, b"x").unwrap();
+
+        remove_files_quietly(&[a.clone(), missing]);
+        assert!(!a.exists()); // removed…
+        // …and no panic despite `missing` never existing.
+    }
+
+    #[test]
+    fn file_created_at_returns_parseable_rfc3339() {
+        let dir = tempfile::tempdir().unwrap();
+        let f = dir.path().join("f.png");
+        std::fs::write(&f, b"x").unwrap();
+        let meta = fs::metadata(&f).unwrap();
+        let ts = file_created_at(&meta);
+        assert!(chrono::DateTime::parse_from_rfc3339(&ts).is_ok());
     }
 }

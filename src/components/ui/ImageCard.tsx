@@ -33,7 +33,10 @@ export const ImageCard = memo(function ImageCard({
   const embeddingStatus = useEmbeddingStore((s) => s.statusMap[image.id]);
   const fetchStatus = useEmbeddingStore((s) => s.fetchStatus);
 
-  const imgSrc = useImageSrc(image.filePath);
+  // Grid cards load a server-side resized thumbnail instead of the full
+  // image: 640px covers ~320px masonry columns at 2x DPI. The DetailModal
+  // opened from this card still loads the full-size image.
+  const imgSrc = useImageSrc(image.filePath, { thumbnailMaxWidth: 640 });
   const isMobile = useIsMobile();
 
   useEffect(() => {

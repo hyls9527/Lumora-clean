@@ -435,6 +435,10 @@ export async function batchConvert(
     quality: quality ?? null,
     maxWidth: maxWidth ?? null,
     maxHeight: maxHeight ?? null,
+    // Rust 端 batch_convert 的 dest_dir/dry_run 为必填签名项（dest_dir 为 Option），
+    // 缺少 dryRun 会导致 Tauri "missing required key dryRun" 调用失败。
+    destDir: null,
+    dryRun: false,
   });
 }
 

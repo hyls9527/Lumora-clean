@@ -2,9 +2,17 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import { ImageCard } from '../ImageCard';
 
-// Mock the tauri lib (convertFileSrc)
+// 1x1 transparent PNG used as a fake thumbnail payload
+const MOCK_THUMB_B64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+
+// Mock the tauri lib (invoke serves thumbnails via base64 command)
 vi.mock('../../../lib/tauri', () => ({
   convertFileSrc: vi.fn((path: string) => Promise.resolve(`asset://localhost/${encodeURIComponent(path)}`)),
+  invoke: vi.fn((cmd: string) => {
+    if (cmd === 'get_thumbnail_base64_cmd') return Promise.resolve(MOCK_THUMB_B64);
+    return Promise.resolve(null);
+  }),
 }));
 
 // Mock the hooks
@@ -124,14 +132,13 @@ describe('ImageCard', () => {
     expect(card.classList.contains('image-card--focused')).toBe(true);
   });
 
-  it('renders an img element with asset protocol src', async () => {
+  it('loads a resized thumbnail via the base64 command (not the full image)', async () => {
     render(<ImageCard image={MOCK_IMAGE} />);
 
-    // Wait for async convertFileSrc to resolve
+    // Wait for async thumbnail invoke to resolve
     const img = await screen.findByRole('img');
     expect(img).toBeDefined();
-    expect(img.getAttribute('src')).toContain('asset://localhost');
-    expect(img.getAttribute('src')).toContain(encodeURIComponent('/test/image.png'));
+    expect(img.getAttribute('src')).toContain(`data:image/png;base64,${MOCK_THUMB_B64}`);
   });
 
   it('renders img with alt text from fileName', async () => {

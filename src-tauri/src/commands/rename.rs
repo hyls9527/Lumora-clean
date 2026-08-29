@@ -60,6 +60,18 @@ fn batch_rename_inner(
 
     let tasks: Vec<RenameTask> = {
         let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+        // Paths already registered in the DB for other records: claiming one
+        // of them would violate the file_path UNIQUE constraint and force a
+        // rollback after the file has already been renamed on disk.
+        let mut db_used_paths: std::collections::HashSet<String> =
+            std::collections::HashSet::new();
+        {
+            let mut stmt = conn.prepare("SELECT file_path FROM images")?;
+            let rows = stmt.query_map([], |row| row.get::<_, String>(0))?;
+            for row in rows {
+                db_used_paths.insert(row?);
+            }
+        }
         let mut used_new_paths: std::collections::HashSet<String> =
             std::collections::HashSet::new();
 
@@ -98,7 +110,13 @@ fn batch_rename_inner(
 
                 let parent = old_path.parent().unwrap_or(std::path::Path::new(""));
                 let desired_name = format!("{stem}.{ext}");
-                let final_new_name = resolve_conflict(parent, &desired_name, &used_new_paths);
+                let final_new_name = resolve_conflict(
+                    parent,
+                    &desired_name,
+                    &used_new_paths,
+                    &db_used_paths,
+                    &old_path,
+                );
 
                 if final_new_name == old_name {
                     return RenameTask {
@@ -128,17 +146,7 @@ fn batch_rename_inner(
     // Lock released — I/O below happens without holding the mutex
 
     // Phase 2: perform file renames without DB lock (I/O only)
-    struct RenameOutcome {
-        id: String,
-        old_name: String,
-        old_path: std::path::PathBuf,
-        new_name: String,
-        new_path: Option<std::path::PathBuf>,
-        status: String, // "ok" | "skipped" | "error"
-        error: Option<String>,
-    }
-
-    let outcomes: Vec<RenameOutcome> = tasks
+    let mut outcomes: Vec<RenameOutcome> = tasks
         .into_iter()
         .map(|task| {
             if let Some(err) = task.error {
@@ -203,38 +211,7 @@ fn batch_rename_inner(
     // Phase 3: update DB for successfully renamed files (lock → DB → unlock)
     {
         let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-        for outcome in &outcomes {
-            if outcome.status != "ok" || dry_run {
-                continue;
-            }
-            if let Some(new_path) = &outcome.new_path {
-                let new_path_str = new_path.to_string_lossy().into_owned();
-                let tx = match conn.unchecked_transaction() {
-                    Ok(t) => t,
-                    Err(e) => {
-                        let _ = std::fs::rename(new_path, &outcome.old_path);
-                        log::error!(
-                            "Failed to start DB transaction for rename {}: {}",
-                            outcome.id,
-                            e
-                        );
-                        continue;
-                    }
-                };
-                if let Err(e) = tx.execute(
-                    "UPDATE images SET file_path = ?1 WHERE id = ?2",
-                    params![new_path_str, outcome.id],
-                ) {
-                    let _ = std::fs::rename(new_path, &outcome.old_path);
-                    log::error!("DB update failed for rename {}: {}", outcome.id, e);
-                    continue;
-                }
-                if let Err(e) = tx.commit() {
-                    let _ = std::fs::rename(new_path, &outcome.old_path);
-                    log::error!("DB commit failed for rename {}: {}", outcome.id, e);
-                }
-            }
-        }
+        commit_renames(&conn, &mut outcomes);
     }
 
     // Build result
@@ -286,14 +263,98 @@ fn batch_rename_inner(
     })
 }
 
+/// Outcome of a single rename attempt (module-level so `commit_renames`
+/// can mutate the phase-2 results in place).
+struct RenameOutcome {
+    id: String,
+    old_name: String,
+    old_path: std::path::PathBuf,
+    new_name: String,
+    new_path: Option<std::path::PathBuf>,
+    status: String, // "ok" | "skipped" | "error"
+    error: Option<String>,
+}
+
+/// Phase 3 of `batch_rename_inner`: persist renamed paths in the DB.
+///
+/// If any DB step fails, the file rename is rolled back (disk stays
+/// consistent with the DB) and the outcome is demoted to "error" so the
+/// caller is not told a rename succeeded that actually did not.
+fn commit_renames(conn: &rusqlite::Connection, outcomes: &mut [RenameOutcome]) {
+    for outcome in outcomes.iter_mut() {
+        if outcome.status != "ok" {
+            continue;
+        }
+        let Some(new_path) = outcome.new_path.clone() else {
+            continue;
+        };
+        let result = (|| -> Result<(), String> {
+            let tx = conn
+                .unchecked_transaction()
+                .map_err(|e| format!("数据库事务启动失败: {e}"))?;
+            let new_path_str = new_path.to_string_lossy().into_owned();
+            tx.execute(
+                "UPDATE images SET file_path = ?1 WHERE id = ?2",
+                params![new_path_str, outcome.id],
+            )
+            .map_err(|e| format!("数据库更新失败: {e}"))?;
+            tx.commit().map_err(|e| format!("数据库提交失败: {e}"))?;
+            Ok(())
+        })();
+        if let Err(msg) = result {
+            rollback_rename(&new_path, &outcome.old_path);
+            log::error!("rename {} rolled back: {}", outcome.id, msg);
+            outcome.status = "error".into();
+            outcome.error = Some(msg);
+        }
+    }
+}
+
+/// Undo a file rename after its DB update failed.
+fn rollback_rename(new_path: &Path, old_path: &Path) {
+    if let Err(e) = std::fs::rename(new_path, old_path) {
+        log::error!(
+            "Failed to roll back rename {} -> {}: {}",
+            new_path.display(),
+            old_path.display(),
+            e
+        );
+    }
+}
+
 /// Resolve filename conflicts by appending `_1`, `_2`, etc.
-/// Checks both on-disk existence and already-used names within the batch.
+/// Checks on-disk existence, names already used within the batch, and paths
+/// registered in the DB for other records (which would violate the
+/// `file_path` UNIQUE constraint). `own_old_path` is never treated as a
+/// conflict so no-op renames keep their name.
 fn resolve_conflict(
     parent: &Path,
     desired_name: &str,
     used_names: &std::collections::HashSet<String>,
+    db_used_paths: &std::collections::HashSet<String>,
+    own_old_path: &Path,
 ) -> String {
-    if !used_names.contains(desired_name) && !parent.join(desired_name).exists() {
+    fn taken(
+        parent: &Path,
+        candidate: &str,
+        used_names: &std::collections::HashSet<String>,
+        db_used_paths: &std::collections::HashSet<String>,
+        own_old_path: &Path,
+    ) -> bool {
+        if used_names.contains(candidate) {
+            return true;
+        }
+        let full = parent.join(candidate);
+        if full.exists() {
+            return true;
+        }
+        if db_used_paths.contains(full.to_string_lossy().as_ref()) && full != own_old_path {
+            return true;
+        }
+        false
+    }
+
+    if !taken(parent, desired_name, used_names, db_used_paths, own_old_path) {
         return desired_name.to_string();
     }
 
@@ -308,7 +369,7 @@ fn resolve_conflict(
 
     for i in 1..999 {
         let candidate = format!("{stem}_{i}{ext}");
-        if !used_names.contains(&candidate) && !parent.join(&candidate).exists() {
+        if !taken(parent, &candidate, used_names, db_used_paths, own_old_path) {
             return candidate;
         }
     }
@@ -333,7 +394,7 @@ mod tests {
     #[test]
     fn resolve_conflict_returns_desired_name_when_free() {
         let dir = tempfile::tempdir().unwrap();
-        let name = resolve_conflict(dir.path(), "photo.png", &used(&[]));
+        let name = resolve_conflict(dir.path(), "photo.png", &used(&[]), &used(&[]), Path::new(""));
         assert_eq!(name, "photo.png");
     }
 
@@ -341,7 +402,8 @@ mod tests {
     fn resolve_conflict_appends_suffix_for_batch_duplicate() {
         let dir = tempfile::tempdir().unwrap();
         let used_names = used(&["photo.png"]);
-        let name = resolve_conflict(dir.path(), "photo.png", &used_names);
+        let name =
+            resolve_conflict(dir.path(), "photo.png", &used_names, &used(&[]), Path::new(""));
         assert_eq!(name, "photo_1.png");
     }
 
@@ -349,8 +411,31 @@ mod tests {
     fn resolve_conflict_avoids_existing_file_on_disk() {
         let dir = tempfile::tempdir().unwrap();
         std::fs::write(dir.path().join("photo.png"), b"x").unwrap();
-        let name = resolve_conflict(dir.path(), "photo.png", &used(&[]));
+        let name = resolve_conflict(dir.path(), "photo.png", &used(&[]), &used(&[]), Path::new(""));
         assert_eq!(name, "photo_1.png");
+    }
+
+    #[test]
+    fn resolve_conflict_avoids_path_registered_in_db_for_other_record() {
+        let dir = tempfile::tempdir().unwrap();
+        // Another DB row owns "<dir>/photo.png" even though no such file is
+        // on disk (e.g. a reference-mode file that was moved away).
+        let db_used = used(&[
+            dir.path().join("photo.png").to_string_lossy().as_ref(),
+        ]);
+        let name = resolve_conflict(dir.path(), "photo.png", &used(&[]), &db_used, Path::new(""));
+        assert_eq!(name, "photo_1.png");
+    }
+
+    #[test]
+    fn resolve_conflict_allows_own_registered_path() {
+        let dir = tempfile::tempdir().unwrap();
+        // The record's own current path must not count as a conflict,
+        // otherwise no-op renames would get spurious suffixes.
+        let own = dir.path().join("photo.png");
+        let db_used = used(&[own.to_string_lossy().as_ref()]);
+        let name = resolve_conflict(dir.path(), "photo.png", &used(&[]), &db_used, &own);
+        assert_eq!(name, "photo.png");
     }
 
     #[test]
@@ -358,7 +443,8 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         std::fs::write(dir.path().join("photo.png"), b"x").unwrap();
         let used_names = used(&["photo_1.png"]);
-        let name = resolve_conflict(dir.path(), "photo.png", &used_names);
+        let name =
+            resolve_conflict(dir.path(), "photo.png", &used_names, &used(&[]), Path::new(""));
         assert_eq!(name, "photo_2.png");
     }
 
@@ -367,7 +453,8 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let mut used_names: HashSet<String> = (1..999).map(|i| format!("photo_{i}.png")).collect();
         used_names.insert("photo.png".to_string());
-        let name = resolve_conflict(dir.path(), "photo.png", &used_names);
+        let name =
+            resolve_conflict(dir.path(), "photo.png", &used_names, &used(&[]), Path::new(""));
         assert!(name.starts_with("photo_") && name.ends_with(".png"));
         assert!(!used_names.contains(&name));
     }
@@ -476,5 +563,77 @@ mod tests {
         let names: Vec<String> = result.items.iter().map(|i| i.new_name.clone()).collect();
         assert!(names.contains(&"same.png".to_string()));
         assert!(names.contains(&"same_1.png".to_string()));
+    }
+
+    #[test]
+    fn batch_rename_avoids_paths_registered_in_db() {
+        let db = test_db();
+        let dir = tempfile::tempdir().unwrap();
+        let old = dir.path().join("old.png");
+        std::fs::write(&old, b"x").unwrap();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image_at(&conn, "a", old.to_str().unwrap());
+            // Another record already owns "<dir>/photo.png" in the DB while
+            // the file itself is gone from disk (reference-mode leftover).
+            let ghost = dir.path().join("photo.png");
+            insert_image_at(&conn, "ghost", ghost.to_str().unwrap());
+        }
+
+        let result = batch_rename_inner(&db, vec!["a".into()], "photo".into(), false).unwrap();
+
+        // Without DB-aware conflict resolution the rename would target
+        // photo.png, fail the UNIQUE constraint and be rolled back.
+        assert_eq!(result.errors, 0);
+        assert_eq!(result.renamed, 1);
+        assert!(dir.path().join("photo_1.png").exists());
+        assert!(!dir.path().join("photo.png").exists());
+        let conn = db.conn().lock().unwrap();
+        let a_path: String = conn
+            .query_row("SELECT file_path FROM images WHERE id = 'a'", [], |r| r.get(0))
+            .unwrap();
+        assert!(a_path.ends_with("photo_1.png"));
+    }
+
+    #[test]
+    fn commit_renames_rolls_back_and_reports_error_on_db_failure() {
+        let db = test_db();
+        let dir = tempfile::tempdir().unwrap();
+        let old = dir.path().join("old.png");
+        let target = dir.path().join("taken.png");
+        std::fs::write(&old, b"x").unwrap();
+        std::fs::rename(&old, &target).unwrap(); // simulate phase-2 file rename
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image_at(&conn, "a", old.to_str().unwrap());
+            // Blocker row already holds the target path → UNIQUE violation.
+            insert_image_at(&conn, "blocker", target.to_str().unwrap());
+        }
+
+        let mut outcomes = vec![RenameOutcome {
+            id: "a".into(),
+            old_name: "old.png".into(),
+            old_path: old.clone(),
+            new_name: "taken.png".into(),
+            new_path: Some(target.clone()),
+            status: "ok".into(),
+            error: None,
+        }];
+        {
+            let conn = db.conn().lock().unwrap();
+            commit_renames(&conn, &mut outcomes);
+        }
+
+        // The outcome must not claim success.
+        assert_eq!(outcomes[0].status, "error");
+        assert!(outcomes[0].error.as_deref().unwrap().contains("数据库"));
+        // The file rename was rolled back: disk matches the unchanged DB row.
+        assert!(old.exists());
+        assert!(!target.exists());
+        let conn = db.conn().lock().unwrap();
+        let a_path: String = conn
+            .query_row("SELECT file_path FROM images WHERE id = 'a'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(a_path, old.to_string_lossy());
     }
 }

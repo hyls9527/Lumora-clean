@@ -49,11 +49,11 @@ fn export_images_inner(
     // Phase 1: collect all records and tags while holding the lock (DB only, no I/O)
     struct ExportTask {
         file_path: String,
-        stem: String,
-        ext: String,
+        out_path: std::path::PathBuf,
     }
     let tasks: Vec<Result<ExportTask, String>> = {
         let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+        let mut used: std::collections::HashSet<String> = std::collections::HashSet::new();
         ids.iter()
             .map(|id| {
                 let record = match conn.query_row(
@@ -69,8 +69,7 @@ fn export_images_inner(
                 let ext = resolve_extension(&record.format, &format);
                 Ok(ExportTask {
                     file_path: record.file_path,
-                    stem,
-                    ext: ext.to_string(),
+                    out_path: resolve_export_path(dest, &stem, ext, &mut used, None),
                 })
             })
             .collect()
@@ -96,8 +95,7 @@ fn export_images_inner(
                 continue;
             }
         };
-        let out_path = dest.join(format!("{}.{}", task.stem, task.ext));
-        match export_single(&task.file_path, &out_path, &opts) {
+        match export_single(&task.file_path, &task.out_path, &opts) {
             Ok(_) => success += 1,
             Err(_) => failed += 1,
         }
@@ -182,6 +180,10 @@ fn batch_convert_inner(
 
     let tasks: Vec<ConvertTask> = {
         let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+        // Destination paths claimed within this batch: two records must never
+        // write to the same output file (the second write would clobber the
+        // first and the DB update would trip file_path's UNIQUE constraint).
+        let mut used: std::collections::HashSet<String> = std::collections::HashSet::new();
         ids.iter()
             .map(|id| {
                 let record = match conn.query_row(
@@ -227,24 +229,15 @@ fn batch_convert_inner(
                         .file_stem()
                         .map(|s| s.to_string_lossy().into_owned())
                         .unwrap_or_else(|| record.id.clone());
-                    dest.join(format!("{stem}.{new_ext}"))
+                    resolve_export_path(dest, &stem, new_ext, &mut used, None)
                 } else {
-                    old_path.with_extension(new_ext)
+                    let stem = old_path
+                        .file_stem()
+                        .map(|s| s.to_string_lossy().into_owned())
+                        .unwrap_or_else(|| record.id.clone());
+                    let parent = old_path.parent().unwrap_or(std::path::Path::new(""));
+                    resolve_export_path(parent, &stem, new_ext, &mut used, Some(&old_path))
                 };
-
-                // In-place same format, no resize → skip
-                if dest_dir.is_none() && opts.format == "original" && old_path == new_path {
-                    return ConvertTask {
-                        id: id.clone(),
-                        old_format: record.format.clone(),
-                        file_path: record.file_path.clone(),
-                        new_ext: record.format.clone(),
-                        new_path: std::path::PathBuf::new(),
-                        old_path,
-                        no_work: true,
-                        error: None,
-                    };
-                }
 
                 ConvertTask {
                     id: id.clone(),
@@ -269,9 +262,11 @@ fn batch_convert_inner(
         status: String, // "ok" | "skipped" | "error"
         error: Option<String>,
         new_path_str: Option<String>,
+        new_path: std::path::PathBuf,
+        old_path: std::path::PathBuf,
     }
 
-    let outcomes: Vec<ConvertOutcome> = tasks
+    let mut outcomes: Vec<ConvertOutcome> = tasks
         .into_iter()
         .map(|task| {
             if let Some(err) = task.error {
@@ -282,6 +277,8 @@ fn batch_convert_inner(
                     status: "error".into(),
                     error: Some(err),
                     new_path_str: None,
+                    new_path: std::path::PathBuf::new(),
+                    old_path: std::path::PathBuf::new(),
                 };
             }
 
@@ -293,6 +290,8 @@ fn batch_convert_inner(
                     status: "skipped".into(),
                     error: None,
                     new_path_str: None,
+                    new_path: std::path::PathBuf::new(),
+                    old_path: task.old_path,
                 };
             }
 
@@ -304,6 +303,8 @@ fn batch_convert_inner(
                     status: "ok".into(),
                     error: None,
                     new_path_str: None,
+                    new_path: task.new_path,
+                    old_path: task.old_path,
                 };
             }
 
@@ -317,25 +318,23 @@ fn batch_convert_inner(
                         status: "error".into(),
                         error: Some(format!("创建目录失败: {e}")),
                         new_path_str: None,
+                        new_path: task.new_path,
+                        old_path: task.old_path,
                     };
                 }
             }
 
             match export_single(&task.file_path, &task.new_path, &opts) {
-                Ok(_) => {
-                    // Remove old file if path changed
-                    if task.new_path != task.old_path {
-                        let _ = fs::remove_file(&task.old_path);
-                    }
-                    ConvertOutcome {
-                        id: task.id,
-                        old_format: task.old_format,
-                        new_format: task.new_ext,
-                        status: "ok".into(),
-                        error: None,
-                        new_path_str: Some(task.new_path.to_string_lossy().into_owned()),
-                    }
-                }
+                Ok(_) => ConvertOutcome {
+                    id: task.id,
+                    old_format: task.old_format,
+                    new_format: task.new_ext,
+                    status: "ok".into(),
+                    error: None,
+                    new_path_str: Some(task.new_path.to_string_lossy().into_owned()),
+                    new_path: task.new_path,
+                    old_path: task.old_path,
+                },
                 Err(e) => ConvertOutcome {
                     id: task.id,
                     old_format: task.old_format,
@@ -343,6 +342,8 @@ fn batch_convert_inner(
                     status: "error".into(),
                     error: Some(format!("转换失败: {e}")),
                     new_path_str: None,
+                    new_path: task.new_path,
+                    old_path: task.old_path,
                 },
             }
         })
@@ -351,27 +352,41 @@ fn batch_convert_inner(
     // Phase 3: update DB for successfully converted images (lock → DB writes → unlock)
     {
         let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-        for outcome in &outcomes {
-            if outcome.status == "ok" && outcome.new_path_str.is_some() && !dry_run {
-                let new_path_str = outcome.new_path_str.as_deref().unwrap();
-                let new_format_str = if opts.format == "original" {
-                    outcome.old_format.clone()
-                } else if opts.format == "jpg" || opts.format == "jpeg" {
-                    "jpeg".to_string()
-                } else {
-                    opts.format.clone()
-                };
-                // If DB update fails, log but don't fail the whole batch — file is already converted
-                if let Err(e) = conn.execute(
-                    "UPDATE images SET file_path = ?1, format = ?2 WHERE id = ?3",
-                    params![new_path_str, new_format_str, outcome.id],
-                ) {
-                    log::error!(
-                        "DB update failed for {} after conversion: {}",
-                        outcome.id,
-                        e
-                    );
-                }
+        for outcome in &mut outcomes {
+            if outcome.status != "ok" || dry_run {
+                continue;
+            }
+            let Some(new_path_str) = &outcome.new_path_str else {
+                continue;
+            };
+            let new_path_str = new_path_str.clone();
+            let new_format_str = if opts.format == "original" {
+                outcome.old_format.clone()
+            } else if opts.format == "jpg" || opts.format == "jpeg" {
+                "jpeg".to_string()
+            } else {
+                opts.format.clone()
+            };
+            // If the DB update fails, keep the original file so the stored
+            // file_path stays valid, and report the item as failed instead of
+            // claiming success for a record the DB cannot find anymore.
+            if let Err(e) = conn.execute(
+                "UPDATE images SET file_path = ?1, format = ?2 WHERE id = ?3",
+                params![new_path_str, new_format_str, outcome.id],
+            ) {
+                log::error!(
+                    "DB update failed for {} after conversion: {}",
+                    outcome.id,
+                    e
+                );
+                outcome.status = "error".into();
+                outcome.error = Some(format!("数据库更新失败: {e}"));
+                continue;
+            }
+            // Remove the original only after the DB points at the new file,
+            // so a failed update can never leave a dangling file_path.
+            if outcome.new_path != outcome.old_path {
+                let _ = fs::remove_file(&outcome.old_path);
             }
         }
     }
@@ -516,6 +531,48 @@ fn sanitize_filename(name: &str) -> String {
         s.push('_');
     }
     s
+}
+
+/// Pick `dest_dir/<stem>.<ext>`, appending `_1`, `_2`, … when the exact path
+/// already exists on disk or was claimed earlier in the same batch. The
+/// returned path is recorded in `used`. `own` (when given) is exempt so
+/// in-place conversions can target the source path itself.
+fn resolve_export_path(
+    dest_dir: &Path,
+    stem: &str,
+    ext: &str,
+    used: &mut std::collections::HashSet<String>,
+    own: Option<&Path>,
+) -> std::path::PathBuf {
+    let taken = |candidate: &str| -> bool {
+        let full = dest_dir.join(candidate);
+        if let Some(own) = own {
+            if full == own {
+                return false;
+            }
+        }
+        used.contains(full.to_string_lossy().as_ref()) || full.exists()
+    };
+
+    for n in 0..999 {
+        let candidate = if n == 0 {
+            format!("{stem}.{ext}")
+        } else {
+            format!("{stem}_{n}.{ext}")
+        };
+        if !taken(&candidate) {
+            used.insert(dest_dir.join(&candidate).to_string_lossy().into_owned());
+            return dest_dir.join(candidate);
+        }
+    }
+    // Fallback: append timestamp
+    let ts = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis())
+        .unwrap_or(0);
+    let candidate = format!("{stem}_{ts}.{ext}");
+    used.insert(dest_dir.join(&candidate).to_string_lossy().into_owned());
+    dest_dir.join(candidate)
 }
 
 fn resolve_extension<'a>(original_format: &'a str, target_format: &str) -> &'a str {
@@ -1271,5 +1328,163 @@ mod tests {
 
         assert_eq!(result.success, 0);
         assert_eq!(result.failed, 1);
+    }
+
+    #[test]
+    fn export_images_resolves_dest_name_conflicts() {
+        let (db, _db_dir) = setup_test_db();
+        let dir_a = tempdir().unwrap();
+        let dir_b = tempdir().unwrap();
+        let pa = dir_a.path().join("img.png");
+        let pb = dir_b.path().join("img.png");
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_test_image(&conn, "a", &pa.to_string_lossy(), "png");
+            insert_test_image(&conn, "b", &pb.to_string_lossy(), "png");
+        }
+        let out_dir = tempdir().unwrap();
+        let result = export_images_inner(
+            &db,
+            vec!["a".into(), "b".into()],
+            out_dir.path().to_string_lossy().into_owned(),
+            "original".into(),
+            None,
+        )
+        .unwrap();
+
+        // Both images must survive; the second one gets a suffixed name
+        // instead of silently overwriting the first export.
+        assert_eq!(result.success, 2);
+        assert_eq!(result.failed, 0);
+        assert!(out_dir.path().join("img.png").exists());
+        assert!(out_dir.path().join("img_1.png").exists());
+    }
+
+    #[test]
+    fn batch_convert_resolves_dest_conflicts() {
+        let (db, _db_dir) = setup_test_db();
+        let dir_a = tempdir().unwrap();
+        let dir_b = tempdir().unwrap();
+        let pa = dir_a.path().join("img.png");
+        let pb = dir_b.path().join("img.png");
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_test_image(&conn, "a", &pa.to_string_lossy(), "png");
+            insert_test_image(&conn, "b", &pb.to_string_lossy(), "png");
+        }
+        let out_dir = tempdir().unwrap();
+        let result = batch_convert_inner(
+            &db,
+            vec!["a".into(), "b".into()],
+            "webp".into(),
+            None,
+            None,
+            None,
+            Some(out_dir.path().to_string_lossy().into_owned()),
+            false,
+        )
+        .unwrap();
+
+        assert_eq!(result.converted, 2);
+        assert_eq!(result.failed, 0);
+        assert!(out_dir.path().join("img.webp").exists());
+        assert!(out_dir.path().join("img_1.webp").exists());
+        let conn = db.conn().lock().unwrap();
+        let a_path: String = conn
+            .query_row("SELECT file_path FROM images WHERE id = 'a'", [], |r| r.get(0))
+            .unwrap();
+        let b_path: String = conn
+            .query_row("SELECT file_path FROM images WHERE id = 'b'", [], |r| r.get(0))
+            .unwrap();
+        assert_ne!(a_path, b_path);
+    }
+
+    #[test]
+    fn batch_convert_in_place_original_with_resize_applies() {
+        let (db, _db_dir) = setup_test_db();
+        let img_dir = tempdir().unwrap();
+        let p = img_dir.path().join("img.png");
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_test_image(&conn, "a", &p.to_string_lossy(), "png");
+        }
+        // 16x16 source so the resize (down-only) actually kicks in.
+        image::DynamicImage::new_rgb8(16, 16).save(&p).unwrap();
+        let original_bytes = std::fs::read(&p).unwrap();
+
+        let result = batch_convert_inner(
+            &db,
+            vec!["a".into()],
+            "original".into(),
+            None,
+            Some(8),
+            None,
+            None,
+            false,
+        )
+        .unwrap();
+
+        // In-place "original" with a resize is a real operation, not a no-op.
+        assert_eq!(result.converted, 1);
+        assert_eq!(result.skipped, 0);
+        let resized = image::open(&p).unwrap();
+        assert_eq!(resized.width(), 8);
+        assert_eq!(resized.height(), 8);
+        assert_ne!(std::fs::read(&p).unwrap(), original_bytes);
+        let conn = db.conn().lock().unwrap();
+        let (path, format): (String, String) = conn
+            .query_row(
+                "SELECT file_path, format FROM images WHERE id = 'a'",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(path, p.to_string_lossy());
+        assert_eq!(format, "png");
+    }
+
+    #[test]
+    fn batch_convert_reports_db_failure_and_keeps_original() {
+        let (db, _db_dir) = setup_test_db();
+        let img_dir = tempdir().unwrap();
+        let p = img_dir.path().join("img.png");
+        let target = img_dir.path().join("img.webp");
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_test_image(&conn, "a", &p.to_string_lossy(), "png");
+            // Another record already owns the in-place target path in the DB,
+            // so the file_path UPDATE hits the UNIQUE constraint.
+            conn.execute(
+                "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+                 VALUES ('blocker', ?1, 'h', 1, 'webp', '2025-01-01')",
+                params![target.to_string_lossy()],
+            )
+            .unwrap();
+        }
+        let original_bytes = std::fs::read(&p).unwrap();
+
+        let result = batch_convert_inner(
+            &db,
+            vec!["a".into()],
+            "webp".into(),
+            None,
+            None,
+            None,
+            None,
+            false,
+        )
+        .unwrap();
+
+        // The item is reported as failed, not converted.
+        assert_eq!(result.converted, 0);
+        assert_eq!(result.failed, 1);
+        assert!(result.items[0].error.as_deref().unwrap().contains("数据库"));
+        // The original file is intact and the DB still points at it.
+        assert_eq!(std::fs::read(&p).unwrap(), original_bytes);
+        let conn = db.conn().lock().unwrap();
+        let path: String = conn
+            .query_row("SELECT file_path FROM images WHERE id = 'a'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(path, p.to_string_lossy());
     }
 }

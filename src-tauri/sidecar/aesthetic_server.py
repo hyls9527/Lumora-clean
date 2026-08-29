@@ -133,7 +133,9 @@ def load_aesthetic():
     model = model.to(_device()).eval()
 
     mlp = _AestheticMLP()
-    state = torch.load(_ensure_weights(), map_location="cpu")
+    # weights_only=True: the checkpoint is a plain tensor state dict; refuse
+    # pickle object graphs so a tampered download cannot execute code.
+    state = torch.load(_ensure_weights(), map_location="cpu", weights_only=True)
     mlp.load_state_dict(state)
     mlp = mlp.to(_device()).eval()
 
@@ -206,7 +208,9 @@ def load_hps():
     model, _, preprocess = open_clip.create_model_and_transforms(
         "ViT-H-14", pretrained=None
     )
-    checkpoint = torch.load(_ensure_hps_weights(), map_location="cpu")
+    checkpoint = torch.load(
+        _ensure_hps_weights(), map_location="cpu", weights_only=True
+    )
     model.load_state_dict(checkpoint["state_dict"])
     model = model.to(_device()).eval()
     tokenizer = open_clip.get_tokenizer("ViT-H-14")

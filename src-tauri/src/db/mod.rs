@@ -81,6 +81,23 @@ impl DbHandle {
     pub fn path(&self) -> &std::path::Path {
         &self.path
     }
+
+    /// Flush the WAL back into the main database file (`TRUNCATE` mode).
+    ///
+    /// The database runs in WAL mode, so a plain `fs::copy` of `path()`
+    /// only captures what has already been checkpointed — committed
+    /// transactions still sitting in `<path>-wal` would be silently lost.
+    /// Call this before file-level copies of the database (e.g. exports).
+    pub fn checkpoint_wal(&self) -> Result<(), crate::error::AppError> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|_| crate::error::AppError::Lock)?;
+        // Returns (busy, log, checkpointed) — a non-zero busy column is not
+        // an error here; best effort is enough before a read-only copy.
+        conn.query_row("PRAGMA wal_checkpoint(TRUNCATE)", [], |r| r.get::<_, i64>(0))?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -97,5 +114,33 @@ mod tests {
             .query_row("SELECT COUNT(*) FROM images", [], |r| r.get(0))
             .unwrap();
         assert_eq!(count, 0);
+    }
+
+    #[test]
+    fn checkpoint_flushes_wal_into_main_file() {
+        let dir = tempfile::tempdir().unwrap();
+        let db_path = dir.path().join("wal.db");
+        let db = DbHandle::open(&db_path).unwrap();
+        {
+            let conn = db.conn().lock().unwrap();
+            conn.execute(
+                "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at)
+                 VALUES ('w1','/w.png','h',1,'png','2025-01-01')",
+                [],
+            )
+            .unwrap();
+        }
+
+        // Simulate the export path: flush WAL, then copy ONLY the main file.
+        db.checkpoint_wal().unwrap();
+        let copy_path = dir.path().join("wal-copy.db");
+        std::fs::copy(&db_path, &copy_path).unwrap();
+
+        let copy = Connection::open(&copy_path).unwrap();
+        let count: i64 = copy
+            .query_row("SELECT COUNT(*) FROM images", [], |r| r.get(0))
+            .unwrap();
+        // Without the checkpoint this copy would be missing the new row.
+        assert_eq!(count, 1);
     }
 }

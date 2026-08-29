@@ -74,6 +74,38 @@ describe('useImageSrc', () => {
     expect(mockConvert).not.toHaveBeenCalled();
   });
 
+  it('falls back to convertFileSrc when the base64 command resolves empty (full-size)', async () => {
+    mockInvoke.mockResolvedValue('');
+    mockConvert.mockResolvedValue('asset://img.png');
+    const { result } = renderHook(() => useImageSrc('/path/img.png'));
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    expect(result.current).toBe('asset://img.png');
+  });
+
+  it('retries without asset fallback when a thumbnail base64 resolves empty', async () => {
+    vi.useFakeTimers();
+    mockInvoke.mockResolvedValue('');
+    mockConvert.mockResolvedValue('asset://img.png');
+
+    renderHook(() => useImageSrc('/path/img.png', { thumbnailMaxWidth: 128 }));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(mockConvert).not.toHaveBeenCalled();
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+    expect(mockInvoke).toHaveBeenCalledTimes(2);
+    vi.useRealTimers();
+  });
+
   it('should return null for null filePath', () => {
     const { result } = renderHook(() => useImageSrc(null));
     expect(result.current).toBeNull();

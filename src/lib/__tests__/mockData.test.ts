@@ -10,6 +10,7 @@ describe('browser mock mode data contracts', () => {
     for (const cmd of [
       'search_images_advanced',
       'search_semantic_cmd',
+      'search_semantic_image_cmd',
       'get_variant_group_images',
       'embed_text_cmd',
       'clip_embed_image_cmd',

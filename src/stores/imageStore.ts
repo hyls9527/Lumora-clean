@@ -62,6 +62,8 @@ export interface ImageStore {
   page: number;
   total: number;
   perPage: number;
+  /** Internal request token: every list request bumps it; stale responses are dropped. */
+  _reqSeq: number;
   fetchImages: (page?: number) => Promise<void>;
   loadMore: () => Promise<void>;
   searchImages: (query: string) => Promise<void>;
@@ -98,13 +100,18 @@ export function createImageStore(deps: ImageStoreDeps = defaultDeps): StateCreat
     page: 1,
     total: 0,
     perPage: 40,
+    _reqSeq: 0,
 
     fetchImages: async (page?: number) => {
       const { perPage } = get();
       const p = page ?? get().page;
-      set({ loading: true, error: null });
+      const seq = get()._reqSeq + 1;
+      set({ _reqSeq: seq, loading: true, error: null });
       try {
         const result = await fetchPage(deps, p, perPage);
+        // A newer list request (fetch/loadMore/search/import) superseded this
+        // one — drop the stale response instead of overwriting newer state.
+        if (get()._reqSeq !== seq) return;
         set({
           images: result.items,
           total: result.total,
@@ -112,6 +119,7 @@ export function createImageStore(deps: ImageStoreDeps = defaultDeps): StateCreat
           loading: false,
         });
       } catch (err) {
+        if (get()._reqSeq !== seq) return;
         set({
           loading: false,
           error: err instanceof Error ? err.message : '加载失败',
@@ -125,16 +133,19 @@ export function createImageStore(deps: ImageStoreDeps = defaultDeps): StateCreat
       if (images.length >= total) return;
 
       const nextPage = page + 1;
-      set({ loading: true });
+      const seq = get()._reqSeq + 1;
+      set({ _reqSeq: seq, loading: true });
       try {
         const result = await fetchPage(deps, nextPage, perPage);
-        set({
-          images: [...images, ...result.items],
+        if (get()._reqSeq !== seq) return;
+        set((s) => ({
+          images: [...s.images, ...result.items],
           total: result.total,
           page: nextPage,
           loading: false,
-        });
+        }));
       } catch (err) {
+        if (get()._reqSeq !== seq) return;
         set({
           loading: false,
           error: err instanceof Error ? err.message : '加载更多失败',
@@ -144,15 +155,28 @@ export function createImageStore(deps: ImageStoreDeps = defaultDeps): StateCreat
 
     searchImages: async (query: string) => {
       if (!query.trim()) {
-        set({ images: [], loading: false, error: null });
+        // Invalidate any in-flight search/fetch so it cannot repopulate results.
+        set({
+          images: [],
+          page: 1,
+          total: 0,
+          loading: false,
+          error: null,
+          _reqSeq: get()._reqSeq + 1,
+        });
         return;
       }
       const { filters } = get();
-      set({ loading: true, error: null });
+      const seq = get()._reqSeq + 1;
+      set({ _reqSeq: seq, loading: true, error: null });
       try {
         const results = await deps.searchImagesAdvanced(query, filters.searchField);
-        set({ images: results, loading: false });
+        if (get()._reqSeq !== seq) return;
+        // Search results are not paginated: reset page/total so a subsequent
+        // loadMore cannot append paginated items onto search results.
+        set({ images: results, total: results.length, page: 1, loading: false });
       } catch (err) {
+        if (get()._reqSeq !== seq) return;
         set({
           loading: false,
           error: err instanceof Error ? err.message : '搜索失败',
@@ -161,7 +185,10 @@ export function createImageStore(deps: ImageStoreDeps = defaultDeps): StateCreat
     },
 
     importImages: async (folderPath: string) => {
-      set({ loading: true, error: null });
+      // Cancel any in-flight list request so its response cannot clobber the
+      // freshly imported items we prepend below.
+      const seq = get()._reqSeq + 1;
+      set({ _reqSeq: seq, loading: true, error: null });
       try {
         const result = await deps.importImages(folderPath);
         set((s) => {

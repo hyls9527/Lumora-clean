@@ -62,8 +62,9 @@ export function useImageSrc(
       const opts = optionsRef.current;
       const isThumbnail = !!opts?.thumbnailMaxWidth;
 
+      // Strategy 1: base64 command (no asset protocol needed)
+      let b64: string | null = null;
       try {
-        // Strategy 1: base64 command (no asset protocol needed)
         const cmd = isThumbnail
           ? 'get_thumbnail_base64_cmd'
           : 'get_image_base64_cmd';
@@ -71,28 +72,38 @@ export function useImageSrc(
           ? { filePath, maxWidth: opts!.thumbnailMaxWidth }
           : { filePath };
 
-        const b64 = await invoke<string>(cmd, args);
-        if (!cancelled && b64) {
-          setSrc(`data:${mimeForPath(filePath)};base64,${b64}`);
-          return;
-        }
+        b64 = await invoke<string>(cmd, args);
       } catch {
-        // Strategy 2: asset protocol fallback (full-size only)
-        if (!isThumbnail) {
-          try {
-            const result = await convertFileSrc(filePath);
-            if (!cancelled) {
+        b64 = null;
+      }
+
+      if (cancelled) return;
+
+      if (b64) {
+        setSrc(`data:${mimeForPath(filePath)};base64,${b64}`);
+        return;
+      }
+
+      // Strategy 2: asset protocol fallback (full-size only). Also used when
+      // the command resolves empty (mock mode / empty payload), otherwise the
+      // image would never render after retries exhaust.
+      if (!isThumbnail) {
+        try {
+          const result = await convertFileSrc(filePath);
+          if (!cancelled) {
+            if (result) {
               setSrc(result);
               return;
             }
-          } catch {
-            // both failed
           }
+        } catch {
+          // fall through to retry
         }
+        if (cancelled) return;
       }
 
       // Retry with exponential backoff
-      if (!cancelled && attemptRef.current < MAX_RETRIES) {
+      if (attemptRef.current < MAX_RETRIES) {
         attemptRef.current += 1;
         const delay = BASE_DELAY_MS * Math.pow(2, attemptRef.current - 1);
         setTimeout(() => {

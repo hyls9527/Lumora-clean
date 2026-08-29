@@ -1,7 +1,7 @@
 use rusqlite::params;
 
 use crate::db::DbHandle;
-use crate::error::AppResult;
+use crate::error::{AppError, AppResult};
 use crate::schema::types::{attach_tags, row_to_record, ImageRecord};
 
 // ---------------------------------------------------------------------------
@@ -11,7 +11,22 @@ use crate::schema::types::{attach_tags, row_to_record, ImageRecord};
 /// Full-text search via FTS5 on file_path + metadata_json.
 #[tauri::command]
 pub fn search_images(db: tauri::State<'_, DbHandle>, query: String) -> AppResult<Vec<ImageRecord>> {
-    let conn = db.conn().lock().map_err(|_| crate::error::AppError::Lock)?;
+    search_images_inner(&db, &query)
+}
+
+fn search_images_inner(db: &DbHandle, query: &str) -> AppResult<Vec<ImageRecord>> {
+    // An empty/whitespace query must yield no results: an empty MATCH string
+    // is an FTS5 syntax error, not "match nothing".
+    let escaped = escape_fts5(query);
+    if escaped.is_empty() {
+        return Ok(vec![]);
+    }
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    fts_query(&conn, &escaped)
+}
+
+/// Shared FTS5 query body (also used by the "all" branch of advanced search).
+fn fts_query(conn: &rusqlite::Connection, escaped: &str) -> AppResult<Vec<ImageRecord>> {
     let mut stmt = conn.prepare(
         "SELECT i.* FROM images i
              JOIN images_fts f ON f.rowid = i.rowid
@@ -19,12 +34,10 @@ pub fn search_images(db: tauri::State<'_, DbHandle>, query: String) -> AppResult
              ORDER BY rank
              LIMIT 200",
     )?;
-    let escaped = escape_fts5(&query);
-    let items = stmt
+    let mut items = stmt
         .query_map(params![escaped], row_to_record)?
         .collect::<Result<Vec<_>, _>>()?;
-    let mut items = items;
-    attach_tags(&conn, &mut items)?;
+    attach_tags(conn, &mut items)?;
     Ok(items)
 }
 
@@ -35,24 +48,27 @@ pub fn search_images_advanced(
     query: String,
     field: Option<String>,
 ) -> AppResult<Vec<ImageRecord>> {
+    search_images_advanced_inner(&db, &query, field)
+}
+
+fn search_images_advanced_inner(
+    db: &DbHandle,
+    query: &str,
+    field: Option<String>,
+) -> AppResult<Vec<ImageRecord>> {
+    // Empty query means "no results" for every field — not "match all rows".
+    if query.trim().is_empty() {
+        return Ok(vec![]);
+    }
     let field = field.unwrap_or_else(|| "all".to_string());
-    let conn = db.conn().lock().map_err(|_| crate::error::AppError::Lock)?;
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
 
     if field == "all" || field.is_empty() {
-        let mut stmt = conn.prepare(
-            "SELECT i.* FROM images i
-                 JOIN images_fts f ON f.rowid = i.rowid
-                 WHERE images_fts MATCH ?1 AND i.deleted = 0
-                 ORDER BY rank
-                 LIMIT 200",
-        )?;
-        let escaped = escape_fts5(&query);
-        let items = stmt
-            .query_map(params![escaped], row_to_record)?
-            .collect::<Result<Vec<_>, _>>()?;
-        let mut items = items;
-        attach_tags(&conn, &mut items)?;
-        return Ok(items);
+        let escaped = escape_fts5(query);
+        if escaped.is_empty() {
+            return Ok(vec![]);
+        }
+        return fts_query(&conn, &escaped);
     }
 
     if field == "seed" {
@@ -82,14 +98,17 @@ pub fn search_images_advanced(
         _ => return Ok(vec![]),
     };
 
+    // LIKE wildcards in the user query must match literally: escape with a
+    // backslash AND declare it via ESCAPE — without the clause the escapes
+    // are inert and a lone '%' would match every row.
     let escaped = query
         .replace('\\', "\\\\")
         .replace('%', "\\%")
         .replace('_', "\\_");
-    let pattern = format!("%{}%", escaped);
+    let pattern = format!("%{escaped}%");
     let mut stmt = conn.prepare(
         "SELECT * FROM images
-         WHERE json_extract(metadata_json, ?1) LIKE ?2 AND deleted = 0
+         WHERE json_extract(metadata_json, ?1) LIKE ?2 ESCAPE '\\' AND deleted = 0
          ORDER BY imported_at DESC LIMIT 200",
     )?;
     let items = stmt
@@ -105,23 +124,25 @@ pub fn search_images_advanced(
 // ---------------------------------------------------------------------------
 
 /// Escape FTS5 special characters so user input doesn't break MATCH queries.
+///
+/// Each whitespace-separated token is wrapped in double quotes (inner quotes
+/// doubled), so operators like `- : ( ) * ^` and stray `"` lose their special
+/// meaning instead of corrupting the query. Tokens without any alphanumeric
+/// character are dropped: they tokenize to nothing and would otherwise turn
+/// into empty-phrase syntax errors. Returns an empty string for an
+/// empty/operator-only query, which callers must treat as "no results".
 pub(crate) fn escape_fts5(query: &str) -> String {
-    let mut escaped = String::with_capacity(query.len());
-    for ch in query.chars() {
-        match ch {
-            '"' | '*' | '+' | '-' | '(' | ')' | ':' | '^' => {
-                escaped.push('"');
-                escaped.push(ch);
-                escaped.push('"');
-            }
-            _ => escaped.push(ch),
-        }
-    }
-    escaped
+    query
+        .split_whitespace()
+        .filter(|token| token.chars().any(|c| c.is_alphanumeric()))
+        .map(|token| format!("\"{}\"", token.replace('"', "\"\"")))
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 #[cfg(test)]
 mod tests {
+    use super::*;
 
     fn test_db() -> crate::db::DbHandle {
         crate::db::DbHandle::open_memory().unwrap()
@@ -254,5 +275,87 @@ mod tests {
 
         let seed_val: Result<i64, _> = "not-a-number".trim().parse();
         assert!(seed_val.is_err());
+    }
+
+    #[test]
+    fn escape_fts5_wraps_tokens_and_doubles_inner_quotes() {
+        assert_eq!(escape_fts5("a\"b"), "\"a\"\"b\"");
+        assert_eq!(escape_fts5("cat -dog"), "\"cat\" \"-dog\"");
+        assert_eq!(escape_fts5("(test):1*"), "\"(test):1*\"");
+        // Operator-only input has no searchable tokens → empty output.
+        assert_eq!(escape_fts5("-*():"), "");
+        assert_eq!(escape_fts5("  "), "");
+    }
+
+    #[test]
+    fn search_empty_query_returns_empty_vec() {
+        let db = test_db();
+        assert!(search_images_inner(&db, "").unwrap().is_empty());
+        assert!(search_images_inner(&db, "   ").unwrap().is_empty());
+        assert!(search_images_advanced_inner(&db, "", None).unwrap().is_empty());
+        assert!(search_images_advanced_inner(&db, " ", Some("all".into()))
+            .unwrap()
+            .is_empty());
+    }
+
+    #[test]
+    fn search_fts_special_characters_do_not_error() {
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        conn.execute(
+            "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at,metadata_json)
+             VALUES ('ft1','/cat & dog.png','h',1,'png','2025-01-01','{\"prompt\":\"a (test):1* image\"}')",
+            [],
+        )
+        .unwrap();
+        drop(conn);
+
+        // Operators and quotes in the query must not raise FTS5 syntax errors.
+        let items = search_images_inner(&db, "a\"b (test):1*").unwrap();
+        assert!(items.is_empty());
+        // Plain token still matches the file path via FTS.
+        let items = search_images_inner(&db, "cat").unwrap();
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].id, "ft1");
+    }
+
+    #[test]
+    fn search_advanced_like_escapes_wildcards() {
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        conn.execute(
+            "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at,metadata_json)
+             VALUES ('w1','/w1.png','h1',1,'png','2025-01-01','{\"prompt\":\"100% sunset\"}')",
+            [],
+        )
+        .unwrap();
+        conn.execute(
+            "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at,metadata_json)
+             VALUES ('w2','/w2.png','h2',1,'png','2025-01-01','{\"prompt\":\"abc sunset\"}')",
+            [],
+        )
+        .unwrap();
+        drop(conn);
+
+        // A lone '%' is the user's data, not a wildcard: only the literal
+        // percent row may match.
+        let hits = search_images_advanced_inner(&db, "%", Some("prompt".into())).unwrap();
+        assert_eq!(hits.len(), 1);
+        assert_eq!(hits[0].id, "w1");
+
+        // '_' must not act as a single-char wildcard either.
+        let hits = search_images_advanced_inner(&db, "a_c", Some("prompt".into())).unwrap();
+        assert!(hits.is_empty());
+
+        // Plain text still matches both rows.
+        let hits = search_images_advanced_inner(&db, "sunset", Some("prompt".into())).unwrap();
+        assert_eq!(hits.len(), 2);
+    }
+
+    #[test]
+    fn search_advanced_unknown_field_returns_empty() {
+        let db = test_db();
+        let hits = search_images_advanced_inner(&db, "x", Some("nope".into())).unwrap();
+        assert!(hits.is_empty());
     }
 }

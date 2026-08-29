@@ -64,6 +64,24 @@ describe('invoke (tauri.ts)', () => {
       await expect(mod.invoke('import_images', { path: '/x' })).rejects.toThrow('disk full');
       expect(mockRealInvoke).toHaveBeenCalledTimes(1);
     });
+
+    it('throws immediately for batch_rename on first failure (filesystem write)', async () => {
+      mockRealInvoke.mockRejectedValueOnce(new Error('fs busy'));
+
+      await expect(
+        mod.invoke('batch_rename', { ids: ['a'], template: 't', dryRun: false }),
+      ).rejects.toThrow('fs busy');
+      expect(mockRealInvoke).toHaveBeenCalledTimes(1);
+    });
+
+    it('throws immediately for export_images on first failure (filesystem write)', async () => {
+      mockRealInvoke.mockRejectedValueOnce(new Error('dest missing'));
+
+      await expect(
+        mod.invoke('export_images', { ids: ['a'], destDir: '/o', format: 'png' }),
+      ).rejects.toThrow('dest missing');
+      expect(mockRealInvoke).toHaveBeenCalledTimes(1);
+    });
   });
 
   // ── Read commands: retried up to READ_RETRY_MAX (3) ──

@@ -76,9 +76,10 @@ pub struct PaginationParams {
     pub token: Option<String>,
 }
 
-/// Generate a random 8-character alphanumeric token.
+/// Generate a random 16-character alphanumeric token (~95 bits of entropy;
+/// `rand::random_range` draws from the OS-seeded ChaCha12 ThreadRng).
 pub fn generate_token() -> String {
-    (0..8)
+    (0..16)
         .map(|_| {
             let idx = rand::random_range(0..62);
             if idx < 10 {
@@ -249,7 +250,7 @@ async fn images_handler(
 
     let page = params.page.unwrap_or(1).max(1);
     let per_page = params.per_page.unwrap_or(40).min(200);
-    let offset = (page - 1) * per_page;
+    let offset = (page - 1).saturating_mul(per_page);
 
     let conn = state
         .db
@@ -396,9 +397,9 @@ mod tests {
     }
 
     #[test]
-    fn generate_token_creates_8_char_string() {
+    fn generate_token_creates_16_char_string() {
         let token = generate_token();
-        assert_eq!(token.len(), 8);
+        assert_eq!(token.len(), 16);
         assert!(token.chars().all(|c| c.is_ascii_alphanumeric()));
     }
 
@@ -408,6 +409,8 @@ mod tests {
         assert!(!tokens_match("abc12345", "abc12346"));
         assert!(!tokens_match("abc12345", "abc1234"));
         assert!(!tokens_match("", "x"));
+        assert!(tokens_match("abcdefghijklmnop", "abcdefghijklmnop"));
+        assert!(!tokens_match("abcdefghijklmnop", "abcdefghijklmnoP"));
     }
 
     #[test]
@@ -521,6 +524,23 @@ mod tests {
             assert_eq!(json["total"], 1);
             assert_eq!(json["items"][0]["id"], "i1");
             assert_eq!(json["items"][0]["rating"], 3);
+
+            let huge_page = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri("/api/images?token=token123&page=4294967295")
+                        .body(Body::from(""))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(huge_page.status(), 200);
+            let body = axum::body::to_bytes(huge_page.into_body(), usize::MAX)
+                .await
+                .unwrap();
+            let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+            assert_eq!(json["items"].as_array().map(Vec::len), Some(0));
 
             let tags = app
                 .clone()

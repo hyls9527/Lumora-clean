@@ -347,7 +347,7 @@ fn create_tag_result(
 
 fn list_images_impl(db: &DbHandle, page: u32, per_page: u32) -> Result<PaginatedResult, String> {
     let conn = lock_db(db)?;
-    let offset = page.saturating_sub(1) * per_page;
+    let offset = page.saturating_sub(1).saturating_mul(per_page);
     let total: i64 = conn
         .query_row("SELECT COUNT(*) FROM images WHERE deleted = 0", [], |r| {
             r.get(0)
@@ -437,9 +437,9 @@ fn image_file_impl(db: &DbHandle, id: &str) -> Result<(Vec<u8>, &'static str), S
         Ok(img) => {
             use image::GenericImageView;
             let (w, h) = img.dimensions();
-            let thumb = if w > 1024 {
-                let new_h = (h as f64 * 1024.0 / w as f64) as u32;
-                img.resize(1024, new_h, image::imageops::FilterType::Triangle)
+            let thumb = if w > 1024 || h > 1024 {
+                // Cap the larger dimension so portrait/panorama images stay bounded too.
+                img.resize(1024, 1024, image::imageops::FilterType::Triangle)
             } else {
                 img
             };
@@ -450,6 +450,15 @@ fn image_file_impl(db: &DbHandle, id: &str) -> Result<(Vec<u8>, &'static str), S
             Ok((buf.into_inner(), "image/png"))
         }
         Err(_) => {
+            // Undecodable file: bound the raw passthrough so a huge file cannot
+            // be slurped into memory and base64-encoded over the network.
+            const MAX_RAW_BYTES: u64 = 20 * 1024 * 1024;
+            let len = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
+            if len > MAX_RAW_BYTES {
+                return Err(format!(
+                    "file too large to return raw: {len} bytes (max 20 MiB)"
+                ));
+            }
             let data = std::fs::read(path).map_err(|e| format!("failed to read file: {e}"))?;
             let mime = match path
                 .extension()
@@ -681,6 +690,32 @@ mod tests {
 
         let err = image_file_impl(&db, "ghost").unwrap_err();
         assert!(err.contains("not found"));
+    }
+
+    #[test]
+    fn image_file_rejects_oversize_undecodable_file() {
+        let db = test_db();
+        let dir = tempfile::tempdir().unwrap();
+        let big_path = dir.path().join("big.webp");
+        std::fs::write(&big_path, vec![0u8; 20 * 1024 * 1024 + 1]).unwrap();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "big1", big_path.to_str().unwrap());
+        }
+        let err = image_file_impl(&db, "big1").unwrap_err();
+        assert!(err.contains("too large"), "err: {err}");
+    }
+
+    #[test]
+    fn list_images_huge_page_does_not_overflow() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(&conn, "i1", "/a.png");
+        }
+        let page = list_images_impl(&db, u32::MAX, 10).unwrap();
+        assert!(page.items.is_empty());
+        assert_eq!(page.total, 1);
     }
 
     #[test]

@@ -1,8 +1,7 @@
 !macro NSIS_HOOK_PREUNINSTALL
-  ; 卸载开始前结束 Lumora 主进程及 WebView2 相关进程，释放文件占用
+  ; 卸载开始前结束 Lumora 主进程，释放文件占用
   ExecWait '"taskkill" /f /im "Lumora.exe"' $0
   ExecWait '"taskkill" /f /im "Lumora.exe"' $0
-  ExecWait '"taskkill" /f /im "app.exe"' $0
 
   ; 等待进程退出并释放 WebView2 数据目录句柄
   Sleep 3000
@@ -27,10 +26,9 @@
   FileWrite $0 'tasklist /fi "imagename eq uninstall.exe" 2>nul | find /i "uninstall.exe" >nul$\r$\n'
   FileWrite $0 'if %errorlevel%==0 goto wait_uninstall$\r$\n'
 
-  ; 强制结束可能残留的 Lumora / WebView2 进程
+  ; 强制结束可能残留的 Lumora 进程
   FileWrite $0 'taskkill /f /im "Lumora.exe" 2>nul$\r$\n'
   FileWrite $0 'taskkill /f /im "Lumora.exe" 2>nul$\r$\n'
-  FileWrite $0 'taskkill /f /im "app.exe" 2>nul$\r$\n'
   FileWrite $0 'timeout /t 2 /nobreak >nul$\r$\n'
 
   ; 多次重试删除安装目录及应用数据目录

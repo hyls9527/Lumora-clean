@@ -20,6 +20,7 @@ import {
   emptyTrash,
   getVariantGroupImages,
   updateTag,
+  batchConvert,
   toImageRecord,
   type TauriImageRecord,
 } from '../images';
@@ -144,6 +145,34 @@ describe('API calls', () => {
     mockInvoke.mockResolvedValue([]);
     const result = await getVariantGroupImages('empty-group');
     expect(result).toEqual([]);
+  });
+
+  it('batchConvert sends the required dryRun/destDir args (Rust non-default params)', async () => {
+    mockInvoke.mockResolvedValue({ items: [], converted: 0, skipped: 0, failed: 0 });
+    await batchConvert(['1', '2'], 'webp', 80, 1024, 768);
+    expect(mockInvoke).toHaveBeenCalledWith('batch_convert', {
+      ids: ['1', '2'],
+      format: 'webp',
+      quality: 80,
+      maxWidth: 1024,
+      maxHeight: 768,
+      destDir: null,
+      dryRun: false,
+    });
+  });
+
+  it('batchConvert defaults optional params to null and dryRun stays false', async () => {
+    mockInvoke.mockResolvedValue({ items: [], converted: 0, skipped: 0, failed: 0 });
+    await batchConvert(['1'], 'jpg');
+    expect(mockInvoke).toHaveBeenCalledWith('batch_convert', {
+      ids: ['1'],
+      format: 'jpg',
+      quality: null,
+      maxWidth: null,
+      maxHeight: null,
+      destDir: null,
+      dryRun: false,
+    });
   });
 });
 

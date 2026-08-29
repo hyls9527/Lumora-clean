@@ -123,6 +123,116 @@ describe('searchImages', () => {
   });
 });
 
+describe('list request races', () => {
+  it('discards a stale loadMore response when a newer fetchImages is in flight', async () => {
+    useImageStore.setState({ images: [mockImage], page: 1, total: 3, loading: false });
+
+    let resolveLoadMore!: (v: { items: ImageRecord[]; total: number }) => void;
+    vi.mocked(api.listImages).mockImplementation((page: number) => {
+      if (page === 2) {
+        return new Promise((resolve) => { resolveLoadMore = resolve; });
+      }
+      return Promise.resolve({ items: [{ ...mockImage, id: 'fresh' }], total: 1 });
+    });
+
+    const loadMorePromise = useImageStore.getState().loadMore();
+    const fetchPromise = useImageStore.getState().fetchImages(1);
+
+    resolveLoadMore({ items: [{ ...mockImage, id: 'stale-page2' }], total: 3 });
+    await Promise.all([loadMorePromise, fetchPromise]);
+
+    const state = useImageStore.getState();
+    // The late page-2 response belongs to the pre-filter list and must be dropped
+    expect(state.images.map((i) => i.id)).toEqual(['fresh']);
+    expect(state.page).toBe(1);
+    expect(state.total).toBe(1);
+    expect(state.loading).toBe(false);
+  });
+
+  it('lets the newer fetchImages win when two fetches overlap', async () => {
+    let resolveFirst!: (v: { items: ImageRecord[]; total: number }) => void;
+    vi.mocked(api.listImages).mockImplementation((page: number) => {
+      if (page === 1) {
+        return new Promise((resolve) => { resolveFirst = resolve; });
+      }
+      return Promise.resolve({ items: [{ ...mockImage, id: 'page2' }], total: 2 });
+    });
+
+    const first = useImageStore.getState().fetchImages(1);
+    const second = useImageStore.getState().fetchImages(2);
+
+    resolveFirst({ items: [{ ...mockImage, id: 'stale-page1' }], total: 9 });
+    await Promise.all([first, second]);
+
+    const state = useImageStore.getState();
+    expect(state.images.map((i) => i.id)).toEqual(['page2']);
+    expect(state.page).toBe(2);
+  });
+
+  it('loadMore appends onto the current list, not a stale snapshot', async () => {
+    useImageStore.setState({ images: [mockImage], page: 1, total: 2, loading: false });
+    // Simulate an optimistic update landing while loadMore is in flight
+    vi.mocked(api.listImages).mockImplementation(
+      () => new Promise((resolve) =>
+        setTimeout(() => resolve({ items: [{ ...mockImage, id: '2' }], total: 3 }), 0),
+      ),
+    );
+
+    const promise = useImageStore.getState().loadMore();
+    useImageStore.getState().updateImage('1', (img) => ({ ...img, favorite: true }));
+    await promise;
+
+    const state = useImageStore.getState();
+    expect(state.images.map((i) => i.id)).toEqual(['1', '2']);
+    expect(state.images[0].favorite).toBe(true);
+  });
+});
+
+describe('searchImages pagination', () => {
+  it('resets page/total so loadMore cannot append paginated items onto search results', async () => {
+    useImageStore.setState({ images: [mockImage], page: 1, total: 100 });
+    vi.mocked(api.searchImagesAdvanced).mockResolvedValue([{ ...mockImage, id: 's1' }]);
+
+    await useImageStore.getState().searchImages('cat');
+
+    const state = useImageStore.getState();
+    expect(state.images.map((i) => i.id)).toEqual(['s1']);
+    expect(state.total).toBe(1);
+    expect(state.page).toBe(1);
+
+    // loadMore must be a no-op: images.length >= total
+    vi.mocked(api.listImages).mockResolvedValue({ items: [{ ...mockImage, id: 'p2' }], total: 100 });
+    await useImageStore.getState().loadMore();
+    expect(useImageStore.getState().images.map((i) => i.id)).toEqual(['s1']);
+  });
+
+  it('clears pagination state on empty query', async () => {
+    useImageStore.setState({ images: [mockImage], page: 3, total: 120 });
+    await useImageStore.getState().searchImages('   ');
+
+    const state = useImageStore.getState();
+    expect(state.images).toEqual([]);
+    expect(state.page).toBe(1);
+    expect(state.total).toBe(0);
+    expect(state.loading).toBe(false);
+  });
+
+  it('a completed search result is not overwritten by an earlier stale fetch', async () => {
+    let resolveFetch!: (v: { items: ImageRecord[]; total: number }) => void;
+    vi.mocked(api.listImages).mockImplementation(
+      () => new Promise((resolve) => { resolveFetch = resolve; }),
+    );
+    vi.mocked(api.searchImagesAdvanced).mockResolvedValue([{ ...mockImage, id: 'search-hit' }]);
+
+    const fetchPromise = useImageStore.getState().fetchImages(1);
+    await useImageStore.getState().searchImages('cat');
+    resolveFetch({ items: [{ ...mockImage, id: 'stale' }], total: 5 });
+    await fetchPromise;
+
+    expect(useImageStore.getState().images.map((i) => i.id)).toEqual(['search-hit']);
+  });
+});
+
 describe('updateImage', () => {
   it('updates the matching image by id', () => {
     useImageStore.setState({

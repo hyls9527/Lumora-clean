@@ -4,15 +4,17 @@ use crate::db::DbHandle;
 use crate::error::{AppError, AppResult};
 use crate::schema::types::{attach_tags, row_to_record, ImageRecord, PaginatedResult};
 
-/// Return base64-encoded image data for a given file_path.
-/// Falls back when Tauri's asset protocol is not available.
-/// SECURITY: Only allows reading files under the app's images directory.
-#[tauri::command]
-pub fn get_image_base64_cmd(
-    db: tauri::State<'_, DbHandle>,
-    file_path: String,
-) -> AppResult<String> {
-    use base64::Engine;
+/// Validate read access to an image file and return its canonical path.
+///
+/// Access is granted when either:
+/// - the canonical path is inside the managed directories
+///   (`<app_data_dir>/images` or `<app_data_dir>/library`), or
+/// - the exact path is registered in the `images` table (reference-mode
+///   imports record user files in place and must remain readable).
+///
+/// Canonicalizing first prevents `../` traversal; the DB check only matches
+/// paths the user explicitly imported.
+fn validate_image_access(db: &DbHandle, file_path: &str) -> AppResult<std::path::PathBuf> {
     use std::path::Path;
 
     // Derive allowed directories: <app_data_dir>/images and <app_data_dir>/library
@@ -23,7 +25,7 @@ pub fn get_image_base64_cmd(
     let allowed = [app_data.join("images"), app_data.join("library")];
 
     // Canonicalize to prevent ../ traversal
-    let canonical = Path::new(&file_path)
+    let canonical = Path::new(file_path)
         .canonicalize()
         .map_err(|_| AppError::NotFound(format!("File not found: {}", file_path)))?;
 
@@ -31,13 +33,41 @@ pub fn get_image_base64_cmd(
         .iter()
         .filter_map(|d| d.canonicalize().ok())
         .any(|d| canonical.starts_with(&d));
-    if !within_allowed {
-        return Err(AppError::InvalidInput(format!(
-            "Access denied: {} is outside the images/library directory",
-            file_path
-        )));
+    if within_allowed {
+        return Ok(canonical);
     }
 
+    // Reference-mode: allow paths explicitly registered in the DB.
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let registered: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM images WHERE file_path = ?1",
+            params![file_path],
+            |r| r.get(0),
+        )
+        .map_err(AppError::from)?;
+    if registered > 0 {
+        return Ok(canonical);
+    }
+
+    Err(AppError::InvalidInput(format!(
+        "Access denied: {} is outside the images/library directory",
+        file_path
+    )))
+}
+
+/// Return base64-encoded image data for a given file_path.
+/// Falls back when Tauri's asset protocol is not available.
+/// SECURITY: Only allows reading managed-library files or DB-registered
+/// reference-mode imports.
+#[tauri::command]
+pub fn get_image_base64_cmd(
+    db: tauri::State<'_, DbHandle>,
+    file_path: String,
+) -> AppResult<String> {
+    use base64::Engine;
+
+    let canonical = validate_image_access(&db, &file_path)?;
     let data = std::fs::read(&canonical)?;
     Ok(base64::engine::general_purpose::STANDARD.encode(&data))
 }
@@ -53,29 +83,8 @@ pub fn get_thumbnail_base64_cmd(
 ) -> AppResult<String> {
     use base64::Engine;
     use image::GenericImageView;
-    use std::path::Path;
 
-    let db_path = db.path();
-    let app_data = db_path
-        .parent()
-        .ok_or_else(|| AppError::InvalidInput("Cannot resolve app data directory".into()))?;
-    let allowed = [app_data.join("images"), app_data.join("library")];
-
-    // Canonicalize to prevent ../ traversal
-    let canonical = Path::new(&file_path)
-        .canonicalize()
-        .map_err(|_| AppError::NotFound(format!("File not found: {}", file_path)))?;
-
-    let within_allowed = allowed
-        .iter()
-        .filter_map(|d| d.canonicalize().ok())
-        .any(|d| canonical.starts_with(&d));
-    if !within_allowed {
-        return Err(AppError::InvalidInput(format!(
-            "Access denied: {} is outside the images/library directory",
-            file_path
-        )));
-    }
+    let canonical = validate_image_access(&db, &file_path)?;
 
     let img = image::open(&canonical)
         .map_err(|e| AppError::Io(format!("Failed to decode image: {}", e)))?;
@@ -335,6 +344,52 @@ mod tests {
 
     fn test_db() -> crate::db::DbHandle {
         crate::db::DbHandle::open_memory().unwrap()
+    }
+
+    /// Insert a reference-mode style record pointing at `path`.
+    fn register_path(db: &crate::db::DbHandle, path: &str) {
+        let conn = db.conn().lock().unwrap();
+        conn.execute(
+            "INSERT INTO images (id, file_path, file_hash, file_size_kb, format, created_at)
+             VALUES ('ref-1', ?1, 'h', 1, 'png', '2025-01-01')",
+            params![path],
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn validate_allows_db_registered_reference_path() {
+        let db = test_db();
+        let dir = tempfile::tempdir().unwrap();
+        let file = dir.path().join("ref.png");
+        std::fs::write(&file, b"x").unwrap();
+        let path_str = file.to_string_lossy().to_string();
+        register_path(&db, &path_str);
+
+        let canonical = validate_image_access(&db, &path_str).unwrap();
+        assert_eq!(
+            canonical.canonicalize().unwrap(),
+            file.canonicalize().unwrap()
+        );
+    }
+
+    #[test]
+    fn validate_rejects_unregistered_outside_path() {
+        let db = test_db();
+        let dir = tempfile::tempdir().unwrap();
+        let file = dir.path().join("secret.png");
+        std::fs::write(&file, b"x").unwrap();
+        let path_str = file.to_string_lossy().to_string();
+
+        let err = validate_image_access(&db, &path_str).unwrap_err();
+        assert!(matches!(err, AppError::InvalidInput(_)));
+    }
+
+    #[test]
+    fn validate_not_found_for_missing_file() {
+        let db = test_db();
+        let err = validate_image_access(&db, "Z:/definitely/missing.png").unwrap_err();
+        assert!(matches!(err, AppError::NotFound(_)));
     }
 
     #[test]

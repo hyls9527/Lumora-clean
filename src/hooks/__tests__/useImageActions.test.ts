@@ -99,6 +99,34 @@ describe('useImageActions', () => {
       expect(useImageStore.getState().images[0].favorite).toBe(false);
     });
 
+    it('rolls back image A even when image B was toggled afterwards (per-image seq)', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      useImageStore.setState({
+        images: [mockImage, { ...mockImage, id: '2' }],
+      });
+      const { result } = renderHook(() => useImageActions());
+      // A's request fails, B's succeeds
+      vi.mocked(api.toggleFavorite)
+        .mockRejectedValueOnce(new Error('A fails'))
+        .mockResolvedValueOnce(undefined);
+
+      act(() => {
+        result.current.toggleFavorite('1');
+      });
+      act(() => {
+        result.current.toggleFavorite('2');
+      });
+
+      await vi.waitFor(() => {
+        // A's failure must roll back despite B's newer operation
+        expect(useImageStore.getState().images[0].favorite).toBe(false);
+      });
+      // B's optimistic value stays (its request succeeded)
+      expect(useImageStore.getState().images[1].favorite).toBe(true);
+
+      consoleSpy.mockRestore();
+    });
+
     it('logs error with imageId context on failure', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const { result } = renderHook(() => useImageActions());

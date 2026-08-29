@@ -20,6 +20,19 @@ const WRITE_COMMANDS = new Set([
   'batch_convert',
   'score_missing_cmd',
   'move_score_tier_to_trash',
+  // Filesystem / settings / collection writes — never retried, they are
+  // not read-only and a retry would duplicate or corrupt partial state.
+  'batch_rename',
+  'export_images',
+  'set_setting',
+  'create_smart_collection',
+  'update_smart_collection',
+  'delete_smart_collection',
+  // Embedding index writes: must also invalidate the semantic cache via
+  // write listeners (new embeddings change semantic search results).
+  'embed_missing_cmd',
+  'embed_clip_missing_cmd',
+  'normalize_embeddings_cmd',
 ]);
 
 /** Registered callbacks invoked after write commands. */
@@ -76,6 +89,7 @@ function mockResponse(cmd: string): unknown {
   if (
     cmd === 'search_images_advanced' ||
     cmd === 'search_semantic_cmd' ||
+    cmd === 'search_semantic_image_cmd' ||
     cmd === 'get_variant_group_images' ||
     cmd === 'embed_text_cmd' ||
     cmd === 'clip_embed_image_cmd' ||
