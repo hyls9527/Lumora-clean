@@ -1,7 +1,10 @@
 !macro NSIS_HOOK_PREUNINSTALL
   ; 卸载开始前结束 Lumora 主进程，释放文件占用
-  ExecWait '"taskkill" /f /im "Lumora.exe"' $0
-  ExecWait '"taskkill" /f /im "Lumora.exe"' $0
+  ; nsExec 隐藏控制台运行——Exec/ExecWait 每次调用都会弹出空白命令行窗口
+  nsExec::Exec 'taskkill /f /im "Lumora.exe"'
+  Pop $0
+  nsExec::Exec 'taskkill /f /im "Lumora.exe"'
+  Pop $0
 
   ; 等待进程退出并释放 WebView2 数据目录句柄
   Sleep 3000
@@ -53,7 +56,13 @@
   FileWrite $0 'if !tries! lss 10 goto retry_appdata$\r$\n'
   FileWrite $0 ':done_appdata$\r$\n'
 
+  FileWrite $0 'del "%TEMP%\lumora_uninst_cleanup.vbs" 2>nul$\r$\n'
   FileWrite $0 'del "%~f0"$\r$\n'
   FileClose $0
-  Exec '"$SYSDIR\cmd.exe" /c "$TEMP\lumora_uninst_cleanup.bat"'
+  ; 由 wscript（GUI 子系统）隐藏启动清理脚本——直接 Exec cmd.exe 会弹出
+  ; 可见的空白命令行窗口，且批处理需等待卸载进程退出（最长约 25 秒）
+  FileOpen $0 "$TEMP\lumora_uninst_cleanup.vbs" w
+  FileWrite $0 'CreateObject("WScript.Shell").Run "cmd /c ""$TEMP\lumora_uninst_cleanup.bat""", 0, False$\r$\n'
+  FileClose $0
+  Exec '"$SYSDIR\wscript.exe" //B "$TEMP\lumora_uninst_cleanup.vbs"'
 !macroend

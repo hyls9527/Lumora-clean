@@ -2,6 +2,11 @@
 
 All notable changes to Lumora are documented here.
 
+## v0.10.7 (2026-08-30)
+
+### Fixed
+- **卸载时弹出多个空白命令行窗口**：卸载钩子此前用 `ExecWait` 运行 `taskkill`（每次调用创建可见控制台，闪 2 个弹窗），收尾清理批处理又用 `Exec cmd.exe` 直接启动（可见窗口长驻约 25 秒等待卸载进程退出）。现改用 `nsExec` 隐藏运行 taskkill，清理批处理改由 wscript（GUI 子系统）以零窗口方式隐藏启动，卸载过程不再出现任何命令行弹窗；清理完成后临时 VBS 包装脚本一并删除
+
 ## v0.10.6 (2026-08-30)
 
 ### Fixed
