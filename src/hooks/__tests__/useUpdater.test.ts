@@ -5,6 +5,7 @@ const mockCheck = vi.fn();
 const mockDownload = vi.fn();
 const mockInstall = vi.fn();
 const mockRelaunch = vi.fn();
+const mockClose = vi.fn();
 
 vi.mock('@tauri-apps/plugin-updater', () => ({
   check: (...args: unknown[]) => mockCheck(...args),
@@ -23,6 +24,7 @@ function makeUpdate(overrides: Record<string, unknown> = {}) {
     body: 'New features',
     download: mockDownload,
     install: mockInstall,
+    close: mockClose,
     ...overrides,
   };
 }
@@ -244,5 +246,52 @@ describe('useUpdater', () => {
     });
 
     expect(mockDownload).toHaveBeenCalledTimes(1);
+  });
+
+  it('should reuse the handle and skip download when re-checking the same version', async () => {
+    mockCheck.mockResolvedValue(makeUpdate());
+
+    const { result } = renderHook(() => useUpdater());
+
+    await vi.waitFor(() => {
+      expect(result.current.downloaded).toBe(true);
+    });
+
+    // Manual re-check finds the same version: keep the downloaded handle.
+    await act(async () => {
+      await result.current.checkForUpdates();
+    });
+
+    expect(mockCheck).toHaveBeenCalledTimes(2);
+    expect(mockDownload).toHaveBeenCalledTimes(1);
+    expect(result.current.available).toBe(true);
+    expect(result.current.downloaded).toBe(true);
+  });
+
+  it('should reset stale progress when a download is retried after failure', async () => {
+    mockCheck.mockResolvedValue(makeUpdate());
+    mockDownload.mockImplementationOnce((onEvent: (e: unknown) => void) => {
+      onEvent({ event: 'Started', data: { contentLength: 100 } });
+      onEvent({ event: 'Progress', data: { chunkLength: 40 } });
+      return Promise.reject(new Error('Network error'));
+    });
+
+    const { result } = renderHook(() => useUpdater());
+
+    await vi.waitFor(() => {
+      expect(result.current.error).toBe('Network error');
+    });
+
+    // No leftover percent from the failed attempt may show on retry.
+    expect(result.current.downloadProgress).toBeNull();
+    expect(result.current.downloading).toBe(false);
+
+    mockDownload.mockResolvedValue(undefined);
+    await act(async () => {
+      await result.current.downloadUpdate();
+    });
+
+    expect(result.current.downloaded).toBe(true);
+    expect(result.current.error).toBeNull();
   });
 });
