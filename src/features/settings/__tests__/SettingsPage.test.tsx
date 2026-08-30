@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SettingsPage } from '../SettingsPage';
+import { useUpdateStore } from '../../../stores/updateStore';
 import { getAiProviderConfig, setAiProviderConfig, type AiProviderConfig } from '../../../lib/api/aiProvider';
 import { getSetting, setSetting } from '../../../lib/api/settings';
 
@@ -70,6 +71,7 @@ vi.mock('../../../lib/i18n', () => ({
 
 describe('SettingsPage', () => {
   beforeEach(() => {
+    useUpdateStore.getState().reset();
     vi.clearAllMocks();
   });
 

@@ -15,6 +15,7 @@ vi.mock('@tauri-apps/plugin-process', () => ({
 }));
 
 import { useUpdater } from '../useUpdater';
+import { useUpdateStore } from '../../stores/updateStore';
 
 function makeUpdate(overrides: Record<string, unknown> = {}) {
   return {
@@ -28,6 +29,7 @@ function makeUpdate(overrides: Record<string, unknown> = {}) {
 
 describe('useUpdater', () => {
   beforeEach(() => {
+    useUpdateStore.getState().reset();
     mockCheck.mockReset();
     mockDownload.mockReset();
     mockInstall.mockReset();
@@ -202,5 +204,45 @@ describe('useUpdater', () => {
     });
 
     expect(true).toBe(true);
+  });
+
+  it('should check and download only once when two components mount', async () => {
+    mockCheck.mockResolvedValue(makeUpdate());
+    mockDownload.mockImplementation((onEvent: (e: unknown) => void) => {
+      onEvent({ event: 'Started', data: { contentLength: 100 } });
+      onEvent({ event: 'Finished', data: {} });
+      return Promise.resolve();
+    });
+
+    // Sidebar banner + settings page mount at the same time.
+    const first = renderHook(() => useUpdater());
+    const second = renderHook(() => useUpdater());
+
+    await vi.waitFor(() => {
+      expect(first.result.current.downloaded).toBe(true);
+      expect(second.result.current.downloaded).toBe(true);
+    });
+
+    // One shared session: a single check, a single download, identical state.
+    expect(mockCheck).toHaveBeenCalledTimes(1);
+    expect(mockDownload).toHaveBeenCalledTimes(1);
+    expect(first.result.current.downloadProgress).toBe(100);
+    expect(second.result.current.downloadProgress).toBe(100);
+  });
+
+  it('should not re-download when downloadUpdate is called after finishing', async () => {
+    mockCheck.mockResolvedValue(makeUpdate());
+
+    const { result } = renderHook(() => useUpdater());
+
+    await vi.waitFor(() => {
+      expect(result.current.downloaded).toBe(true);
+    });
+
+    await act(async () => {
+      await result.current.downloadUpdate();
+    });
+
+    expect(mockDownload).toHaveBeenCalledTimes(1);
   });
 });
