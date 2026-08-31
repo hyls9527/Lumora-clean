@@ -144,8 +144,14 @@ jobs:
           if [ -z "$NOTES" ]; then
             NOTES="No changelog entry found for ${TAG}."
           fi
-          # Write to file to avoid shell escaping issues
+          # Write to file to avoid shell escaping issues; also expose via
+          # step output for the tauri-action releaseBody input.
           echo "$NOTES" > /tmp/release-notes.md
+          {
+            echo 'notes<<EOF'
+            echo "$NOTES"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
           echo "Extracted $(wc -l < /tmp/release-notes.md) lines of release notes"
 
       - name: Build Tauri
@@ -167,6 +173,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+
+      - name: Extract changelog notes
+        id: changelog
+        shell: bash
+        run: |
+          TAG="${{ github.ref_name }}"
+          # Same extraction as the build job; feeds latest.json "notes" so the
+          # in-app update banner can show release notes (empty notes = the
+          # banner's notes UI never renders).
+          NOTES=$(awk "/^## ${TAG}/{found=1; next} /^## v[0-9]/{if(found) exit} found{print}" CHANGELOG.md)
+          if [ -z "$NOTES" ]; then
+            NOTES="No changelog entry found for ${TAG}."
+          fi
+          # JSON-encode for jq --argjson (preserves newlines in latest.json)
+          NOTES_JSON=$(jq -Rn --arg t "$NOTES" '$t')
+          echo "notes_json=${NOTES_JSON}" >> "$GITHUB_OUTPUT"
 
       - name: Generate latest.json
         env:
@@ -225,8 +247,9 @@ jobs:
           LATEST_JSON=$(jq -n \
             --arg version "$VERSION" \
             --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson notes "${{ steps.changelog.outputs.notes_json }}" \
             --argjson platforms "$PLATFORMS" \
-            '{version: $version, notes: "", pub_date: $date, platforms: $platforms}')
+            '{version: $version, notes: $notes, pub_date: $date, platforms: $platforms}')
 
           echo "$LATEST_JSON" | jq .
 
