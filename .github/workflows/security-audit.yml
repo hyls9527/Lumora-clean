@@ -29,9 +29,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: rustsec/audit-check@v2
+      # rustsec/audit-check failed with "Unexpected end of JSON input" (its
+      # octokit-based advisory fetch); cargo-audit clones the advisory-db via
+      # plain git, which is robust.
+      - uses: taiki-e/install-action@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          tool: cargo-audit
+      - run: cargo audit
 
   perf-budget:
     name: Performance Budget

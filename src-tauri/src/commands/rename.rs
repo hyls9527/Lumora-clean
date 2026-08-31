@@ -63,8 +63,7 @@ fn batch_rename_inner(
         // Paths already registered in the DB for other records: claiming one
         // of them would violate the file_path UNIQUE constraint and force a
         // rollback after the file has already been renamed on disk.
-        let mut db_used_paths: std::collections::HashSet<String> =
-            std::collections::HashSet::new();
+        let mut db_used_paths: std::collections::HashSet<String> = std::collections::HashSet::new();
         {
             let mut stmt = conn.prepare("SELECT file_path FROM images")?;
             let rows = stmt.query_map([], |row| row.get::<_, String>(0))?;
@@ -354,7 +353,13 @@ fn resolve_conflict(
         false
     }
 
-    if !taken(parent, desired_name, used_names, db_used_paths, own_old_path) {
+    if !taken(
+        parent,
+        desired_name,
+        used_names,
+        db_used_paths,
+        own_old_path,
+    ) {
         return desired_name.to_string();
     }
 
@@ -394,7 +399,13 @@ mod tests {
     #[test]
     fn resolve_conflict_returns_desired_name_when_free() {
         let dir = tempfile::tempdir().unwrap();
-        let name = resolve_conflict(dir.path(), "photo.png", &used(&[]), &used(&[]), Path::new(""));
+        let name = resolve_conflict(
+            dir.path(),
+            "photo.png",
+            &used(&[]),
+            &used(&[]),
+            Path::new(""),
+        );
         assert_eq!(name, "photo.png");
     }
 
@@ -402,8 +413,13 @@ mod tests {
     fn resolve_conflict_appends_suffix_for_batch_duplicate() {
         let dir = tempfile::tempdir().unwrap();
         let used_names = used(&["photo.png"]);
-        let name =
-            resolve_conflict(dir.path(), "photo.png", &used_names, &used(&[]), Path::new(""));
+        let name = resolve_conflict(
+            dir.path(),
+            "photo.png",
+            &used_names,
+            &used(&[]),
+            Path::new(""),
+        );
         assert_eq!(name, "photo_1.png");
     }
 
@@ -411,7 +427,13 @@ mod tests {
     fn resolve_conflict_avoids_existing_file_on_disk() {
         let dir = tempfile::tempdir().unwrap();
         std::fs::write(dir.path().join("photo.png"), b"x").unwrap();
-        let name = resolve_conflict(dir.path(), "photo.png", &used(&[]), &used(&[]), Path::new(""));
+        let name = resolve_conflict(
+            dir.path(),
+            "photo.png",
+            &used(&[]),
+            &used(&[]),
+            Path::new(""),
+        );
         assert_eq!(name, "photo_1.png");
     }
 
@@ -420,9 +442,7 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         // Another DB row owns "<dir>/photo.png" even though no such file is
         // on disk (e.g. a reference-mode file that was moved away).
-        let db_used = used(&[
-            dir.path().join("photo.png").to_string_lossy().as_ref(),
-        ]);
+        let db_used = used(&[dir.path().join("photo.png").to_string_lossy().as_ref()]);
         let name = resolve_conflict(dir.path(), "photo.png", &used(&[]), &db_used, Path::new(""));
         assert_eq!(name, "photo_1.png");
     }
@@ -443,8 +463,13 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         std::fs::write(dir.path().join("photo.png"), b"x").unwrap();
         let used_names = used(&["photo_1.png"]);
-        let name =
-            resolve_conflict(dir.path(), "photo.png", &used_names, &used(&[]), Path::new(""));
+        let name = resolve_conflict(
+            dir.path(),
+            "photo.png",
+            &used_names,
+            &used(&[]),
+            Path::new(""),
+        );
         assert_eq!(name, "photo_2.png");
     }
 
@@ -453,8 +478,13 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let mut used_names: HashSet<String> = (1..999).map(|i| format!("photo_{i}.png")).collect();
         used_names.insert("photo.png".to_string());
-        let name =
-            resolve_conflict(dir.path(), "photo.png", &used_names, &used(&[]), Path::new(""));
+        let name = resolve_conflict(
+            dir.path(),
+            "photo.png",
+            &used_names,
+            &used(&[]),
+            Path::new(""),
+        );
         assert!(name.starts_with("photo_") && name.ends_with(".png"));
         assert!(!used_names.contains(&name));
     }
@@ -590,7 +620,9 @@ mod tests {
         assert!(!dir.path().join("photo.png").exists());
         let conn = db.conn().lock().unwrap();
         let a_path: String = conn
-            .query_row("SELECT file_path FROM images WHERE id = 'a'", [], |r| r.get(0))
+            .query_row("SELECT file_path FROM images WHERE id = 'a'", [], |r| {
+                r.get(0)
+            })
             .unwrap();
         assert!(a_path.ends_with("photo_1.png"));
     }
@@ -632,7 +664,9 @@ mod tests {
         assert!(!target.exists());
         let conn = db.conn().lock().unwrap();
         let a_path: String = conn
-            .query_row("SELECT file_path FROM images WHERE id = 'a'", [], |r| r.get(0))
+            .query_row("SELECT file_path FROM images WHERE id = 'a'", [], |r| {
+                r.get(0)
+            })
             .unwrap();
         assert_eq!(a_path, old.to_string_lossy());
     }

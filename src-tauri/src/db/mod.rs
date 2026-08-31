@@ -89,13 +89,12 @@ impl DbHandle {
     /// transactions still sitting in `<path>-wal` would be silently lost.
     /// Call this before file-level copies of the database (e.g. exports).
     pub fn checkpoint_wal(&self) -> Result<(), crate::error::AppError> {
-        let conn = self
-            .conn
-            .lock()
-            .map_err(|_| crate::error::AppError::Lock)?;
+        let conn = self.conn.lock().map_err(|_| crate::error::AppError::Lock)?;
         // Returns (busy, log, checkpointed) — a non-zero busy column is not
         // an error here; best effort is enough before a read-only copy.
-        conn.query_row("PRAGMA wal_checkpoint(TRUNCATE)", [], |r| r.get::<_, i64>(0))?;
+        conn.query_row("PRAGMA wal_checkpoint(TRUNCATE)", [], |r| {
+            r.get::<_, i64>(0)
+        })?;
         Ok(())
     }
 }

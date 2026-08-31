@@ -1391,10 +1391,14 @@ mod tests {
         assert!(out_dir.path().join("img_1.webp").exists());
         let conn = db.conn().lock().unwrap();
         let a_path: String = conn
-            .query_row("SELECT file_path FROM images WHERE id = 'a'", [], |r| r.get(0))
+            .query_row("SELECT file_path FROM images WHERE id = 'a'", [], |r| {
+                r.get(0)
+            })
             .unwrap();
         let b_path: String = conn
-            .query_row("SELECT file_path FROM images WHERE id = 'b'", [], |r| r.get(0))
+            .query_row("SELECT file_path FROM images WHERE id = 'b'", [], |r| {
+                r.get(0)
+            })
             .unwrap();
         assert_ne!(a_path, b_path);
     }
@@ -1483,7 +1487,9 @@ mod tests {
         assert_eq!(std::fs::read(&p).unwrap(), original_bytes);
         let conn = db.conn().lock().unwrap();
         let path: String = conn
-            .query_row("SELECT file_path FROM images WHERE id = 'a'", [], |r| r.get(0))
+            .query_row("SELECT file_path FROM images WHERE id = 'a'", [], |r| {
+                r.get(0)
+            })
             .unwrap();
         assert_eq!(path, p.to_string_lossy());
     }

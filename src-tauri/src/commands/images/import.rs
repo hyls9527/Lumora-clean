@@ -42,11 +42,12 @@ pub fn import_images(
         })
         .is_some_and(|m| m == "copy");
     let library_dir = if copy_mode {
-        Some(app
-            .path()
-            .app_data_dir()
-            .map_err(|e| AppError::External(format!("failed to resolve app data dir: {e}")))?
-            .join("library"))
+        Some(
+            app.path()
+                .app_data_dir()
+                .map_err(|e| AppError::External(format!("failed to resolve app data dir: {e}")))?
+                .join("library"),
+        )
     } else {
         None
     };
@@ -937,8 +938,7 @@ mod tests {
         let conn = db.conn().lock().unwrap();
         let tx = conn.unchecked_transaction().unwrap();
         let mut copied = Vec::new();
-        let (imported, skipped) =
-            run_import(&tx, &entries, Some(&lib), &mut copied).unwrap();
+        let (imported, skipped) = run_import(&tx, &entries, Some(&lib), &mut copied).unwrap();
 
         // Identical content must import exactly once — no duplicated copies.
         assert_eq!(imported.len(), 1);
@@ -964,16 +964,15 @@ mod tests {
         // A previous registration points at the target name, but the file
         // behind it is gone from disk — the resolver will reuse that name.
         let phantom = lib.join("cat.png");
-        insert_image(&tx, &make_entry("pre", phantom.to_str().unwrap(), "old-hash")).unwrap();
+        insert_image(
+            &tx,
+            &make_entry("pre", phantom.to_str().unwrap(), "old-hash"),
+        )
+        .unwrap();
 
-        let entries = vec![make_entry(
-            "e1",
-            src.to_str().unwrap(),
-            "brand-new-hash",
-        )];
+        let entries = vec![make_entry("e1", src.to_str().unwrap(), "brand-new-hash")];
         let mut copied = Vec::new();
-        let (imported, skipped) =
-            run_import(&tx, &entries, Some(&lib), &mut copied).unwrap();
+        let (imported, skipped) = run_import(&tx, &entries, Some(&lib), &mut copied).unwrap();
 
         // Row ignored (UNIQUE file_path) → the fresh copy must be removed
         // instead of lingering as an orphan.
@@ -1009,7 +1008,7 @@ mod tests {
 
         remove_files_quietly(&[a.clone(), missing]);
         assert!(!a.exists()); // removed…
-        // …and no panic despite `missing` never existing.
+                              // …and no panic despite `missing` never existing.
     }
 
     #[test]

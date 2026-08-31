@@ -292,7 +292,9 @@ mod tests {
         let db = test_db();
         assert!(search_images_inner(&db, "").unwrap().is_empty());
         assert!(search_images_inner(&db, "   ").unwrap().is_empty());
-        assert!(search_images_advanced_inner(&db, "", None).unwrap().is_empty());
+        assert!(search_images_advanced_inner(&db, "", None)
+            .unwrap()
+            .is_empty());
         assert!(search_images_advanced_inner(&db, " ", Some("all".into()))
             .unwrap()
             .is_empty());

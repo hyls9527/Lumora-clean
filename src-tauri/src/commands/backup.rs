@@ -70,7 +70,11 @@ fn import_database_inner(db_path: &Path, src: &Path) -> AppResult<String> {
         let sidecar = Path::new(&sidecar);
         if let Err(e) = fs::remove_file(sidecar) {
             if e.kind() != std::io::ErrorKind::NotFound {
-                log::warn!("failed to remove stale sidecar {}: {}", sidecar.display(), e);
+                log::warn!(
+                    "failed to remove stale sidecar {}: {}",
+                    sidecar.display(),
+                    e
+                );
             }
         }
     }
