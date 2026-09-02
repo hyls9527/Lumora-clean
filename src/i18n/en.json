@@ -408,6 +408,11 @@
       "summaryPrompt": "Prompt contains \"{value}\"",
     "summaryTagEquals": "Tag = {value}",
     "summaryTagIn": "Tag in {value}",
+    "summarySeed": "Seed = {value}",
+    "summarySteps": "Steps = {value}",
+    "summaryCfgGte": "CFG ≥ {value}",
+    "summaryCfgLte": "CFG ≤ {value}",
+    "summarySampler": "Sampler = {value}",
     "fields": {
       "score": "Aesthetic",
       "model": "Model",
@@ -415,7 +420,11 @@
       "rating": "Rating",
       "date": "Date",
       "format": "Format",
-      "tag": "Tag"
+      "tag": "Tag",
+      "seed": "Seed",
+      "steps": "Steps",
+      "cfg": "CFG Scale",
+      "sampler": "Sampler"
     },
     "summaryScore": "Judgment = {value}",
     "scoreValueHint": "夯 / 稳 / 拉",

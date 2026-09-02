@@ -408,6 +408,11 @@
       "summaryPrompt": "Prompt 包含 \"{value}\"",
     "summaryTagEquals": "标签 = {value}",
     "summaryTagIn": "标签属于 {value}",
+    "summarySeed": "种子 = {value}",
+    "summarySteps": "步数 = {value}",
+    "summaryCfgGte": "CFG ≥ {value}",
+    "summaryCfgLte": "CFG ≤ {value}",
+    "summarySampler": "采样器 = {value}",
     "fields": {
       "score": "审美档",
       "model": "模型",
@@ -415,7 +420,11 @@
       "rating": "评分",
       "date": "日期",
       "format": "格式",
-      "tag": "标签"
+      "tag": "标签",
+      "seed": "种子",
+      "steps": "步数",
+      "cfg": "CFG 引导",
+      "sampler": "采样器"
     },
     "summaryScore": "审美 = {value}",
     "scoreValueHint": "夯 / 稳 / 拉",

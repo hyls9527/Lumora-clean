@@ -26,6 +26,10 @@ const FIELD_OPTIONS: { key: Field; labelKey: string }[] = [
   { key: 'date', labelKey: 'fields.date' },
   { key: 'format', labelKey: 'fields.format' },
   { key: 'tag', labelKey: 'fields.tag' },
+  { key: 'seed', labelKey: 'fields.seed' },
+  { key: 'steps', labelKey: 'fields.steps' },
+  { key: 'cfg', labelKey: 'fields.cfg' },
+  { key: 'sampler', labelKey: 'fields.sampler' },
 ];
 
 const OP_OPTIONS: Record<Field, { key: Op; labelKey: string }[]> = {
@@ -45,6 +49,13 @@ const OP_OPTIONS: Record<Field, { key: Op; labelKey: string }[]> = {
     { key: 'equals', labelKey: 'ops.equals' },
     { key: 'in', labelKey: 'ops.in' },
   ],
+  seed: [{ key: 'equals', labelKey: 'ops.equals' }],
+  steps: [{ key: 'equals', labelKey: 'ops.equals' }],
+  cfg: [
+    { key: 'gte', labelKey: 'ops.gte' },
+    { key: 'lte', labelKey: 'ops.lte' },
+  ],
+  sampler: [{ key: 'equals', labelKey: 'ops.equals' }],
 };
 
 const PAGE_SIZE = 40;
@@ -74,6 +85,16 @@ function ruleText(
       return rule.op === 'in'
         ? t('summaryTagIn', { value: rule.value })
         : t('summaryTagEquals', { value: rule.value });
+    case 'seed':
+      return t('summarySeed', { value: rule.value });
+    case 'steps':
+      return t('summarySteps', { value: rule.value });
+    case 'cfg':
+      return rule.op === 'gte'
+        ? t('summaryCfgGte', { value: rule.value })
+        : t('summaryCfgLte', { value: rule.value });
+    case 'sampler':
+      return t('summarySampler', { value: rule.value });
   }
 }
 

@@ -78,6 +78,29 @@ fn validate_rules(rules: &[SmartCollectionRule]) -> AppResult<()> {
                 }
             }
             ("date", "gte" | "lte") => validate_date(&rule.value)?,
+            ("seed", "equals") => {
+                rule.value
+                    .trim()
+                    .parse::<i64>()
+                    .map_err(|_| AppError::InvalidInput("种子规则的值必须是数字".into()))?;
+            }
+            ("steps", "equals") => {
+                rule.value
+                    .trim()
+                    .parse::<u32>()
+                    .map_err(|_| AppError::InvalidInput("步数规则的值必须是数字".into()))?;
+            }
+            ("cfg", "gte" | "lte") => {
+                rule.value
+                    .trim()
+                    .parse::<f64>()
+                    .map_err(|_| AppError::InvalidInput("CFG 规则的值必须是数字".into()))?;
+            }
+            ("sampler", "equals") => {
+                if rule.value.trim().is_empty() {
+                    return Err(AppError::InvalidInput("采样器规则的值不能为空".into()));
+                }
+            }
             ("prompt", "contains") => {}
             ("tag", "equals") => {}
             ("tag", "in") => {
@@ -144,6 +167,54 @@ fn build_where(
                 // whole end day, matching list_images_filtered semantics.
                 conditions.push(format!("i.created_at < date(?{next}, '+1 day')"));
                 params.push(Box::new(rule.value.trim().to_string()));
+            }
+            ("seed", "equals") => {
+                let value: i64 = rule
+                    .value
+                    .trim()
+                    .parse()
+                    .map_err(|_| AppError::InvalidInput("种子规则的值必须是数字".into()))?;
+                conditions.push(format!("json_extract(i.metadata_json, '$.seed') = ?{next}"));
+                params.push(Box::new(value));
+            }
+            ("steps", "equals") => {
+                let value: u32 = rule
+                    .value
+                    .trim()
+                    .parse()
+                    .map_err(|_| AppError::InvalidInput("步数规则的值必须是数字".into()))?;
+                conditions.push(format!("json_extract(i.metadata_json, '$.steps') = ?{next}"));
+                params.push(Box::new(value));
+            }
+            ("cfg", "gte") => {
+                let value: f64 = rule
+                    .value
+                    .trim()
+                    .parse()
+                    .map_err(|_| AppError::InvalidInput("CFG 规则的值必须是数字".into()))?;
+                conditions.push(format!(
+                    "json_extract(i.metadata_json, '$.cfg_scale') >= ?{next}"
+                ));
+                params.push(Box::new(value));
+            }
+            ("cfg", "lte") => {
+                let value: f64 = rule
+                    .value
+                    .trim()
+                    .parse()
+                    .map_err(|_| AppError::InvalidInput("CFG 规则的值必须是数字".into()))?;
+                conditions.push(format!(
+                    "json_extract(i.metadata_json, '$.cfg_scale') <= ?{next}"
+                ));
+                params.push(Box::new(value));
+            }
+            ("sampler", "equals") => {
+                let value = rule.value.trim();
+                if value.is_empty() {
+                    return Err(AppError::InvalidInput("采样器规则的值不能为空".into()));
+                }
+                conditions.push(format!("json_extract(i.metadata_json, '$.sampler') = ?{next}"));
+                params.push(Box::new(value.to_string()));
             }
             ("prompt", "contains") => {
                 conditions.push(format!(
@@ -516,9 +587,62 @@ mod tests {
     fn unsupported_rule_rejected() {
         let db = test_db();
         let err =
-            create_smart_collection_inner(&db, "Bad".into(), vec![rule("seed", "equals", "42")])
+            create_smart_collection_inner(&db, "Bad".into(), vec![rule("bogus", "equals", "42")])
                 .unwrap_err();
         assert!(matches!(err, AppError::InvalidInput(_)));
+    }
+
+    #[test]
+    fn generation_param_rules_match() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_image(
+                &conn,
+                "a",
+                "png",
+                "2025-01-01",
+                0,
+                Some(r#"{"seed":1,"steps":20,"cfg_scale":7.0,"sampler":"Euler a"}"#),
+            );
+            insert_image(
+                &conn,
+                "b",
+                "png",
+                "2025-01-02",
+                0,
+                Some(r#"{"seed":2,"steps":30,"cfg_scale":8.5,"sampler":"DPM++ 2M Karras"}"#),
+            );
+            insert_image(
+                &conn,
+                "c",
+                "png",
+                "2025-01-03",
+                0,
+                Some(r#"{"seed":1,"steps":30,"cfg_scale":8.5,"sampler":"Euler a"}"#),
+            );
+        }
+        let conn = db.conn().lock().unwrap();
+        assert_eq!(
+            count_matching(&conn, &[rule("seed", "equals", "1")]).unwrap(),
+            2
+        );
+        assert_eq!(
+            count_matching(&conn, &[rule("steps", "equals", "30")]).unwrap(),
+            2
+        );
+        assert_eq!(
+            count_matching(
+                &conn,
+                &[rule("cfg", "gte", "8.0"), rule("cfg", "lte", "9.0")]
+            )
+            .unwrap(),
+            2
+        );
+        assert_eq!(
+            count_matching(&conn, &[rule("sampler", "equals", "Euler a")]).unwrap(),
+            2
+        );
     }
 
     #[test]
