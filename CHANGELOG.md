@@ -6,6 +6,7 @@ All notable changes to Lumora are documented here.
 
 ### Added
 - **高级筛选支持生成参数**：在画廊筛选面板新增 Seed、Steps、CFG Scale（范围）、Sampler 四个筛选条件，可按生成参数精确检索（`metadata_json` 的 `seed` / `steps` / `cfg_scale` / `sampler`）。
+- **智能收藏支持生成参数规则**：智能收藏的筛选规则新增 Seed / Steps / CFG Scale（范围）/ Sampler 字段，可基于生成参数自动策展。
 - **文档校准**：`ARCHITECTURE.md` 的 SQLite schema 由滞后的 v6 补到 v9（智能收藏 / 审美评分列 / CLIP 512 维索引），并明确「文本语义 768 维 / CLIP 512 维」两个独立向量空间。
 
 ### Changed
