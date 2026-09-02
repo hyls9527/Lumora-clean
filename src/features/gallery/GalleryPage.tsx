@@ -48,6 +48,7 @@ export function GalleryPage() {
     page,
     total,
     perPage,
+    pageMode,
   } = useImageStore();
   const { selectedIds, toggleSelect, clearSelection } = useSelection();
   const { toggleFavorite, setRating } = useImageActions();
@@ -431,7 +432,7 @@ export function GalleryPage() {
           {/* Image Grid (Masonry via CSS columns) */}
           <InfiniteScroll
             onLoadMore={loadMore}
-            hasMore={images.length < total}
+            hasMore={images.length < total && pageMode !== 'explicit'}
             loading={loading}
           >
             <div
@@ -458,7 +459,7 @@ export function GalleryPage() {
                 <button
                   key={`gallery-page-${p}`}
                   type="button"
-                  onClick={() => fetchImages(p)}
+                  onClick={() => fetchImages(p, { explicit: true })}
                   style={{
                     width: 28,
                     height: 28,

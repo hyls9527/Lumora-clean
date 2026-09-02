@@ -62,9 +62,11 @@ export interface ImageStore {
   page: number;
   total: number;
   perPage: number;
+  /** 'scroll' = infinite scroll auto-appends; 'explicit' = user jumped to a page (pause auto-load). */
+  pageMode: 'scroll' | 'explicit';
   /** Internal request token: every list request bumps it; stale responses are dropped. */
   _reqSeq: number;
-  fetchImages: (page?: number) => Promise<void>;
+  fetchImages: (page?: number, opts?: { explicit?: boolean }) => Promise<void>;
   loadMore: () => Promise<void>;
   searchImages: (query: string) => Promise<void>;
   importImages: (folderPath: string) => Promise<api.ImportResult>;
@@ -100,9 +102,10 @@ export function createImageStore(deps: ImageStoreDeps = defaultDeps): StateCreat
     page: 1,
     total: 0,
     perPage: 40,
+    pageMode: 'scroll',
     _reqSeq: 0,
 
-    fetchImages: async (page?: number) => {
+    fetchImages: async (page?: number, opts?: { explicit?: boolean }) => {
       const { perPage } = get();
       const p = page ?? get().page;
       const seq = get()._reqSeq + 1;
@@ -116,6 +119,7 @@ export function createImageStore(deps: ImageStoreDeps = defaultDeps): StateCreat
           images: result.items,
           total: result.total,
           page: p,
+          pageMode: opts?.explicit ? 'explicit' : 'scroll',
           loading: false,
         });
       } catch (err) {
@@ -128,8 +132,9 @@ export function createImageStore(deps: ImageStoreDeps = defaultDeps): StateCreat
     },
 
     loadMore: async () => {
-      const { page, perPage, images, total, loading } = get();
+      const { page, perPage, images, total, loading, pageMode } = get();
       if (loading) return;
+      if (pageMode === 'explicit') return; // user jumped to a page: pause auto-load to avoid pagination/infinite-scroll conflict
       if (images.length >= total) return;
 
       const nextPage = page + 1;
