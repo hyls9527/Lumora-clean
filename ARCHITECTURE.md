@@ -74,7 +74,7 @@ Lumora 是一个 Tauri 2 桌面应用，采用前后端分离架构：
 
 ## 数据模型
 
-### SQLite Schema (v6)
+### SQLite Schema (v9)
 
 ```sql
 -- v1: 图片表
@@ -140,6 +140,38 @@ CREATE TABLE IF NOT EXISTS variant_groups (
 
 -- images 表新增列（v6 migration）
 -- ALTER TABLE images ADD COLUMN variant_group_id TEXT REFERENCES variant_groups(id);
+
+-- v7: 智能收藏（规则驱动的自动分组）
+CREATE TABLE IF NOT EXISTS smart_collections (
+    id         TEXT PRIMARY KEY,
+    name       TEXT NOT NULL,
+    rules_json TEXT NOT NULL DEFAULT '[]',
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- v8: 审美评分层（夯 / 稳 / 拉）
+-- ALTER TABLE images ADD COLUMN hps_score REAL;
+-- ALTER TABLE images ADD COLUMN hps_style TEXT;
+-- ALTER TABLE images ADD COLUMN aesthetic_score REAL;
+-- ALTER TABLE images ADD COLUMN scoring_model TEXT;
+-- ALTER TABLE images ADD COLUMN scored_at TEXT;
+-- ALTER TABLE images ADD COLUMN score_label TEXT;
+
+-- v9: CLIP 图片嵌入索引（512 维），用于以图搜图。
+-- 注意：文本语义索引（V4，768 维，Ollama nomic-embed-text）与 CLIP 视觉索引
+-- 是两个独立向量空间 —— 模型输出维度不同，相似度只在同一空间内才有意义。
+CREATE TABLE IF NOT EXISTS clip_embeddings (
+    image_id     TEXT PRIMARY KEY REFERENCES images(id),
+    embedding    BLOB NOT NULL,
+    dimensions   INTEGER NOT NULL DEFAULT 512,
+    status       TEXT NOT NULL DEFAULT 'embedded' CHECK(status IN ('embedded', 'pending', 'error')),
+    generated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE VIRTUAL TABLE IF NOT EXISTS vec_embeddings_clip USING vec0(
+    image_id TEXT PRIMARY KEY,
+    embedding float[512]
+);
 
 -- FTS5 全文搜索
 CREATE VIRTUAL TABLE images_fts USING fts5(
