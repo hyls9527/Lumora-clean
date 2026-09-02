@@ -131,6 +131,7 @@ pub struct ImportResult {
     pub items: Vec<ImageRecord>,
     pub imported: u32,
     pub skipped: u32,
+    pub rejected: u32,
     pub total_scanned: u32,
 }
 

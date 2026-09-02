@@ -77,14 +77,40 @@ pub fn get_image_base64_cmd(
 /// SECURITY: Same path validation as get_image_base64_cmd.
 #[tauri::command]
 pub fn get_thumbnail_base64_cmd(
+    app: tauri::AppHandle,
     db: tauri::State<'_, DbHandle>,
     file_path: String,
     max_width: u32,
 ) -> AppResult<String> {
     use base64::Engine;
     use image::GenericImageView;
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+    use tauri::Manager;
 
     let canonical = validate_image_access(&db, &file_path)?;
+
+    // Disk cache keyed by (canonical path, file size, max_width) so repeated
+    // requests (fast scroll, page flips, restart) decode/encode only once.
+    let mut hasher = DefaultHasher::new();
+    canonical.hash(&mut hasher);
+    let size = std::fs::metadata(&canonical).map(|m| m.len()).unwrap_or(0);
+    size.hash(&mut hasher);
+    max_width.hash(&mut hasher);
+    let key = format!("{:016x}.png", hasher.finish());
+
+    let cache_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| AppError::External(format!("failed to resolve app data dir: {e}")))?
+        .join("thumbnails");
+    std::fs::create_dir_all(&cache_dir)
+        .map_err(|e| AppError::Io(format!("failed to create thumbnails dir: {e}")))?;
+    let cache_path = cache_dir.join(&key);
+
+    if let Ok(bytes) = std::fs::read(&cache_path) {
+        return Ok(base64::engine::general_purpose::STANDARD.encode(bytes));
+    }
 
     let img = image::open(&canonical)
         .map_err(|e| AppError::Io(format!("Failed to decode image: {}", e)))?;
@@ -102,7 +128,11 @@ pub fn get_thumbnail_base64_cmd(
         .write_to(&mut buf, image::ImageFormat::Png)
         .map_err(|e| AppError::Io(format!("Failed to encode thumbnail: {}", e)))?;
 
-    Ok(base64::engine::general_purpose::STANDARD.encode(buf.into_inner()))
+    let bytes = buf.into_inner();
+    // Best-effort cache write; a failure must not fail the request.
+    let _ = std::fs::write(&cache_path, &bytes);
+
+    Ok(base64::engine::general_purpose::STANDARD.encode(bytes))
 }
 
 // ---------------------------------------------------------------------------

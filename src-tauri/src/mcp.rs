@@ -24,7 +24,7 @@ use crate::commands::embeddings::{
     embed_text_ollama, get_embedding_status_db, search_semantic_db, validate_query_dimension,
     EmbeddingInfo, SemanticSearchResult,
 };
-use crate::commands::images::{escape_fts5, toggle_favorite_impl};
+use crate::commands::images::{escape_fts5, import_folder_gated, toggle_favorite_impl};
 use crate::commands::tags::{add_tag_to_image_impl, create_tag_impl, remove_tag_from_image_impl};
 use crate::commands::trash::{restore_impl, soft_delete_impl};
 use crate::db::DbHandle;
@@ -93,6 +93,12 @@ struct SemanticSearchParams {
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+struct ImportParams {
+    #[schemars(description = "Absolute path to a folder (or single image file) to import")]
+    path: String,
+}
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 struct CreateTagParams {
     #[schemars(description = "Tag name (unique; empty names are rejected)")]
     name: String,
@@ -130,6 +136,19 @@ impl LumoraMcp {
     ) -> Result<CallToolResult, ErrorData> {
         let limit = p.limit.unwrap_or(40).clamp(1, 200);
         match search_images_impl(&self.db, &p.query, limit) {
+            Ok(value) => Ok(json_result(value)),
+            Err(e) => Ok(tool_error(e)),
+        }
+    }
+
+    #[tool(
+        description = "Import single images from a folder (reference mode). 2x2 grids (4 images together) are rejected by the grid gate."
+    )]
+    async fn import_images(
+        &self,
+        Parameters(p): Parameters<ImportParams>,
+    ) -> Result<CallToolResult, ErrorData> {
+        match import_folder_gated(&self.db, &p.path) {
             Ok(value) => Ok(json_result(value)),
             Err(e) => Ok(tool_error(e)),
         }

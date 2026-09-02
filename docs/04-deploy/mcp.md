@@ -14,6 +14,7 @@ AI 可以浏览、搜索、理解图库，也可以执行管理操作（标签�
 
 | 工具 | 说明 | 主要参数 |
 | --- | --- | --- |
+| `import_images` | 从文件夹导入单图（**2x2 四宫格会被门禁拒绝**，不入库；reference 模式记录路径） | `path` |
 | `list_images` | 按时间倒序分页列出图片 | `page`、`per_page` |
 | `search_images` | FTS5 全文搜索（prompt / 元数据 / 文件路径） | `query`、`limit` |
 | `get_image` | 单张图片完整信息（含标签、最新 AI 分析、嵌入状态） | `id` |

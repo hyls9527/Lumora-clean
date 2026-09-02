@@ -3,6 +3,7 @@ use std::fs;
 use std::hash::{Hash, Hasher};
 use std::path::{Path, PathBuf};
 
+use image::GenericImageView;
 use rusqlite::params;
 use tauri::Manager;
 use tauri_plugin_store::StoreExt;
@@ -52,10 +53,11 @@ pub fn import_images(
         None
     };
     let total_scanned = entries.len() as u32;
+    let (accepted, rejected) = partition_grids(&entries);
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let tx = conn.unchecked_transaction()?;
     let mut copied: Vec<PathBuf> = Vec::new();
-    let result = run_import(&tx, &entries, library_dir.as_deref(), &mut copied);
+    let result = run_import(&tx, &accepted, library_dir.as_deref(), &mut copied);
     match result {
         Ok((imported, skipped)) => {
             if let Err(e) = tx.commit() {
@@ -67,6 +69,7 @@ pub fn import_images(
             Ok(ImportResult {
                 imported: imported.len() as u32,
                 skipped,
+                rejected,
                 total_scanned,
                 items: imported,
             })
@@ -76,6 +79,70 @@ pub fn import_images(
             Err(e)
         }
     }
+}
+
+/// Reference-mode import for AI agents via MCP: scans `root`, applies the same
+/// grid gate, inserts rows without moving/copying files.
+pub fn import_folder_gated(db: &DbHandle, root: &str) -> AppResult<ImportResult> {
+    let entries = scan_folder(root)?;
+    let (accepted, rejected) = partition_grids(&entries);
+    let total_scanned = entries.len() as u32;
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let tx = conn.unchecked_transaction()?;
+    let (imported, skipped) = run_import(&tx, &accepted, None, &mut Vec::new())?;
+    if let Err(e) = tx.commit() {
+        return Err(e.into());
+    }
+    Ok(ImportResult {
+        imported: imported.len() as u32,
+        skipped,
+        rejected,
+        total_scanned,
+        items: imported,
+    })
+}
+
+/// Split scanned entries into (accepted singles, count of rejected 2x2 grids).
+fn partition_grids(entries: &[ImportEntry]) -> (Vec<ImportEntry>, u32) {
+    let mut accepted = Vec::with_capacity(entries.len());
+    let mut rejected = 0u32;
+    for e in entries {
+        if looks_like_grid(Path::new(&e.file_path)) {
+            rejected += 1;
+        } else {
+            accepted.push(e.clone());
+        }
+    }
+    (accepted, rejected)
+}
+
+/// Cheap local heuristic gate: a Midjourney-style 2x2 grid shows a light gutter
+/// seam down the vertical AND horizontal centre, brighter than the four
+/// quadrant centres. Used to refuse 4-in-one images at the library boundary.
+/// (Free, no external vision call; our free GLM pipeline does the stronger check.)
+fn looks_like_grid(path: &Path) -> bool {
+    let img = match image::open(path) {
+        Ok(i) => i,
+        Err(_) => return false,
+    };
+    let (w, h) = img.dimensions();
+    if w == 0 || h == 0 {
+        return false;
+    }
+    let small = img.resize(64, 64, image::imageops::FilterType::Triangle).to_luma8();
+    let avg = |x0: u32, y0: u32, x1: u32, y1: u32| -> f64 {
+        let (mut s, mut n) = (0.0f64, 0u32);
+        for y in y0..y1 {
+            for x in x0..x1 {
+                s += small.get_pixel(x, y)[0] as f64;
+                n += 1;
+            }
+        }
+        if n == 0 { 0.0 } else { s / n as f64 }
+    };
+    let quad = (avg(8, 8, 24, 24) + avg(40, 8, 56, 24) + avg(8, 40, 24, 56) + avg(40, 40, 56, 56)) / 4.0;
+    let seam = (avg(31, 8, 33, 56) + avg(8, 31, 56, 33)) / 2.0;
+    seam > quad + 12.0
 }
 
 // ---------------------------------------------------------------------------
@@ -1019,5 +1086,32 @@ mod tests {
         let meta = fs::metadata(&f).unwrap();
         let ts = file_created_at(&meta);
         assert!(chrono::DateTime::parse_from_rfc3339(&ts).is_ok());
+    }
+
+    #[test]
+    fn grid_gate_rejects_two_by_two_grid() {
+        use image::{Rgb, RgbImage};
+        let mut img = RgbImage::from_fn(128, 128, |_, _| Rgb([40u8, 40, 40]));
+        // light gutter down the vertical + horizontal centre
+        for y in 0..128u32 {
+            for x in 62..66u32 { img.put_pixel(x, y, Rgb([240u8, 240, 240])); }
+        }
+        for y in 62..66u32 {
+            for x in 0..128u32 { img.put_pixel(x, y, Rgb([240u8, 240, 240])); }
+        }
+        let dir = tempfile::tempdir().unwrap();
+        let p = dir.path().join("grid.png");
+        img.save(&p).unwrap();
+        assert!(looks_like_grid(&p));
+    }
+
+    #[test]
+    fn grid_gate_accepts_single_image() {
+        use image::{Rgb, RgbImage};
+        let img = RgbImage::from_fn(128, 128, |_, _| Rgb([120u8, 120, 120]));
+        let dir = tempfile::tempdir().unwrap();
+        let p = dir.path().join("single.png");
+        img.save(&p).unwrap();
+        assert!(!looks_like_grid(&p));
     }
 }
