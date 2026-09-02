@@ -80,7 +80,7 @@ describe('FilterPanel', () => {
     fireEvent.click(container.querySelectorAll('button')[0]); // expand
 
     const numberInputs = container.querySelectorAll('input[type="number"]');
-    expect(numberInputs.length).toBe(2);
+    expect(numberInputs.length).toBe(6); // rating min/max + seed + steps + cfg min/max
 
     fireEvent.change(numberInputs[0], { target: { value: '3' } });
     fireEvent.change(numberInputs[1], { target: { value: '5' } });
@@ -112,5 +112,28 @@ describe('FilterPanel', () => {
     fireEvent.change(dateInputs[1], { target: { value: '2025-12-31' } });
     expect(useFilterStore.getState().criteria.dateFrom).toBe('2025-01-01');
     expect(useFilterStore.getState().criteria.dateTo).toBe('2025-12-31');
+  });
+
+  it('renders generation parameter inputs when expanded and updates criteria', () => {
+    const { container } = render(<FilterPanel />);
+    fireEvent.click(container.querySelectorAll('button')[0]); // expand
+
+    const numberInputs = container.querySelectorAll('input[type="number"]');
+    // rating [0,1], seed [2], steps [3], cfg [4,5]
+    fireEvent.change(numberInputs[2], { target: { value: '42' } });
+    fireEvent.change(numberInputs[3], { target: { value: '30' } });
+    fireEvent.change(numberInputs[4], { target: { value: '7' } });
+    fireEvent.change(numberInputs[5], { target: { value: '9' } });
+
+    const textInputs = container.querySelectorAll('input[type="text"]');
+    const samplerInput = textInputs[textInputs.length - 1];
+    fireEvent.change(samplerInput, { target: { value: 'Euler a' } });
+
+    const criteria = useFilterStore.getState().criteria;
+    expect(criteria.seed).toBe(42);
+    expect(criteria.steps).toBe(30);
+    expect(criteria.cfgMin).toBe(7);
+    expect(criteria.cfgMax).toBe(9);
+    expect(criteria.sampler).toBe('Euler a');
   });
 });

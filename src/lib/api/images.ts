@@ -173,6 +173,11 @@ export async function listImagesFiltered(
       format: filter.format ?? null,
       dateFrom: filter.dateFrom ?? null,
       dateTo: filter.dateTo ?? null,
+      seed: filter.seed ?? null,
+      steps: filter.steps ?? null,
+      cfgMin: filter.cfgMin ?? null,
+      cfgMax: filter.cfgMax ?? null,
+      sampler: filter.sampler ?? null,
     },
   });
   return {

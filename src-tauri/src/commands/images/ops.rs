@@ -238,7 +238,7 @@ pub fn get_variant_group_images(
 }
 
 /// Filter parameters for list_images_filtered.
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ImageFilter {
     pub model: Option<String>,
@@ -248,6 +248,16 @@ pub struct ImageFilter {
     pub format: Option<String>,
     pub date_from: Option<String>,
     pub date_to: Option<String>,
+    /// Exact SD seed match (from metadata_json.$.seed).
+    pub seed: Option<i64>,
+    /// Exact SD steps match (from metadata_json.$.steps).
+    pub steps: Option<u32>,
+    /// CFG scale lower bound (from metadata_json.$.cfg_scale).
+    pub cfg_min: Option<f64>,
+    /// CFG scale upper bound (from metadata_json.$.cfg_scale).
+    pub cfg_max: Option<f64>,
+    /// Exact sampler name match (from metadata_json.$.sampler).
+    pub sampler: Option<String>,
 }
 
 /// Paginated listing with optional filters.
@@ -279,6 +289,13 @@ fn list_images_filtered_inner(
         if from > to {
             return Err(AppError::InvalidInput(
                 "日期范围无效：开始日期不能晚于结束日期".into(),
+            ));
+        }
+    }
+    if let (Some(min), Some(max)) = (filter.cfg_min, filter.cfg_max) {
+        if min > max {
+            return Err(AppError::InvalidInput(
+                "CFG 范围无效：最小值不能高于最大值".into(),
             ));
         }
     }
@@ -328,6 +345,41 @@ fn list_images_filtered_inner(
             param_values.len() + 1
         ));
         param_values.push(Box::new(to.clone()));
+    }
+    if let Some(seed) = filter.seed {
+        conditions.push(format!(
+            "json_extract(metadata_json, '$.seed') = ?{}",
+            param_values.len() + 1
+        ));
+        param_values.push(Box::new(seed));
+    }
+    if let Some(steps) = filter.steps {
+        conditions.push(format!(
+            "json_extract(metadata_json, '$.steps') = ?{}",
+            param_values.len() + 1
+        ));
+        param_values.push(Box::new(steps));
+    }
+    if let Some(min) = filter.cfg_min {
+        conditions.push(format!(
+            "json_extract(metadata_json, '$.cfg_scale') >= ?{}",
+            param_values.len() + 1
+        ));
+        param_values.push(Box::new(min));
+    }
+    if let Some(max) = filter.cfg_max {
+        conditions.push(format!(
+            "json_extract(metadata_json, '$.cfg_scale') <= ?{}",
+            param_values.len() + 1
+        ));
+        param_values.push(Box::new(max));
+    }
+    if let Some(ref sampler) = filter.sampler {
+        conditions.push(format!(
+            "json_extract(metadata_json, '$.sampler') = ?{}",
+            param_values.len() + 1
+        ));
+        param_values.push(Box::new(sampler.clone()));
     }
 
     let where_clause = conditions.join(" AND ");
@@ -704,6 +756,7 @@ mod tests {
             format: None,
             date_from: None,
             date_to: None,
+            ..Default::default()
         };
         assert!(list_images_filtered_inner(&db, 1, 40, &filter).is_err());
     }
@@ -719,6 +772,7 @@ mod tests {
             format: None,
             date_from: Some("2025-02-01".into()),
             date_to: Some("2025-01-01".into()),
+            ..Default::default()
         };
         assert!(list_images_filtered_inner(&db, 1, 40, &filter).is_err());
     }
@@ -738,6 +792,7 @@ mod tests {
             format: None,
             date_from: None,
             date_to: Some("2025-01-01".into()),
+            ..Default::default()
         };
         let result = list_images_filtered_inner(&db, 1, 40, &filter).unwrap();
         assert_eq!(result.total, 1);
@@ -790,6 +845,7 @@ mod tests {
             format: Some("png".into()),
             date_from: None,
             date_to: None,
+            ..Default::default()
         };
         let result = list_images_filtered_inner(&db, 1, 40, &filter).unwrap();
         assert_eq!(result.total, 1);
@@ -812,8 +868,81 @@ mod tests {
             format: None,
             date_from: None,
             date_to: None,
+            ..Default::default()
         };
         let result = list_images_filtered_inner(&db, 1, 40, &filter).unwrap();
         assert_eq!(result.total, 2);
+    }
+
+    #[test]
+    fn filtered_list_matches_generation_parameters() {
+        let db = test_db();
+        {
+            let conn = db.conn().lock().unwrap();
+            insert_filter_image(
+                &conn,
+                "a",
+                "png",
+                "2025-01-01",
+                Some(r#"{"seed":1,"steps":20,"cfg_scale":7.0,"sampler":"Euler a"}"#),
+                false,
+            );
+            insert_filter_image(
+                &conn,
+                "b",
+                "png",
+                "2025-01-02",
+                Some(r#"{"seed":2,"steps":30,"cfg_scale":8.5,"sampler":"DPM++ 2M Karras"}"#),
+                false,
+            );
+            insert_filter_image(
+                &conn,
+                "c",
+                "png",
+                "2025-01-03",
+                Some(r#"{"seed":1,"steps":30,"cfg_scale":8.5,"sampler":"Euler a"}"#),
+                false,
+            );
+        }
+
+        // Exact seed
+        let filter = ImageFilter {
+            seed: Some(1),
+            ..Default::default()
+        };
+        assert_eq!(list_images_filtered_inner(&db, 1, 40, &filter).unwrap().total, 2);
+
+        // Exact steps
+        let filter = ImageFilter {
+            steps: Some(30),
+            ..Default::default()
+        };
+        assert_eq!(list_images_filtered_inner(&db, 1, 40, &filter).unwrap().total, 2);
+
+        // CFG scale range
+        let filter = ImageFilter {
+            cfg_min: Some(8.0),
+            cfg_max: Some(9.0),
+            ..Default::default()
+        };
+        assert_eq!(list_images_filtered_inner(&db, 1, 40, &filter).unwrap().total, 2);
+
+        // Exact sampler
+        let filter = ImageFilter {
+            sampler: Some("Euler a".into()),
+            ..Default::default()
+        };
+        assert_eq!(list_images_filtered_inner(&db, 1, 40, &filter).unwrap().total, 2);
+    }
+
+    #[test]
+    fn filtered_list_rejects_inverted_cfg_range() {
+        let db = test_db();
+        let filter = ImageFilter {
+            cfg_min: Some(8.0),
+            cfg_max: Some(6.0),
+            ..Default::default()
+        };
+        assert!(list_images_filtered_inner(&db, 1, 40, &filter).is_err());
     }
 }

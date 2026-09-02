@@ -10,6 +10,7 @@ vi.mock('../../tauri', () => ({
 import {
   importImages,
   listImages,
+  listImagesFiltered,
   searchImages,
   updateRating,
   toggleFavorite,
@@ -85,6 +86,35 @@ describe('API calls', () => {
     mockInvoke.mockResolvedValue([SAMPLE_RAW]);
     await searchImages('cat');
     expect(mockInvoke).toHaveBeenCalledWith('search_images', { query: 'cat' });
+  });
+
+  it('listImagesFiltered → list_images_filtered maps generation params', async () => {
+    mockInvoke.mockResolvedValue({ items: [SAMPLE_RAW], total: 1, page: 1, perPage: 40 });
+    await listImagesFiltered(1, 40, {
+      seed: 1,
+      steps: 30,
+      cfgMin: 7,
+      cfgMax: 9,
+      sampler: 'Euler a',
+    });
+    expect(mockInvoke).toHaveBeenCalledWith('list_images_filtered', {
+      page: 1,
+      perPage: 40,
+      filter: {
+        model: null,
+        ratingMin: null,
+        ratingMax: null,
+        favorite: null,
+        format: null,
+        dateFrom: null,
+        dateTo: null,
+        seed: 1,
+        steps: 30,
+        cfgMin: 7,
+        cfgMax: 9,
+        sampler: 'Euler a',
+      },
+    });
   });
 
   it('updateRating → update_rating', async () => {

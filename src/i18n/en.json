@@ -479,6 +479,10 @@
     "dateRange": "Date Range",
     "dateFrom": "From",
     "dateTo": "To",
+    "seed": "Seed",
+    "steps": "Steps",
+    "cfg": "CFG Scale",
+    "sampler": "Sampler",
     "clear": "Clear Filters",
     "active": "{count} filters"
   },

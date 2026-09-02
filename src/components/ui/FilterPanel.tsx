@@ -163,6 +163,62 @@ export function FilterPanel() {
               style={inputStyle}
             />
           </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <label style={labelStyle}>{t('filter.seed')}</label>
+            <input
+              type="number"
+              value={criteria.seed ?? ''}
+              onChange={(e) => updateCriteria({ seed: e.target.value ? Number(e.target.value) : undefined })}
+              placeholder="0"
+              style={{ ...inputStyle, width: 96 }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <label style={labelStyle}>{t('filter.steps')}</label>
+            <input
+              type="number"
+              value={criteria.steps ?? ''}
+              onChange={(e) => updateCriteria({ steps: e.target.value ? Number(e.target.value) : undefined })}
+              placeholder="0"
+              style={{ ...inputStyle, width: 96 }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <label style={labelStyle}>{t('filter.cfg')}</label>
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+              <input
+                type="number"
+                step="0.1"
+                value={criteria.cfgMin ?? ''}
+                onChange={(e) => updateCriteria({ cfgMin: e.target.value ? Number(e.target.value) : undefined })}
+                placeholder="0"
+                style={{ ...inputStyle, width: 56 }}
+              />
+              <span style={{ fontSize: 11, color: tok.textMuted }}>–</span>
+              <input
+                type="number"
+                step="0.1"
+                value={criteria.cfgMax ?? ''}
+                onChange={(e) => updateCriteria({ cfgMax: e.target.value ? Number(e.target.value) : undefined })}
+                placeholder="20"
+                style={{ ...inputStyle, width: 56 }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <label style={labelStyle}>{t('filter.sampler')}</label>
+            <input
+              type="text"
+              value={criteria.sampler ?? ''}
+              onChange={(e) => updateCriteria({ sampler: e.target.value || undefined })}
+              placeholder="Euler a"
+              style={inputStyle}
+            />
+          </div>
         </div>
       )}
     </div>

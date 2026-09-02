@@ -32,6 +32,14 @@ describe('FilterCriteria helpers', () => {
       expect(hasActiveFilters({ dateFrom: '2025-01-01' })).toBe(true);
       expect(hasActiveFilters({ dateTo: '2025-12-31' })).toBe(true);
     });
+
+    it('returns true when generation parameters are set', () => {
+      expect(hasActiveFilters({ seed: 1 })).toBe(true);
+      expect(hasActiveFilters({ steps: 30 })).toBe(true);
+      expect(hasActiveFilters({ cfgMin: 7 })).toBe(true);
+      expect(hasActiveFilters({ cfgMax: 9 })).toBe(true);
+      expect(hasActiveFilters({ sampler: 'Euler a' })).toBe(true);
+    });
   });
 
   describe('countActiveFilters', () => {
@@ -56,6 +64,16 @@ describe('FilterCriteria helpers', () => {
         dateFrom: '2025-01-01',
       };
       expect(countActiveFilters(criteria)).toBe(5);
+    });
+
+    it('counts cfg range as 1 (not 2)', () => {
+      expect(countActiveFilters({ cfgMin: 7, cfgMax: 9 })).toBe(1);
+    });
+
+    it('counts each generation parameter as 1', () => {
+      expect(countActiveFilters({ seed: 1 })).toBe(1);
+      expect(countActiveFilters({ steps: 30 })).toBe(1);
+      expect(countActiveFilters({ sampler: 'Euler a' })).toBe(1);
     });
 
     it('does not count favorite=false', () => {

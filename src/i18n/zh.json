@@ -479,6 +479,10 @@
     "dateRange": "日期范围",
     "dateFrom": "开始日期",
     "dateTo": "结束日期",
+    "seed": "种子",
+    "steps": "步数",
+    "cfg": "CFG 引导",
+    "sampler": "采样器",
     "clear": "清除筛选",
     "active": "{count} 个筛选条件"
   },

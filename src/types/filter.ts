@@ -17,6 +17,16 @@ export interface FilterCriteria {
   dateFrom?: string;
   /** End date (ISO string, inclusive) */
   dateTo?: string;
+  /** Exact SD seed match (from metadata_json.$.seed) */
+  seed?: number;
+  /** Exact SD steps match (from metadata_json.$.steps) */
+  steps?: number;
+  /** CFG scale lower bound (from metadata_json.$.cfg_scale) */
+  cfgMin?: number;
+  /** CFG scale upper bound (from metadata_json.$.cfg_scale) */
+  cfgMax?: number;
+  /** Exact sampler name match (from metadata_json.$.sampler) */
+  sampler?: string;
 }
 
 /**
@@ -30,7 +40,12 @@ export function hasActiveFilters(criteria: FilterCriteria): boolean {
     criteria.favorite === true ||
     criteria.format !== undefined ||
     criteria.dateFrom !== undefined ||
-    criteria.dateTo !== undefined
+    criteria.dateTo !== undefined ||
+    criteria.seed !== undefined ||
+    criteria.steps !== undefined ||
+    criteria.cfgMin !== undefined ||
+    criteria.cfgMax !== undefined ||
+    criteria.sampler !== undefined
   );
 }
 
@@ -44,5 +59,9 @@ export function countActiveFilters(criteria: FilterCriteria): number {
   if (criteria.favorite === true) count++;
   if (criteria.format !== undefined) count++;
   if (criteria.dateFrom !== undefined || criteria.dateTo !== undefined) count++;
+  if (criteria.seed !== undefined) count++;
+  if (criteria.steps !== undefined) count++;
+  if (criteria.cfgMin !== undefined || criteria.cfgMax !== undefined) count++;
+  if (criteria.sampler !== undefined) count++;
   return count;
 }
