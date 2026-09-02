@@ -2,6 +2,18 @@
 
 All notable changes to Lumora are documented here.
 
+## v0.11.0 (2026-09-02)
+
+### Added
+- **高级筛选支持生成参数**：在画廊筛选面板新增 Seed、Steps、CFG Scale（范围）、Sampler 四个筛选条件，可按生成参数精确检索（`metadata_json` 的 `seed` / `steps` / `cfg_scale` / `sampler`）。
+- **文档校准**：`ARCHITECTURE.md` 的 SQLite schema 由滞后的 v6 补到 v9（智能收藏 / 审美评分列 / CLIP 512 维索引），并明确「文本语义 768 维 / CLIP 512 维」两个独立向量空间。
+
+### Changed
+- `README.md` / `ARCHITECTURE.md` 测试数量校准为实测值：前端 765、Rust 262（259 passed + 3 ignored，需本地 Ollama）。
+
+### Fixed
+- （无功能性修复；本版本聚焦筛选能力与文档校准。）
+
 ## v0.10.8 (2026-08-30)
 
 ### Fixed
