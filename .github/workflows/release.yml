@@ -186,6 +186,11 @@ jobs:
           if [ -z "$NOTES" ]; then
             NOTES="No changelog entry found for ${TAG}."
           fi
+          # Write raw notes to a file: `Generate latest.json` reads them via
+          # jq --rawfile, so backticks/quoting in the notes never reach the
+          # shell (which would otherwise trigger command substitution and
+          # break the latest.json build).
+          echo "$NOTES" > /tmp/lumora-notes.txt
           # JSON-encode for jq --argjson (preserves newlines in latest.json)
           NOTES_JSON=$(jq -Rn --arg t "$NOTES" '$t')
           echo "notes_json=${NOTES_JSON}" >> "$GITHUB_OUTPUT"
@@ -243,11 +248,13 @@ jobs:
             PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "https://github.com/${REPO}/releases/download/${TAG}/${APPIMAGE}" --arg sig "$SIG" '. + {"linux-x86_64": {signature: $sig, url: $url}}')
           fi
 
-          # Build latest.json
+          # Build latest.json. Notes come from a file via jq --rawfile so the
+          # changelog content (backticks, quotes, $) is treated as data, never
+          # as shell — this is what previously broke with "command not found".
           LATEST_JSON=$(jq -n \
             --arg version "$VERSION" \
             --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-            --argjson notes "${{ steps.changelog.outputs.notes_json }}" \
+            --rawfile notes /tmp/lumora-notes.txt \
             --argjson platforms "$PLATFORMS" \
             '{version: $version, notes: $notes, pub_date: $date, platforms: $platforms}')
 
