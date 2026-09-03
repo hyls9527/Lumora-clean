@@ -118,6 +118,43 @@ describe('useUpdater', () => {
     expect(result.current.error).toBeNull();
   });
 
+  it('does not mark downloaded before the download promise settles', async () => {
+    // The Finished event fires while the download() promise is still pending
+    // (the plugin has not yet populated its downloadedBytes handle). install()
+    // would throw "Update.install called before Update.download" if clicked
+    // here — so downloaded must stay false until the promise resolves.
+    let resolveDownload!: () => void;
+    mockCheck.mockResolvedValue(makeUpdate());
+    mockDownload.mockImplementation((onEvent: (e: unknown) => void) => {
+      onEvent({ event: 'Finished', data: {} });
+      return new Promise<void>((resolve) => {
+        resolveDownload = resolve;
+      });
+    });
+
+    const { result } = renderHook(() => useUpdater());
+
+    await vi.waitFor(() => {
+      expect(mockDownload).toHaveBeenCalled();
+    });
+    // Let the Finished event callback run; downloaded must still be false.
+    await Promise.resolve();
+    expect(result.current.downloaded).toBe(false);
+    expect(result.current.downloadProgress).toBe(100);
+
+    // Once the download promise settles, the handle is ready to install.
+    await act(async () => {
+      resolveDownload();
+    });
+    expect(result.current.downloaded).toBe(true);
+
+    // install() must only be reachable after downloaded becomes true.
+    await act(async () => {
+      await result.current.installNow();
+    });
+    expect(mockInstall).toHaveBeenCalled();
+  });
+
   it('should set error on download failure', async () => {
     mockCheck.mockResolvedValue(makeUpdate());
     mockDownload.mockRejectedValue(new Error('Network error'));

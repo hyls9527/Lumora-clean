@@ -195,7 +195,12 @@ export const useUpdateStore = create<UpdateState>((set, get) => ({
             }
           }
         } else if (event.event === 'Finished') {
-          set({ downloading: false, downloadProgress: 100, downloaded: true });
+          // Do NOT set downloaded here. `update.download()` only resolves
+          // after the plugin populates its internal downloadedBytes resource,
+          // and `install()` throws "Update.install called before
+          // Update.download" until that happens. Marking downloaded in the
+          // Finished event callback races that and lets install() run too early.
+          set({ downloading: false, downloadProgress: 100 });
         }
       });
       clearInterval(watchdog);
