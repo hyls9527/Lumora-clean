@@ -29,6 +29,9 @@ interface SemanticSearchState {
   suggestionsLoading: boolean;
   error: string | null;
   showSuggestions: boolean;
+  /** Request tokens: bumped per search/suggestion; stale responses dropped (F-6). */
+  _searchSeq: number;
+  _suggestSeq: number;
 
   setQuery: (query: string) => void;
   setMode: (mode: SearchMode) => void;
@@ -50,6 +53,8 @@ export function createSemanticSearchStore(deps: SemanticSearchStoreDeps = defaul
     suggestionsLoading: false,
     error: null,
     showSuggestions: false,
+    _searchSeq: 0,
+    _suggestSeq: 0,
 
     setQuery: (query) => set({ query }),
 
@@ -61,11 +66,15 @@ export function createSemanticSearchStore(deps: SemanticSearchStoreDeps = defaul
         set({ results: [], error: null });
         return;
       }
-      set({ loading: true, error: null, showSuggestions: false });
+      const seq = get()._searchSeq + 1;
+      set({ _searchSeq: seq, loading: true, error: null, showSuggestions: false });
       try {
         const results = await deps.searchSemanticCached(query);
+        // A newer query superseded this one — drop the stale response (F-6).
+        if (get()._searchSeq !== seq) return;
         set({ results, loading: false });
       } catch (err) {
+        if (get()._searchSeq !== seq) return;
         set({
           loading: false,
           error: err instanceof Error ? err.message : '搜索失败',
@@ -78,11 +87,16 @@ export function createSemanticSearchStore(deps: SemanticSearchStoreDeps = defaul
         set({ suggestions: [], suggestionsLoading: false });
         return;
       }
-      set({ suggestionsLoading: true });
+      const seq = get()._suggestSeq + 1;
+      set({ _suggestSeq: seq, suggestionsLoading: true });
       try {
         const suggestions = await deps.getSearchSuggestions(query);
+        // Drop stale suggestion responses so a slow old query cannot
+        // overwrite what the user's current input produced (F-6).
+        if (get()._suggestSeq !== seq) return;
         set({ suggestions, suggestionsLoading: false, showSuggestions: suggestions.length > 0 });
       } catch (err) {
+        if (get()._suggestSeq !== seq) return;
         set({ suggestionsLoading: false, error: err instanceof Error ? err.message : '获取建议失败' });
       }
     },
@@ -101,6 +115,8 @@ export function createSemanticSearchStore(deps: SemanticSearchStoreDeps = defaul
         suggestionsLoading: false,
         error: null,
         showSuggestions: false,
+        _searchSeq: get()._searchSeq + 1,
+        _suggestSeq: get()._suggestSeq + 1,
       });
     },
 

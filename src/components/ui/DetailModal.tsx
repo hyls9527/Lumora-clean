@@ -132,9 +132,12 @@ export function DetailModal({
   usePerformanceMonitor('DetailModal');
   useModalEsc(!!image, onClose, overlayRef);
 
-  // Add touch gesture support for mobile
+  // Touch gestures are page-level listeners; guard the callbacks so a closed
+  // modal (image === null) cannot trigger toggle_favorite('') on a stray
+  // double-tap (F-11).
   useTouchGesture({
     onSwipe: (direction) => {
+      if (!image) return;
       if (direction.horizontal === 'left') {
         onNext?.();
       } else if (direction.horizontal === 'right') {
@@ -142,13 +145,17 @@ export function DetailModal({
       }
     },
     onDoubleTap: () => {
-      onToggleFavorite?.(image?.id ?? '');
+      if (!image) return;
+      onToggleFavorite?.(image.id);
     },
   });
 
   useEffect(() => {
     if (!image) return;
     const handler = (e: KeyboardEvent) => {
+      // Stacked modal on top (e.g. VariantCompareModal): arrow keys must not
+      // flip the underlying image underneath it (F-24).
+      if (showCompare) return;
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
         onPrev?.();
@@ -159,7 +166,7 @@ export function DetailModal({
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [image, onPrev, onNext]);
+  }, [image, onPrev, onNext, showCompare]);
 
   if (!image) return null;
 
@@ -371,7 +378,7 @@ export function DetailModal({
               }}
             />
           )}
-n          {image.variantGroupId && (
+          {image.variantGroupId && (
             <button
               type="button"
               onClick={() => {
@@ -416,7 +423,7 @@ n          {image.variantGroupId && (
           ›
         </button>
       )}
-n      {/* Variant Compare Modal */}
+      {/* Variant Compare Modal */}
       <VariantCompareModal
         open={showCompare}
         images={variants}

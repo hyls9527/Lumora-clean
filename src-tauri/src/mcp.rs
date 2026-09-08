@@ -404,6 +404,12 @@ fn search_images_impl(db: &DbHandle, query: &str, limit: u32) -> Result<Vec<Imag
         )
         .map_err(|e| e.to_string())?;
     let escaped = escape_fts5(query);
+    // Operator-only queries (e.g. `-*():`) escape to an empty string; an
+    // empty MATCH phrase is an FTS5 syntax error, not "match nothing".
+    // The Tauri command guards this — the MCP tool must too (R-9).
+    if escaped.is_empty() {
+        return Ok(vec![]);
+    }
     let mut items: Vec<ImageRecord> = stmt
         .query_map(params![escaped, limit], row_to_record)
         .map_err(|e| e.to_string())?
@@ -446,57 +452,10 @@ fn image_file_impl(db: &DbHandle, id: &str) -> Result<(Vec<u8>, &'static str), S
     drop(conn);
 
     let file_path = file_path.ok_or_else(|| format!("image not found: {id}"))?;
-    let path = Path::new(&file_path);
-    if !path.exists() {
-        return Err(format!("file missing: {}", path.display()));
-    }
-
-    // Prefer a resized PNG so AI clients get a bounded, uniformly-encoded image.
-    match image::open(path) {
-        Ok(img) => {
-            use image::GenericImageView;
-            let (w, h) = img.dimensions();
-            let thumb = if w > 1024 || h > 1024 {
-                // Cap the larger dimension so portrait/panorama images stay bounded too.
-                img.resize(1024, 1024, image::imageops::FilterType::Triangle)
-            } else {
-                img
-            };
-            let mut buf = std::io::Cursor::new(Vec::new());
-            thumb
-                .write_to(&mut buf, image::ImageFormat::Png)
-                .map_err(|e| format!("failed to encode thumbnail: {e}"))?;
-            Ok((buf.into_inner(), "image/png"))
-        }
-        Err(_) => {
-            // Undecodable file: bound the raw passthrough so a huge file cannot
-            // be slurped into memory and base64-encoded over the network.
-            const MAX_RAW_BYTES: u64 = 20 * 1024 * 1024;
-            let len = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
-            if len > MAX_RAW_BYTES {
-                return Err(format!(
-                    "file too large to return raw: {len} bytes (max 20 MiB)"
-                ));
-            }
-            let data = std::fs::read(path).map_err(|e| format!("failed to read file: {e}"))?;
-            let mime = match path
-                .extension()
-                .and_then(|e| e.to_str())
-                .unwrap_or("")
-                .to_lowercase()
-                .as_str()
-            {
-                "png" => "image/png",
-                "jpg" | "jpeg" => "image/jpeg",
-                "webp" => "image/webp",
-                "gif" => "image/gif",
-                "avif" => "image/avif",
-                "bmp" => "image/bmp",
-                _ => "application/octet-stream",
-            };
-            Ok((data, mime))
-        }
-    }
+    // Same path validation + bounded encoding as the LAN handler: only
+    // managed-library files or DB-registered reference-mode imports are
+    // served, and undecodable files pass through raw only under 20 MiB.
+    crate::commands::images::encode_image_for_transfer(db, &file_path).map_err(|e| e.to_string())
 }
 
 fn list_tags_impl(db: &DbHandle) -> Result<Vec<TagWithCount>, String> {

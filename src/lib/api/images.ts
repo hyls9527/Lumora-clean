@@ -90,7 +90,9 @@ export function toImageRecord(raw: TauriImageRecord): ImageRecord {
     fileSizeKb: raw.fileSizeKb,
     width: raw.width ?? 0,
     height: raw.height ?? 0,
-    format: (['png', 'jpg', 'webp', 'avif'].includes(raw.format) ? raw.format : 'png') as ImageRecord['format'],
+    // Preserve the backend's real format (gif/bmp/tiff too). Silently forcing
+    // unknown-but-supported formats to 'png' mislabeled the library (F-18).
+    format: raw.format,
     createdAt: raw.createdAt,
     rating: raw.rating,
     favorite: raw.favorite,
@@ -226,6 +228,13 @@ export async function getVariantGroupImages(
     'get_variant_group_images',
     { variantGroupId },
   );
+  return raw.map(toImageRecord);
+}
+
+/** Batch-fetch full image records by id (search result cards). */
+export async function getImagesByIds(ids: string[]): Promise<ImageRecord[]> {
+  if (ids.length === 0) return [];
+  const raw = await invoke<TauriImageRecord[]>('get_images_by_ids', { ids });
   return raw.map(toImageRecord);
 }
 

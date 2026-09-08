@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { t as tok } from '../../lib/tokens';
 
 interface SearchSuggestionsProps {
@@ -17,33 +17,46 @@ export function SearchSuggestions({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Filter suggestions based on query — computed once and shared by the
+  // keyboard handler AND the render list. Previously the render used
+  // `filtered` while keyboard navigation indexed the full `suggestions`
+  // array, which selected the wrong (hidden) item (F-15).
+  const filtered = useMemo(() => {
+    if (!visible || suggestions.length === 0) return [];
+    return query
+      ? suggestions.filter((s) =>
+          s.toLowerCase().includes(query.toLowerCase()),
+        )
+      : suggestions;
+  }, [visible, suggestions, query]);
+
   // Reset selected index when suggestions change
   useEffect(() => {
     setSelectedIndex(-1);
-  }, [suggestions]);
+  }, [filtered]);
 
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (!visible || suggestions.length === 0) return;
+      if (!visible || filtered.length === 0) return;
 
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
           setSelectedIndex((prev) =>
-            prev < suggestions.length - 1 ? prev + 1 : 0
+            prev < filtered.length - 1 ? prev + 1 : 0
           );
           break;
         case 'ArrowUp':
           e.preventDefault();
           setSelectedIndex((prev) =>
-            prev > 0 ? prev - 1 : suggestions.length - 1
+            prev > 0 ? prev - 1 : filtered.length - 1
           );
           break;
         case 'Enter':
           e.preventDefault();
-          if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
-            onSelect(suggestions[selectedIndex]);
+          if (selectedIndex >= 0 && selectedIndex < filtered.length) {
+            onSelect(filtered[selectedIndex]);
           }
           break;
         case 'Escape':
@@ -52,7 +65,7 @@ export function SearchSuggestions({
           break;
       }
     },
-    [visible, suggestions, selectedIndex, onSelect]
+    [visible, filtered, selectedIndex, onSelect]
   );
 
   useEffect(() => {
@@ -67,17 +80,6 @@ export function SearchSuggestions({
       items[selectedIndex]?.scrollIntoView({ block: 'nearest' });
     }
   }, [selectedIndex]);
-
-  if (!visible || suggestions.length === 0) {
-    return null;
-  }
-
-  // Filter suggestions based on query
-  const filtered = query
-    ? suggestions.filter((s) =>
-        s.toLowerCase().includes(query.toLowerCase())
-      )
-    : suggestions;
 
   if (filtered.length === 0) {
     return null;

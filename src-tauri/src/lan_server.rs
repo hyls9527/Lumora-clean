@@ -146,7 +146,42 @@ fn build_router(state: ServerState) -> Router {
         .route("/api/images/{id}/file", get(image_file_handler))
         .route("/api/tags", get(tags_handler))
         .merge(mcp_router)
+        .route_layer(middleware::from_fn(host_allowlist))
         .with_state(state)
+}
+
+/// DNS-rebinding guard: the server is bound to 0.0.0.0 and exposed on the
+/// LAN, so a malicious page could otherwise resolve its own domain to the
+/// host's LAN IP and hit this API from the victim's browser (the token is in
+/// query params/headers the attacker would then echo). Requiring the Host
+/// header to be an IP literal (or localhost) kills rebinding: attacker
+/// domain names never match (C-7).
+///
+/// Any IP literal is allowed — the machine may be reached via several
+/// interfaces (Wi-Fi + Ethernet + loopback) and `local_ip()` only reflects
+/// the primary one, so a strict single-IP check rejected legit LAN clients
+/// (round-2 review finding). Parsing as `IpAddr` keeps domain-name
+/// rejection intact.
+async fn host_allowlist(request: Request, next: Next) -> Result<Response, StatusCode> {
+    let raw = request
+        .headers()
+        .get(axum::http::header::HOST)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+    // Strip the :port suffix (IPv6 literals keep their brackets).
+    let host = raw
+        .rsplit_once(':')
+        .map(|(h, _)| h)
+        .unwrap_or(raw)
+        .trim_matches(['[', ']']);
+
+    let allowed =
+        host.eq_ignore_ascii_case("localhost") || host.parse::<std::net::IpAddr>().is_ok();
+    if allowed {
+        Ok(next.run(request).await)
+    } else {
+        Err(StatusCode::FORBIDDEN)
+    }
 }
 
 /// Bind a listener on the first available port starting from 8079.
@@ -326,29 +361,16 @@ async fn image_file_handler(
 
     drop(conn);
 
-    let path = std::path::Path::new(&file_path);
-    if !path.exists() {
-        return Err(StatusCode::NOT_FOUND);
+    // Same bounded encoding as the MCP tool: path validation (managed dirs /
+    // DB-registered reference imports), resize-to-PNG for decodable files,
+    // and a 20 MiB raw passthrough cap for the rest. The old handler read
+    // arbitrary registered paths unbounded — a genuinely huge file could
+    // OOM the server.
+    match crate::commands::images::encode_image_for_transfer(&state.db, &file_path) {
+        Ok((data, mime)) => Ok(([(axum::http::header::CONTENT_TYPE, mime)], data)),
+        Err(e) if e.to_string().contains("too large") => Err(StatusCode::PAYLOAD_TOO_LARGE),
+        Err(_) => Err(StatusCode::NOT_FOUND),
     }
-
-    let data = std::fs::read(path).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    let mime = match path
-        .extension()
-        .and_then(|e| e.to_str())
-        .unwrap_or("")
-        .to_lowercase()
-        .as_str()
-    {
-        "png" => "image/png",
-        "jpg" | "jpeg" => "image/jpeg",
-        "webp" => "image/webp",
-        "gif" => "image/gif",
-        "avif" => "image/avif",
-        "bmp" => "image/bmp",
-        _ => "application/octet-stream",
-    };
-
-    Ok(([(axum::http::header::CONTENT_TYPE, mime)], data))
 }
 
 async fn tags_handler(
@@ -569,6 +591,98 @@ mod tests {
                 .await
                 .unwrap();
             assert_eq!(missing_file.status(), 404);
+        });
+    }
+
+    #[test]
+    fn host_allowlist_rejects_rebinding_host() {
+        // Regression (C-7): DNS-rebinding attacks resolve an attacker domain
+        // to the victim's LAN IP; the Host header would then be the domain,
+        // not an IP literal. Such requests must be rejected before any auth
+        // logic (which would then echo tokens to the attacker).
+        use axum::body::Body;
+        use axum::http::Request;
+        use tower::ServiceExt;
+
+        let db = crate::db::DbHandle::open_memory().unwrap();
+        let state = ServerState {
+            db,
+            token: "token123".into(),
+        };
+        let app = build_router(state);
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            let resp = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri("/health")
+                        .header(axum::http::header::HOST, "evil.example.com")
+                        .body(Body::from(""))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(resp.status(), 403);
+
+            let resp = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri("/health")
+                        .header(axum::http::header::HOST, "127.0.0.1:8079")
+                        .body(Body::from(""))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(resp.status(), 200);
+
+            // Round-2 review: any IP literal must be allowed — the machine may
+            // be reached via several interfaces (Wi-Fi/Ethernet/loopback), only
+            // one of which is `local_ip()`. A strict single-IP whitelist broke
+            // legit LAN clients on multi-interface hosts.
+            let resp = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri("/health")
+                        .header(axum::http::header::HOST, "192.168.1.42:8079")
+                        .body(Body::from(""))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(resp.status(), 200);
+
+            // IPv6 literal (bracketed, with port) must also pass.
+            let resp = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri("/health")
+                        .header(axum::http::header::HOST, "[fe80::1]:8079")
+                        .body(Body::from(""))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(resp.status(), 200);
+
+            // Domain names (even a subdomain of a trusted one) still 403.
+            let resp = app
+                .clone()
+                .oneshot(
+                    Request::builder()
+                        .uri("/health")
+                        .header(axum::http::header::HOST, "localhost.evil.com")
+                        .body(Body::from(""))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(resp.status(), 403);
         });
     }
 

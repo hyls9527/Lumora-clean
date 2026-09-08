@@ -128,20 +128,26 @@ export function RenameDialog({ open, imageIds, onClose, onComplete }: RenameDial
   useModalEsc(open, onClose, dialogRef);
 
   // Fetch preview on template change (debounced)
+  const previewSeqRef = useRef(0);
   const fetchPreview = useCallback(
     async (tpl: string) => {
       if (!tpl.trim() || imageIds.length === 0) {
         setPreview(null);
         return;
       }
+      const seq = ++previewSeqRef.current;
       setLoading(true);
       try {
         const res = await batchRename(imageIds, tpl.trim(), true);
+        // A newer template request superseded this one — drop the stale
+        // preview so a slow old response cannot overwrite the current one (F-14).
+        if (seq !== previewSeqRef.current) return;
         setPreview(res.items);
       } catch {
+        if (seq !== previewSeqRef.current) return;
         setPreview(null);
       } finally {
-        setLoading(false);
+        if (seq === previewSeqRef.current) setLoading(false);
       }
     },
     [imageIds],

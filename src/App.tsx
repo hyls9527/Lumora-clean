@@ -75,29 +75,22 @@ function App() {
   }, [hydrate]);
 
   // First launch: ask how imports should store images before any import.
+  // Gated on settings hydration — checking before the store has settled was
+  // a cold-start race that reopened the dialog even after a persisted choice,
+  // or shipped a null read as "first run" (F-10).
   useEffect(() => {
+    if (!appReady) return;
     let cancelled = false;
-    const check = (attempt: number) => {
-      void getSetting('store_mode')
-        .then((v) => {
-          if (cancelled) return;
-          if (v === null) {
-            if (attempt === 0) {
-              // Cold-start race: the store may not be hydrated yet, so a
-              // null here could be premature. Re-check once before showing.
-              setTimeout(() => check(1), 600);
-            } else {
-              setFirstRunOpen(true);
-            }
-          }
-        })
-        .catch(() => {});
-    };
-    check(0);
+    void getSetting('store_mode')
+      .then((v) => {
+        if (cancelled) return;
+        if (v === null) setFirstRunOpen(true);
+      })
+      .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [appReady]);
 
   const handleSplashFinish = useCallback(() => setSplashDone(true), []);
 
@@ -181,8 +174,14 @@ function App() {
       <FirstRunModal
         open={splashDone && firstRunOpen}
         onChoose={(mode) => {
-          void setSetting('store_mode', mode).catch(() => {});
-          setFirstRunOpen(false);
+          // Only close on a successful persist — a fire-and-forget write that
+          // silently failed left the choice unrecorded and the dialog came
+          // back on every launch (F-10).
+          void setSetting('store_mode', mode)
+            .then(() => setFirstRunOpen(false))
+            .catch(() => {
+              // keep the dialog open so the user can retry
+            });
         }}
       />
     </div>

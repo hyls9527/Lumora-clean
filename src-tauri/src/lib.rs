@@ -136,6 +136,7 @@ pub fn run() {
             commands::images::get_image_base64_cmd,
             commands::images::get_thumbnail_base64_cmd,
             commands::images::get_variant_group_images,
+            commands::images::get_images_by_ids,
             commands::tags::create_tag,
             commands::tags::list_tags,
             commands::tags::delete_tag,

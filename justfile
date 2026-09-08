@@ -20,11 +20,11 @@ fmt:
 typecheck:
     npx tsc --noEmit
 
-# 前端单测（738）
+# 前端单测（775）
 frontend-test:
     npx vitest run
 
-# Rust 单测（197）
+# Rust 单测（269 passed）
 rust-test:
     cargo test --lib --manifest-path src-tauri/Cargo.toml
 

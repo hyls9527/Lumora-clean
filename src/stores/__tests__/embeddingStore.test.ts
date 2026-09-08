@@ -167,6 +167,23 @@ describe('fillMissing', () => {
     expect(useEmbeddingStore.getState().error).toBe('ollama offline');
     expect(useEmbeddingStore.getState().filling).toBe(false);
   });
+
+  it('breaks out of the loop when processed === 0 (stalled backfill)', async () => {
+    // Regression (F-2): embed_missing returning {processed: 0, remaining: N}
+    // (all remaining images silently fail or are skipped) used to spin the
+    // `for(;;)` loop forever because only `remaining <= 0` terminated it.
+    mockEmbedMissing.mockResolvedValue({ processed: 0, remaining: 12 });
+    mockGetStats.mockResolvedValue({ embedded: 3, pending: 0, error: 9, total: 12, missing: 12 });
+
+    await useEmbeddingStore.getState().fillMissing(5);
+
+    expect(mockEmbedMissing).toHaveBeenCalledTimes(1);
+    expect(useEmbeddingStore.getState().filling).toBe(false);
+    expect(useEmbeddingStore.getState().fillProgress).toBeNull();
+    // A visible error must surface instead of silently stopping.
+    expect(useEmbeddingStore.getState().error).toContain('没有可嵌入的图片');
+    expect(useEmbeddingStore.getState().error).toContain('12');
+  });
 });
 
 describe('fillClipMissing', () => {
@@ -183,5 +200,16 @@ describe('fillClipMissing', () => {
     expect(useEmbeddingStore.getState().clipFilling).toBe(false);
     expect(useEmbeddingStore.getState().clipFillProgress).toBeNull();
     expect(useEmbeddingStore.getState().clipStats?.embedded).toBe(5);
+  });
+
+  it('breaks out of the CLIP loop when processed === 0 and reports it', async () => {
+    mockEmbedClipMissing.mockResolvedValue({ processed: 0, remaining: 3 });
+    mockGetClipStats.mockResolvedValue({ embedded: 2, error: 1, total: 5, missing: 3 });
+
+    await useEmbeddingStore.getState().fillClipMissing(4);
+
+    expect(mockEmbedClipMissing).toHaveBeenCalledTimes(1);
+    expect(useEmbeddingStore.getState().clipFilling).toBe(false);
+    expect(useEmbeddingStore.getState().error).toContain('没有可嵌入的图片');
   });
 });

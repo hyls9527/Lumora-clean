@@ -163,13 +163,27 @@ export const useUpdateStore = create<UpdateState>((set, get) => ({
     // Watchdog: system sleep or a dead socket can leave download() pending
     // forever with the UI stuck on "下载中" and no retry button. Abandon the
     // update after the stall timeout; late events from the zombie download
-    // are ignored.
+    // are ignored. Abandoning also releases the update handle so a later
+    // checkForUpdates → downloadUpdate cycle cannot sit on a dead download
+    // (the promise never settles, so a plain "just set state" left the store
+    // believing it was still downloading) (F-12).
+    //
+    // The watchdog closure holds the *local* update it was started for and
+    // only releases/clears the handle when it is still the current one:
+    // after an abandoned download the user may trigger a new check which
+    // installs a fresh handle — that new download must not be killed by the
+    // stale watchdog of the old one.
     const watchdog = setInterval(() => {
       if (Date.now() - lastEventAt > DOWNLOAD_STALL_TIMEOUT_MS) {
         abandoned = true;
         clearInterval(watchdog);
+        if (updateHandle === update) {
+          releaseHandle(updateHandle);
+          updateHandle = null;
+        }
         set({
           downloading: false,
+          downloaded: false,
           error: '下载停滞（网络中断或系统休眠），请重试',
         });
       }

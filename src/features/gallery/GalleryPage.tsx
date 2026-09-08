@@ -71,7 +71,14 @@ export function GalleryPage() {
 
   // Keyboard nav state
   const [focusedIndex, setFocusedIndex] = useState(-1);
-  const [detailImage, setDetailImage] = useState<ReturnType<typeof getFilteredImages>[0] | null>(null);
+  const [detailImageState, setDetailImageState] = useState<ReturnType<typeof getFilteredImages>[0] | null>(null);
+  // Derive the modal image from the live store snapshot: rating/favorite
+  // edits update the store in place and must show up immediately instead of
+  // a stale snapshot (F-7). Falls back to the snapshot when the image is not
+  // on the current page (e.g. a variant selected from another group).
+  const detailImage = detailImageState
+    ? (images.find((img) => img.id === detailImageState.id) ?? detailImageState)
+    : null;
   const gridRef = useRef<HTMLDivElement>(null);
   
   // Use ref to hold images to avoid callback recreation
@@ -104,18 +111,21 @@ export function GalleryPage() {
   }, []);
 
   const handleArrowLeft = useCallback(() => {
-    // In grid view, jump one column left (approx 4 columns)
-    setFocusedIndex((prev) => Math.max(0, prev - 1));
-  }, []);
+    // In grid view, jump exactly one column left (multi-column masonry via
+    // CSS; a "1" jump moved one card, not one column — F-25).
+    const cols = currentColumnCount(columnCount);
+    setFocusedIndex((prev) => Math.max(0, prev - cols));
+  }, [columnCount]);
 
   const handleArrowRight = useCallback(() => {
-    setFocusedIndex((prev) => Math.min(imagesRef.current.length - 1, prev + 1));
-  }, []);
+    const cols = currentColumnCount(columnCount);
+    setFocusedIndex((prev) => Math.min(imagesRef.current.length - 1, prev + cols));
+  }, [columnCount]);
 
   const handleEnter = useCallback(() => {
     const imgs = imagesRef.current;
     if (focusedIndex >= 0 && focusedIndex < imgs.length) {
-      setDetailImage(imgs[focusedIndex]);
+      setDetailImageState(imgs[focusedIndex]);
     }
   }, [focusedIndex]);
 
@@ -205,7 +215,7 @@ export function GalleryPage() {
   }, [selectedIds, clearSelection, images]);
 
   const handleDetailPrev = useCallback(() => {
-    setDetailImage((prev) => {
+    setDetailImageState((prev) => {
       if (!prev) return prev;
       const imgs = imagesRef.current;
       const idx = imgs.findIndex((i) => i.id === prev.id);
@@ -215,7 +225,7 @@ export function GalleryPage() {
   }, []);
 
   const handleDetailNext = useCallback(() => {
-    setDetailImage((prev) => {
+    setDetailImageState((prev) => {
       if (!prev) return prev;
       const imgs = imagesRef.current;
       const idx = imgs.findIndex((i) => i.id === prev.id);
@@ -228,7 +238,7 @@ export function GalleryPage() {
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
-      if (detail) setDetailImage(detail);
+      if (detail) setDetailImageState(detail);
     };
     window.addEventListener('lumora:selectImage', handler);
     return () => window.removeEventListener('lumora:selectImage', handler);
@@ -255,7 +265,7 @@ export function GalleryPage() {
         id: 'detail',
         onArrowLeft: handleDetailPrev,
         onArrowRight: handleDetailNext,
-        onEscape: () => setDetailImage(null),
+        onEscape: () => setDetailImageState(null),
         onDelete: handleDelete,
         onFavorite: handleFavorite,
         onRate: handleRate,
@@ -278,7 +288,7 @@ export function GalleryPage() {
             <ImageCard
               image={img}
               focused={focusedIndex === index}
-              onOpen={() => setDetailImage(img)}
+              onOpen={() => setDetailImageState(img)}
               onClick={() => setFocusedIndex(index)}
             />
           </LazyLoad>
@@ -542,7 +552,7 @@ export function GalleryPage() {
       {/* Detail Modal */}
       <DetailModal
         image={detailImage}
-        onClose={() => setDetailImage(null)}
+        onClose={() => setDetailImageState(null)}
         onPrev={handleDetailPrev}
         onNext={handleDetailNext}
         onToggleFavorite={toggleFavorite}
@@ -550,7 +560,7 @@ export function GalleryPage() {
         onSearchSimilar={(id) => {
           const img = imagesRef.current.find((i) => i.id === id);
           if (img) {
-            setDetailImage(null);
+            setDetailImageState(null);
             useImageSearchStore.getState().search(img.id, img.filePath);
           }
         }}
@@ -560,3 +570,18 @@ export function GalleryPage() {
 }
 
 export default GalleryPage;
+
+/**
+ * Effective masonry column count: the explicit user choice (columnCount)
+ * wins; otherwise mirror the .gallery-grid CSS breakpoints exactly so
+ * left/right keyboard navigation jumps one real column (F-25).
+ */
+function currentColumnCount(columnCount: number): number {
+  if (columnCount > 0) return columnCount;
+  if (typeof window === 'undefined') return 1;
+  const w = window.innerWidth;
+  if (w >= 1440) return 4;
+  if (w >= 1024) return 3;
+  if (w >= 480) return 2;
+  return 1;
+}

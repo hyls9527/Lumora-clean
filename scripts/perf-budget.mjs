@@ -49,11 +49,31 @@ const distSize = dirSize('dist');
 results.push({ name: 'Frontend bundle (dist/)', value: distSize, budget: BUDGETS['Frontend bundle (dist/)'].max, ok: distSize <= BUDGETS['Frontend bundle (dist/)'].max });
 
 // Rust binary
-try {
-  const binStat = statSync('src-tauri/target/release/Lumora.exe');
-  results.push({ name: 'Rust binary (release)', value: binStat.size, budget: BUDGETS['Rust binary (release)'].max, ok: binStat.size <= BUDGETS['Rust binary (release)'].max });
-} catch {
-  results.push({ name: 'Rust binary (release)', value: 'not built', budget: '30MB', ok: true });
+// The release artifact is `Lumora.exe` on Windows and `Lumora` on
+// Linux/macOS — check both candidates on every platform so the budget
+// measures the real binary (C-3 round-2).
+const rustBinaryNames = ['Lumora.exe', 'Lumora'];
+let rustBinary = null;
+for (const name of rustBinaryNames) {
+  try {
+    rustBinary = { name, stat: statSync(`src-tauri/target/release/${name}`) };
+    break;
+  } catch {
+    // candidate missing, try the next
+  }
+}
+if (rustBinary) {
+  results.push({
+    name: 'Rust binary (release)',
+    value: rustBinary.stat.size,
+    budget: BUDGETS['Rust binary (release)'].max,
+    ok: rustBinary.stat.size <= BUDGETS['Rust binary (release)'].max,
+  });
+} else {
+  // A missing binary is NOT a pass: the budget was simply never measured.
+  // Counting it as ok:true made CI's security job inherit a permanent
+  // false-green (C-3).
+  results.push({ name: 'Rust binary (release)', value: 'not built', budget: '30MB', ok: false });
 }
 
 // npm packages

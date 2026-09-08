@@ -234,4 +234,22 @@ describe('invoke (tauri.ts)', () => {
       ).rejects.toThrow('以图搜图失败（CLIP 不可用）');
     });
   });
+
+  // ── Get/set settings mock (browser mode) ──
+  describe('settings mock', () => {
+    beforeAll(() => {
+      // Simulate browser-only mode by undoing the Tauri flag and re-importing.
+      vi.unstubAllGlobals();
+      vi.resetModules();
+    });
+
+    it('persists store_mode across a reload (localStorage)', async () => {
+      const fresh = await import('../tauri');
+      expect(fresh.isTauriAvailable).toBe(false);
+
+      expect(await fresh.invoke('get_setting', { key: 'store_mode' })).toBeNull();
+      await fresh.invoke('set_setting', { key: 'store_mode', value: 'reference' });
+      expect(await fresh.invoke('get_setting', { key: 'store_mode' })).toBe('reference');
+    });
+  });
 });

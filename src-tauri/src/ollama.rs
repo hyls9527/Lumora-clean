@@ -17,7 +17,13 @@ impl OllamaConfig {
     pub fn from_env() -> Self {
         let host =
             std::env::var("OLLAMA_HOST").unwrap_or_else(|_| "http://localhost:11434".to_string());
-        let client = reqwest::Client::new();
+        // 120s request timeout: an Ollama call that hangs (model download,
+        // wrong host, stalled socket) must fail and surface to the UI instead
+        // of blocking the invoking command forever (R-7).
+        let client = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(120))
+            .build()
+            .unwrap_or_else(|_| reqwest::Client::new());
         Self { host, client }
     }
 

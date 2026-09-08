@@ -196,6 +196,10 @@ export function createImageStore(deps: ImageStoreDeps = defaultDeps): StateCreat
       set({ _reqSeq: seq, loading: true, error: null });
       try {
         const result = await deps.importImages(folderPath);
+        // A newer list request superseded this import's window — do not let a
+        // late response overwrite the fresher list (F-13). The result is
+        // still returned to the caller, which owns its own UI flow.
+        if (get()._reqSeq !== seq) return result;
         set((s) => {
           const existingIds = new Set(s.images.map((img) => img.id));
           const newItems = result.items.filter((item) => !existingIds.has(item.id));
@@ -207,6 +211,7 @@ export function createImageStore(deps: ImageStoreDeps = defaultDeps): StateCreat
         });
         return result;
       } catch (err) {
+        if (get()._reqSeq !== seq) throw err;
         set({
           loading: false,
           error: err instanceof Error ? err.message : '导入失败',

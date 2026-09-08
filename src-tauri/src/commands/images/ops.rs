@@ -1,4 +1,5 @@
 use rusqlite::params;
+use rusqlite::OptionalExtension;
 
 use crate::db::DbHandle;
 use crate::error::{AppError, AppResult};
@@ -14,7 +15,10 @@ use crate::schema::types::{attach_tags, row_to_record, ImageRecord, PaginatedRes
 ///
 /// Canonicalizing first prevents `../` traversal; the DB check only matches
 /// paths the user explicitly imported.
-fn validate_image_access(db: &DbHandle, file_path: &str) -> AppResult<std::path::PathBuf> {
+pub(crate) fn validate_image_access(
+    db: &DbHandle,
+    file_path: &str,
+) -> AppResult<std::path::PathBuf> {
     use std::path::Path;
 
     // Derive allowed directories: <app_data_dir>/images and <app_data_dir>/library
@@ -56,6 +60,75 @@ fn validate_image_access(db: &DbHandle, file_path: &str) -> AppResult<std::path:
     )))
 }
 
+/// Maximum size for the raw-byte passthrough of undecodable files (MCP and
+/// LAN APIs). Decodable images are always re-encoded as bounded PNGs, so the
+/// cap only bounds the passthrough path.
+pub(crate) const MAX_RAW_FILE_BYTES: u64 = 20 * 1024 * 1024;
+
+/// Serve an image file for a remote consumer (MCP tool / LAN REST handler).
+///
+/// Prefers a resized PNG so consumers get a bounded, uniformly-encoded image.
+/// Undecodable files fall back to raw bytes — but only after access
+/// validation and a hard size cap, so a huge or arbitrary local file can
+/// neither be slurped into memory nor shipped over the network unbounded.
+pub(crate) fn encode_image_for_transfer(
+    db: &DbHandle,
+    file_path: &str,
+) -> AppResult<(Vec<u8>, &'static str)> {
+    use image::GenericImageView;
+
+    let canonical = validate_image_access(db, file_path)?;
+    if !canonical.exists() {
+        return Err(AppError::NotFound(format!(
+            "file missing: {}",
+            canonical.display()
+        )));
+    }
+
+    match image::open(&canonical) {
+        Ok(img) => {
+            let (w, h) = img.dimensions();
+            let thumb = if w > 1024 || h > 1024 {
+                img.resize(1024, 1024, image::imageops::FilterType::Triangle)
+            } else {
+                img
+            };
+            let mut buf = std::io::Cursor::new(Vec::new());
+            thumb
+                .write_to(&mut buf, image::ImageFormat::Png)
+                .map_err(|e| AppError::Io(format!("failed to encode thumbnail: {e}")))?;
+            Ok((buf.into_inner(), "image/png"))
+        }
+        Err(_) => {
+            // Undecodable file: bound the raw passthrough so a huge file
+            // cannot be slurped into memory and shipped over the network.
+            let len = std::fs::metadata(&canonical).map(|m| m.len()).unwrap_or(0);
+            if len > MAX_RAW_FILE_BYTES {
+                return Err(AppError::InvalidInput(format!(
+                    "file too large to return raw: {len} bytes (max 20 MiB)"
+                )));
+            }
+            let data = std::fs::read(&canonical)?;
+            let mime = match canonical
+                .extension()
+                .and_then(|e| e.to_str())
+                .unwrap_or("")
+                .to_lowercase()
+                .as_str()
+            {
+                "png" => "image/png",
+                "jpg" | "jpeg" => "image/jpeg",
+                "webp" => "image/webp",
+                "gif" => "image/gif",
+                "avif" => "image/avif",
+                "bmp" => "image/bmp",
+                _ => "application/octet-stream",
+            };
+            Ok((data, mime))
+        }
+    }
+}
+
 /// Return base64-encoded image data for a given file_path.
 /// Falls back when Tauri's asset protocol is not available.
 /// SECURITY: Only allows reading managed-library files or DB-registered
@@ -90,12 +163,18 @@ pub fn get_thumbnail_base64_cmd(
 
     let canonical = validate_image_access(&db, &file_path)?;
 
-    // Disk cache keyed by (canonical path, file size, max_width) so repeated
-    // requests (fast scroll, page flips, restart) decode/encode only once.
+    // Disk cache keyed by (canonical path, file size, mtime, max_width) so
+    // repeated requests (fast scroll, page flips, restart) decode/encode only
+    // once. mtime is part of the key: a same-size replacement file used to
+    // keep serving the permanently stale thumbnail (R-10).
     let mut hasher = DefaultHasher::new();
     canonical.hash(&mut hasher);
-    let size = std::fs::metadata(&canonical).map(|m| m.len()).unwrap_or(0);
-    size.hash(&mut hasher);
+    if let Ok(meta) = std::fs::metadata(&canonical) {
+        meta.len().hash(&mut hasher);
+        if let Ok(mtime) = meta.modified() {
+            mtime.hash(&mut hasher);
+        }
+    }
     max_width.hash(&mut hasher);
     let key = format!("{:016x}.png", hasher.finish());
 
@@ -171,11 +250,22 @@ pub fn list_images(
 /// Set rating (0-5) for an image.
 #[tauri::command]
 pub fn update_rating(db: tauri::State<'_, DbHandle>, id: String, rating: u32) -> AppResult<()> {
-    let clamped = rating.min(5);
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    update_rating_impl(&conn, &id, rating)
+}
+
+/// Set rating (0-5) for an image; rejects out-of-range values.
+pub fn update_rating_impl(conn: &rusqlite::Connection, id: &str, rating: u32) -> AppResult<()> {
+    // Reject out-of-range instead of silently clamping to 5 — a rating of 9
+    // the user sees as "9" would otherwise persist as "5" (R-17).
+    if rating > 5 {
+        return Err(AppError::InvalidInput(format!(
+            "rating must be 0-5, got {rating}"
+        )));
+    }
     conn.execute(
         "UPDATE images SET rating = ?1 WHERE id = ?2",
-        params![clamped, id],
+        params![rating, id],
     )?;
     Ok(())
 }
@@ -234,6 +324,32 @@ pub fn get_variant_group_images(
         .collect::<Result<Vec<_>, _>>()?;
     let mut items = items;
     attach_tags(&conn, &mut items)?;
+    Ok(items)
+}
+
+/// Fetch full records for a batch of image ids, preserving the requested
+/// order. Missing/deleted ids are skipped. Used by the search UI to render
+/// semantic / image-to-image result cards whose ids may not be on the
+/// currently loaded gallery page (the old client-side lookup only saw ≤40
+/// items, which is why the vast majority of "以图搜图" results vanished).
+#[tauri::command]
+pub fn get_images_by_ids(
+    db: tauri::State<'_, DbHandle>,
+    ids: Vec<String>,
+) -> AppResult<Vec<ImageRecord>> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let mut items = Vec::with_capacity(ids.len());
+    for id in ids {
+        let mut stmt = conn.prepare("SELECT * FROM images WHERE id = ?1 AND deleted = 0")?;
+        let record = stmt
+            .query_row(params![id], row_to_record)
+            .optional()
+            .map_err(AppError::from)?;
+        if let Some(mut record) = record {
+            attach_tags(&conn, std::slice::from_mut(&mut record))?;
+            items.push(record);
+        }
+    }
     Ok(items)
 }
 
@@ -475,7 +591,7 @@ mod tests {
     }
 
     #[test]
-    fn update_rating_clamps_to_5() {
+    fn update_rating_keeps_valid_values_and_rejects_overflow() {
         let db = test_db();
         let conn = db.conn().lock().unwrap();
         conn.execute(
@@ -492,6 +608,17 @@ mod tests {
             })
             .unwrap();
         assert_eq!(r, 5);
+
+        // Regression (R-17): rating > 5 must be rejected, not silently
+        // clamped — the UI would otherwise persist a value the user never set.
+        let err = update_rating_impl(&conn, "r1", 9).unwrap_err();
+        assert!(matches!(err, AppError::InvalidInput(_)));
+        let r: i32 = conn
+            .query_row("SELECT rating FROM images WHERE id = 'r1'", [], |row| {
+                row.get(0)
+            })
+            .unwrap();
+        assert_eq!(r, 5, "rejected rating must not mutate the row");
     }
 
     #[test]
@@ -910,14 +1037,24 @@ mod tests {
             seed: Some(1),
             ..Default::default()
         };
-        assert_eq!(list_images_filtered_inner(&db, 1, 40, &filter).unwrap().total, 2);
+        assert_eq!(
+            list_images_filtered_inner(&db, 1, 40, &filter)
+                .unwrap()
+                .total,
+            2
+        );
 
         // Exact steps
         let filter = ImageFilter {
             steps: Some(30),
             ..Default::default()
         };
-        assert_eq!(list_images_filtered_inner(&db, 1, 40, &filter).unwrap().total, 2);
+        assert_eq!(
+            list_images_filtered_inner(&db, 1, 40, &filter)
+                .unwrap()
+                .total,
+            2
+        );
 
         // CFG scale range
         let filter = ImageFilter {
@@ -925,14 +1062,24 @@ mod tests {
             cfg_max: Some(9.0),
             ..Default::default()
         };
-        assert_eq!(list_images_filtered_inner(&db, 1, 40, &filter).unwrap().total, 2);
+        assert_eq!(
+            list_images_filtered_inner(&db, 1, 40, &filter)
+                .unwrap()
+                .total,
+            2
+        );
 
         // Exact sampler
         let filter = ImageFilter {
             sampler: Some("Euler a".into()),
             ..Default::default()
         };
-        assert_eq!(list_images_filtered_inner(&db, 1, 40, &filter).unwrap().total, 2);
+        assert_eq!(
+            list_images_filtered_inner(&db, 1, 40, &filter)
+                .unwrap()
+                .total,
+            2
+        );
     }
 
     #[test]

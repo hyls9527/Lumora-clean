@@ -89,6 +89,14 @@ export function usePerformanceMonitor(componentName: string) {
     }
   });
 
+  // Unmounted components must not leave their metrics in the global map —
+  // otherwise navigating away accumulates stale entries forever (F-22).
+  useEffect(() => {
+    return () => {
+      globalMetrics.delete(componentName);
+    };
+  }, [componentName]);
+
   const getMetrics = useCallback(() => {
     return { ...metricsRef.current };
   }, []);

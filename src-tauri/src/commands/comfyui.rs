@@ -120,7 +120,9 @@ fn read_extra_model_paths(comfyui_dir: &Path) -> Option<String> {
                     for line in content.lines() {
                         let line = line.trim();
                         if line.starts_with("output_directory:") || line.starts_with("output:") {
-                            let value = line.split(':').nth(1)?.trim();
+                            // split_once: `split(':')` would misparse Windows paths
+                            // (C:/...) (R-15).
+                            let value = line.split_once(':')?.1.trim();
                             let path = PathBuf::from(value);
                             if path.is_dir() {
                                 return Some(path.to_string_lossy().to_string());

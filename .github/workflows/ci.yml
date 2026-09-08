@@ -33,11 +33,52 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Install Rust toolchain (for release binary budget)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: actions/cache@v6
+        with:
+          path: src-tauri/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libssl-dev pkg-config
+
+      - name: Build release binary (perf-budget measures it)
+        run: cargo build --release --manifest-path src-tauri/Cargo.toml
+
       - name: Performance budget
         run: node scripts/perf-budget.mjs
 
       - name: Coverage
         run: npx vitest run --coverage
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Install Playwright browser (chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        env:
+          # `channel: 'msedge'` in playwright.config.ts only exists on Windows;
+          # CI (ubuntu) must use the installed chromium build.
+          PLAYWRIGHT_CHANNEL: 'chromium'
+        run: npx playwright test
 
   python-sidecar:
     name: Python (Sidecar unit tests)

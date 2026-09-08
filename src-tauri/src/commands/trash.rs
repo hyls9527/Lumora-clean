@@ -46,11 +46,13 @@ pub(crate) fn restore_impl(conn: &rusqlite::Connection, id: &str) -> AppResult<(
 /// Permanently remove an image from the database.
 ///
 /// Cascade delete order (must match schema relationships):
-/// 1. image_tags      — FK: image_id → images.id
+/// 1. image_tags       — FK: image_id → images.id
 /// 2. analysis_history — FK: image_id → images.id
 /// 3. vec_embeddings   — FK: image_id → images.id (virtual table, may fail if extension not loaded)
-/// 4. embeddings       — FK: image_id → images.id
-/// 5. images           — primary record
+/// 4. vec_embeddings_clip — FK: image_id → images.id (virtual table, may fail if extension not loaded)
+/// 5. embeddings       — FK: image_id → images.id
+/// 6. clip_embeddings  — FK: image_id → images.id (v9 CLIP index)
+/// 7. images           — primary record
 ///
 /// NOT deleted:
 /// - variant_groups — shared across images, orphan groups are harmless
@@ -88,6 +90,23 @@ fn permanent_delete_tx(tx: &rusqlite::Transaction<'_>, id: &str) -> Result<(), A
     ) {
         log::warn!("Failed to delete vec_embeddings for image {}: {}", id, e);
     }
+    // v9 CLIP image index: a different vec0 virtual table (512-dim). The
+    // image row cannot be deleted while a clip_embeddings FK row exists
+    // (PRAGMA foreign_keys=ON), so both clip tables must be cleaned first.
+    if let Err(e) = tx.execute(
+        "DELETE FROM vec_embeddings_clip WHERE image_id = ?1",
+        params![id],
+    ) {
+        log::warn!(
+            "Failed to delete vec_embeddings_clip for image {}: {}",
+            id,
+            e
+        );
+    }
+    tx.execute(
+        "DELETE FROM clip_embeddings WHERE image_id = ?1",
+        params![id],
+    )?;
     tx.execute("DELETE FROM embeddings WHERE image_id = ?1", params![id])?;
     let changed = tx.execute("DELETE FROM images WHERE id = ?1", params![id])?;
     if changed == 0 {
@@ -362,6 +381,15 @@ mod tests {
             [],
         )
         .unwrap();
+        // v9 CLIP index rows: the image row references them via FK
+        // (clip_embeddings.image_id → images.id), so a permanent delete must
+        // clean them before deleting the image or the FK fails.
+        conn.execute(
+            "INSERT INTO clip_embeddings (image_id, embedding, dimensions, status)
+             VALUES ('img-1', X'0000', 512, 'embedded')",
+            [],
+        )
+        .unwrap();
         conn.execute(
             "INSERT INTO analysis_history (id, image_id, result_json) VALUES ('a-1', 'img-1', '{}')",
             [],
@@ -396,6 +424,16 @@ mod tests {
             )
             .unwrap();
         assert_eq!(emb_count, 0);
+
+        // CLIP index rows must be gone too (FK would have failed otherwise).
+        let clip_count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM clip_embeddings WHERE image_id = 'img-1'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(clip_count, 0);
 
         let analysis_count: i64 = conn
             .query_row(

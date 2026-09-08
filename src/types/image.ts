@@ -12,7 +12,8 @@ export interface ImageRecord {
   fileSizeKb: number;
   width: number;
   height: number;
-  format: 'png' | 'jpg' | 'webp' | 'avif';
+  /** Raw extension from the backend (png/jpg/webp/avif/gif/bmp/tiff/…). */
+  format: string;
   createdAt: string;
   rating: number;        // 0-5
   favorite: boolean;

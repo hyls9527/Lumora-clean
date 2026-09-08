@@ -153,7 +153,10 @@ pub fn store_analysis(
     image_id: &str,
     result: &AnalysisResult,
 ) -> Result<String, rusqlite::Error> {
-    let id = format!("analysis-{}", chrono::Utc::now().timestamp_millis());
+    // UUID instead of a millis timestamp: two analyses of the same image in
+    // the same millisecond used to collide on the primary key and silently
+    // drop one entry (R-14).
+    let id = format!("analysis-{}", uuid::Uuid::new_v4());
     let result_json = serde_json::to_string(result).unwrap_or_default();
     let analyzed_at = chrono::Utc::now().to_rfc3339();
 

@@ -17,10 +17,22 @@ async function openCleanApp(page: Page) {
   await page.goto('/');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
+  // First-launch dialog: the browser mock has no persisted store_mode, so the
+  // FirstRunModal appears. It intercepts all pointer events — close it before
+  // any navigation or clicks (C-1).
+  await closeFirstRunDialog(page);
   // Splash 结束后进入创作者图库
   await expect(
     page.getByRole('heading', { name: '创作者图库' }),
   ).toBeVisible({ timeout: 20_000 });
+}
+
+/** Wait for the first-run dialog and dismiss it via 确定 (reference mode). */
+async function closeFirstRunDialog(page: Page) {
+  const dialog = page.getByRole('dialog', { name: '欢迎使用 Lumora' });
+  await expect(dialog).toBeVisible({ timeout: 20_000 });
+  await dialog.getByRole('button', { name: '确定' }).click();
+  await expect(dialog).toBeHidden();
 }
 
 test('启动后进入创作者图库，侧边栏导航完整', async ({ page }) => {
@@ -33,6 +45,25 @@ test('启动后进入创作者图库，侧边栏导航完整', async ({ page }) 
       sidebar.getByRole('button', { name: label, exact: true }),
     ).toBeVisible();
   }
+});
+
+test('首启弹窗出现一次，选择后不再出现（store_mode 持久化）', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+
+  // Clean state → the dialog must appear.
+  const dialog = page.getByRole('dialog', { name: '欢迎使用 Lumora' });
+  await expect(dialog).toBeVisible({ timeout: 20_000 });
+  await dialog.getByRole('button', { name: '确定' }).click();
+  await expect(dialog).toBeHidden();
+
+  // Reload (settings mock persists via localStorage) → must NOT appear again.
+  await page.reload();
+  await expect(
+    page.getByRole('heading', { name: '创作者图库' }),
+  ).toBeVisible({ timeout: 20_000 });
+  await expect(dialog).toBeHidden();
 });
 
 test('语义搜索 → 设置 → 返回图库，界面与侧边栏保持正常', async ({ page }) => {
@@ -96,5 +127,9 @@ test('设置页可切换深色主题并持久生效', async ({ page }) => {
       page.evaluate(() => document.documentElement.getAttribute('data-theme')),
     )
     .toBe('dark');
-  await expect(page).toHaveURL(/#?\/settings|$/);
+  // Route is in-memory (no URL change); assert the settings nav item is
+  // actually the active route instead of an always-true toHaveURL regex (C-12).
+  await expect(
+    page.locator('aside[role="navigation"]').getByRole('button', { name: '设置' }),
+  ).toHaveAttribute('aria-current', 'page');
 });

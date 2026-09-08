@@ -67,3 +67,7 @@ test-results/
 
 # 桌面 E2E 本地工具（msedgedriver 体积大、版本绑定本机 Edge）
 scripts/tools/
+
+# 本地编排/审计产物（不入库；审计结论沉淀在 docs/05-qa）
+/.agent-teams/
+/.audit-logs/

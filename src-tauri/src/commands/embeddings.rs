@@ -230,7 +230,9 @@ pub async fn search_semantic_cmd(
     Ok(search_semantic_db(
         &conn,
         &query_embedding,
-        limit.unwrap_or(20),
+        // Same clamp as the MCP tool (R-16): an unbounded/negative limit from
+        // a client would run KNN over the whole table.
+        limit.unwrap_or(20).clamp(1, 200),
         min_similarity,
     )?)
 }

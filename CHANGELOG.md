@@ -10,10 +10,22 @@ All notable changes to Lumora are documented here.
 - **文档校准**：`ARCHITECTURE.md` 的 SQLite schema 由滞后的 v6 补到 v9（智能收藏 / 审美评分列 / CLIP 512 维索引），并明确「文本语义 768 维 / CLIP 512 维」两个独立向量空间。
 
 ### Changed
-- `README.md` / `ARCHITECTURE.md` 测试数量校准为实测值：前端 765、Rust 262（259 passed + 3 ignored，需本地 Ollama）。
+- `README.md` / `ARCHITECTURE.md` 测试数量校准为实测值：前端 765、Rust 262（259 passed + 3 ignored，需本地 Ollama）。（2026-09-04 再校准：前端 775、Rust 272=269 passed + 3 ignored。）
 
 ### Fixed
-- （无功能性修复；本版本聚焦筛选能力与文档校准。）
+- **审计修复批次（2026-09-04 QA 门禁驱动）**：
+  - E2E 首启弹窗在浏览 mock 下每次启动弹出并拦截点击 → mock `get_setting` 增加持久化语义（`store_mode` 跨刷新存活），E2E 显式关闭弹窗并新增「首启弹窗出现一次、选择后不再出现」回归用例。
+  - 备份导入不再对活动连接覆盖主文件并删除 WAL（损坏风险）→ 改为 SQLite Online Backup API 在活动连接内导入，校验 Lumora schema/版本并自动升级旧 schema。
+  - 永久删除已 CLIP 嵌入图片因 FK 约束失败、回收站清不空 → 级联删除 `clip_embeddings`/`vec_embeddings_clip`。
+  - MCP/LAN 文件读取统一路径校验（仅托管目录或已注册引用路径）+ 20 MiB 原始回退上限；MCP 导入只接受可解码图片。
+  - 畸形 PNG iTXt 越界 panic → 边界守卫。
+  - 语义搜索/以图搜图结果不渲染或按当前页查找大量丢失 → 后端 `get_images_by_ids` 批量取全量记录渲染结果卡片（含缩略图）。
+  - 嵌入补齐 `processed=0` 时无限循环 → 停滞挡塞并显示可见错误。
+  - Tauri 桥接加载失败时静默回退 mock（数据"看上去全没了"）→ fail-visible 抛错。
+  - 另含迁移幂等性（v8 拆列）、Ollama 120s 超时、导入去重前缀碰撞字节级确认、AI 分析 ID 改 UUID、评分越界拒绝、标签幂等、多 store 请求序守卫、Host 白名单防 DNS rebinding、perf-budget 假绿修复、CI 增加 Playwright job 等（详见 `docs/05-qa/12-深度审计缺陷清单.md` 与 `docs/05-qa/13-修复交付记录.md`）。
+
+### Tests
+- 前端 765 → 775 通过；Rust 262 → 272（269 passed + 3 ignored，需本地 Ollama）。
 
 ## v0.10.8 (2026-08-30)
 

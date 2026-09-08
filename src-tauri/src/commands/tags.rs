@@ -186,12 +186,21 @@ pub fn add_tag_to_image_impl(
     image_id: &str,
     tag_id: &str,
 ) -> AppResult<()> {
-    // Fix #7: use INSERT instead of INSERT OR IGNORE to surface FK violations
-    conn.execute(
+    // Bare INSERT (not OR IGNORE) so FK violations (wrong image/tag id) stay
+    // visible — but a duplicate (image_id, tag_id) is a no-op, matching the
+    // batch path's INSERT OR IGNORE semantics (R-18).
+    match conn.execute(
         "INSERT INTO image_tags (image_id, tag_id) VALUES (?1, ?2)",
         params![image_id, tag_id],
-    )?;
-    Ok(())
+    ) {
+        Ok(_) => Ok(()),
+        Err(rusqlite::Error::SqliteFailure(e, Some(msg)))
+            if e.code == rusqlite::ErrorCode::ConstraintViolation && msg.contains("UNIQUE") =>
+        {
+            Ok(())
+        }
+        Err(e) => Err(e.into()),
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -282,7 +291,10 @@ mod tests {
     }
 
     #[test]
-    fn duplicate_tag_association_fails() {
+    fn duplicate_tag_association_is_idempotent_noop() {
+        // Regression (R-18): the single-add path used to throw on a duplicate
+        // (image_id, tag_id) while the batch path silently ignored it. Both
+        // must be no-ops for duplicates but still surface FK violations.
         let db = DbHandle::open_memory().unwrap();
         let conn = db.conn().lock().unwrap();
 
@@ -290,8 +302,7 @@ mod tests {
         let tag_id = create_tag_impl(&conn, "dup-tag", None).unwrap();
 
         add_tag_to_image_impl(&conn, "img-1", &tag_id).unwrap();
-        let result = add_tag_to_image_impl(&conn, "img-1", &tag_id);
-        assert!(result.is_err()); // UNIQUE constraint violation
+        add_tag_to_image_impl(&conn, "img-1", &tag_id).unwrap(); // no-op, not an error
 
         let count: i64 = conn
             .query_row(
@@ -301,5 +312,9 @@ mod tests {
             )
             .unwrap();
         assert_eq!(count, 1);
+
+        // FK violations must still surface.
+        let err = add_tag_to_image_impl(&conn, "img-1", "no-such-tag").unwrap_err();
+        assert!(matches!(err, AppError::Db(_)), "err: {err:?}");
     }
 }

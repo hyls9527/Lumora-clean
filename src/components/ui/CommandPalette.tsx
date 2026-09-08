@@ -99,6 +99,12 @@ export function CommandPalette({ navigate }: { navigate: (path: RoutePath) => vo
       setSelectedIndex((i) => Math.max(i - 1, 0));
     } else if (e.key === 'Enter') {
       e.preventDefault();
+      // AI mode: Enter must run the parsed intent, not execute whatever
+      // command happens to be selected in the (hidden) command list (F-8).
+      if (mode === 'ai') {
+        if (aiIntent && !aiRunning) void runAi();
+        return;
+      }
       filtered[selectedIndex]?.action();
       resetAndClose();
     } else if (e.key === 'Escape') {

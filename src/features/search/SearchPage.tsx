@@ -12,6 +12,9 @@ import { useSemanticSearchStore } from '../../stores/semanticSearchStore';
 import { useImageSearchStore } from '../../stores/imageSearchStore';
 import { useSearchHistory } from '../../hooks/useSearchHistory';
 import { usePerformanceMonitor } from '../../hooks/usePerformance';
+import { useImageSrc } from '../../hooks/useImageSrc';
+import { getImagesByIds } from '../../lib/api/images';
+import type { ImageRecord } from '../../types/image';
 import { useTranslation } from '../../lib/i18n';
 import { useIsMobile, useMediaQuery } from '../../hooks/useMediaQuery';
 import { t as tok } from '../../lib/tokens';
@@ -73,11 +76,50 @@ export function SearchPage() {
   const [inputValue, setInputValue] = useState(filters.searchQuery);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchPage, setSearchPage] = useState(1);
+  // Semantic / image-to-image results only carry {id, similarity}; the full
+  // records are fetched per result batch so cards render (F-1/F-4) even when
+  // the ids are not on the currently loaded gallery page.
+  const semanticResults = useSemanticSearchStore((s) => s.results);
+  const semanticLoading = useSemanticSearchStore((s) => s.loading);
+  const semanticError = useSemanticSearchStore((s) => s.error);
+  const [resolvedRecords, setResolvedRecords] = useState<ImageRecord[]>([]);
+
+  const idBasedResults = isImageSearch ? imageSearch.results : semanticResults;
+  const idBasedLoading = isImageSearch ? imageSearch.loading : semanticLoading;
+  const idBasedError = isImageSearch ? imageSearch.error : semanticError;
+  const idKey = idBasedResults.map((r) => r.id).join(',');
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!idKey) {
+      setResolvedRecords([]);
+      return;
+    }
+    const ids = idKey.split(',');
+    void getImagesByIds(ids)
+      .then((records) => {
+        if (cancelled) return;
+        // Preserve the similarity ordering/info of the result list.
+        const simById = new Map(idBasedResults.map((r) => [r.id, r.similarity]));
+        setResolvedRecords(
+          records.map((r) => ({ ...r, similarity: simById.get(r.id) ?? r.similarity })),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setResolvedRecords([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // idKey is derived from results; deliberate: the search must re-resolve
+    // when a new result set arrives.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idKey]);
 
   const normalResults = getSearchResults();
-  const results = isImageSearch ? imageSearch.results : normalResults;
-  const currentLoading = isImageSearch ? imageSearch.loading : loading;
-  const currentError = isImageSearch ? imageSearch.error : error;
+  const results = isImageSearch || searchMode === 'semantic' ? resolvedRecords : normalResults;
+  const currentLoading = isImageSearch || searchMode === 'semantic' ? idBasedLoading : loading;
+  const currentError = isImageSearch || searchMode === 'semantic' ? idBasedError : error;
 
   const handleSearch = useCallback(() => {
     setSearchQuery(inputValue);
@@ -438,16 +480,9 @@ export function SearchPage() {
                 gap: isMobile ? 12 : 16,
               }}
             >
-              {paginatedResults.map((img) =>
-                isImageSearch ? (
-                  <SearchResultCard key={img.id} result={img} />
-                ) : (
-                  <ResultCard
-                    key={img.id}
-                    image={img as Parameters<typeof ResultCard>[0]['image']}
-                  />
-                )
-              )}
+              {paginatedResults.map((img) => (
+                <ResultCard key={img.id} image={img} />
+              ))}
             </div>
             {/* Load more button */}
             {hasMore && (
@@ -505,17 +540,12 @@ export function SearchPage() {
 
 /* --- Sub-components --- */
 
-function SearchResultCard({ result }: { result: { id: string; similarity?: number } }) {
-  const image = useImageStore.getState().getFilteredImages().find((img) => img.id === result.id);
-  if (!image) return null;
-  return <ResultCard image={{ ...image, similarity: result.similarity }} />;
-}
-
 function ResultCard({
   image,
 }: {
-  image: { id: string; filePath: string; prompt: string; model: string; width: number; height: number; similarity?: number };
+  image: ImageRecord & { similarity?: number };
 }) {
+  const imgSrc = useImageSrc(image.filePath, { thumbnailMaxWidth: 640 });
   return (
     <article
       style={{
@@ -540,9 +570,21 @@ function ResultCard({
             justifyContent: 'center',
             fontSize: 11,
             color: tok.textMuted,
+            overflow: 'hidden',
           }}
         >
-          {image.width}×{image.height}
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt={image.prompt || image.fileName}
+              loading="lazy"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <span>
+              {image.width}×{image.height}
+            </span>
+          )}
         </div>
         {image.similarity != null && (
           <div style={{ position: 'absolute', top: 8, right: 8 }}>

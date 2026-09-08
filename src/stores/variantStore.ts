@@ -16,23 +16,31 @@ interface VariantStore {
   loading: boolean;
   error: string | null;
   currentGroupId: string | null;
+  /** Request token: bumped per fetch; stale responses are dropped (F-16). */
+  _seq: number;
   fetchVariants: (groupId: string) => Promise<void>;
   clearVariants: () => void;
 }
 
 export function createVariantStore(deps: VariantStoreDeps = defaultDeps): StateCreator<VariantStore, [], []> {
-  return (set) => ({
+  return (set, get) => ({
     variants: [],
     loading: false,
     error: null,
     currentGroupId: null,
+    _seq: 0,
 
     fetchVariants: async (groupId: string) => {
-      set({ loading: true, error: null });
+      const seq = get()._seq + 1;
+      set({ _seq: seq, loading: true, error: null });
       try {
         const variants = await deps.getVariantGroupImages(groupId);
+        // A newer group's request superseded this one — drop the stale
+        // response so a slow group A cannot overwrite group B (F-16).
+        if (get()._seq !== seq) return;
         set({ variants, loading: false, currentGroupId: groupId });
       } catch (err) {
+        if (get()._seq !== seq) return;
         set({
           error: err instanceof Error ? err.message : 'Unknown error',
           loading: false,
@@ -41,7 +49,7 @@ export function createVariantStore(deps: VariantStoreDeps = defaultDeps): StateC
     },
 
     clearVariants: () => {
-      set({ variants: [], currentGroupId: null, error: null });
+      set({ variants: [], currentGroupId: null, error: null, _seq: get()._seq + 1 });
     },
   });
 }

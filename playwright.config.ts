@@ -9,7 +9,9 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: 'http://localhost:1420',
-    channel: 'msedge',
+    // Windows dev machines use Edge; CI (ubuntu) has no msedge channel, so
+    // the workflow sets PLAYWRIGHT_CHANNEL=chromium (C-5).
+    channel: process.env.PLAYWRIGHT_CHANNEL === 'chromium' ? undefined : 'msedge',
     headless: true,
     viewport: { width: 1440, height: 900 },
     trace: 'retain-on-failure',

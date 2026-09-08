@@ -53,7 +53,32 @@ function notifyWriteListeners() {
   }
 }
 
-function mockResponse(cmd: string): unknown {
+function mockResponse(cmd: string, args?: Record<string, unknown>): unknown {
+  // Browser/dev mode has no Tauri settings backend. LocalStorage gives the
+  // session real persistence semantics across reloads: a first-run choice
+  // (store_mode) survives, so the FirstRunModal does not re-open on every
+  // refresh — matching what tauri-plugin-store does in the app shell.
+  if (cmd === 'get_setting') {
+    const key = typeof args?.key === 'string' ? args.key : '';
+    if (!key) return null;
+    try {
+      return localStorage.getItem(`lumora.mock.setting.${key}`);
+    } catch {
+      return null;
+    }
+  }
+  if (cmd === 'set_setting') {
+    const key = typeof args?.key === 'string' ? args.key : null;
+    const value = typeof args?.value === 'string' ? args.value : null;
+    if (key && value != null) {
+      try {
+        localStorage.setItem(`lumora.mock.setting.${key}`, value);
+      } catch {
+        // storage full/blocked: the setting just won't persist
+      }
+    }
+    return null;
+  }
   if (['list_images', 'list_images_filtered', 'list_trash'].includes(cmd))
     return { items: [], total: 0, page: 1, perPage: 40 };
   if (cmd === 'batch_rename')
@@ -93,7 +118,8 @@ function mockResponse(cmd: string): unknown {
     cmd === 'get_variant_group_images' ||
     cmd === 'embed_text_cmd' ||
     cmd === 'clip_embed_image_cmd' ||
-    cmd === 'clip_embed_text_cmd'
+    cmd === 'clip_embed_text_cmd' ||
+    cmd === 'get_images_by_ids'
   )
     return [];
   if (cmd === 'get_embedding_stats_cmd')
@@ -220,8 +246,17 @@ export async function invoke<T = unknown>(cmd: string, args?: Record<string, unk
       const mod = await import(/* @vite-ignore */ '@tauri-apps/api/core');
       _realInvoke = mod.invoke as InvokeFn;
     } catch {
-      // Failed to load — will use mock
+      // Failed to load — a real Tauri session without a working bridge must
+      // NOT silently fall back to mock data: writes would "succeed" into the
+      // void and reads would show an empty library (F-3). Fail visibly.
+      _realInvoke = null;
     }
+  }
+
+  if (isTauri && !_realInvoke) {
+    throw new Error(
+      `Tauri bridge unavailable: @tauri-apps/api/core failed to load (command: ${cmd})`,
+    );
   }
 
   if (_realInvoke) {
@@ -246,7 +281,7 @@ export async function invoke<T = unknown>(cmd: string, args?: Record<string, unk
     }
   }
 
-  const result = mockResponse(cmd) as T;
+  const result = mockResponse(cmd, args) as T;
   if (WRITE_COMMANDS.has(cmd)) {
     Promise.resolve().then(() => notifyWriteListeners());
   }

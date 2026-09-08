@@ -143,12 +143,20 @@ pub const V7_CREATE_SMART_COLLECTIONS: &str = "CREATE TABLE IF NOT EXISTS smart_
 // V8 - Aesthetic judgment layer (夯 / 稳 / 拉)
 // ---------------------------------------------------------------------------
 
-pub const V8_ADD_SCORE_COLUMNS: &str = "ALTER TABLE images ADD COLUMN hps_score REAL;
-ALTER TABLE images ADD COLUMN hps_style TEXT;
-ALTER TABLE images ADD COLUMN aesthetic_score REAL;
-ALTER TABLE images ADD COLUMN scoring_model TEXT;
-ALTER TABLE images ADD COLUMN scored_at TEXT;
-ALTER TABLE images ADD COLUMN score_label TEXT;";
+/// One ALTER per column. A single multi-statement batch fails atomically at
+/// a "duplicate column" error (SQLite reports it once and aborts the batch),
+/// so a DB with only *some* columns present after a downgrade cycle would
+/// keep the missing columns — schema 8 with queries failing on absent ones.
+/// `apply_v8` runs these individually and tolerates the per-column
+/// duplicate error (see migrations.rs).
+pub const V8_ADD_SCORE_COLUMNS: [&str; 6] = [
+    "ALTER TABLE images ADD COLUMN hps_score REAL;",
+    "ALTER TABLE images ADD COLUMN hps_style TEXT;",
+    "ALTER TABLE images ADD COLUMN aesthetic_score REAL;",
+    "ALTER TABLE images ADD COLUMN scoring_model TEXT;",
+    "ALTER TABLE images ADD COLUMN scored_at TEXT;",
+    "ALTER TABLE images ADD COLUMN score_label TEXT;",
+];
 
 pub const V8_INDEX_SCORE_LABEL: &str =
     "CREATE INDEX IF NOT EXISTS idx_images_score_label ON images(score_label) WHERE deleted = 0;";

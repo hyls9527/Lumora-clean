@@ -126,14 +126,17 @@ fn apply_v7(conn: &Connection) -> Result<(), rusqlite::Error> {
 }
 
 fn apply_v8(conn: &Connection) -> Result<(), rusqlite::Error> {
-    // ALTER TABLE ADD COLUMN may fail if any column already exists after a
-    // downgrade+re-upgrade cycle (SQLite can't drop columns). Ignore the
-    // "duplicate column" error to keep this idempotent, like v3/v6.
-    match conn.execute_batch(schema::V8_ADD_SCORE_COLUMNS) {
-        Ok(()) => {}
-        Err(rusqlite::Error::SqliteFailure(e, Some(msg)))
-            if e.code == rusqlite::ErrorCode::Unknown && msg.contains("duplicate column") => {}
-        Err(e) => return Err(e),
+    // Each ALTER runs separately: SQLite aborts an execute_batch at the first
+    // "duplicate column" error, so a DB that already has *some* v8 columns
+    // (after a downgrade+re-upgrade cycle) would silently keep the rest
+    // missing. Tolerate the duplicate error per column and continue.
+    for stmt in schema::V8_ADD_SCORE_COLUMNS {
+        match conn.execute_batch(stmt) {
+            Ok(()) => {}
+            Err(rusqlite::Error::SqliteFailure(e, Some(msg)))
+                if e.code == rusqlite::ErrorCode::Unknown && msg.contains("duplicate column") => {}
+            Err(e) => return Err(e),
+        }
     }
     conn.execute_batch(schema::V8_INDEX_SCORE_LABEL)?;
     Ok(())
@@ -268,6 +271,54 @@ mod tests {
             .query_row("SELECT COUNT(*) FROM images", [], |r| r.get(0))
             .unwrap();
         assert_eq!(count, 0);
+    }
+
+    #[test]
+    fn v8_partial_columns_still_upgrade_all_columns() {
+        // Regression (R-5): a database that already has *some* v8 score
+        // columns (downgrade+re-upgrade cycle) used to keep the rest missing
+        // because execute_batch aborts at the first "duplicate column" error.
+        let conn = open_conn();
+        // Build a v7 database: migrate, then reset the version marker.
+        run_migrations(&conn).unwrap();
+        conn.execute_batch(
+            "DELETE FROM app_config WHERE key = 'schema_version';
+             INSERT INTO app_config VALUES ('schema_version', '7');
+             ALTER TABLE images DROP COLUMN hps_score;",
+        )
+        .unwrap();
+        // Simulate a partial downgrade state: only one column survives.
+        let dropped = conn
+            .query_row(
+                "SELECT COUNT(*) FROM pragma_table_info('images')
+                 WHERE name = 'hps_score'",
+                [],
+                |r| r.get::<_, i64>(0),
+            )
+            .unwrap();
+        assert_eq!(dropped, 0, "test setup: hps_score must be absent");
+
+        run_migrations(&conn).unwrap();
+        assert_eq!(current_version(&conn).unwrap(), 9);
+
+        // Every v8 column must be present after the re-migration.
+        for col in [
+            "hps_score",
+            "hps_style",
+            "aesthetic_score",
+            "scoring_model",
+            "scored_at",
+            "score_label",
+        ] {
+            let n: i64 = conn
+                .query_row(
+                    "SELECT COUNT(*) FROM pragma_table_info('images') WHERE name = ?1",
+                    [col],
+                    |r| r.get(0),
+                )
+                .unwrap();
+            assert_eq!(n, 1, "column {col} must exist after re-migration");
+        }
     }
 
     #[test]

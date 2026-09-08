@@ -14,15 +14,15 @@ let embeddingsNormalized = false;
 /**
  * Rewrite legacy (non-normalized) embeddings once per session so stored
  * vectors are unit vectors and KNN distance maps to cosine similarity.
- * Idempotent and cheap when there is nothing to fix.
+ * Idempotent and cheap when there is nothing to fix. Only marks the session
+ * as normalized on success — a failure keeps retrying on the next search
+ * (the old `finally` swallowed failures and left vectors broken for the
+ * whole session, F-20).
  */
 export async function ensureNormalizedEmbeddings(): Promise<void> {
   if (embeddingsNormalized) return;
-  try {
-    await invoke<number>('normalize_embeddings_cmd');
-  } finally {
-    embeddingsNormalized = true;
-  }
+  await invoke<number>('normalize_embeddings_cmd');
+  embeddingsNormalized = true;
 }
 
 /**

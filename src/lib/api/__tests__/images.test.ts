@@ -308,7 +308,7 @@ describe('updateTag', () => {
   });
 });
 
-describe('toImageRecord format validation', () => {
+describe('toImageRecord format preservation', () => {
   it('accepts valid formats: png, jpg, webp, avif', () => {
     for (const fmt of ['png', 'jpg', 'webp', 'avif'] as const) {
       const raw: TauriImageRecord = { ...SAMPLE_RAW, format: fmt };
@@ -316,13 +316,17 @@ describe('toImageRecord format validation', () => {
     }
   });
 
-  it('falls back to png for unknown format', () => {
-    const raw: TauriImageRecord = { ...SAMPLE_RAW, format: 'bmp' };
-    expect(toImageRecord(raw).format).toBe('png');
+  it('preserves supported-but-unlisted formats (gif/bmp/tiff)', () => {
+    // Regression (F-18): unknown formats were silently coerced to 'png',
+    // mislabeling gif/bmp/tiff images in the library.
+    for (const fmt of ['bmp', 'gif', 'tiff']) {
+      const raw: TauriImageRecord = { ...SAMPLE_RAW, format: fmt };
+      expect(toImageRecord(raw).format).toBe(fmt);
+    }
   });
 
-  it('falls back to png for empty format', () => {
+  it('preserves empty format as-is', () => {
     const raw: TauriImageRecord = { ...SAMPLE_RAW, format: '' };
-    expect(toImageRecord(raw).format).toBe('png');
+    expect(toImageRecord(raw).format).toBe('');
   });
 });

@@ -141,6 +141,16 @@ export function createEmbeddingStore(deps: EmbeddingStoreDeps = defaultDeps): St
             stats,
           });
           if (result.remaining <= 0) break;
+          // Stuck guard: processed === 0 means nothing advanced this round
+          // (e.g. every remaining image failed to embed), so the loop would
+          // spin forever on `remaining` never reaching 0 (F-2). Surface a
+          // visible error instead of silently stopping.
+          if (result.processed === 0) {
+            set({
+              error: `没有可嵌入的图片（${result.remaining} 张待处理，可能嵌入失败）`,
+            });
+            break;
+          }
         }
         set({ fillProgress: null });
       } catch (err) {
@@ -161,6 +171,12 @@ export function createEmbeddingStore(deps: EmbeddingStoreDeps = defaultDeps): St
             clipStats,
           });
           if (result.remaining <= 0) break;
+          if (result.processed === 0) {
+            set({
+              error: `没有可嵌入的图片（${result.remaining} 张待处理，可能嵌入失败）`,
+            });
+            break;
+          }
         }
         set({ clipFillProgress: null });
       } catch (err) {

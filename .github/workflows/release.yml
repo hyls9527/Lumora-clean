@@ -21,14 +21,16 @@ jobs:
           CARGO_VERSION=$(grep '^version' src-tauri/Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
           PACKAGE_VERSION=$(grep '"version"' package.json | head -1 | sed 's/.*"\(.*\)".*/\1/')
           TAURI_VERSION=$(grep '"version"' src-tauri/tauri.conf.json | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          LOCK_VERSION=$(grep '"version"' package-lock.json | head -1 | sed 's/.*"\(.*\)".*/\1/')
 
           echo "Tag: $TAG_VERSION"
           echo "Cargo.toml: $CARGO_VERSION"
           echo "package.json: $PACKAGE_VERSION"
           echo "tauri.conf.json: $TAURI_VERSION"
+          echo "package-lock.json: $LOCK_VERSION"
 
-          if [ "$TAG_VERSION" != "$CARGO_VERSION" ] || [ "$TAG_VERSION" != "$PACKAGE_VERSION" ] || [ "$TAG_VERSION" != "$TAURI_VERSION" ]; then
-            echo "::error::Version mismatch! Tag=$TAG_VERSION but Cargo=$CARGO_VERSION, package=$PACKAGE_VERSION, tauri=$TAURI_VERSION"
+          if [ "$TAG_VERSION" != "$CARGO_VERSION" ] || [ "$TAG_VERSION" != "$PACKAGE_VERSION" ] || [ "$TAG_VERSION" != "$TAURI_VERSION" ] || [ "$TAG_VERSION" != "$LOCK_VERSION" ]; then
+            echo "::error::Version mismatch! Tag=$TAG_VERSION but Cargo=$CARGO_VERSION, package=$PACKAGE_VERSION, tauri=$TAURI_VERSION, lock=$LOCK_VERSION"
             exit 1
           fi
           echo "✓ All versions match $TAG_VERSION"
@@ -67,6 +69,14 @@ jobs:
 
       - name: Frontend tests
         run: npx vitest run
+
+      - name: Format check
+        working-directory: src-tauri
+        run: cargo fmt --check
+
+      - name: Clippy
+        working-directory: src-tauri
+        run: cargo clippy --all-targets -- -D warnings
 
       - name: Rust tests
         working-directory: src-tauri
@@ -166,6 +176,9 @@ jobs:
           releaseBodyFile: /tmp/release-notes.md
           releaseDraft: true
           prerelease: false
+          # The matrix target was never forwarded, so every OS built for its
+          # host default — on macOS this ignored the aarch64 cross target (C-16).
+          args: --target ${{ matrix.target }}
 
   updater-json:
     name: Generate updater JSON

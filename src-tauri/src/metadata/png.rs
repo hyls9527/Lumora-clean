@@ -59,7 +59,10 @@ fn parse_itxt_chunk(data: &[u8]) -> Option<(String, String)> {
     let null1 = data.iter().position(|&b| b == 0)?;
     let keyword = String::from_utf8_lossy(&data[..null1]).to_string();
 
-    if null1 + 2 > data.len() {
+    // Need at least keyword\0 + compression_flag + compression_method before
+    // slicing past them: `null1 + 2 == data.len()` must NOT pass, otherwise
+    // `&data[null1 + 3..]` is out of bounds (panic on malformed PNGs).
+    if null1 + 3 > data.len() {
         return None;
     }
     let compression_flag = data[null1 + 1];
@@ -156,6 +159,22 @@ mod tests {
         assert_eq!(chunks.len(), 1);
         assert_eq!(chunks[0].0, "parameters");
         assert_eq!(chunks[0].1, "Steps: 20, Seed: 42");
+    }
+
+    #[test]
+    fn malformed_itxt_returns_none_instead_of_panicking() {
+        // Regression (R-4): old guard `null1 + 2 > len` passed when
+        // null1 + 2 == len, then `&data[null1 + 3..]` panicked on a truncated
+        // iTXt chunk. All truncations must return None.
+        assert!(parse_itxt_chunk(b"key\0\0").is_none());
+        assert!(parse_itxt_chunk(b"key\0").is_none());
+        assert!(parse_itxt_chunk(b"key\0\0\0").is_none());
+        assert!(parse_itxt_chunk(b"key\0\0\0lang\0").is_none());
+        assert!(parse_itxt_chunk(b"key\0\0\0lang\0translated").is_none());
+        // Valid chunk still parses.
+        let (k, v) = parse_itxt_chunk(b"key\0\0\0en\0translated\0Hello").unwrap();
+        assert_eq!(k, "key");
+        assert_eq!(v, "Hello");
     }
 
     #[test]

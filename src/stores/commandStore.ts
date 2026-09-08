@@ -30,9 +30,13 @@ export const useCommandStore = create<CommandState>((set) => ({
 
   registerCommands: (commands) =>
     set((s) => {
-      const existingIds = new Set(s.commands.map((c) => c.id));
-      const newCommands = commands.filter((c) => !existingIds.has(c.id));
-      return { commands: [...s.commands, ...newCommands] };
+      const registered = new Map(s.commands.map((c) => [c.id, c]));
+      // Upsert: a re-registration with the same id (e.g. after a language
+      // switch re-runs useRouteCommands) must replace the stale entry rather
+      // than being dropped — otherwise the palette keeps old labels and old
+      // closures (F-21).
+      for (const cmd of commands) registered.set(cmd.id, cmd);
+      return { commands: Array.from(registered.values()) };
     }),
 
   unregisterCommands: (ids) =>

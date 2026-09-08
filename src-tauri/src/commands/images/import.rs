@@ -83,9 +83,19 @@ pub fn import_images(
 
 /// Reference-mode import for AI agents via MCP: scans `root`, applies the same
 /// grid gate, inserts rows without moving/copying files.
+///
+/// SECURITY: the file-server path (MCP `get_image_file` / LAN
+/// `/api/images/{id}/file`) returns raw bytes for undecodable files, so an
+/// MCP import must never register a non-image file — otherwise a token holder
+/// could register `anything.png` (e.g. `/etc/shadow` renamed) and read the
+/// raw content back (R-3). Every entry must decode as an image.
 pub fn import_folder_gated(db: &DbHandle, root: &str) -> AppResult<ImportResult> {
     let entries = scan_folder(root)?;
     let (accepted, rejected) = partition_grids(&entries);
+    let (accepted, undecodable): (Vec<_>, Vec<_>) = accepted
+        .into_iter()
+        .partition(|e| image::open(Path::new(&e.file_path)).is_ok());
+    let rejected = rejected + undecodable.len() as u32;
     let total_scanned = entries.len() as u32;
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let tx = conn.unchecked_transaction()?;
@@ -129,7 +139,9 @@ fn looks_like_grid(path: &Path) -> bool {
     if w == 0 || h == 0 {
         return false;
     }
-    let small = img.resize(64, 64, image::imageops::FilterType::Triangle).to_luma8();
+    let small = img
+        .resize(64, 64, image::imageops::FilterType::Triangle)
+        .to_luma8();
     let avg = |x0: u32, y0: u32, x1: u32, y1: u32| -> f64 {
         let (mut s, mut n) = (0.0f64, 0u32);
         for y in y0..y1 {
@@ -138,9 +150,14 @@ fn looks_like_grid(path: &Path) -> bool {
                 n += 1;
             }
         }
-        if n == 0 { 0.0 } else { s / n as f64 }
+        if n == 0 {
+            0.0
+        } else {
+            s / n as f64
+        }
     };
-    let quad = (avg(8, 8, 24, 24) + avg(40, 8, 56, 24) + avg(8, 40, 24, 56) + avg(40, 40, 56, 56)) / 4.0;
+    let quad =
+        (avg(8, 8, 24, 24) + avg(40, 8, 56, 24) + avg(8, 40, 24, 56) + avg(40, 40, 56, 56)) / 4.0;
     let seam = (avg(31, 8, 33, 56) + avg(8, 31, 56, 33)) / 2.0;
     seam > quad + 12.0
 }
@@ -170,13 +187,26 @@ fn run_import(
             // Copy-mode dedup: identical content is already registered.
             // Checked inside the open transaction, so duplicates within one
             // batch are caught too — re-importing the same library must not
-            // pile up duplicated copies.
-            let exists: i64 = tx.query_row(
-                "SELECT COUNT(*) FROM images WHERE file_hash = ?1",
-                params![entry.file_hash],
-                |r| r.get(0),
-            )?;
-            if exists > 0 {
+            // pile up duplicated copies. The hash is a sampling hint (size +
+            // first 64KB), so a match is confirmed byte-for-byte against the
+            // registered file before skipping — two different images that
+            // share a prefix must not be silently dropped (R-11).
+            let existing_paths: Vec<String> = {
+                let mut stmt = tx.prepare("SELECT file_path FROM images WHERE file_hash = ?1")?;
+                let rows = stmt
+                    .query_map(params![entry.file_hash], |r| r.get(0))?
+                    .filter_map(|r| r.ok())
+                    .collect();
+                rows
+            };
+            let mut duplicate = false;
+            for existing in &existing_paths {
+                if files_content_equal(Path::new(existing), Path::new(&entry.file_path)) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if duplicate {
                 skipped += 1;
                 continue;
             }
@@ -403,6 +433,37 @@ fn file_created_at(meta: &fs::Metadata) -> String {
         .or_else(|_| meta.created())
         .map(|t| chrono::DateTime::<chrono::Utc>::from(t).to_rfc3339())
         .unwrap_or_else(|_| chrono::Utc::now().to_rfc3339())
+}
+
+/// Byte-for-byte content comparison (R-11): the import dedup hash samples
+/// size + first 64KB, which can match for two *different* files with a shared
+/// prefix; an actual skip must be confirmed by fully equal content.
+fn files_content_equal(a: &Path, b: &Path) -> bool {
+    use std::io::Read;
+    let Ok(mut fa) = std::fs::File::open(a) else {
+        return false;
+    };
+    let Ok(mut fb) = std::fs::File::open(b) else {
+        return false;
+    };
+    let mut ba = [0u8; 8192];
+    let mut bb = [0u8; 8192];
+    loop {
+        let na = match fa.read(&mut ba) {
+            Ok(n) => n,
+            Err(_) => return false,
+        };
+        let nb = match fb.read(&mut bb) {
+            Ok(n) => n,
+            Err(_) => return false,
+        };
+        if na != nb || ba[..na] != bb[..nb] {
+            return false;
+        }
+        if na == 0 {
+            return true;
+        }
+    }
 }
 
 fn file_hash(path: &str, size: u64) -> String {
@@ -906,6 +967,36 @@ mod tests {
     }
 
     #[test]
+    fn mcp_gated_import_rejects_undecodable_files() {
+        // Regression (R-3): the MCP import must only register files that
+        // decode as images — a token holder could otherwise import
+        // "/etc/shadow" renamed to "shadow.png" and read the raw bytes back
+        // through the file server's undecodable passthrough.
+        let db = DbHandle::open_memory().unwrap();
+        let dir = tempfile::tempdir().unwrap();
+        let good = dir.path().join("good.png");
+        let bad = dir.path().join("bad.png");
+        // A real 1x1 PNG (written by the image crate, so it decodes).
+        image::RgbImage::from_pixel(1, 1, image::Rgb([200, 30, 30]))
+            .save(&good)
+            .unwrap();
+        std::fs::write(&bad, b"not an image").unwrap();
+
+        let result = import_folder_gated(&db, dir.path().to_str().unwrap()).unwrap();
+        assert_eq!(result.imported, 1);
+        assert_eq!(result.rejected, 1);
+        assert_eq!(result.items.len(), 1);
+        assert!(result.items[0].file_path.ends_with("good.png"));
+
+        // Only the decodable file may be registered.
+        let conn = db.conn().lock().unwrap();
+        let count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM images", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, 1);
+    }
+
+    #[test]
     fn file_hash_is_content_based() {
         let dir = tempfile::tempdir().unwrap();
         let a = dir.path().join("a.png");
@@ -1017,6 +1108,47 @@ mod tests {
     }
 
     #[test]
+    fn run_import_copy_mode_does_not_skip_prefix_collision() {
+        // Regression (R-11): the dedup hash samples size + first 64KB, so two
+        // DIFFERENT files that share a prefix (e.g. appended metadata) used
+        // to be silently deduped. The hash must only act as a hint — a skip
+        // requires fully equal content.
+        let dir = tempfile::tempdir().unwrap();
+        let lib = dir.path().join("library");
+        // Same size AND same 64KB prefix, different tail bytes.
+        let a = dir.path().join("a.png");
+        let b = dir.path().join("b.png");
+        let mut shared = vec![0u8; 65536];
+        shared[0..4].copy_from_slice(&0x89_u32.to_le_bytes());
+        let mut a_bytes = shared.clone();
+        a_bytes.push(1);
+        let mut b_bytes = shared.clone();
+        b_bytes.push(2);
+        // Same hash: same size + same first 64KB.
+        std::fs::write(&a, &a_bytes).unwrap();
+        std::fs::write(&b, &b_bytes).unwrap();
+        let hash_a = file_hash(a.to_str().unwrap(), a_bytes.len() as u64);
+        let hash_b = file_hash(b.to_str().unwrap(), b_bytes.len() as u64);
+        assert_eq!(hash_a, hash_b, "test setup: prefixes must collide");
+
+        let entries = vec![
+            make_entry("e1", a.to_str().unwrap(), &hash_a),
+            make_entry("e2", b.to_str().unwrap(), &hash_b),
+        ];
+
+        let db = test_db();
+        let conn = db.conn().lock().unwrap();
+        let tx = conn.unchecked_transaction().unwrap();
+        let mut copied = Vec::new();
+        let (imported, skipped) = run_import(&tx, &entries, Some(&lib), &mut copied).unwrap();
+
+        // Different content → both files must be imported.
+        assert_eq!(imported.len(), 2, "prefix-colliding files must BOTH import");
+        assert_eq!(skipped, 0);
+        tx.commit().unwrap();
+    }
+
+    #[test]
     fn run_import_copy_mode_cleans_up_copy_when_row_is_ignored() {
         let dir = tempfile::tempdir().unwrap();
         let lib = dir.path().join("library");
@@ -1094,10 +1226,14 @@ mod tests {
         let mut img = RgbImage::from_fn(128, 128, |_, _| Rgb([40u8, 40, 40]));
         // light gutter down the vertical + horizontal centre
         for y in 0..128u32 {
-            for x in 62..66u32 { img.put_pixel(x, y, Rgb([240u8, 240, 240])); }
+            for x in 62..66u32 {
+                img.put_pixel(x, y, Rgb([240u8, 240, 240]));
+            }
         }
         for y in 62..66u32 {
-            for x in 0..128u32 { img.put_pixel(x, y, Rgb([240u8, 240, 240])); }
+            for x in 0..128u32 {
+                img.put_pixel(x, y, Rgb([240u8, 240, 240]));
+            }
         }
         let dir = tempfile::tempdir().unwrap();
         let p = dir.path().join("grid.png");

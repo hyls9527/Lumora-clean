@@ -183,7 +183,9 @@ fn build_where(
                     .trim()
                     .parse()
                     .map_err(|_| AppError::InvalidInput("步数规则的值必须是数字".into()))?;
-                conditions.push(format!("json_extract(i.metadata_json, '$.steps') = ?{next}"));
+                conditions.push(format!(
+                    "json_extract(i.metadata_json, '$.steps') = ?{next}"
+                ));
                 params.push(Box::new(value));
             }
             ("cfg", "gte") => {
@@ -213,7 +215,9 @@ fn build_where(
                 if value.is_empty() {
                     return Err(AppError::InvalidInput("采样器规则的值不能为空".into()));
                 }
-                conditions.push(format!("json_extract(i.metadata_json, '$.sampler') = ?{next}"));
+                conditions.push(format!(
+                    "json_extract(i.metadata_json, '$.sampler') = ?{next}"
+                ));
                 params.push(Box::new(value.to_string()));
             }
             ("prompt", "contains") => {
