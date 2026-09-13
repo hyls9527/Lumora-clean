@@ -1,4 +1,5 @@
-import { t } from '../../lib/tokens';
+import { t as tok } from '../../lib/tokens';
+
 interface ErrorStateProps {
   message: string;
   onRetry?: () => void;
@@ -6,55 +7,31 @@ interface ErrorStateProps {
 
 export function ErrorState({ message, onRetry }: ErrorStateProps) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '48px 32px',
-        textAlign: 'center',
-      }}
-    >
+    <div className="empty-state" role="alert">
       <div
         style={{
-          fontSize: 14,
-          fontFamily: t.fontDisplay,
-          color: t.danger,
-          marginBottom: 8,
+          width: 40,
+          height: 40,
+          borderRadius: 4,
+          border: `1px solid rgba(139, 48, 48, 0.2)`,
+          background: tok.dangerBg,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 16,
+          color: tok.danger,
+          fontFamily: tok.fontDisplay,
         }}
+        aria-hidden
       >
+        !
+      </div>
+      <p className="empty-state__title" style={{ color: tok.danger }}>
         出现错误
-      </div>
-      <div
-        style={{
-          fontSize: 12,
-          fontFamily: t.fontBody,
-          color: t.textSecondary,
-          marginBottom: 16,
-          maxWidth: 400,
-          lineHeight: 1.6,
-        }}
-      >
-        {message}
-      </div>
+      </p>
+      <p className="empty-state__desc">{message}</p>
       {onRetry && (
-        <button
-          type="button"
-          onClick={onRetry}
-          style={{
-            padding: '8px 20px',
-            fontSize: 12,
-            fontWeight: 500,
-            fontFamily: t.fontDisplay,
-            color: t.bg,
-            background: t.accent,
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-            transition: 'background 200ms',
-          }}
-        >
+        <button type="button" className="btn btn--accent" onClick={onRetry} style={{ marginTop: 4 }}>
           重试
         </button>
       )}

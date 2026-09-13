@@ -28,20 +28,20 @@ export function BatchToolbar({ count, onDelete, onAiTag, onEmbed, onRename, onCo
         display: 'flex',
         alignItems: 'center',
         gap: 12,
-        padding: '10px 20px',
+        padding: '10px 18px',
         background: tokens.text,
         color: tokens.bg,
-        borderRadius: 8,
-        boxShadow: 'rgba(0,0,0,0.25) 0px 8px 32px',
+        borderRadius: 6,
+        boxShadow: tokens.shadowElevated,
         animation: 'slideUp 200ms ease-out',
         fontFamily: tokens.fontBody,
       }}
     >
       <style>{`@keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }`}</style>
-      <span style={{ fontSize: 13, fontWeight: 500 }}>
+      <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: '0.02em' }}>
         {t('selected', { count })}
       </span>
-      <span style={{ width: 1, height: 20, background: 'rgba(242,237,228,0.2)' }} />
+      <span style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.18)' }} />
       <button
         type="button"
         onClick={onDelete}

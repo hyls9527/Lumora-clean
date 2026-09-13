@@ -1,10 +1,11 @@
 import { t } from '../../lib/tokens';
+
 /** Plum-blossom stamp SVG for rating display (梅花印) */
 export function PlumStamp({ filled }: { filled: boolean }) {
   return (
     <svg
-      width="18"
-      height="18"
+      width="16"
+      height="16"
       viewBox="0 0 18 18"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -16,27 +17,35 @@ export function PlumStamp({ filled }: { filled: boolean }) {
       <circle cx="12.5" cy="8.5" r="3" fill={filled ? t.accent : t.textFaint} />
       <circle cx="6.5" cy="13" r="3" fill={filled ? t.accent : t.textFaint} />
       <circle cx="11.5" cy="13" r="3" fill={filled ? t.accent : t.textFaint} />
-      <circle cx="9" cy="9.5" r="1.5" fill={filled ? t.bg : '#ebe5d8'} />
+      <circle cx="9" cy="9.5" r="1.5" fill={filled ? t.bg : t.bgAlt} />
     </svg>
   );
 }
 
 export function Rating({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
   return (
-    <div style={{ display: 'inline-flex', gap: '2px', alignItems: 'center' }}>
+    <div style={{ display: 'inline-flex', gap: 1, alignItems: 'center' }}>
       {Array.from({ length: 5 }, (_, i) => (
         <button
           key={i}
           type="button"
-          onClick={() => onChange?.(i + 1)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onChange?.(i + 1);
+            const btn = e.currentTarget;
+            btn.classList.remove('anim-flash');
+            void btn.offsetWidth;
+            btn.classList.add('anim-flash');
+            window.setTimeout(() => btn.classList.remove('anim-flash'), 500);
+          }}
           style={{
             background: 'none',
             border: 'none',
             padding: 0,
             cursor: onChange ? 'pointer' : 'default',
             display: 'inline-flex',
-            transition: 'opacity 200ms',
-            opacity: i < value ? 1 : 0.5,
+            transition: 'opacity 160ms ease-out, transform 160ms ease-out',
+            opacity: i < value ? 1 : 0.4,
           }}
           aria-label={`${i + 1} 梅花印`}
         >

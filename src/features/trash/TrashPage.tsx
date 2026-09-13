@@ -62,47 +62,20 @@ export function TrashPage() {
   };
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+    <div className="page-shell">
       {/* Header */}
       <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-          padding: '12px 16px',
-          background: 'var(--color-bg)',
-          borderBottom: `1px solid ${tok.border}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
+        className="page-toolbar"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
       >
-        <h2
-          style={{
-            fontSize: isMobile ? 18 : 20,
-            fontWeight: 600,
-            fontFamily: tok.fontDisplay,
-            color: tok.text,
-            margin: 0,
-          }}
-        >
+        <h2 className={isMobile ? 'page-title page-title--mobile' : 'page-title'}>
           {t('trash.title')}
         </h2>
         {total > 0 && (
           <button
             type="button"
+            className="btn btn--danger"
             onClick={() => setConfirmEmpty(true)}
-            style={{
-              fontSize: 11,
-              fontFamily: tok.fontDisplay,
-              color: '#b33a3a',
-              background: 'none',
-              border: '1px solid rgba(179, 58, 58, 0.2)',
-              padding: '6px 14px',
-              borderRadius: 4,
-              cursor: 'pointer',
-              transition: 'background 200ms, color 200ms',
-            }}
           >
             {t('trash.emptyTrash')}
           </button>
@@ -110,16 +83,7 @@ export function TrashPage() {
       </div>
 
       {/* Status bar */}
-      <div
-        style={{
-          padding: '8px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          borderBottom: `1px solid ${tok.border}`,
-          background: 'var(--color-bg)',
-        }}
-      >
+      <div className="page-status">
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span
             style={{
@@ -127,10 +91,10 @@ export function TrashPage() {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: loading ? '#d4a574' : tok.textMuted,
+              background: loading ? tok.textFaint : tok.textMuted,
             }}
           />
-          <span style={{ fontSize: 10, color: tok.textMuted, fontFamily: tok.fontBody }}>
+          <span>
             {loading ? t('trash.loading') : t('trash.deletedCount', { total })}
           </span>
         </div>

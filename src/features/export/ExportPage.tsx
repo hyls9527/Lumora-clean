@@ -49,19 +49,11 @@ export function ExportPage() {
   const exportCount = selectedIds.size > 0 ? selectedIds.size : images.length;
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto' }}>
-      <div style={{ padding: 32 }}>
+    <div className="page-shell">
+      <div style={{ padding: '28px 32px 40px', maxWidth: 640 }}>
         {/* Page header */}
-        <div style={{ marginBottom: 40 }}>
-          <h2
-            style={{
-              fontSize: 20,
-              fontWeight: 600,
-              fontFamily: tokens.fontDisplay,
-              color: tokens.text,
-              margin: 0,
-            }}
-          >
+        <div style={{ marginBottom: 32 }}>
+          <h2 className="page-title" style={{ marginBottom: 6 }}>
             {t('export.title')}
           </h2>
           <p

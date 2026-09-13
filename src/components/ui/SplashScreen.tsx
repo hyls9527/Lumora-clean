@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import iconUrl from '../../assets/icon.png';
 
-const MIN_MS = 1400;
-const MAX_MS = 5000;
-const FADE_MS = 300;
+const MIN_MS = 1800;
+const MAX_MS = 5200;
+const FADE_MS = 360;
 const WORDMARK = 'Lumora';
 
 interface SplashScreenProps {
@@ -14,10 +14,12 @@ interface SplashScreenProps {
 }
 
 /**
- * Brand launch animation: the lantern mark lights up with a warm glow,
- * the serif wordmark settles glyph by glyph with a sheen sweep and an
- * amber rule, then the whole screen fades out to reveal the app. Stays
- * at least MIN_MS and never longer than MAX_MS.
+ * Brand launch — 灯火初燃：
+ * 1. 暖色光晕缓慢呼吸
+ * 2. 灯笼图标自微缩中亮起
+ * 3. 衬线字标逐字落定 + 一道金线扫过
+ * 4. 琥珀色细线展开 + 副题「光之韵律」浮现
+ * 5. 底部进度线走完后整屏淡出
  */
 export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
   const [fading, setFading] = useState(false);
@@ -58,31 +60,81 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 30,
+        gap: 36,
         background:
-          'radial-gradient(circle at 50% 42%, var(--color-accent-subtle), transparent 55%), var(--color-bg)',
+          'radial-gradient(ellipse 70% 50% at 50% 40%, var(--color-accent-subtle), transparent 60%), var(--color-bg)',
         opacity: fading ? 0 : 1,
-        transform: fading ? 'scale(1.03)' : 'scale(1)',
-        transition: 'opacity 300ms ease, transform 300ms ease, background-color 400ms ease',
+        transform: fading ? 'scale(1.04)' : 'scale(1)',
+        transition: 'opacity 360ms cubic-bezier(0.2, 0.7, 0.25, 1), transform 360ms cubic-bezier(0.2, 0.7, 0.25, 1)',
         pointerEvents: fading ? 'none' : 'auto',
       }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22 }}>
-        {/* lantern mark fades in */}
-        <img
-          src={iconUrl}
-          alt=""
-          aria-hidden="true"
-          width={80}
-          height={80}
-          style={{
-            willChange: 'transform, opacity',
-            animation: 'splashLogoIn 500ms cubic-bezier(0.2, 0.7, 0.25, 1) both',
-          }}
-        />
+      <style>{`
+        @keyframes splashInkRing {
+          0% { transform: scale(0.4); opacity: 0; }
+          40% { opacity: 0.55; }
+          100% { transform: scale(1); opacity: 0; }
+        }
+        @keyframes splashSheen {
+          0% { transform: translateX(-120%); opacity: 0; }
+          20% { opacity: 0.55; }
+          100% { transform: translateX(120%); opacity: 0; }
+        }
+        @keyframes splashProgress {
+          0% { transform: scaleX(0); opacity: 0.2; }
+          70% { opacity: 1; }
+          100% { transform: scaleX(1); opacity: 0; }
+        }
+        @keyframes splashHalo {
+          0%, 100% { opacity: 0.4; transform: scale(0.92); }
+          50% { opacity: 1; transform: scale(1.05); }
+        }
+      `}</style>
 
-        {/* letterpress wordmark, glyph by glyph, with a single sheen sweep */}
-        <div style={{ position: 'relative', overflow: 'visible' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
+        {/* 灯笼图标 + 光晕 + 墨圈 */}
+        <div style={{ position: 'relative', width: 88, height: 88 }}>
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              inset: -22,
+              borderRadius: '50%',
+              background:
+                'radial-gradient(circle, var(--color-accent-subtle) 0%, transparent 70%)',
+              animation: 'splashHalo 1.9s ease-in-out infinite',
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              inset: 4,
+              borderRadius: '50%',
+              border: '1px solid var(--color-accent)',
+              animation: 'splashInkRing 1.1s cubic-bezier(0.2, 0.7, 0.25, 1) 0.15s both',
+              pointerEvents: 'none',
+            }}
+          />
+          <img
+            src={iconUrl}
+            alt=""
+            aria-hidden="true"
+            width={80}
+            height={80}
+            style={{
+              position: 'absolute',
+              left: 4,
+              top: 4,
+              willChange: 'transform, opacity',
+              animation: 'splashLogoIn 700ms cubic-bezier(0.2, 0.7, 0.25, 1) both',
+            }}
+          />
+        </div>
+
+        {/* 字标逐字 + 金线扫过 */}
+        <div style={{ position: 'relative', overflow: 'hidden', padding: '0 8px' }}>
           <h1
             style={{
               position: 'relative',
@@ -117,23 +169,36 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
                   display: 'inline-block',
                   transformOrigin: 'center bottom',
                   willChange: 'transform, opacity',
-                  animation: `splashGlyph 500ms cubic-bezier(0.2, 0.7, 0.25, 1) ${0.1 + i * 0.045}s both`,
+                  animation: `splashGlyph 560ms cubic-bezier(0.2, 0.7, 0.25, 1) ${0.18 + i * 0.055}s both`,
                 }}
               >
                 {ch}
               </span>
             ))}
           </h1>
+          <span
+            aria-hidden
+            style={{
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              width: '40%',
+              background:
+                'linear-gradient(100deg, transparent, var(--color-accent-subtle), transparent)',
+              animation: 'splashSheen 900ms ease-out 0.85s both',
+              pointerEvents: 'none',
+            }}
+          />
         </div>
 
         <div
           style={{
-            width: 88,
+            width: 96,
             height: 1,
             background: 'linear-gradient(90deg, transparent, var(--color-accent), transparent)',
             transformOrigin: 'center',
             willChange: 'transform, opacity',
-            animation: 'splashRule 500ms cubic-bezier(0.4, 0, 0.2, 1) 0.62s both',
+            animation: 'splashRule 560ms cubic-bezier(0.4, 0, 0.2, 1) 0.95s both',
           }}
         />
         <p
@@ -145,12 +210,30 @@ export function SplashScreen({ ready, onFinish }: SplashScreenProps) {
             color: 'var(--color-text-secondary)',
             fontFamily: 'var(--font-body)',
             willChange: 'transform, opacity',
-            animation: 'splashTag 500ms cubic-bezier(0.4, 0, 0.2, 1) 0.72s both',
+            animation: 'splashTag 560ms cubic-bezier(0.4, 0, 0.2, 1) 1.1s both',
           }}
         >
           光之韵律
         </p>
       </div>
+
+      {/* 底部进度细线 */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          bottom: 48,
+          left: '50%',
+          width: 120,
+          height: 1,
+          marginLeft: -60,
+          background: 'var(--color-accent)',
+          transformOrigin: 'left center',
+          animation: `splashProgress ${Math.min(MIN_MS, 2200)}ms cubic-bezier(0.4, 0, 0.2, 1) 0.3s both`,
+        }}
+      />
     </div>
   );
 }
+
+export default SplashScreen;

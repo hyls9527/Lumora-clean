@@ -71,3 +71,7 @@ scripts/tools/
 # 本地编排/审计产物（不入库；审计结论沉淀在 docs/05-qa）
 /.agent-teams/
 /.audit-logs/
+
+# 设计稿壳（本地预览，不入库）
+/lumora-app.html
+/ui-preview.html

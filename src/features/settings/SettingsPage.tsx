@@ -105,16 +105,17 @@ function SegmentedControl<T extends string>({
               padding: '6px 16px',
               fontSize: 12,
               fontFamily: 'var(--font-display)',
-              fontWeight: active ? 700 : 500,
+              fontWeight: active ? 600 : 500,
               color: isDisabled
-                ? 'rgba(107, 93, 72, 0.35)'
+                ? 'var(--color-text-faint)'
                 : active
-                  ? '#f2ede4'
+                  ? 'var(--color-bg)'
                   : token.muted,
               background: active ? token.accent : token.surface,
               border: 'none',
+              borderRadius: 4,
               cursor: isDisabled ? 'not-allowed' : 'pointer',
-              transition: 'background 200ms, color 200ms',
+              transition: 'background 160ms ease-out, color 160ms ease-out',
             }}
           >
             {opt.label}
@@ -216,6 +217,7 @@ export function SettingsPage() {
     borderRadius: 4,
     outline: 'none',
   };
+  // focus ring via CSS class when possible — keep inline for layout width
 
   const handleExport = async () => {
     try {

@@ -42,7 +42,7 @@ Configure it in **Settings → AI backend** — the embedding and vision provide
 ## Testing
 
 ```bash
-npx vitest run              # 775 frontend tests
+npx vitest run              # 776 frontend tests
 cd src-tauri && cargo test  # 272 Rust tests (269 passed, 3 ignored — need local Ollama)
 npx tsc --noEmit            # type check
 ```

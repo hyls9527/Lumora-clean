@@ -19,8 +19,7 @@ export function DropOverlay({ isVisible }: DropOverlayProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(242, 237, 228, 0.9)',
-        backdropFilter: 'blur(4px)',
+        background: 'rgba(242, 237, 228, 0.92)',
         transition: 'opacity 200ms ease-out',
         pointerEvents: 'none',
       }}

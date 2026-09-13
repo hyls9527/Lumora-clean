@@ -1,4 +1,5 @@
 import { t as tok } from '../../lib/tokens';
+
 interface TagBadgeProps {
   name: string;
   color?: string | null;
@@ -6,7 +7,7 @@ interface TagBadgeProps {
 }
 
 export function TagBadge({ name, color, onRemove }: TagBadgeProps) {
-  const bgColor = color ?? tok.border;
+  const bgColor = color ?? tok.accentSubtle;
   const textColor = color ? tok.text : tok.textSecondary;
 
   return (
@@ -14,19 +15,24 @@ export function TagBadge({ name, color, onRemove }: TagBadgeProps) {
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '4px',
-        fontSize: '10px',
+        gap: 4,
+        fontSize: 10,
         padding: '2px 6px',
-        border: `1px solid ${tok.border}`,
-        borderRadius: '4px',
+        border: `1px solid ${color ?? tok.border}`,
+        borderRadius: 3,
         background: bgColor,
         color: textColor,
         fontFamily: tok.fontBody,
-        transition: 'opacity 200ms',
-        lineHeight: 1.6,
+        transition: 'opacity 160ms ease-out',
+        lineHeight: 1.5,
+        letterSpacing: '0.02em',
+        maxWidth: 120,
+        overflow: 'hidden',
       }}
     >
-      {name}
+      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {name}
+      </span>
       {onRemove && (
         <button
           type="button"
@@ -39,17 +45,18 @@ export function TagBadge({ name, color, onRemove }: TagBadgeProps) {
             border: 'none',
             padding: 0,
             cursor: 'pointer',
-            fontSize: '10px',
+            fontSize: 11,
             color: textColor,
-            opacity: 0.6,
+            opacity: 0.55,
             lineHeight: 1,
-            transition: 'opacity 200ms',
+            transition: 'opacity 160ms ease-out',
+            flexShrink: 0,
           }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLElement).style.opacity = '1';
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.opacity = '0.6';
+            (e.currentTarget as HTMLElement).style.opacity = '0.55';
           }}
           aria-label={`移除标签 ${name}`}
         >

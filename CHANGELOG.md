@@ -2,6 +2,21 @@
 
 All notable changes to Lumora are documented here.
 
+## Unreleased — 灯箱 v3 UI
+
+### Changed
+- **灯箱印样**：图库卡片默认只显示图片；模型与操作在 hover / 键盘聚焦时从底部墨条浮现。收藏印 ◆ 与评分梅花印为常驻墨色角标。元数据（prompt / 标签）只在详情灯箱边注中展示。
+- **设计令牌精修**：象牙纸页 / 古铜强调 / 墨色文字微调；动效收敛为启动灯火、确认灯影、灯箱升起三套；移除错落入场与 hover 抬起等反模式。
+- **反模式清理**：去掉 `#fff` 纯白、毛玻璃 `backdropFilter`、按钮 scale 弹跳；OfflineBanner 改为承托纸 + 语义色描边。
+
+### Fixed
+- `tauri.conf.json` 窗口 `backgroundColor` 对齐新纸色 `#f4f0e8`。
+- `Cargo.toml` description 乱码修复。
+- 设计稿壳 `lumora-app.html` / `ui-preview.html` 不入库。
+
+### Tests
+- 前端 vitest 776/776 通过；设计合规 16/16。
+
 ## v0.11.0 (2026-09-02)
 
 ### Added

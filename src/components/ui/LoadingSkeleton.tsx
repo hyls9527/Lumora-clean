@@ -1,11 +1,12 @@
 import { t as tok } from '../../lib/tokens';
+
 /** 骨架屏占位块 */
 function Bone({ style }: { style?: React.CSSProperties }) {
   return (
     <div
       style={{
         background:
-          'linear-gradient(90deg, rgba(139,115,75,0.06) 25%, rgba(139,115,75,0.12) 50%, rgba(139,115,75,0.06) 75%)',
+          'linear-gradient(90deg, rgba(122,92,40,0.05) 25%, rgba(122,92,40,0.10) 50%, rgba(122,92,40,0.05) 75%)',
         backgroundSize: '200% 100%',
         animation: 'shimmer 1.5s ease-in-out infinite',
         borderRadius: 2,
@@ -21,11 +22,7 @@ export function GridSkeleton({ count = 8 }: { count?: number }) {
     <>
       <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
       <div
-        style={{
-          columnCount: 4,
-          columnGap: 12,
-          padding: '24px 32px',
-        }}
+        className="gallery-grid"
       >
         {Array.from({ length: count }, (_, i) => (
           <div key={i} style={{ breakInside: 'avoid', marginBottom: 12 }}>
@@ -33,13 +30,14 @@ export function GridSkeleton({ count = 8 }: { count?: number }) {
               style={{
                 borderRadius: 2,
                 overflow: 'hidden',
-                background: 'var(--color-surface)',
+                background: tok.surface,
                 border: `1px solid ${tok.border}`,
+                boxShadow: tok.shadow,
               }}
             >
               <Bone style={{ width: '100%', aspectRatio: '1' }} />
-              <div style={{ padding: '8px 10px', background: tok.bg }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <div style={{ padding: '10px 12px 12px', background: tok.surface, borderTop: `1px solid ${tok.borderSubtle}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                   <Bone style={{ width: 60, height: 11 }} />
                   <Bone style={{ width: 48, height: 11 }} />
                 </div>
@@ -62,8 +60,9 @@ export function SearchSkeleton({ count = 6 }: { count?: number }) {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 16,
+          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          gap: 14,
+          padding: '16px 20px 8px',
         }}
       >
         {Array.from({ length: count }, (_, i) => (
@@ -72,17 +71,15 @@ export function SearchSkeleton({ count = 6 }: { count?: number }) {
             style={{
               borderRadius: 2,
               overflow: 'hidden',
-              background: 'var(--color-surface)',
+              background: tok.surface,
               border: `1px solid ${tok.border}`,
+              boxShadow: tok.shadow,
             }}
           >
             <Bone style={{ width: '100%', aspectRatio: '1' }} />
-            <div style={{ padding: '12px 14px' }}>
-              <Bone style={{ width: '100%', height: 12, marginBottom: 6 }} />
-              <div style={{ display: 'flex', gap: 12 }}>
-                <Bone style={{ width: 60, height: 10 }} />
-                <Bone style={{ width: 80, height: 10 }} />
-              </div>
+            <div style={{ padding: '10px 12px 12px', borderTop: `1px solid ${tok.borderSubtle}` }}>
+              <Bone style={{ width: '40%', height: 11, marginBottom: 8 }} />
+              <Bone style={{ width: '80%', height: 10 }} />
             </div>
           </div>
         ))}
@@ -102,6 +99,8 @@ export function ListSkeleton({ count = 5 }: { count?: number }) {
           flexDirection: 'column',
           border: `1px solid ${tok.border}`,
           borderRadius: 2,
+          margin: '16px 20px',
+          background: tok.surface,
         }}
       >
         {Array.from({ length: count }, (_, i) => (
@@ -112,10 +111,7 @@ export function ListSkeleton({ count = 5 }: { count?: number }) {
               alignItems: 'center',
               gap: 16,
               padding: '12px 16px',
-              borderBottom:
-                i < count - 1
-                  ? `1px solid ${tok.border}`
-                  : 'none',
+              borderBottom: i < count - 1 ? `1px solid ${tok.borderSubtle}` : 'none',
             }}
           >
             <Bone style={{ width: 40, height: 40, flexShrink: 0 }} />

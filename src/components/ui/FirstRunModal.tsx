@@ -28,28 +28,29 @@ export function FirstRunModal({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(26, 22, 18, 0.45)',
+        background: 'rgba(36, 28, 18, 0.52)',
+        animation: 'fadeIn 200ms ease-out',
       }}
     >
       <div
+        className="modal-panel"
         style={{
           width: 460,
           maxWidth: 'calc(100vw - 48px)',
           maxHeight: 'calc(100vh - 48px)',
           overflowY: 'auto',
-          background: 'var(--color-bg)',
-          borderRadius: 10,
           padding: 28,
-          fontFamily: 'var(--font-body)',
+          fontFamily: tok.fontBody,
         }}
       >
         <h2
           style={{
             margin: '0 0 6px',
-            fontFamily: 'var(--font-display)',
-            fontSize: 22,
+            fontFamily: tok.fontDisplay,
+            fontSize: 20,
             fontWeight: 600,
-            color: 'var(--color-text)',
+            color: tok.text,
+            letterSpacing: '0.01em',
           }}
         >
           {t('title')}
@@ -63,19 +64,30 @@ export function FirstRunModal({
             display: 'block',
             width: '100%',
             textAlign: 'left',
-            background: 'var(--color-bg-alt)',
-            border: '1px solid var(--color-border, rgba(139, 115, 75, 0.2))',
-            borderRadius: 8,
+            background: tok.bgAlt,
+            border: `1px solid ${tok.border}`,
+            borderRadius: 6,
             padding: '14px 16px',
             marginBottom: 10,
             cursor: 'pointer',
-            fontFamily: 'var(--font-body)',
+            fontFamily: tok.fontBody,
+            transition: 'border-color 160ms ease-out, background 160ms ease-out',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = tok.accent;
+            e.currentTarget.style.background = tok.surfaceHover;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = tok.border;
+            e.currentTarget.style.background = tok.bgAlt;
           }}
         >
-          <strong style={{ display: 'block', fontSize: 14, color: 'var(--color-text)' }}>
+          <strong style={{ display: 'block', fontSize: 14, color: tok.text, marginBottom: 4 }}>
             {t('referenceTitle')}
           </strong>
-          <span style={{ fontSize: 12, color: tok.textMuted }}>{t('referenceDesc')}</span>
+          <span style={{ fontSize: 12, color: tok.textMuted, lineHeight: 1.5 }}>
+            {t('referenceDesc')}
+          </span>
         </button>
 
         <button
@@ -85,19 +97,30 @@ export function FirstRunModal({
             display: 'block',
             width: '100%',
             textAlign: 'left',
-            background: 'var(--color-bg-alt)',
-            border: '1px solid var(--color-border, rgba(139, 115, 75, 0.2))',
-            borderRadius: 8,
+            background: tok.bgAlt,
+            border: `1px solid ${tok.border}`,
+            borderRadius: 6,
             padding: '14px 16px',
             marginBottom: 14,
             cursor: 'pointer',
-            fontFamily: 'var(--font-body)',
+            fontFamily: tok.fontBody,
+            transition: 'border-color 160ms ease-out, background 160ms ease-out',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = tok.accent;
+            e.currentTarget.style.background = tok.surfaceHover;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = tok.border;
+            e.currentTarget.style.background = tok.bgAlt;
           }}
         >
-          <strong style={{ display: 'block', fontSize: 14, color: 'var(--color-text)' }}>
+          <strong style={{ display: 'block', fontSize: 14, color: tok.text, marginBottom: 4 }}>
             {t('copyTitle')}
           </strong>
-          <span style={{ fontSize: 12, color: tok.textMuted }}>{t('copyDesc')}</span>
+          <span style={{ fontSize: 12, color: tok.textMuted, lineHeight: 1.5 }}>
+            {t('copyDesc')}
+          </span>
         </button>
 
         <p
@@ -106,7 +129,7 @@ export function FirstRunModal({
             fontSize: 11,
             lineHeight: 1.6,
             color: tok.textMuted,
-            fontFamily: 'var(--font-body)',
+            fontFamily: tok.fontBody,
           }}
         >
           {t('uninstallWarning')}
@@ -115,17 +138,14 @@ export function FirstRunModal({
         <button
           type="button"
           onClick={() => onChoose('reference')}
+          className="btn btn--accent"
           style={{
             width: '100%',
             padding: '10px 0',
-            borderRadius: 6,
-            border: 'none',
-            background: tok.accent,
-            color: tok.bg,
+            borderRadius: 4,
             fontSize: 14,
-            fontFamily: 'var(--font-display)',
+            fontFamily: tok.fontDisplay,
             fontWeight: 600,
-            cursor: 'pointer',
           }}
         >
           {t('confirm')}

@@ -73,26 +73,10 @@ export function FavoritesPage() {
   }, [favorites]);
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+    <div className="page-shell">
       {/* Header */}
-      <div
-        style={{
-          padding: '14px 32px',
-          borderBottom: `1px solid ${tok.border}`,
-          background: 'var(--color-bg)',
-        }}
-      >
-        <h2
-          style={{
-            fontSize: 20,
-            fontWeight: 600,
-            fontFamily: tok.fontDisplay,
-            color: tok.text,
-            margin: 0,
-          }}
-        >
-          {t('favorites.title')}
-        </h2>
+      <div className="page-toolbar">
+        <h2 className="page-title">{t('favorites.title')}</h2>
       </div>
 
       {/* Content */}
@@ -100,15 +84,8 @@ export function FavoritesPage() {
         <ErrorState message={error} onRetry={loadFavorites} />
       ) : loading ? (
         <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: tok.textMuted,
-            fontFamily: tok.fontBody,
-            fontSize: 13,
-          }}
+          className="empty-state"
+          style={{ color: tok.textMuted, fontFamily: tok.fontBody, fontSize: 12 }}
         >
           {t('common.loadingMore')}
         </div>

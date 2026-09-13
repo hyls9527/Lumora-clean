@@ -23,7 +23,7 @@ import { BatchToolbar } from './BatchToolbar';
 import { RenameDialog } from '../../components/rename/RenameDialog';
 import { ConvertDialog } from '../../components/convert/ConvertDialog';
 import { useFilterStore } from '../../stores/filterStore';
-import { t as tokens, navTabStyle, separatorStyle, dotStyle, pageTitleStyle } from '../../lib/tokens';
+import { t as tokens, separatorStyle, dotStyle } from '../../lib/tokens';
 
 const sortOptions = [
   { key: 'time' as const, label: '生成时间 ↓' },
@@ -281,7 +281,7 @@ export function GalleryPage() {
           key={img.id}
           style={{
             breakInside: 'avoid',
-            marginBottom: 12,
+            marginBottom: 10,
           }}
         >
           <LazyLoad height={img.height || 200}>
@@ -298,73 +298,44 @@ export function GalleryPage() {
   );
 
   return (
-    <div style={{ flex: 1, minWidth: 0, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }}>
-      {/* Toolbar */}
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-          padding: '12px 16px',
-          background: 'var(--color-bg)',
-          borderBottom: `1px solid ${tokens.border}`,
-        }}
-      >
-        {/* Row 1 */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 10,
-            flexWrap: 'wrap',
-            gap: '8px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <h2 style={pageTitleStyle(isMobile)}>
-              创作者图库
-            </h2>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {[2, 3, 4].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => setColumnCount(columnCount === n ? 0 : n)}
-                  style={navTabStyle(columnCount === n)}
-                  title={`${n}列`}
-                >
-                  {n}列
-                </button>
-              ))}
-              <span style={separatorStyle} />
-            <TabButton
-              active={filters.view === 'grid'}
-              onClick={() => setView('grid')}
-            >
+    <div className="page-shell">
+      {/* Toolbar — 展签墙顶栏 */}
+      <div className="page-toolbar">
+        <div className="page-toolbar__row">
+          <h2 className={isMobile ? 'page-title page-title--mobile' : 'page-title'}>
+            创作者图库
+          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {[2, 3, 4].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setColumnCount(columnCount === n ? 0 : n)}
+                className={`tab-underline${columnCount === n ? ' tab-underline--active' : ''}`}
+                title={`${n}列`}
+              >
+                {n}列
+              </button>
+            ))}
+            <span style={separatorStyle} />
+            <TabButton active={filters.view === 'grid'} onClick={() => setView('grid')}>
               网格
             </TabButton>
-            <TabButton
-              active={filters.view === 'list'}
-              onClick={() => setView('list')}
-            >
+            <TabButton active={filters.view === 'list'} onClick={() => setView('list')}>
               列表
             </TabButton>
           </div>
         </div>
 
-        {/* Row 2: Sort + Model filter */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '8px 12px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 16, flexWrap: 'wrap' }}>
+        <div className="page-toolbar__row">
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: isMobile ? 12 : 16,
+              flexWrap: 'wrap',
+            }}
+          >
             {sortOptions.map((opt) => (
               <TabButton
                 key={opt.key}
@@ -375,7 +346,14 @@ export function GalleryPage() {
               </TabButton>
             ))}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 12, flexWrap: 'wrap' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: isMobile ? 10 : 12,
+              flexWrap: 'wrap',
+            }}
+          >
             {modelFilters.map((m) => (
               <TabButton
                 key={m}
@@ -390,29 +368,14 @@ export function GalleryPage() {
       </div>
 
       {/* Status bar */}
-      <div
-        style={{
-          padding: '8px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          borderBottom: `1px solid ${tokens.border}`,
-          background: 'var(--color-bg)',
-        }}
-      >
+      <div className="page-status">
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={dotStyle(loading ? tokens.textMuted : tokens.success)} />
-          <span
-            style={{ fontSize: 10, color: loading ? tokens.textMuted : tokens.success, fontFamily: tokens.fontBody }}
-          >
+          <span style={{ color: loading ? tokens.textMuted : tokens.success }}>
             {loading ? t('common.loadingMore') : t('common.dbConnected')}
           </span>
         </div>
-        <span
-          style={{ fontSize: 10, color: tokens.textMuted, fontFamily: tokens.fontBody }}
-        >
-          {t('common.totalImages', { total })}
-        </span>
+        <span style={{ marginLeft: 'auto' }}>{t('common.totalImages', { total })}</span>
       </div>
 
       <FilterPanel />
@@ -427,15 +390,15 @@ export function GalleryPage() {
         <GridSkeleton count={8} />
       ) : !error ? (
         images.length === 0 ? (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)', gap: 16, textAlign: 'center', padding: '0 32px' }}>
-            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div className="empty-state">
+            <svg width="56" height="56" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
               <rect x="12" y="8" width="40" height="48" rx="3" stroke={tokens.textFaint} strokeWidth="1.5" fill="none" />
               <path d="M20 20h24M20 28h16M20 36h20" stroke={tokens.textFaint} strokeWidth="1" strokeLinecap="round" />
-              <circle cx="44" cy="44" r="10" stroke={tokens.accent} strokeWidth="1.5" fill="rgba(122,92,18,0.06)" />
+              <circle cx="44" cy="44" r="10" stroke={tokens.accent} strokeWidth="1.5" fill="rgba(122,90,16,0.08)" />
               <path d="M41 44l2 2 4-4" stroke={tokens.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span style={{ fontSize: 15, fontFamily: tokens.fontDisplay, color: 'var(--color-text-secondary)' }}>图库尚空</span>
-            <span style={{ fontSize: 13, fontFamily: tokens.fontBody, color: 'var(--color-text-muted)' }}>导入图片，点亮属于你的灯火。</span>
+            <p className="empty-state__title">图库尚空</p>
+            <p className="empty-state__desc">导入图片，点亮属于你的灯火。</p>
           </div>
         ) : (
           <>
@@ -495,20 +458,19 @@ export function GalleryPage() {
       {/* Bottom bar — page info only */}
       <div
         style={{
-          padding: '12px 16px',
+          padding: '12px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderTop: `1px solid ${tokens.border}`,
+          borderTop: `1px solid ${tokens.borderSubtle}`,
           marginTop: 'auto',
+          fontSize: 11,
+          color: tokens.textSecondary,
+          fontFamily: tokens.fontBody,
         }}
       >
-        <span style={{ fontSize: 11, color: tokens.textSecondary, fontFamily: tokens.fontBody }}>
-          {t('common.artworks', { count: images.length })}
-        </span>
-        <span style={{ fontSize: 11, color: tokens.textSecondary, fontFamily: tokens.fontBody }}>
-          {t('common.pageInfo', { page, totalPages })}
-        </span>
+        <span>{t('common.artworks', { count: images.length })}</span>
+        <span>{t('common.pageInfo', { page, totalPages })}</span>
       </div>
 
       {/* Floating batch toolbar */}

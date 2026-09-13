@@ -79,32 +79,21 @@ export function TagManager() {
 
   return (
     <div
+      className="page-shell"
       style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        padding: isMobile ? '20px 16px' : '32px',
+        padding: isMobile ? '20px 16px' : '28px 32px',
         fontFamily: tok.fontBody,
         color: 'var(--color-text)',
-        overflow: 'auto',
       }}
     >
       {/* Header */}
-      <div style={{ marginBottom: isMobile ? '16px' : '24px' }}>
-        <h2
-          style={{
-            fontSize: isMobile ? '18px' : '20px',
-            fontWeight: 600,
-            fontFamily: tok.fontDisplay,
-            color: tok.text,
-            margin: '0 0 4px',
-          }}
-        >
+      <div style={{ marginBottom: isMobile ? 16 : 24 }}>
+        <h2 className={isMobile ? 'page-title page-title--mobile' : 'page-title'} style={{ marginBottom: 4 }}>
           标签管理
         </h2>
         <p
           style={{
-            fontSize: '12px',
+            fontSize: 12,
             color: tok.textMuted,
             margin: 0,
           }}
@@ -118,12 +107,12 @@ export function TagManager() {
         <div
           style={{
             padding: '8px 12px',
-            marginBottom: '16px',
-            background: 'rgba(180, 60, 60, 0.06)',
-            border: '1px solid rgba(180, 60, 60, 0.15)',
-            borderRadius: '2px',
-            fontSize: '12px',
-            color: '#8a4040',
+            marginBottom: 16,
+            background: tok.dangerBg,
+            border: '1px solid rgba(139, 48, 48, 0.2)',
+            borderRadius: 3,
+            fontSize: 12,
+            color: tok.danger,
           }}
         >
           {error}
