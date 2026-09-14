@@ -3,6 +3,7 @@ node_modules/
 
 # Rust build
 src-tauri/target/
+src-tauri/.cargo/
 
 # Build output
 dist/
