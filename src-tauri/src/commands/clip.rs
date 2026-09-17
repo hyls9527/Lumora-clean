@@ -27,10 +27,9 @@ fn parse_clip_response(output: &[u8]) -> AppResult<ClipEmbeddingResponse> {
 
 /// Generate image embedding using CLIP sidecar.
 pub fn clip_embed_image(image_path: &str) -> AppResult<Vec<f64>> {
-    let output = crate::commands::sidecar_command("clip_server.py")?
-        .args(["embed-image", image_path])
-        .output()
-        .map_err(|e| AppError::External(format!("Failed to run CLIP sidecar: {}", e)))?;
+    let mut cmd = crate::commands::sidecar_command("clip_server.py")?;
+    cmd.args(["embed-image", image_path]);
+    let output = crate::sidecar::run_with_timeout(cmd, crate::sidecar::DEFAULT_TIMEOUT)?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -46,10 +45,9 @@ pub fn clip_embed_image(image_path: &str) -> AppResult<Vec<f64>> {
 
 /// Generate text embedding using CLIP sidecar.
 pub fn clip_embed_text(text: &str) -> AppResult<Vec<f64>> {
-    let output = crate::commands::sidecar_command("clip_server.py")?
-        .args(["embed-text", text])
-        .output()
-        .map_err(|e| AppError::External(format!("Failed to run CLIP sidecar: {}", e)))?;
+    let mut cmd = crate::commands::sidecar_command("clip_server.py")?;
+    cmd.args(["embed-text", text]);
+    let output = crate::sidecar::run_with_timeout(cmd, crate::sidecar::DEFAULT_TIMEOUT)?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -71,9 +69,7 @@ pub fn clip_embed_images(paths: &[String]) -> AppResult<Vec<Option<Vec<f64>>>> {
     cmd.arg("embed-images");
     cmd.args(paths);
 
-    let output = cmd
-        .output()
-        .map_err(|e| AppError::External(format!("Failed to run CLIP sidecar: {}", e)))?;
+    let output = crate::sidecar::run_with_timeout(cmd, crate::sidecar::DEFAULT_TIMEOUT)?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);

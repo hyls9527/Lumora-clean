@@ -258,50 +258,42 @@ CREATE VIRTUAL TABLE images_fts USING fts5(
 | `check_ollama_status` | `{}` | `[boolean, string?]` | Ollama 状态检查 |
 | `get_ollama_host` | `{}` | `string` | 获取 Ollama 地址 |
 | `export_database` | `{ destination: string }` | `string` | 导出数据库 |
-| `import_database` | `{ source: string }` | `string` | 导入数据库 |
+| `import_database` | `{ source: string }` | `string` | 导入数据库（活动连接内 Online Backup，不换文件） |
+| `get_crash_stats` | `{}` | `{ panics, logPath }` | 本次运行的 panic 计数与 crash.log 位置 |
+| `get_backup_status` | `{}` | `{ snapshots, directory, intervalSeconds, retain, lastError, newest }` | 自动快照状态（RPO） |
+| `create_backup_now` | `{}` | `string` | 立即写一份快照 |
 
-## 测试架构
+## 测试与度量架构
 
 ```
-前端测试 (vitest + jsdom)
-├── stores/__tests__/
-│   ├── imageStore.test.ts         (18 tests)
-│   ├── trashStore.test.ts         (15 tests)
-│   ├── settingsStore.test.ts      (16 tests)
-│   ├── aiAnalysisStore.test.ts    (11 tests)
-│   ├── embeddingStore.test.ts     (9 tests)
-│   ├── semanticSearchStore.test.ts (12 tests)
-│   ├── imageSearchStore.test.ts   (6 tests)
-│   ├── imageTagsStore.test.ts     (7 tests)
-│   └── smartCollectionStore.test.ts (4 tests)
-├── lib/api/__tests__/
-│   ├── images.test.ts             (16 tests)
-│   ├── semanticCache.test.ts      (8 tests)
-│   ├── write-commands.test.ts     (20 tests)
-│   ├── type-contract.test.ts      (10 tests)
-│   ├── toImageRecord.test.ts      (7 tests)
-│   ├── searchByImage.test.ts      (5 tests)
-│   └── batchAutoTag.test.ts       (5 tests)
-└── components/ui/__tests__/
-    ├── ErrorState.test.tsx         (4 tests)
-    ├── ImageCard.test.tsx          (12 tests)
-    ├── CommandPalette.test.tsx     (9 tests)
-    ├── DetailModal.test.tsx        (12 tests)
-    ├── design-compliance.test.ts   (16 tests)
-    └── accessibility.test.ts       (12 tests)
+前端 (vitest + jsdom)     113 个测试文件 / 972 个用例    覆盖率门禁 80%（实测 87.8% 语句、81.4% 分支）
+├── src/**/__tests__/      stores · lib/api · lib/aiControl · components/ui · features/*
+├── src/lib/__tests__/     reliability.test.ts（会话/崩溃计数）、tauri.test.ts（invoke 契约）
+└── src/features/settings/ HealthPanel 备份/稳定性面板
 
-Rust 测试 (cargo test --lib)
-├── commands::images::tests       (10 tests)
-├── commands::embeddings::tests   (6 tests)
-├── commands::ai::tests           (4 tests)
-├── commands::tags::tests         (4 tests)
-├── commands::trash::tests        (3 tests)
-├── commands::clip::tests         (1 test)
-├── db::migrations::tests         (4 tests)
-├── metadata::mod::tests          (4 tests)
-├── metadata::png::tests          (2 tests)
-└── metadata::sd::tests           (6 tests)
+Rust (cargo test --lib)   272 个用例（269 通过 / 3 ignored，ignored 需本地 Ollama）
+├── commands::*/tests      图片·标签·回收站·嵌入·AI·导出·备份·智能收藏
+├── auto_backup::tests     快照完整性 / WAL 未 checkpoint 数据 / 保留策略 / RTO 演练
+├── crash_log::tests       panic hook 记录 JSON 行 / 超大日志轮转
+├── sidecar::tests         超时杀进程树 / 输出捕获 / 非零退出码
+└── perf_bench             10k 图库 9 条读路径 p50/p95/p99（--ignored 显式运行）
+
+E2E (Playwright)          core（导航/首启/主题/命令面板/语义搜索）
+├── perf-load.spec.ts      TC-PERF-001 页面加载 <2s（跑生产构建，串行，避免争用）
+└── perf-scroll.spec.ts    TC-PERF-002 10k 图片虚拟滚动 p95 ≥30fps
 ```
+
+## 可靠性设施
+
+| 设施 | 位置 | 作用 |
+|---|---|---|
+| 崩溃采集 | `src-tauri/src/crash_log.rs` | panic hook 写 `crash.log`（JSON 行，1MiB 后保留最新一半），`get_crash_stats` 暴露计数 |
+| 会话/崩溃率 | `src/lib/reliability.ts` | 每次启动计一个会话，会话内首次异常才计一次崩溃 → 崩溃率可算 |
+| 自动快照 | `src-tauri/src/auto_backup.rs` | 每 10 分钟一次、保留 6 份，走 SQLite Online Backup API（RPO <15min） |
+| sidecar 看护 | `src-tauri/src/sidecar.rs` | 所有 Python sidecar 调用带超时，超时杀整棵进程树 |
+| 恢复演练 | `scripts/restore-drill.mjs` | 全损 → 快照恢复 → `integrity_check`，输出 RTO 实测 |
+
+验收对照与证据：`docs/05-qa/14-商业级交付验收矩阵.md`。
 
 ## 构建产物
 

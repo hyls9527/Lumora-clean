@@ -130,6 +130,17 @@ function mockResponse(cmd: string, args?: Record<string, unknown>): unknown {
     return { processed: 0, remaining: 0 };
   if (cmd === 'move_score_tier_to_trash')
     return 0;
+  if (cmd === 'get_crash_stats') return { panics: 0, logPath: null };
+  if (cmd === 'get_backup_status')
+    return {
+      snapshots: 0,
+      directory: null,
+      intervalSeconds: 600,
+      retain: 6,
+      lastError: null,
+      newest: null,
+    };
+  if (cmd === 'create_backup_now') return 'mock-snapshot.db';
   if (cmd === 'get_lan_info')
     return { ip: '127.0.0.1', port: 8079, token: 'mock-token' };
   if (cmd === 'get_app_version') return '0.8.0';

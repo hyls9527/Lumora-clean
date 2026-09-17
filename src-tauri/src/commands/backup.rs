@@ -41,7 +41,7 @@ pub async fn import_database(db: State<'_, DbHandle>, source: String) -> AppResu
     import_database_inner(&db, Path::new(&source))
 }
 
-fn import_database_inner(db: &DbHandle, src: &Path) -> AppResult<String> {
+pub fn import_database_inner(db: &DbHandle, src: &Path) -> AppResult<String> {
     if !src.exists() {
         return Err(AppError::InvalidInput(
             "Source file does not exist".to_string(),

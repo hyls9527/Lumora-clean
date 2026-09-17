@@ -267,7 +267,18 @@
     "license": "License",
     "backup": "Data Backup",
     "exportDb": "Export Database",
-    "importDb": "Import Database"
+    "importDb": "Import Database",
+    "autoBackupTitle": "Automatic snapshots",
+    "autoBackupEvery": "One every {minutes} minutes, keeping the newest {count}",
+    "autoBackupNone": "No snapshot yet — the first one is written within a minute",
+    "autoBackupNewest": "Newest snapshot: {name}",
+    "autoBackupCount": "{count} restore points on this machine",
+    "autoBackupError": "Last automatic backup failed: {message}",
+    "autoBackupNow": "Back up now",
+    "autoBackupDone": "Snapshot created",
+    "crashTitle": "Stability",
+    "crashNone": "No crashes recorded in this run",
+    "crashSome": "{count} exceptions recorded in this run"
   },
   "dashboard": {
     "overview": "Overview",

@@ -27,6 +27,7 @@ import { t } from './lib/i18n';
 import { t as tok } from './lib/tokens';
 import { filterDropPaths } from './lib/dropPaths';
 import { isDirectory } from './lib/api/fs';
+import { startSession, installGlobalCrashHandlers } from './lib/reliability';
 
 function App() {
   const [droppedPaths, setDroppedPaths] = useState<string[]>([]);
@@ -73,6 +74,14 @@ function App() {
     void preloadRoutes();
     void hydrate().then(() => setAppReady(true));
   }, [hydrate]);
+
+  // Reliability counters: one session per page load, plus the global error
+  // listeners that feed the crash rate (the ErrorBoundary reports render
+  // errors separately).
+  useEffect(() => {
+    startSession();
+    return installGlobalCrashHandlers();
+  }, []);
 
   // First launch: ask how imports should store images before any import.
   // Gated on settings hydration — checking before the store has settled was

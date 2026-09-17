@@ -225,6 +225,12 @@ pub fn list_images(
     page: u32,
     per_page: u32,
 ) -> AppResult<PaginatedResult> {
+    list_images_impl(&db, page, per_page)
+}
+
+/// Paginated listing body, split out so latency benchmarks exercise the real
+/// query instead of a copy of it.
+pub fn list_images_impl(db: &DbHandle, page: u32, per_page: u32) -> AppResult<PaginatedResult> {
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     let offset = page.saturating_sub(1) * per_page;
     let total: i64 = conn.query_row("SELECT COUNT(*) FROM images WHERE deleted = 0", [], |r| {
@@ -387,7 +393,7 @@ pub fn list_images_filtered(
     list_images_filtered_inner(&db, page, per_page, &filter)
 }
 
-fn list_images_filtered_inner(
+pub fn list_images_filtered_inner(
     db: &DbHandle,
     page: u32,
     per_page: u32,

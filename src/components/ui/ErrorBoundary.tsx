@@ -1,5 +1,6 @@
 import React from 'react';
 import { ErrorState } from './ErrorState';
+import { recordCrash } from '../../lib/reliability';
 
 interface Props {
   children: React.ReactNode;
@@ -26,6 +27,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Every caught render error counts against the crash-rate metric — a
+    // caught error is still a broken screen for the user.
+    recordCrash({ source: 'react', message: error.message, stack: error.stack });
     // Log to console in development
     if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
       console.error('[ErrorBoundary]', error, errorInfo);

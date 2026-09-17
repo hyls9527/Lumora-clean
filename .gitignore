@@ -65,6 +65,11 @@ test-vm/results/
 playwright-report/
 test-results/
 
+# 覆盖率产物 / 本地审计输出
+/coverage/
+/.audit-npm.json
+/.audit-cargo.txt
+
 # 桌面 E2E 本地工具（msedgedriver 体积大、版本绑定本机 Edge）
 scripts/tools/
 

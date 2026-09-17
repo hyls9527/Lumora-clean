@@ -86,10 +86,9 @@ pub fn map_score_label(aesthetic_score: Option<f64>) -> Option<&'static str> {
 /// scoring engine is usable it returns a JSON `error` field with exit code 0,
 /// so callers can persist partial results or leave the image unscored.
 pub fn score_image(image_path: &str, prompt: Option<&str>) -> AppResult<AestheticScoreResponse> {
-    let output = crate::commands::sidecar_command("aesthetic_server.py")?
-        .args(["score-image", image_path, prompt.unwrap_or("")])
-        .output()
-        .map_err(|e| AppError::External(format!("Failed to run aesthetic sidecar: {}", e)))?;
+    let mut cmd = crate::commands::sidecar_command("aesthetic_server.py")?;
+    cmd.args(["score-image", image_path, prompt.unwrap_or("")]);
+    let output = crate::sidecar::run_with_timeout(cmd, crate::sidecar::DEFAULT_TIMEOUT)?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -101,6 +100,50 @@ pub fn score_image(image_path: &str, prompt: Option<&str>) -> AppResult<Aestheti
 
     serde_json::from_slice(&output.stdout)
         .map_err(|e| AppError::External(format!("Failed to parse aesthetic response: {}", e)))
+}
+
+/// Score many images in one sidecar process.
+///
+/// One process per image meant one ViT-L/14 (+HPS v2) model load per image —
+/// tens of seconds each, so scoring a thousand-image library took hours of
+/// pure loading. The batch command pays the load once (C-11).
+pub fn score_images(items: &[(String, String)]) -> AppResult<Vec<AestheticScoreResponse>> {
+    if items.is_empty() {
+        return Ok(vec![]);
+    }
+    let payload: Vec<[&str; 2]> = items
+        .iter()
+        .map(|(path, prompt)| [path.as_str(), prompt.as_str()])
+        .collect();
+    let json = serde_json::to_string(&payload)
+        .map_err(|e| AppError::External(format!("Failed to encode batch request: {e}")))?;
+
+    let mut cmd = crate::commands::sidecar_command("aesthetic_server.py")?;
+    cmd.args(["score-batch", &json]);
+    let output = crate::sidecar::run_with_timeout(cmd, crate::sidecar::DEFAULT_TIMEOUT)?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(AppError::External(format!(
+            "Aesthetic sidecar failed: {stderr}"
+        )));
+    }
+
+    #[derive(Deserialize)]
+    struct BatchResponse {
+        #[serde(default)]
+        scores: Vec<AestheticScoreResponse>,
+    }
+    let parsed: BatchResponse = serde_json::from_slice(&output.stdout)
+        .map_err(|e| AppError::External(format!("Failed to parse aesthetic response: {e}")))?;
+    if parsed.scores.len() != items.len() {
+        return Err(AppError::External(format!(
+            "Aesthetic batch response length mismatch: expected {}, got {}",
+            items.len(),
+            parsed.scores.len()
+        )));
+    }
+    Ok(parsed.scores)
 }
 
 /// Persist a scored response. The tier is derived from the absolute aesthetic
@@ -168,7 +211,13 @@ pub async fn score_image_cmd(
         .map_err(|_| AppError::NotFound(format!("Image not found: {image_id}")))?
     };
 
-    let response = score_image(&file_path, prompt.as_deref())?;
+    // The sidecar blocks for tens of seconds on CPU: keep it off the async
+    // executor thread so other commands stay responsive (R-6).
+    let response =
+        tauri::async_runtime::spawn_blocking(move || score_image(&file_path, prompt.as_deref()))
+            .await
+            .map_err(|e| AppError::External(format!("Aesthetic task failed: {e}")))??;
+
     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
     save_score(&conn, &image_id, &response)?;
     Ok(response)
@@ -194,21 +243,36 @@ pub async fn score_missing_cmd(
         list_missing_score_images_db(&conn, batch)?
     };
 
+    // One sidecar process for the whole batch: the model loads once (C-11),
+    // and the CPU-bound work stays off the async executor thread (R-6).
+    let batch_items: Vec<(String, String)> = missing
+        .iter()
+        .map(|(_, path, prompt)| (path.clone(), prompt.clone().unwrap_or_default()))
+        .collect();
+    let scored = tauri::async_runtime::spawn_blocking(move || score_images(&batch_items))
+        .await
+        .map_err(|e| AppError::External(format!("Aesthetic task failed: {e}")));
+
     let mut processed = 0i64;
-    for (image_id, file_path, prompt) in missing {
-        match score_image(&file_path, prompt.as_deref()) {
-            Ok(response) => {
+    match scored {
+        Ok(Ok(responses)) => {
+            for ((image_id, _, _), response) in missing.iter().zip(responses) {
                 let usable = response.aesthetic_score.is_some() || response.hps_score.is_some();
                 let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-                save_score(&conn, &image_id, &response)?;
+                save_score(&conn, image_id, &response)?;
                 if usable {
                     processed += 1;
                 }
             }
-            Err(e) => {
-                log::warn!("Failed to score image {image_id}: {e}");
-            }
         }
+        Ok(Err(e)) => {
+            // A whole-batch failure (sidecar missing / timed out) leaves the
+            // images unscored for the next run; surface it instead of silently
+            // reporting "0 processed" as success.
+            log::warn!("Aesthetic batch failed: {e}");
+            return Err(e);
+        }
+        Err(e) => return Err(e),
     }
 
     let remaining = {

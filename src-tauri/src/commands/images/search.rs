@@ -14,7 +14,7 @@ pub fn search_images(db: tauri::State<'_, DbHandle>, query: String) -> AppResult
     search_images_inner(&db, &query)
 }
 
-fn search_images_inner(db: &DbHandle, query: &str) -> AppResult<Vec<ImageRecord>> {
+pub fn search_images_inner(db: &DbHandle, query: &str) -> AppResult<Vec<ImageRecord>> {
     // An empty/whitespace query must yield no results: an empty MATCH string
     // is an FTS5 syntax error, not "match nothing".
     let escaped = escape_fts5(query);

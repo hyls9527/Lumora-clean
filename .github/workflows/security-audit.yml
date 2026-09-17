@@ -15,14 +15,34 @@ permissions:
 
 jobs:
   npm-audit:
-    name: npm audit
+    name: npm audit (runtime + toolchain)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - run: npm audit --omit=dev
+      - run: npm ci
+      # 验收指标「高危漏洞 = 0」: fail the build on any high/critical advisory,
+      # including ones that only reach the dev toolchain (C-17 — the old
+      # `--omit=dev` run could never see them, and exited 0 regardless).
+      - name: Fail on high/critical advisories
+        run: |
+          npm audit --json > audit.json || true
+          node -e "
+            const a = require('./audit.json');
+            const v = a.metadata.vulnerabilities;
+            console.log('advisories:', JSON.stringify(v));
+            if (v.high > 0 || v.critical > 0) {
+              console.error('::error title=High advisories::' + v.high + ' high, ' + v.critical + ' critical');
+              process.exit(1);
+            }
+          "
+      # Moderate advisories in build tooling are reported but do not block a
+      # release: none of them ship in the bundled app (see docs/05-qa).
+      - name: Report moderate advisories
+        if: always()
+        run: npm audit || true
 
   cargo-audit:
     name: cargo audit

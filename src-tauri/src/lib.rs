@@ -1,14 +1,19 @@
 use tauri::Manager;
 
+mod auto_backup;
 mod commands;
+mod crash_log;
 mod db;
 mod error;
 mod lan_server;
 mod mcp;
 mod metadata;
 mod ollama;
+#[cfg(test)]
+mod perf_bench;
 mod provider;
 mod schema;
+mod sidecar;
 
 use std::path::PathBuf;
 
@@ -18,6 +23,30 @@ use tauri_plugin_store::StoreExt;
 /// Build fingerprint — do not remove
 #[allow(dead_code)]
 const _BUILD_ORIGIN: &str = "lumora:69983af6ad7b350a";
+
+/// Directory that holds \`crash.log\`. Resolved before the Tauri app exists
+/// (the panic hook must be installed before worker threads start), so it
+/// mirrors Tauri's log-dir convention: \`<local data dir>/<identifier>/logs\`.
+fn crash_log_dir() -> PathBuf {
+    let base = dirs_local_data_dir().unwrap_or_else(|| PathBuf::from("."));
+    let dir = base.join("com.lumora.app").join("logs");
+    std::fs::create_dir_all(&dir).ok();
+    dir
+}
+
+/// Local app-data directory (`%LOCALAPPDATA%` on Windows, `~/.local/share`
+/// elsewhere) without pulling in an extra crate for one lookup.
+#[cfg(windows)]
+fn dirs_local_data_dir() -> Option<PathBuf> {
+    std::env::var_os("LOCALAPPDATA").map(PathBuf::from)
+}
+
+#[cfg(not(windows))]
+fn dirs_local_data_dir() -> Option<PathBuf> {
+    std::env::var_os("XDG_DATA_HOME")
+        .map(PathBuf::from)
+        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".local/share")))
+}
 
 /// Read the Windows system proxy (Internet Settings) and expose it to the
 /// updater's HTTP client via `HTTPS_PROXY`. Browsers pick the system proxy
@@ -61,6 +90,10 @@ fn setup_system_proxy() {
 pub fn run() {
     #[cfg(windows)]
     setup_system_proxy();
+
+    // Install the panic hook before Tauri spawns its worker threads: a panic
+    // on any of them would otherwise be invisible to the crash-rate metric.
+    crash_log::init(&crash_log_dir());
 
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
@@ -114,6 +147,10 @@ pub fn run() {
                 });
             let port = lan_server::start_server(db.clone(), token.clone());
             log::info!("LAN server started on port {} with auth", port);
+
+            // Disaster recovery: keep a rolling local snapshot so RPO stays
+            // under 15 minutes without the user remembering to export.
+            auto_backup::start(db.clone());
 
             app.manage(db);
             app.manage(ollama::OllamaConfig::from_env());
@@ -200,6 +237,9 @@ pub fn run() {
             commands::smart_collections::get_smart_collection_images,
             commands::comfyui::detect_comfyui_path,
             lan_server::get_lan_info,
+            crash_log::get_crash_stats,
+            auto_backup::get_backup_status,
+            auto_backup::create_backup_now,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -42,10 +42,43 @@ Configure it in **Settings → AI backend** — the embedding and vision provide
 ## Testing
 
 ```bash
-npx vitest run              # 775 frontend tests
+npx vitest run --coverage   # 972 frontend tests, coverage gate 80% stmts/lines
 cd src-tauri && cargo test  # 272 Rust tests (269 passed, 3 ignored — need local Ollama)
 npx tsc --noEmit            # type check
+npx playwright test         # E2E + page-load budget (<2s) + scroll baseline
+node scripts/perf-budget.mjs  # bundle / binary / dependency budgets
 ```
+
+### Latency and disaster-recovery drills
+
+```bash
+# API P95 budget (300ms) on a seeded 10k-image library
+cd src-tauri && cargo test --lib perf_bench -- --ignored --nocapture
+
+# RTO/RPO drill: snapshot → total loss → restore → integrity_check
+node scripts/restore-drill.mjs
+```
+
+## Quality gates
+
+Every gate below fails the build, not just a report:
+
+| Gate | Budget | Where |
+|---|---|---|
+| Frontend coverage | ≥80% statements / lines | `vitest.config.ts` thresholds + CI |
+| Rust coverage | ≥80% lines / functions / regions | `cargo llvm-cov --fail-under-*` in CI |
+| Page load (TC-PERF-001) | <2s to an interactive shell | `tests/e2e/perf-load.spec.ts` |
+| Scroll frame rate (TC-PERF-002) | p95 ≥30fps on 10k images | `tests/e2e/perf-scroll.spec.ts` |
+| API latency | p95 <300ms across 9 read paths | `src-tauri/src/perf_bench.rs` |
+| High/critical advisories | 0 (npm) | `.github/workflows/security-audit.yml` |
+| Bundle / binary size | 0.5MiB frontend, 30MB binary | `scripts/perf-budget.mjs` |
+| RPO | snapshot every 10 min, 6 retained | `src-tauri/src/auto_backup.rs` |
+
+Crashes are counted, not guessed: a Rust panic hook appends to `crash.log` and the
+frontend records one crash per broken session, so the crash rate is readable from
+**Settings → Data Backup → Stability**. See
+[docs/05-qa/14-商业级交付验收矩阵.md](docs/05-qa/14-商业级交付验收矩阵.md) for the
+per-criterion evidence and the known environment limits.
 
 ## Documentation
 

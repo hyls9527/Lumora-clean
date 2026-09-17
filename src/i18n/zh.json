@@ -267,7 +267,18 @@
     "license": "许可",
     "backup": "数据备份",
     "exportDb": "导出数据库",
-    "importDb": "导入数据库"
+    "importDb": "导入数据库",
+    "autoBackupTitle": "自动快照",
+    "autoBackupEvery": "每 {minutes} 分钟保存一次，保留最近 {count} 份",
+    "autoBackupNone": "暂无快照，将在一分钟内自动创建",
+    "autoBackupNewest": "最新快照：{name}",
+    "autoBackupCount": "本机已有 {count} 个还原点",
+    "autoBackupError": "最近一次自动备份失败：{message}",
+    "autoBackupNow": "立即备份",
+    "autoBackupDone": "已创建快照",
+    "crashTitle": "稳定性",
+    "crashNone": "本次运行无崩溃记录",
+    "crashSome": "本次运行记录到 {count} 次异常"
   },
   "dashboard": {
     "overview": "概览",

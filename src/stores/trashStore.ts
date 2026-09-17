@@ -32,7 +32,8 @@ interface TrashStore {
   fetchTrash: (page?: number) => Promise<void>;
   restoreImage: (id: string) => Promise<void>;
   permanentDelete: (id: string) => Promise<void>;
-  emptyTrash: () => Promise<void>;
+  /** Empties the trash and resolves with the number of removed images. */
+  emptyTrash: () => Promise<number>;
   softDeleteImage: (id: string) => Promise<void>;
   batchSoftDelete: (ids: string[]) => Promise<number>;
 }
@@ -122,16 +123,21 @@ export function createTrashStore(deps: TrashStoreDeps = defaultDeps): StateCreat
       emptyTrash: async () => {
         set({ loading: true, error: null });
         try {
-          await deps.emptyTrash();
+          // The backend reports how many rows it removed; the AI command
+          // surface quotes that number back to the user, so swallowing it
+          // rendered "已清空回收站（undefined 张）".
+          const removed = await deps.emptyTrash();
           // Invalidate any in-flight list fetch so it can't resurrect the
           // just-emptied items.
           fetchSeq++;
           set({ images: [], total: 0, loading: false });
+          return removed;
         } catch (err) {
           set({
             loading: false,
             error: err instanceof Error ? err.message : '清空回收站失败',
           });
+          return 0;
         }
       },
 

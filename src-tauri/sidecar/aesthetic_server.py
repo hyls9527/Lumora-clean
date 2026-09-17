@@ -270,6 +270,37 @@ def score_image(image_path: str, prompt: str) -> dict:
     return result
 
 
+def score_batch(items) -> list:
+    """Score many images in one process.
+
+    Loading the ViT-L/14 aesthetic predictor (and HPS v2) costs tens of
+    seconds; spawning one process per image re-paid that cost every time, so
+    scoring a thousand-image library took hours of pure model loading. The
+    batch command pays it once. `items` is a list of `[image_path, prompt]`.
+    """
+    results = []
+    for item in items:
+        try:
+            if isinstance(item, dict):
+                path = item.get("image_path", "")
+                prompt = item.get("prompt", "") or ""
+            else:
+                path = item[0] if len(item) > 0 else ""
+                prompt = (item[1] if len(item) > 1 else "") or ""
+            results.append(score_image(path, prompt))
+        except Exception as exc:  # one bad image must not fail the batch
+            results.append(
+                {
+                    "hps_score": None,
+                    "hps_style": None,
+                    "aesthetic_score": None,
+                    "scoring_model": None,
+                    "error": str(exc),
+                }
+            )
+    return results
+
+
 def _get_dep_versions() -> dict:
     versions = {}
     for pkg in EXPECTED_DEPS:
@@ -299,6 +330,10 @@ def main():
                 image_path = sys.argv[2]
                 prompt = sys.argv[3] if len(sys.argv) > 3 else ""
                 print(json.dumps(score_image(image_path, prompt)))
+            elif command == "score-batch" and len(sys.argv) >= 3:
+                # argv[2] is a JSON array of [image_path, prompt] pairs.
+                items = json.loads(sys.argv[2])
+                print(json.dumps({"scores": score_batch(items)}))
             elif command == "health":
                 print(json.dumps(_health()))
             elif command == "version":
@@ -329,6 +364,11 @@ def main():
                                 request.get("prompt", "") or "",
                             )
                         ),
+                        flush=True,
+                    )
+                elif command == "score-batch":
+                    print(
+                        json.dumps({"scores": score_batch(request.get("items", []))}),
                         flush=True,
                     )
                 else:
