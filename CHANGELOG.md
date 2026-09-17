@@ -2,6 +2,19 @@
 
 All notable changes to Lumora are documented here.
 
+## v0.12.1 (2026-09-18)
+
+修复 v0.12.0 的 CI 红灯（v0.12.0 未产出任何发布产物，tag 保留作记录）。
+
+### Fixed
+- **挂起的 sidecar 在 Linux/macOS 上会拖住调用方**（CI 实测 `hanging_sidecar_is_killed_and_reported` 耗时 31.5s，正好等于子命令的 sleep 时长）：Unix 上 sidecar 是 `sh -c "python ..."`，`kill_tree` 只杀直接子进程，真正的 worker 逃过一劫并继续持有 stdout 管道，读取线程因此阻塞到它自然退出 —— 超时形同虚设，线程被长期占用。现让子进程经 `setsid()` 进入独立进程组，超时按组发 `SIGKILL`；输出读取再套一层有界等待（5s），任何逃逸进程都无法再把调用方拖死。测试断言同步收紧到 5s，堵住「回归了也看不出来」。
+- **`rustls` 存在漏洞 RUSTSEC-2026-0285**（`cargo audit` 报 1 个 vulnerability）：`0.23.41` → **`0.23.45`**（连带 `rustls-webpki 0.103.15`）。本机 `cargo audit` 现为 **exit 0**，仅剩 8 条 unmaintained/unsound 警告。
+- **Linux release 二进制 38.3MB 超 30MB 预算**：`Cargo.toml` 此前**没有任何 `[profile.release]`**，release 构建用的是默认配置（无跨 crate 内联、符号表完整）。现启用 `lto = true` + `codegen-units = 1` + `strip = true` + `opt-level = "s"` —— 标准体积调优，不是改预算。
+
+### Notes
+- 本机全量回归：Rust 285 通过 / 0 失败、`cargo fmt --check` 通过、`cargo clippy -D warnings` 0 警告、`cargo audit` exit 0；API 最差 p95 71.85ms（预算 300ms）、RTO 演练 5.8ms。
+- 教训：v0.12.0 只在本机 Windows 工具链验证过就打了 tag，而 sidecar 进程树问题与二进制体积问题**都只在 Linux 构建上暴露** —— 与 AGENTS.md 记录的「本地 Windows 全绿 ≠ CI 绿」是同一条。
+
 ## v0.12.0 (2026-09-18)
 
 商业级交付验收轮：把「可观测、可恢复、可复现」三件事补齐，并让每一条验收指标都有自动门禁兜住；同时落地设计语言 v3「灯箱」的界面改版。

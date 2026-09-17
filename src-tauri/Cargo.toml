@@ -1,6 +1,6 @@
 [package]
 name = "Lumora"
-version = "0.12.0"
+version = "0.12.1"
 description = "Lumora 鈥?AI-powered image gallery by hyls9527"
 authors = ["you"]
 license = "MIT"
@@ -44,9 +44,25 @@ local-ip-address = "0.6"
 rand = "0.9"
 rmcp = { version = "2.2.0", features = ["server", "schemars", "transport-streamable-http-server"] }
 
+[target.'cfg(unix)'.dependencies]
+# Needed to run each sidecar in its own process group and kill the whole group:
+# a Unix sidecar is `sh -c "python ..."`, so killing only the direct child
+# leaves the real worker alive holding the pipe (see src/sidecar.rs).
+libc = "0.2"
+
 [target.'cfg(windows)'.dependencies]
 winreg = "0.52"
 
 [dev-dependencies]
 tempfile = "3"
 tower = { version = "0.5", features = ["util"] }
+
+# No profile was configured before, so release builds used the defaults: no
+# cross-crate inlining and full symbol tables. The Linux release binary landed
+# at 38.3 MB against a 30 MB budget — this is the standard size/startup tuning,
+# not a budget change.
+[profile.release]
+lto = true            # cross-crate inlining; biggest single win for size
+codegen-units = 1     # required for LTO to see everything
+strip = true          # drop symbols the app never ships a debugger for
+opt-level = "s"       # size-leaning optimisation

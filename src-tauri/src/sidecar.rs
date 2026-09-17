@@ -36,6 +36,23 @@ pub struct SidecarOutput {
 /// deadlock against a full pipe buffer.
 pub fn run_with_timeout(mut cmd: Command, timeout: Duration) -> AppResult<SidecarOutput> {
     cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        // New session ⇒ new process group whose id equals the child's pid, so
+        // `kill_tree` can signal the whole tree. Without this the sidecar's
+        // real worker (a grandchild of the `sh -c` wrapper) survives the kill,
+        // keeps the stdout pipe open, and the reader thread blocks until it
+        // finishes on its own.
+        unsafe {
+            cmd.pre_exec(|| {
+                if libc::setsid() == -1 {
+                    return Err(std::io::Error::last_os_error());
+                }
+                Ok(())
+            });
+        }
+    }
     let mut child = cmd
         .spawn()
         .map_err(|e| AppError::External(format!("Failed to run sidecar: {e}")))?;
@@ -85,13 +102,36 @@ pub fn run_with_timeout(mut cmd: Command, timeout: Duration) -> AppResult<Sideca
         }
     };
 
-    let stdout = out_handle.join().unwrap_or_default();
-    let stderr = err_handle.join().unwrap_or_default();
+    // Killing the group normally closes both pipes immediately. `join_bounded`
+    // is the belt-and-braces case: if some escaped descendant still holds the
+    // write end, the caller still returns instead of blocking past its budget.
+    let join_budget = Duration::from_secs(5);
+    let stdout = join_bounded(out_handle, join_budget);
+    let stderr = join_bounded(err_handle, join_budget);
     Ok(SidecarOutput {
         status,
         stdout,
         stderr,
     })
+}
+
+/// Join a reader thread, but never wait longer than `budget`.
+///
+/// `JoinHandle` has no timed join, so poll `is_finished`. A thread that never
+/// finishes is leaked deliberately: the alternative is blocking the command
+/// that was supposed to be unblockable.
+fn join_bounded(handle: std::thread::JoinHandle<Vec<u8>>, budget: Duration) -> Vec<u8> {
+    let deadline = Instant::now() + budget;
+    while !handle.is_finished() {
+        if Instant::now() >= deadline {
+            log::warn!(
+                "sidecar output reader did not finish within {budget:?}; returning partial output"
+            );
+            return Vec::new();
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    handle.join().unwrap_or_default()
 }
 
 /// Terminate a child and everything it spawned.
@@ -109,6 +149,17 @@ pub fn kill_tree(child: &mut std::process::Child) {
             .stdout(Stdio::null())
             .stderr(Stdio::null())
             .status();
+    }
+    #[cfg(unix)]
+    {
+        // The child runs in its own process group (see `pre_exec` above), so a
+        // negated pid signals every process in that group. Killing only the
+        // direct child left the real sidecar running and the pipe open, which
+        // is what made a hung sidecar pin its caller for the full runtime.
+        let pid = child.id() as i32;
+        unsafe {
+            libc::kill(-pid, libc::SIGKILL);
+        }
     }
     let _ = child.kill();
 }
@@ -174,10 +225,15 @@ mod tests {
             "unexpected error: {err}"
         );
         // Must return promptly after the deadline, not when the child would
-        // have finished on its own.
+        // have finished on its own. The sleep is 30s, so anything close to
+        // that means the tree was not actually killed — the regression this
+        // test exists for (it failed on Linux CI exactly this way, taking
+        // 31.5s, because killing only the `sh -c` wrapper left `sleep`
+        // holding the stdout pipe).
         assert!(
-            elapsed < Duration::from_secs(10),
-            "timed-out sidecar returned after {elapsed:?}"
+            elapsed < Duration::from_secs(5),
+            "timed-out sidecar returned after {elapsed:?} (expected ~400ms; \
+             a duration near the sleep length means the process tree survived)"
         );
     }
 
