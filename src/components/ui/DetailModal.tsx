@@ -32,29 +32,30 @@ const overlayStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  background: 'rgba(42, 33, 24, 0.6)',
-  animation: 'fadeIn 200ms ease-out',
+  background: 'rgba(36, 28, 18, 0.52)',
+  animation: 'overlayIn 280ms ease-out',
+  backdropFilter: 'blur(1.5px)',
 };
 
 const panelStyle: React.CSSProperties = {
   position: 'relative',
   width: '90vw',
-  maxWidth: 960,
-  maxHeight: '85vh',
+  maxWidth: 1000,
+  maxHeight: '88vh',
   display: 'flex',
   borderRadius: 6,
   background: 'var(--color-surface)',
   border: `1px solid ${tok.border}`,
-  boxShadow: 'rgba(139,115,75,0.12) 0px 0px 0px 1px, rgba(78,50,23,0.12) 0px 8px 32px, rgba(78,50,23,0.06) 0px 2px 8px',
+  boxShadow: tok.shadowElevated,
   overflow: 'hidden',
-  animation: 'slideUp 200ms ease-out',
+  animation: 'paperRise 280ms cubic-bezier(0.2, 0.7, 0.25, 1)',
 };
 
 // Mobile-friendly panel style: vertical layout for small screens
 const mobilePanelStyle: React.CSSProperties = {
   ...panelStyle,
   flexDirection: 'column',
-  maxHeight: '90vh',
+  maxHeight: '92vh',
 };
 
 const previewAreaStyle: React.CSSProperties = {
@@ -62,21 +63,21 @@ const previewAreaStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  background: 'rgba(139, 115, 75, 0.06)',
+  background: 'var(--color-bg-alt)',
   minHeight: 400,
-  padding: 24,
+  padding: 28,
   overflow: 'hidden',
 };
 
 // Mobile preview area: reduced min height
 const mobilePreviewAreaStyle: React.CSSProperties = {
   ...previewAreaStyle,
-  minHeight: 200,
+  minHeight: 220,
   padding: 16,
 };
 
 const metaPanelStyle: React.CSSProperties = {
-  width: 300,
+  width: 280,
   padding: '24px 20px',
   display: 'flex',
   flexDirection: 'column',

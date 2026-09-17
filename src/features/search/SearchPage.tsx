@@ -155,44 +155,40 @@ export function SearchPage() {
   }, [fetchEmbStats, fetchClipStats]);
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto' }}>
-      <div style={{ padding: isMobile ? '24px 16px 40px' : '48px 48px 64px' }}>
+    <div className="page-shell anim-page">
+      <div style={{ padding: isMobile ? '24px 16px 40px' : '40px 48px 56px', maxWidth: 960 }}>
         {/* Header */}
-        <header style={{ marginBottom: isMobile ? 20 : 32 }}>
-          <h2
-            style={{
-              fontSize: isMobile ? 18 : 20,
-              fontWeight: 600,
-              fontFamily: tok.fontDisplay,
-              color: tok.text,
-              marginBottom: 6,
-              marginTop: 0,
-            }}
-          >
+        <header style={{ marginBottom: isMobile ? 20 : 28 }}>
+          <h2 className={isMobile ? 'page-title page-title--mobile' : 'page-title'} style={{ marginBottom: 6 }}>
             语义搜索
           </h2>
           {isImageSearch ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 12, color: tok.accent, fontFamily: tok.fontBody }}>
                 以图搜图 · 找到 {results.length} 个相似结果
               </span>
-               <button
+              <button
                 type="button"
-                onClick={() => { clearImageSearch(); setSearchPage(1); }}
-                style={{
-                  fontSize: 11, fontFamily: tok.fontBody, color: tok.textSecondary,
-                  background: 'none', border: `1px solid ${tok.border}`,
-                  padding: '2px 8px', borderRadius: 3, cursor: 'pointer',
+                className="btn"
+                onClick={() => {
+                  clearImageSearch();
+                  setSearchPage(1);
                 }}
+                style={{ padding: '3px 10px', fontSize: 11 }}
               >
                 清除
               </button>
             </div>
           ) : (
-            <p style={{ fontSize: 12, color: tok.textSecondary, fontFamily: tok.fontBody, margin: 0 }}>
-              {results.length > 0
-                ? `找到 ${results.length} 个相似结果`
-                : '输入关键词开始搜索'}
+            <p
+              style={{
+                fontSize: 12,
+                color: tok.textSecondary,
+                fontFamily: tok.fontBody,
+                margin: 0,
+              }}
+            >
+              {results.length > 0 ? `找到 ${results.length} 个相似结果` : '输入关键词开始搜索'}
             </p>
           )}
           {searchMode === 'semantic' &&
@@ -203,10 +199,10 @@ export function SearchPage() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
-                marginTop: 12,
-                padding: '8px 12px',
-                background: 'rgba(122, 92, 18, 0.08)',
-                border: '1px solid rgba(122, 92, 18, 0.15)',
+                marginTop: 14,
+                padding: '10px 12px',
+                background: tok.accentSubtle,
+                border: `1px solid ${tok.border}`,
                 borderRadius: 4,
                 fontSize: 12,
                 color: tok.textSecondary,
@@ -223,18 +219,10 @@ export function SearchPage() {
               </span>
               <button
                 type="button"
+                className={filling || clipFilling ? 'btn' : 'btn btn--accent'}
                 disabled={filling || clipFilling}
                 onClick={() => void fillAllMissing()}
-                style={{
-                  fontSize: 11,
-                  fontFamily: tok.fontDisplay,
-                  color: filling || clipFilling ? tok.textMuted : tok.bg,
-                  background: filling || clipFilling ? tok.textFaint : tok.accent,
-                  border: 'none',
-                  padding: '4px 12px',
-                  borderRadius: 4,
-                  cursor: filling || clipFilling ? 'not-allowed' : 'pointer',
-                }}
+                style={{ marginLeft: 'auto', flexShrink: 0 }}
               >
                 {filling || clipFilling
                   ? tT('fillingProgress', {
@@ -258,18 +246,12 @@ export function SearchPage() {
                 value={filters.searchField}
                 onChange={(e) => setSearchField(e.target.value)}
                 aria-label={tT('searchField')}
+                className="field-input"
                 style={{
                   padding: isMobile ? '12px 10px' : '14px 12px',
                   fontSize: 13,
-                  fontFamily: tok.fontBody,
-                  color: tok.text,
-                  background: 'var(--color-surface)',
-                  border: `1px solid ${tok.border}`,
-                  borderRadius: 4,
-                  cursor: 'pointer',
-                  transition: 'border-color 200ms',
                   minWidth: isMobile ? 100 : 130,
-                  outline: 'none',
+                  cursor: 'pointer',
                 }}
               >
                 {searchFieldOptions.map((f) => (
@@ -291,17 +273,11 @@ export function SearchPage() {
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 placeholder={tT('textDescription')}
                 aria-label={tT('textDescription')}
+                className="field-input"
                 style={{
                   width: '100%',
-                  padding: isMobile ? '12px 100px 12px 14px' : '14px 110px 14px 20px',
+                  padding: isMobile ? '12px 100px 12px 14px' : '14px 110px 14px 18px',
                   fontSize: isMobile ? 14 : 15,
-                  fontFamily: tok.fontBody,
-                  color: tok.text,
-                  background: 'var(--color-surface)',
-                  border: `1px solid ${tok.border}`,
-                  borderRadius: 4,
-                  outline: 'none',
-                  transition: 'border-color 200ms, box-shadow 200ms',
                 }}
               />
               <SearchSuggestions
@@ -355,18 +331,13 @@ export function SearchPage() {
                 )}
                 <button
                   type="button"
+                  className="btn btn--accent"
                   onClick={handleSearch}
                   style={{
                     padding: '8px 20px',
                     fontSize: 13,
                     fontWeight: 500,
                     fontFamily: tok.fontDisplay,
-                    color: tok.bg,
-                    background: tok.accent,
-                    border: 'none',
-                    borderRadius: 4,
-                    cursor: 'pointer',
-                    transition: 'background 200ms',
                   }}
                   aria-label={tT('search')}
                 >
@@ -385,11 +356,13 @@ export function SearchPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: '8px 0',
-              borderBottom: `1px solid ${tok.border}`,
-              marginBottom: 20,
+              padding: '10px 0',
+              borderBottom: `1px solid ${tok.borderSubtle}`,
+              marginBottom: 16,
               fontSize: 11,
               fontFamily: tok.fontBody,
+              flexWrap: 'wrap',
+              gap: 8,
             }}
           >
             <span style={{ color: tok.textSecondary }}>
@@ -397,22 +370,15 @@ export function SearchPage() {
               {hasMore && ` · 已显示 ${paginatedResults.length}`}
               {' · '}按相似度排序
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               {filterOptions.map((f) => (
                 <button
                   key={f.key}
                   type="button"
-                  onClick={() => { setActiveFilter(f.key); setSearchPage(1); }}
-                  style={{
-                    padding: '4px 12px',
-                    fontSize: 11,
-                    fontFamily: tok.fontBody,
-                    color: activeFilter === f.key ? tok.bg : tok.textSecondary,
-                    background: activeFilter === f.key ? tok.accent : 'var(--color-surface)',
-                    border: activeFilter === f.key ? 'none' : `1px solid ${tok.border}`,
-                    borderRadius: 4,
-                    cursor: 'pointer',
-                    transition: 'background 200ms, color 200ms, border-color 200ms',
+                  className={`tab-underline${activeFilter === f.key ? ' tab-underline--active' : ''}`}
+                  onClick={() => {
+                    setActiveFilter(f.key);
+                    setSearchPage(1);
                   }}
                 >
                   {f.label}

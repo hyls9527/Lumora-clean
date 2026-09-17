@@ -10,11 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
       /* Prevent white flash — match DESIGN.md --color-bg */
-      html, body { background: var(--color-bg, #f2ede4); margin: 0; padding: 0; }
+      html, body { background: #f4f0e8; margin: 0; padding: 0; }
+      html[data-theme="dark"], html[data-theme="dark"] body { background: #181410; }
       #root {
         min-height: 100vh;
         font-family: 'DM Sans', sans-serif;
-        color: #a09480;
+        color: #8a7c66;
         font-size: 13px;
       }
       #root:empty {
@@ -25,6 +26,8 @@
       #root:empty::after {
         content: '正在加载 Lumora…';
         opacity: 0.6;
+        font-family: 'Noto Serif SC', serif;
+        letter-spacing: 0.08em;
       }
     </style>
   </head>

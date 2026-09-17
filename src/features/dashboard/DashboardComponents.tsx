@@ -1,5 +1,5 @@
 import { t } from '../../lib/i18n';
-import { t as tok } from '../../lib/tokens';
+import { t as tok, sectionTitleStyle, dottedSepStyle } from '../../lib/tokens';
 
 /** Dotted separator row for directory-style layout */
 export function DotRow({
@@ -16,44 +16,25 @@ export function DotRow({
       style={{
         display: 'flex',
         alignItems: 'baseline',
-        gap: 4,
+        gap: 6,
         paddingLeft: indent * 16,
         fontFamily: tok.fontBody,
         fontSize: 13,
-        lineHeight: 1.8,
+        lineHeight: 1.85,
       }}
     >
       <span style={{ color: tok.textSecondary, whiteSpace: 'nowrap' }}>{label}</span>
-      <span
-        style={{
-          flex: 1,
-          borderBottom: `1px dotted ${tok.border}`,
-          minWidth: 20,
-          marginBottom: 4,
-        }}
-      />
-      <span style={{ color: tok.text, whiteSpace: 'nowrap' }}>{value}</span>
+      <span style={dottedSepStyle} />
+      <span style={{ color: tok.text, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+        {value}
+      </span>
     </div>
   );
 }
 
 /** Section title for dashboard cards */
 export function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <h3
-      style={{
-        fontSize: 11,
-        fontWeight: 500,
-        letterSpacing: '0.1em',
-        textTransform: 'uppercase' as const,
-        marginBottom: 16,
-        fontFamily: tok.fontDisplay,
-        color: tok.textSecondary,
-      }}
-    >
-      {children}
-    </h3>
-  );
+  return <h3 style={sectionTitleStyle}>{children}</h3>;
 }
 
 /** Format ISO timestamp to relative time */

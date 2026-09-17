@@ -72,79 +72,57 @@ afterEach(() => {
   cleanup();
 });
 
-describe('ImageCard', () => {
-  it('renders image dimensions', () => {
+describe('ImageCard — 灯箱印样', () => {
+  it('renders image as primary content', async () => {
     render(<ImageCard image={MOCK_IMAGE} />);
-
-    expect(screen.getByText('800×600')).toBeDefined();
+    expect(await screen.findByAltText('image.png')).toBeDefined();
   });
 
-  it('renders model name', () => {
+  it('renders model name in hover chrome', () => {
     render(<ImageCard image={MOCK_IMAGE} />);
-
     expect(screen.getByText('stable-diffusion')).toBeDefined();
   });
 
-  it('renders prompt excerpt', () => {
+  it('does not render prompt on the plate (lives in lightbox marginalia)', () => {
     render(<ImageCard image={MOCK_IMAGE} />);
-
-    expect(screen.getByText('A beautiful landscape')).toBeDefined();
+    expect(screen.queryByText('A beautiful landscape')).toBeNull();
   });
 
-  it('renders tags', () => {
+  it('does not render tags on the plate (lives in lightbox marginalia)', () => {
     render(<ImageCard image={MOCK_IMAGE} />);
-
-    expect(screen.getByText('nature')).toBeDefined();
-    expect(screen.getByText('landscape')).toBeDefined();
+    expect(screen.queryByText('nature')).toBeNull();
+    expect(screen.queryByText('landscape')).toBeNull();
   });
 
   it('renders favorite button with correct label', () => {
     render(<ImageCard image={MOCK_IMAGE} />);
-
     expect(screen.getByLabelText('收藏')).toBeDefined();
   });
 
   it('renders delete button', () => {
     render(<ImageCard image={MOCK_IMAGE} />);
-
     expect(screen.getByLabelText('删除')).toBeDefined();
   });
 
   it('renders rating component', () => {
     render(<ImageCard image={MOCK_IMAGE} />);
-
-    // Rating renders 5 plum stamp buttons
     const ratingButtons = screen.getAllByLabelText(/梅花印/);
     expect(ratingButtons.length).toBe(5);
   });
 
-  it('has correct border radius and transition via CSS class', () => {
-    const { container } = render(<ImageCard image={MOCK_IMAGE} />);
+  it('shows favorite corner stamp when favorited', () => {
+    const { container } = render(<ImageCard image={{ ...MOCK_IMAGE, favorite: true }} />);
+    expect(container.querySelector('.image-card__stamp--fav')).not.toBeNull();
+  });
 
-    const card = container.firstChild as HTMLElement;
-    expect(card.classList.contains('image-card')).toBe(true);
+  it('hides favorite corner stamp when not favorited', () => {
+    const { container } = render(<ImageCard image={MOCK_IMAGE} />);
+    expect(container.querySelector('.image-card__stamp--fav')).toBeNull();
   });
 
   it('applies focused CSS class when focused', () => {
     const { container } = render(<ImageCard image={MOCK_IMAGE} focused />);
-
     const card = container.firstChild as HTMLElement;
     expect(card.classList.contains('image-card--focused')).toBe(true);
-  });
-
-  it('loads a resized thumbnail via the base64 command (not the full image)', async () => {
-    render(<ImageCard image={MOCK_IMAGE} />);
-
-    // Wait for async thumbnail invoke to resolve
-    const img = await screen.findByRole('img');
-    expect(img).toBeDefined();
-    expect(img.getAttribute('src')).toContain(`data:image/png;base64,${MOCK_THUMB_B64}`);
-  });
-
-  it('renders img with alt text from fileName', async () => {
-    render(<ImageCard image={MOCK_IMAGE} />);
-
-    const img = await screen.findByRole('img');
-    expect(img.getAttribute('alt')).toBe('image.png');
   });
 });

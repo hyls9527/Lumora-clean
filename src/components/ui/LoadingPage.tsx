@@ -17,12 +17,12 @@ export function LoadingPage() {
       }}
     >
       <span
+        className="anim-breath"
         style={{
           width: 8,
           height: 8,
           borderRadius: '50%',
           background: tok.accent,
-          animation: 'splashPulse 1s ease-in-out infinite',
         }}
       />
       {t('common.loading')}

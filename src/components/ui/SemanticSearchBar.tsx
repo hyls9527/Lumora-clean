@@ -129,7 +129,7 @@ export function SemanticSearchBar() {
             aria-label={mode === 'semantic' ? t('semanticSearchInput') : t('exactMatchInput')}
             style={{
               width: '100%',
-              padding: '14px 110px 14px 20px',
+              padding: '14px 110px 14px 18px',
               fontSize: 15,
               fontFamily: tok.fontBody,
               color: tok.text,
@@ -137,7 +137,7 @@ export function SemanticSearchBar() {
               border: `1px solid ${tok.border}`,
               borderRadius: 4,
               outline: 'none',
-              transition: 'border-color 200ms, box-shadow 200ms',
+              transition: 'border-color 160ms ease-out, box-shadow 160ms ease-out',
             }}
           />
           <div
@@ -164,7 +164,7 @@ export function SemanticSearchBar() {
                   border: `1px solid ${tok.border}`,
                   borderRadius: 4,
                   cursor: 'pointer',
-                  transition: 'color 200ms, border-color 200ms',
+                  transition: 'color 160ms ease-out, border-color 160ms ease-out',
                   lineHeight: 1,
                   display: 'flex',
                   alignItems: 'center',
@@ -177,6 +177,7 @@ export function SemanticSearchBar() {
             )}
             <button
               type="button"
+              className="btn btn--accent"
               onClick={() => search()}
               disabled={loading}
               style={{
@@ -184,12 +185,7 @@ export function SemanticSearchBar() {
                 fontSize: 13,
                 fontWeight: 500,
                 fontFamily: tok.fontDisplay,
-                color: tok.bg,
-                background: loading ? tok.textMuted : tok.accent,
-                border: 'none',
-                borderRadius: 4,
                 cursor: loading ? 'wait' : 'pointer',
-                transition: 'background 200ms',
               }}
               aria-label={t('search')}
             >

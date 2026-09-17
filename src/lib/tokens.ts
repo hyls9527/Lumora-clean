@@ -1,6 +1,6 @@
 /**
  * Lumora design tokens — single source of truth.
- * Derived from DESIGN.md "古卷·灯火" palette.
+ * Derived from DESIGN.md "古卷·灯火" (v2 精修).
  *
  * All color values use CSS custom properties so they automatically
  * respond to [data-theme="dark"] overrides in index.css.
@@ -49,16 +49,18 @@ export const t = {
 
   // Transitions
   transition: '200ms ease-out',
+  transitionFast: '160ms ease-out',
 } as const;
 
 // ── Shared style objects (for reuse) ────────────────
 export const labelStyle: React.CSSProperties = {
   fontSize: 10,
-  fontFamily: t.fontDisplay,
+  fontFamily: t.fontBody,
   color: t.textMuted,
   textTransform: 'uppercase',
-  letterSpacing: '0.5px',
-  marginBottom: 2,
+  letterSpacing: '0.06em',
+  marginBottom: 4,
+  fontWeight: 500,
 };
 
 export const valueStyle: React.CSSProperties = {
@@ -78,8 +80,22 @@ export const dotStyle = (color: string): React.CSSProperties => ({
   flexShrink: 0,
 });
 
-/** Base accent button — subtle outline variant */
+/** Base accent button — filled 方章 */
 export const accentBtnStyle: React.CSSProperties = {
+  fontSize: 12,
+  fontFamily: t.fontBody,
+  fontWeight: 500,
+  color: t.bg,
+  background: t.accent,
+  border: `1px solid ${t.accent}`,
+  borderRadius: 4,
+  padding: '6px 14px',
+  cursor: 'pointer',
+  transition: t.transitionFast,
+};
+
+/** Outline accent button */
+export const outlineAccentBtnStyle: React.CSSProperties = {
   fontSize: 12,
   fontFamily: t.fontBody,
   color: t.accent,
@@ -88,7 +104,7 @@ export const accentBtnStyle: React.CSSProperties = {
   borderRadius: 4,
   padding: '6px 14px',
   cursor: 'pointer',
-  transition: t.transition,
+  transition: t.transitionFast,
 };
 
 /** Base text nav button — underline-active variant */
@@ -98,10 +114,11 @@ export const navTabStyle = (active: boolean): React.CSSProperties => ({
   color: active ? t.accent : t.textSecondary,
   background: 'none',
   border: 'none',
-  padding: '0 0 2px',
+  padding: '0 0 3px',
   borderBottom: `2px solid ${active ? t.accent : 'transparent'}`,
   cursor: 'pointer',
-  transition: t.transition,
+  transition: t.transitionFast,
+  letterSpacing: '0.04em',
 });
 
 /** Close button (✕) — positioned absolute top-right */
@@ -116,21 +133,54 @@ export const closeBtnStyle: React.CSSProperties = {
   color: t.textMuted,
   padding: 4,
   lineHeight: 1,
+  transition: t.transitionFast,
 };
 
 /** Page title (h2) style — responsive */
 export const pageTitleStyle = (isMobile?: boolean): React.CSSProperties => ({
-  fontSize: isMobile ? 18 : 20,
+  fontSize: isMobile ? 17 : 20,
   fontWeight: 600,
   fontFamily: t.fontDisplay,
   color: t.text,
   margin: 0,
+  letterSpacing: '0.01em',
+  lineHeight: 1.2,
 });
 
 /** Sidebar / toolbar separator line */
 export const separatorStyle: React.CSSProperties = {
   width: 1,
   height: 14,
-  background: 'rgba(139,115,75,0.15)',
+  background: t.border,
   margin: '0 4px',
+  flexShrink: 0,
+};
+
+/** Dotted catalog separator */
+export const dottedSepStyle: React.CSSProperties = {
+  flex: 1,
+  borderBottom: `1px dotted ${t.border}`,
+  minWidth: 20,
+  marginBottom: 4,
+};
+
+/** Sticky page toolbar */
+export const pageToolbarStyle: React.CSSProperties = {
+  position: 'sticky',
+  top: 0,
+  zIndex: 10,
+  padding: '14px 20px 12px',
+  background: t.bg,
+  borderBottom: `1px solid ${t.borderSubtle}`,
+};
+
+/** Section title for dashboard / catalog */
+export const sectionTitleStyle: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 500,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase' as const,
+  marginBottom: 14,
+  fontFamily: t.fontDisplay,
+  color: t.textSecondary,
 };

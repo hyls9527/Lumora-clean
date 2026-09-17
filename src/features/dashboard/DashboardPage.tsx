@@ -59,47 +59,12 @@ export function DashboardPage() {
   const recentImages = stats?.recentImports.map(toImageRecord) ?? [];
 
   return (
-    <div
-      style={{
-        flex: 1,
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-          padding: '12px 16px',
-          background: 'var(--color-bg)',
-          borderBottom: `1px solid ${tokens.border}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <h2
-          style={{
-            fontSize: 20,
-            fontWeight: 600,
-            fontFamily: tokens.fontDisplay,
-            color: tokens.text,
-            margin: 0,
-          }}
-        >
-          {t('nav.dashboard')}
-        </h2>
+    <div className="page-shell anim-page">
+      {/* Header — 藏书目录 */}
+      <div className="page-toolbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h2 className="page-title">{t('nav.dashboard')}</h2>
         {stats && (
-          <span
-            style={{
-              fontSize: 10,
-              color: tokens.textMuted,
-              fontFamily: tokens.fontBody,
-            }}
-          >
+          <span style={{ fontSize: 11, color: tokens.textMuted, fontFamily: tokens.fontBody }}>
             {stats.totalImages} {t('dashboard.images')}
           </span>
         )}
@@ -108,58 +73,26 @@ export function DashboardPage() {
       {/* Content */}
       {loading ? (
         <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: tokens.textMuted,
-            fontFamily: tokens.fontBody,
-            fontSize: 12,
-          }}
+          className="empty-state"
+          style={{ color: tokens.textMuted, fontFamily: tokens.fontBody, fontSize: 12 }}
         >
           {t('dashboard.loading')}
         </div>
       ) : error ? (
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 12,
-            color: tokens.textMuted,
-            fontFamily: tokens.fontBody,
-            fontSize: 12,
-          }}
-        >
-          <span>{error}</span>
-          <button
-            type="button"
-            onClick={load}
-            style={{
-              fontSize: 11,
-              fontFamily: tokens.fontDisplay,
-              color: tokens.accent,
-              background: 'none',
-              border: '1px solid rgba(122, 92, 18, 0.2)',
-              padding: '4px 14px',
-              borderRadius: 4,
-              cursor: 'pointer',
-            }}
-          >
+        <div className="empty-state">
+          <p className="empty-state__desc">{error}</p>
+          <button type="button" className="btn btn--accent" onClick={load}>
             {t('dashboard.retry')}
           </button>
         </div>
       ) : stats ? (
         <div
           style={{
-            padding: '20px 16px',
+            padding: '24px 28px 32px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 28,
-            maxWidth: 560,
+            gap: 32,
+            maxWidth: 720,
           }}
         >
           {/* Overview */}
@@ -228,19 +161,10 @@ export function DashboardPage() {
                   {(embStats.missing > 0 || (clipStats?.missing ?? 0) > 0) && (
                     <button
                       type="button"
+                      className={filling || clipFilling ? 'btn' : 'btn btn--accent'}
                       disabled={filling || clipFilling}
                       onClick={() => void fillAllMissing()}
-                      style={{
-                        alignSelf: 'flex-start',
-                        fontSize: 11,
-                        fontFamily: 'var(--font-display)',
-                        color: filling || clipFilling ? tokens.textMuted : tokens.bg,
-                        background: filling || clipFilling ? tokens.textFaint : tokens.accent,
-                        border: 'none',
-                        padding: '6px 14px',
-                        borderRadius: 4,
-                        cursor: filling || clipFilling ? 'not-allowed' : 'pointer',
-                      }}
+                      style={{ alignSelf: 'flex-start', marginTop: 4 }}
                     >
                       {filling || clipFilling
                         ? tEmbed('fillingProgress', {
@@ -389,8 +313,8 @@ export function DashboardPage() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
-                      padding: '8px 0',
-                      borderBottom: '1px solid rgba(139, 115, 75, 0.06)',
+                      padding: '10px 0',
+                      borderBottom: `1px solid ${tokens.borderSubtle}`,
                     }}
                   >
                     <div
@@ -398,8 +322,8 @@ export function DashboardPage() {
                         width: 40,
                         height: 40,
                         borderRadius: 3,
-                        background: 'var(--color-surface)',
-                        border: '1px solid rgba(139, 115, 75, 0.08)',
+                        background: tokens.bgAlt,
+                        border: `1px solid ${tokens.border}`,
                         overflow: 'hidden',
                         flexShrink: 0,
                         display: 'flex',
@@ -413,17 +337,13 @@ export function DashboardPage() {
                           color: tokens.textMuted,
                           fontFamily: tokens.fontBody,
                           textTransform: 'uppercase',
+                          letterSpacing: '0.06em',
                         }}
                       >
                         {img.format}
                       </span>
                     </div>
-                    <div
-                      style={{
-                        flex: 1,
-                        minWidth: 0,
-                      }}
-                    >
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div
                         style={{
                           fontSize: 12,
@@ -438,7 +358,7 @@ export function DashboardPage() {
                       </div>
                       <div
                         style={{
-                          fontSize: 10,
+                          fontSize: 11,
                           color: tokens.textMuted,
                           fontFamily: tokens.fontBody,
                           marginTop: 2,
@@ -449,7 +369,7 @@ export function DashboardPage() {
                     </div>
                     <span
                       style={{
-                        fontSize: 10,
+                        fontSize: 11,
                         color: tokens.textMuted,
                         fontFamily: tokens.fontBody,
                         whiteSpace: 'nowrap',
@@ -469,25 +389,20 @@ export function DashboardPage() {
       {/* Bottom bar */}
       <div
         style={{
-          padding: '12px 16px',
-          borderTop: `1px solid ${tokens.border}`,
+          padding: '12px 28px',
+          borderTop: `1px solid ${tokens.borderSubtle}`,
           marginTop: 'auto',
+          fontSize: 11,
+          color: tokens.textSecondary,
+          fontFamily: tokens.fontBody,
         }}
       >
-        <span
-          style={{
-            fontSize: 11,
-            color: tokens.textSecondary,
-            fontFamily: tokens.fontBody,
-          }}
-        >
-          {stats
-            ? t('dashboard.summary', {
-                count: stats.totalImages,
-                size: formatFileSize(stats.totalSizeKb),
-              })
-            : ''}
-        </span>
+        {stats
+          ? t('dashboard.summary', {
+              count: stats.totalImages,
+              size: formatFileSize(stats.totalSizeKb),
+            })
+          : ''}
       </div>
     </div>
   );
