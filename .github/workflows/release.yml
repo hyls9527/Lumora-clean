@@ -154,8 +154,11 @@ jobs:
           if [ -z "$NOTES" ]; then
             NOTES="No changelog entry found for ${TAG}."
           fi
-          # Write to file to avoid shell escaping issues; also expose via
-          # step output for the tauri-action releaseBody input.
+          # Expose via step output: the tauri-action input that consumes it is
+          # `releaseBody`. The name used here was `releaseBodyFile`, which is
+          # not a valid input — tauri-action ignored it silently, so every
+          # release up to v0.12.1 shipped with an empty description
+          # (v0.11.0 body length 0).
           echo "$NOTES" > /tmp/release-notes.md
           {
             echo 'notes<<EOF'
@@ -173,7 +176,9 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Lumora ${{ github.ref_name }}
-          releaseBodyFile: /tmp/release-notes.md
+          releaseBody: ${{ steps.changelog.outputs.notes }}
+          # Draft on purpose: publishing is the human approval gate. A draft
+          # release is invisible to the auto-updater until it is published.
           releaseDraft: true
           prerelease: false
           # The matrix target was never forwarded, so every OS built for its
