@@ -1,12 +1,15 @@
 [package]
 name = "Lumora"
-version = "0.11.0"
+version = "0.12.0"
 description = "Lumora 鈥?AI-powered image gallery by hyls9527"
 authors = ["you"]
 license = "MIT"
 repository = "https://github.com/hyls9527/Lumora-clean"
 edition = "2021"
-rust-version = "1.77.2"
+# 1.81, not 1.77.2: the crash-telemetry panic hook uses
+# `std::panic::PanicHookInfo`, renamed from `PanicInfo` in 1.81. CI pins
+# `stable`, so this only documents the real floor.
+rust-version = "1.81"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

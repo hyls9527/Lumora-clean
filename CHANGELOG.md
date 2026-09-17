@@ -2,6 +2,48 @@
 
 All notable changes to Lumora are documented here.
 
+## v0.12.0 (2026-09-18)
+
+商业级交付验收轮：把「可观测、可恢复、可复现」三件事补齐，并让每一条验收指标都有自动门禁兜住；同时落地设计语言 v3「灯箱」的界面改版。
+
+### Added
+- **崩溃可观测**：Rust 侧 panic hook 将每次 panic 以 JSON 行写入 `crash.log`（超 1 MiB 保留最新一半），前端按会话统计首次异常（同一会话多次异常只计一个坏会话），ErrorBoundary 捕获的渲染错误同样上报 —— 「崩溃率 < 0.1%」从此有分子分母可算，而不是靠估。设置页「稳定性」面板直接读数。
+- **自动快照（RPO）**：每 10 分钟落一份数据库快照、保留最新 6 份并自动清理旧件；走 SQLite Online Backup API，因此 WAL 中「已提交未 checkpoint」的数据不会丢（有专门用例断言该场景）。设置页「自动快照」面板可查看还原点数量与最新快照，并支持立即备份。
+- **页面加载性能门禁（TC-PERF-001）**：新增 E2E 用例，跑**生产构建**（`build:perf` + `vite preview`）测量导航 → 应用外壳可交互的时延，超 2s 即失败；用例内含「品牌动画时长 + 外壳预算 < 2s」的常量断言，防止动画被悄悄加长。
+- **API 延迟基准**：新增 `perf_bench` 用例，在 10k 图片库上测量 9 条用户可感知读路径的 p50/p95/p99（深分页、FTS 命中/稀有词/纯操作符、收藏+评分筛选、按模型筛选、仪表盘聚合、批量按 ID 取记录、标签列表），任一 p95 ≥ 300ms 即失败。
+- **灾难恢复演练**：新增 `rto_drill` 用例（快照 → 抹掉库文件 → 恢复 → `PRAGMA integrity_check`）与 `scripts/restore-drill.mjs`（终端演练与报告）。
+- **覆盖率与安全门禁**：前端阈值 70% → **80%**；Rust 加 `cargo llvm-cov` 门禁（行/区域 80%、函数 70%）；安全审计改为 high/critical 计数非零即失败（原 `npm audit --omit=dev` 看不到工具链里的高危且不阻断）。
+- **验收依据文档**：`docs/05-qa/14-商业级交付验收矩阵.md` —— 九项指标逐条给出实测值、可复现命令与已知环境限制。
+
+### Changed
+- **界面改版：设计语言 v3「灯箱」**（`DESIGN.md` 已同步为 v3 规范）—— 界面像展墙一样消失，图片是唯一主角：
+  - **默认极简**：画廊卡片默认只呈现图片，模型 / 评分 / 操作按钮在 hover 或键盘聚焦时才浮现，浏览时不再被元数据切碎。
+  - **元数据进「边注」**：详情灯箱的侧栏按「边注」排版，而不是 SaaS 式属性面板。
+  - **灯只在确认时亮**：收藏、评分、启动三个时刻才有光效，其余状态保持安静。
+  - **动效收敛为三套**：启动「灯火初燃」、确认「灯影」、详情「灯箱升起」，不再有零散过渡。
+  - **调色板精修**：亮/暗两套色阶重新取样（纸感更暖、墨色更深、古铜强调色更沉），`src/index.css` 与 `src/lib/tokens.ts` 作为单一来源同步；新增 `transitionFast`（160ms）用于即时反馈。
+  - 覆盖侧边栏、命令面板、详情灯箱、筛选面板、首启弹窗、加载态、移动端导航、评分/标签控件，以及仪表盘、导出、收藏、图库、搜索、标签、回收站等页面。
+- **侧车调用全部加看护**：CLIP / 审美评分的 Python sidecar 统一走 `run_with_timeout`（默认 600s），超时杀掉**整棵进程树**（Windows `taskkill /T /F`）并返回可见错误 —— 此前 `Command::output()` 无超时无 kill，挂起会永久占用线程并留下僵尸进程。
+- **CPU 密集任务移出 async 执行器**：`score_image_cmd` / `score_missing_cmd` / `embed_clip_missing_cmd` 改走 `spawn_blocking`，模型加载不再冻结其他命令。
+- **审美评分批处理**：sidecar 新增 `score-batch`，一次加载模型批量评分（此前每张图 spawn 一个进程、ViT-L/14 + HPS v2 每张重载一次，千张库要数小时）。
+- **构建产物精简**：`vite build` 默认只出应用本体；测量用的 `perf-harness.html` 仅在 `LUMORA_PERF_BUILD=1`（`npm run build:perf`）时构建，不再计入发布体积。
+- **CI 与验收指标对齐**：Playwright 拆分 `core`（dev server，2 workers）与 `perf`（生产构建，1 worker 串行）；性能用例不再与其他重型任务并行。
+- `rust-version` 1.77.2 → **1.81**（panic hook 使用 `std::panic::PanicHookInfo`，该类型 1.81 起提供）。
+
+### Fixed
+- **AI 命令「清空回收站」回复 `已清空回收站（undefined 张）`**：`trashStore.emptyTrash()` 声明为 `Promise<void>`，把后端返回的删除条数吃掉了；现返回真实计数，失败返回 0。
+- **百分位取值口径**：`perf_bench` 原用 `round((n-1)·p)`，在 n=99、p=0.50 时会取到第 51 个样本，虚高一个位次；改为 nearest-rank `ceil(n·p)-1`，不再插值到低于实测样本的值（否则会悄悄放松门禁）。
+- **安全依赖定版**：`overrides` 固定 `browserslist` / `nanoid` / `undici` 至已修复版本，npm 高危 3 → 0（原报告仅覆盖生产依赖，工具链里的高危看不见）。
+- 文档校准：测试数量、Schema 版本等过期数字更新为实测值；移除 20 份与当前状态矛盾或无引用的历史文档（v0.8.0 时代迭代记录、过期任务计划、未跟踪的设计草稿），并重写 `docs/05-qa/README.md` 索引。
+
+### Tests
+- 前端 775 → **972 通过**（113 文件；语句·行 87.79%、分支 81.43%）。
+- Rust 272 → **285 通过 / 5 ignored**（ignored 需本机 Ollama）；行覆盖 80.21%。
+- E2E：`core` 5 例 + `perf` 3 例（页面加载预算、首屏交互延迟、10k 图库滚动帧率基线）。
+
+### Notes
+- 本机实测（Windows 11 / MSVC）：页面加载外壳 108.5ms、API 最差 p95 53.95ms、RTO 全损恢复 5.32ms。可用性与崩溃率需真实使用累积样本，装置已就位但尚未声称达标。
+- 安装 VS Build Tools 时若遇 WinINet `12057`：证书吊销服务器在当前网络不可达，需设置 **HKCU**（不是 HKLM）`Internet Settings\CertificateRevocation = 0`；`VCTools` 工作负载不含 Windows SDK，须另加 `Microsoft.VisualStudio.Component.Windows11SDK.26100`。
 ## v0.11.0 (2026-09-02)
 
 ### Added
