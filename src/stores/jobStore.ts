@@ -171,3 +171,12 @@ export function createJobStore(deps: JobStoreDeps = defaultDeps): StateCreator<J
 }
 
 export const useJobStore = create<JobStore>()(createJobStore(defaultDeps));
+
+// Dev-only handle for the end-to-end suite. Playwright runs against the dev
+// server because the app has no browser-mode backend, and a store instance
+// imported by a test resolves to a *different* module instance than the one the
+// app renders from — so the test cannot reach the live store any other way.
+// The `import.meta.env.DEV` guard strips this from production builds entirely.
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  (window as unknown as Record<string, unknown>).__jobStore = useJobStore;
+}

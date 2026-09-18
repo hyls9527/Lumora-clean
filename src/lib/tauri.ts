@@ -33,6 +33,16 @@ const WRITE_COMMANDS = new Set([
   'embed_missing_cmd',
   'embed_clip_missing_cmd',
   'normalize_embeddings_cmd',
+  // Job control mutates backend state: starting twice would be answered with the
+  // running job rather than a duplicate, but retrying a *cancel* is simply wrong
+  // — a transient failure would silently leave the work running.
+  'job_start_embed_missing',
+  'job_start_embed_clip_missing',
+  'job_start_score_missing',
+  'job_start_export',
+  'job_start_convert',
+  'job_start_import',
+  'job_cancel',
 ]);
 
 /** Registered callbacks invoked after write commands. */
@@ -122,10 +132,14 @@ function mockResponse(cmd: string, args?: Record<string, unknown>): unknown {
     cmd === 'get_images_by_ids'
   )
     return [];
+  // A library that has images but no index yet: coherent with the mocked
+  // dashboard counts, and the state in which "补齐缺失向量" should be offered.
+  // Reporting 0/0 would (correctly) hide the affordance and leave browser/dev
+  // mode unable to exercise the backfill path at all.
   if (cmd === 'get_embedding_stats_cmd')
-    return { embedded: 0, pending: 0, error: 0, total: 0, missing: 0 };
+    return { embedded: 0, pending: 0, error: 0, total: 120, missing: 120 };
   if (cmd === 'get_clip_embedding_stats_cmd')
-    return { embedded: 0, pending: 0, error: 0, total: 0, missing: 0 };
+    return { embedded: 0, pending: 0, error: 0, total: 120, missing: 120 };
   if (cmd === 'embed_missing_cmd')
     return { processed: 0, remaining: 0 };
   if (cmd === 'score_missing_cmd')
@@ -143,9 +157,10 @@ function mockResponse(cmd: string, args?: Record<string, unknown>): unknown {
       newest: null,
     };
   if (cmd === 'create_backup_now') return 'mock-snapshot.db';
-  // Background jobs in browser/dev mode: a tiny in-memory registry so the job bar
-  // and its cancel button can be exercised without the Rust side. Progress is
-  // driven by wall-clock so a test sees a job advance and then finish.
+  // Background jobs in browser/dev mode: a small in-memory registry so the job bar
+  // and Cancel can be exercised without the Rust side. Progress is wall-clock
+  // driven, so a test observes a job advance and then end.
+  if (cmd.startsWith('job_')) return mockJobCommand(cmd, args);
   if (cmd === 'get_lan_info')
     return { ip: '127.0.0.1', port: 8079, token: 'mock-token' };
   if (cmd === 'get_app_version') return '0.8.0';
@@ -162,6 +177,110 @@ function mockResponse(cmd: string, args?: Record<string, unknown>): unknown {
   return null;
 }
 
+/**
+ * In-memory stand-in for the Rust job registry (browser/dev mode only).
+ *
+ * Needed for two reasons: the app calls `job_list` on every mount to re-attach to
+ * work that outlived a reload, and the non-modal job bar can be exercised end to
+ * end without a Tauri backend. The real semantics — one job per kind, cooperative
+ * cancel, a terminal job freeing its kind — are in src-tauri/src/jobs.rs and are
+ * what production runs.
+ */
+interface MockJob {
+  id: number;
+  kind: string;
+  state: 'pending' | 'running' | 'completed' | 'cancelled' | 'failed';
+  processed: number;
+  total: number;
+  failed: number;
+  message: string | null;
+  startedAtMs: number;
+  updatedAtMs: number;
+  cancelRequested: boolean;
+  /** Wall-clock duration of the fake worker, so tests see progress then an end. */
+  durationMs: number;
+}
+
+const mockJobs = new Map<number, MockJob>();
+let mockJobSeq = 0;
+
+function mockJobTick(job: MockJob): MockJob {
+  if (job.state !== 'pending' && job.state !== 'running') return job;
+  const elapsed = Date.now() - job.startedAtMs;
+  const ratio = Math.min(1, elapsed / job.durationMs);
+  const done = ratio >= 1;
+  // A cancelled job stops where it was; a completed one finishes its total.
+  const processed = done && !job.cancelRequested ? job.total : Math.floor(job.total * ratio);
+  return {
+    ...job,
+    state: done ? (job.cancelRequested ? 'cancelled' : 'completed') : 'running',
+    processed,
+    message: done ? (job.cancelRequested ? '已取消' : '全部完成') : null,
+    updatedAtMs: Date.now(),
+  };
+}
+
+function mockJobView(job: MockJob): Omit<MockJob, 'durationMs'> {
+  const { durationMs: _ignored, ...view } = job;
+  return view;
+}
+
+function mockJobCommand(cmd: string, args?: Record<string, unknown>): unknown {
+  const id = typeof args?.id === 'number' ? args.id : 0;
+  const starters: Record<string, string> = {
+    job_start_embed_missing: 'embed_missing',
+    job_start_embed_clip_missing: 'embed_clip_missing',
+    job_start_score_missing: 'score_missing',
+  };
+  if (cmd in starters) {
+    const kind = starters[cmd];
+    // One job per kind, like the real registry: a second start joins the first.
+    for (const existing of mockJobs.values()) {
+      const live = mockJobTick(existing);
+      mockJobs.set(live.id, live);
+      if (live.kind === kind && (live.state === 'pending' || live.state === 'running')) {
+        return { id: live.id, kind: live.kind, isNew: false };
+      }
+    }
+    const job: MockJob = {
+      id: ++mockJobSeq,
+      kind,
+      state: 'running',
+      processed: 0,
+      total: 120,
+      failed: 0,
+      message: null,
+      startedAtMs: Date.now(),
+      updatedAtMs: Date.now(),
+      cancelRequested: false,
+      durationMs: 5000,
+    };
+    mockJobs.set(job.id, job);
+    return { id: job.id, kind: job.kind, isNew: true };
+  }
+  if (cmd === 'job_status') {
+    const job = mockJobs.get(id);
+    if (!job) return null;
+    const ticked = mockJobTick(job);
+    mockJobs.set(id, ticked);
+    return mockJobView(ticked);
+  }
+  if (cmd === 'job_list') {
+    for (const [key, job] of mockJobs) mockJobs.set(key, mockJobTick(job));
+    return [...mockJobs.values()].map(mockJobView);
+  }
+  if (cmd === 'job_cancel') {
+    const job = mockJobs.get(id);
+    if (!job) return false;
+    // Cooperative, like the real thing: the flag is set now and the job ends at
+    // its next checkpoint rather than vanishing instantly.
+    mockJobs.set(id, { ...job, cancelRequested: true, updatedAtMs: Date.now() });
+    return true;
+  }
+  if (cmd === 'job_kinds')
+    return ['embed_missing', 'embed_clip_missing', 'score_missing', 'export', 'convert', 'import'];
+  return null;
+}
 type InvokeFn = (cmd: string, args?: Record<string, unknown>) => Promise<unknown>;
 let _realInvoke: InvokeFn | null = null;
 let _loadAttempted = false;

@@ -21,12 +21,16 @@ describe('browser mock mode data contracts', () => {
   });
 
   it('returns object-shaped mocks for stats/lan/tag commands', async () => {
+    // The mock reports a library with images but no index yet: coherent with the
+    // dashboard counts, and the only state in which the "补齐缺失向量" affordance
+    // renders — a 0/0 library would (correctly) hide it, leaving browser/dev mode
+    // unable to exercise the backfill path at all.
     expect(await invoke('get_embedding_stats_cmd')).toEqual({
       embedded: 0,
       pending: 0,
       error: 0,
-      total: 0,
-      missing: 0,
+      total: 120,
+      missing: 120,
     });
     expect(await invoke('score_missing_cmd')).toEqual({
       processed: 0,

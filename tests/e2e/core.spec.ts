@@ -133,3 +133,60 @@ test('设置页可切换深色主题并持久生效', async ({ page }) => {
     page.locator('aside[role="navigation"]').getByRole('button', { name: '设置' }),
   ).toHaveAttribute('aria-current', 'page');
 });
+/**
+ * Background jobs (TC-JOB-001): the "do not disturb" contract.
+ *
+ * The job is started through the app's own store module (resolved by the dev
+ * server), and every assertion after that is on the DOM — the one state the app
+ * and the test genuinely share.
+ *
+ * Covered here: the bar appears while work runs, progress advances, Cancel stops
+ * the job, and none of it blocks navigation. Job *semantics* (cooperative cancel,
+ * one job per kind, terminal reaping) are Rust-side and covered in src-tauri.
+ */
+test('后台任务：任务条出现、进度推进、可取消且不阻塞操作', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  const splash = page.getByRole('status', { name: 'Lumora 启动中' });
+  await expect(page.getByRole('heading', { name: '创作者图库' })).toBeVisible({ timeout: 20_000 });
+  const dialog = page.getByRole('dialog', { name: '欢迎使用 Lumora' });
+  await expect(dialog).toBeVisible({ timeout: 20_000 });
+  await dialog.getByRole('button', { name: '确定' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(splash).toBeHidden({ timeout: 20_000 });
+
+  const bar = page.getByRole('status', { name: '后台任务' });
+  // Nothing running: the bar must not be permanent furniture.
+  await expect(bar).toHaveCount(0);
+
+  // Dev-only handle exported by src/stores/jobStore.ts; absent in production.
+  await page.evaluate(async () => {
+    const store = (
+      window as unknown as {
+        __jobStore: { getState: () => { startEmbedMissing: () => Promise<void> } };
+      }
+    ).__jobStore;
+    await store.getState().startEmbedMissing();
+  });
+
+  await expect(bar).toBeVisible({ timeout: 10_000 });
+  const progress = bar.getByRole('progressbar');
+  await expect(progress).toBeVisible();
+
+  // Progress must actually move: a bar frozen at 0% is the same as no bar.
+  await expect
+    .poll(async () => Number(await progress.getAttribute('aria-valuenow')), { timeout: 15_000 })
+    .toBeGreaterThan(0);
+
+  // Cancel is cooperative: the job stays visible until the worker reaches its
+  // checkpoint, then reports that it was cancelled.
+  await bar.getByRole('button', { name: /取消|Cancel/ }).click();
+  await expect
+    .poll(() => bar.getByText(/已取消|Cancelled/).count(), { timeout: 20_000 })
+    .toBeGreaterThan(0);
+
+  // The long task must never have blocked navigation.
+  await page.locator('aside[role="navigation"]').getByRole('button', { name: '创作者图库' }).click();
+  await expect(page.getByRole('heading', { name: '创作者图库' })).toBeVisible();
+});
