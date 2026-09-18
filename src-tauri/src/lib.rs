@@ -51,41 +51,124 @@ fn dirs_local_data_dir() -> Option<PathBuf> {
         .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".local/share")))
 }
 
-/// Read the Windows system proxy (Internet Settings) and expose it to the
-/// updater's HTTP client via `HTTPS_PROXY`. Browsers pick the system proxy
-/// automatically, but reqwest only honours environment variables — without
-/// this, auto-updates try to reach GitHub directly and fail on networks
-/// that require a proxy.
+/// Keep the updater's proxy environment in sync with the Windows system
+/// proxy (Internet Settings). Browsers pick the system proxy up automatically,
+/// but reqwest only honours environment variables — without this, update checks
+/// try to reach GitHub directly and fail on networks that require a proxy.
+///
+/// Called at startup by [`run`] and before every update check by
+/// [`commands::update::refresh_update_proxy`].
 #[cfg(windows)]
 fn setup_system_proxy() {
-    use winreg::enums::HKEY_CURRENT_USER;
-    use winreg::RegKey;
-    let Ok(hkcu) = RegKey::predef(HKEY_CURRENT_USER)
-        .open_subkey(r"Software\Microsoft\Windows\CurrentVersion\Internet Settings")
-    else {
-        return;
-    };
-    let enabled: u32 = hkcu.get_value("ProxyEnable").unwrap_or(0);
-    if enabled != 1 {
-        return;
-    }
-    let Ok(server) = hkcu.get_value::<String, _>("ProxyServer") else {
-        return;
-    };
-    // Formats: "http=127.0.0.1:31181", "https=http://127.0.0.1:31181",
-    // "http=...;https=..." or a bare "host:port".
+    let proxy = read_system_proxy_env();
+    apply_proxy_env(proxy.as_deref());
+}
+
+/// Pick the HTTPS proxy out of a Windows `ProxyServer` value and normalise it
+/// to a URL reqwest can parse.
+///
+/// Accepted inputs: `127.0.0.1:7897`, `http://127.0.0.1:7897`, `http=a;https=b`
+/// and `https=...`. A scheme is mandatory — reqwest rejects a schemeless proxy
+/// URL outright — so a bare `127.0.0.1:7897` becomes `http://127.0.0.1:7897`.
+#[cfg(windows)]
+fn normalize_proxy_url(server: &str) -> Option<String> {
     let https = server.split(';').map(str::trim).find_map(|part| {
         if let Some(v) = part.strip_prefix("https=") {
-            Some(v.to_string())
-        } else if !part.contains('=') {
-            Some(part.to_string())
-        } else {
+            Some(v)
+        } else if part.contains('=') {
             None
+        } else {
+            Some(part)
         }
-    });
-    if let Some(proxy) = https {
-        log::info!("using system proxy for updates: {proxy}");
-        std::env::set_var("HTTPS_PROXY", proxy);
+    })?;
+    let https = https.trim();
+    if https.is_empty() {
+        return None;
+    }
+    if https.contains("://") {
+        Some(https.to_string())
+    } else {
+        Some(format!("http://{https}"))
+    }
+}
+
+/// Point the updater's HTTP client at `proxy`, or at nothing when the system
+/// has no proxy configured.
+///
+/// Runs at startup *and* immediately before every update check: the system
+/// proxy is routinely switched on and off while Lumora stays running, so a
+/// start-up-only read leaves the updater unable to reach the release host for
+/// the rest of the session (observed as `error sending request` /
+/// `os error 10060` on a machine whose direct route to GitHub is blocked).
+#[cfg(windows)]
+fn apply_proxy_env(proxy: Option<&str>) {
+    match proxy {
+        Some(p) => {
+            log::warn!("update checks use system proxy {p}");
+            std::env::set_var("HTTPS_PROXY", p);
+            std::env::set_var("HTTP_PROXY", p);
+        }
+        None => {
+            log::warn!("no system proxy configured; update checks go direct");
+            std::env::remove_var("HTTPS_PROXY");
+            std::env::remove_var("HTTP_PROXY");
+        }
+    }
+}
+
+#[cfg(windows)]
+fn read_system_proxy_env() -> Option<String> {
+    use winreg::enums::HKEY_CURRENT_USER;
+    use winreg::RegKey;
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey(r"Software\Microsoft\Windows\CurrentVersion\Internet Settings")
+        .ok()?;
+    if hkcu.get_value::<u32, _>("ProxyEnable").unwrap_or(0) != 1 {
+        return None;
+    }
+    let server: String = hkcu.get_value("ProxyServer").ok()?;
+    normalize_proxy_url(&server)
+}
+
+#[cfg(all(test, windows))]
+mod proxy_tests {
+    use super::normalize_proxy_url;
+
+    #[test]
+    fn bare_host_port_gets_an_http_scheme() {
+        // reqwest rejects a schemeless proxy URL, so it must not pass through.
+        assert_eq!(
+            normalize_proxy_url("127.0.0.1:7897").as_deref(),
+            Some("http://127.0.0.1:7897")
+        );
+    }
+
+    #[test]
+    fn existing_scheme_is_preserved() {
+        assert_eq!(
+            normalize_proxy_url("http://127.0.0.1:7897").as_deref(),
+            Some("http://127.0.0.1:7897")
+        );
+        assert_eq!(
+            normalize_proxy_url("https=proxy.corp:8080").as_deref(),
+            Some("http://proxy.corp:8080")
+        );
+    }
+
+    #[test]
+    fn picks_the_https_entry_from_a_per_protocol_list() {
+        assert_eq!(
+            normalize_proxy_url("http=127.0.0.1:1111;https=127.0.0.1:7897").as_deref(),
+            Some("http://127.0.0.1:7897")
+        );
+        assert_eq!(normalize_proxy_url("http=127.0.0.1:1111").as_deref(), None);
+    }
+
+    #[test]
+    fn empty_value_yields_none() {
+        assert_eq!(normalize_proxy_url("   "), None);
+        assert_eq!(normalize_proxy_url("https="), None);
+        assert_eq!(normalize_proxy_url(""), None);
     }
 }
 
@@ -188,6 +271,7 @@ pub fn run() {
             commands::settings::get_setting,
             commands::settings::set_setting,
             commands::settings::get_app_version,
+            commands::update::refresh_update_proxy,
             commands::trash::soft_delete_image,
             commands::trash::restore_image,
             commands::trash::permanent_delete_image,

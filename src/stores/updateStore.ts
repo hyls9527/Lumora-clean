@@ -11,6 +11,7 @@
 
 import { create } from 'zustand';
 import type { Update, DownloadEvent } from '@tauri-apps/plugin-updater';
+import { invoke } from '../lib/tauri';
 
 export interface UpdateInfo {
   version: string;
@@ -85,6 +86,14 @@ export const useUpdateStore = create<UpdateState>((set, get) => ({
     if (get().checking) return;
     set({ checking: true, error: null });
     try {
+      // Re-read the Windows system proxy first: it is switched on and off while
+      // Lumora runs, and without it a proxied network cannot reach GitHub at
+      // all (the updater would fail with "error sending request").
+      try {
+        await invoke('refresh_update_proxy');
+      } catch {
+        // Never block an update check on proxy detection.
+      }
       const { check } = await import('@tauri-apps/plugin-updater');
       const update = await check();
       if (update) {

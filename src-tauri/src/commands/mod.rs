@@ -14,6 +14,7 @@ pub mod settings;
 pub mod smart_collections;
 pub mod tags;
 pub mod trash;
+pub mod update;
 
 use crate::error::{AppError, AppResult};
 

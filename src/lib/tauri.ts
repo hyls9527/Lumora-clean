@@ -43,6 +43,9 @@ const WRITE_COMMANDS = new Set([
   'job_start_convert',
   'job_start_import',
   'job_cancel',
+  // NOTE: refresh_update_proxy is deliberately absent — it only touches the
+  // process environment, and listing it here would fire the write listeners
+  // (cache invalidation) on every single update check.
 ]);
 
 /** Registered callbacks invoked after write commands. */
@@ -164,6 +167,8 @@ function mockResponse(cmd: string, args?: Record<string, unknown>): unknown {
   if (cmd === 'get_lan_info')
     return { ip: '127.0.0.1', port: 8079, token: 'mock-token' };
   if (cmd === 'get_app_version') return '0.8.0';
+  // No updater backend in browser mode; mirrors the Rust no-op.
+  if (cmd === 'refresh_update_proxy') return null;
   if (cmd === 'create_tag')
     return { id: 'mock-tag', name: '', color: null, createdAt: '' };
   if (cmd === 'apply_ai_tags_cmd')

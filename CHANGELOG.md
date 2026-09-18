@@ -2,6 +2,17 @@
 
 All notable changes to Lumora are documented here.
 
+## v0.13.1 (2026-09-18)
+
+### Fixed
+- **代理后「检查更新」必然失败**：更新检查只在**进程启动那一刻**读一次 Windows 系统代理，而代理（Clash 等）是随用随开的。若 Lumora 先启动、代理后打开，整个进程生命周期内 `HTTPS_PROXY` 都是空的 —— 之后用户再点「检查更新」也不会重新读取，于是直连 github.com 被防火墙静默丢弃。日志实证：`failed to check for updates: error sending request for url (https://github.com/.../latest.json)` 每次耗时 21s 后以 `os error 10060` 结束；同一台机器上经代理请求同一 URL 只需 2.1s 返回 200。现在每次检查前重新读取系统代理（新增 `refresh_update_proxy` 命令），代理开或关都能如实生效。
+- **无 scheme 的代理值会被 reqwest 直接拒绝**：注册表里常见 `127.0.0.1:7897`，而 reqwest 要求代理 URL 带 scheme。现统一规范化为 `http://…`，并同时设置 `HTTPS_PROXY` 与 `HTTP_PROXY`；系统代理关闭时主动清除这两个变量，避免残留值把请求引向一个已经关掉的代理。
+- **代理状态在日志里不可见**：原 `log::info!` 在启动时触发，那时文件日志尚未接管（实测该行从未落盘），排障时无从判断代理是否生效。现改为 warn 级并在每次检查时落盘，`no system proxy configured` 与 `update checks use system proxy …` 都可直接对账。
+
+### Tests
+- Rust：305 → **330 通过 / 0 失败**（新增 4 个代理解析测试 + 1 个命令测试；本机端到端实测解析结果为 `http://127.0.0.1:7897`）。
+- 前端：**988 通过**（`refresh_update_proxy` 在浏览器 mock 模式下为空操作，不改变既有行为）。
+- Rust 覆盖率：行 80.33% / 区域 81.02% / 函数 70.86%（门禁 79 / 79 / 69，全部通过，较修改前略升）。
 ## v0.13.0 (2026-09-18)
 
 长任务不再「点下去就停不下来」。这一版把后台任务做成了一等公民：可看进度、可随时取消、切页或重载都不中断。
