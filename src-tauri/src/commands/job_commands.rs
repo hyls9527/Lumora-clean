@@ -279,13 +279,7 @@ pub async fn job_start_score_missing(
 ) -> AppResult<JobStarted> {
     let db = app.state::<DbHandle>().inner().clone();
     let (handle, is_new) = start_with_total(&registry, JobKind::ScoreMissing, || {
-        let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-        let n: i64 = conn.query_row(
-            "SELECT COUNT(*) FROM images WHERE deleted = 0 AND score_label IS NULL",
-            [],
-            |r| r.get(0),
-        )?;
-        Ok(n as u64)
+        count_unscored(&db)
     })?;
     if !is_new {
         return Ok(started_result(&handle, false));
@@ -489,13 +483,13 @@ pub async fn job_start_import(
 /// Status of one job, or None once it has been reaped.
 #[tauri::command]
 pub fn job_status(registry: tauri::State<'_, JobRegistry>, id: u64) -> Option<JobStatus> {
-    registry.status(id)
+    status_of(&registry, id)
 }
 
 /// Every job the registry still knows about (running plus recently finished).
 #[tauri::command]
 pub fn job_list(registry: tauri::State<'_, JobRegistry>) -> Vec<JobStatus> {
-    registry.list()
+    list_of(&registry)
 }
 
 /// Ask a job to stop. Returns false when the id is unknown.
@@ -504,6 +498,21 @@ pub fn job_list(registry: tauri::State<'_, JobRegistry>) -> Vec<JobStatus> {
 /// caller polls `job_status` until the state turns terminal.
 #[tauri::command]
 pub fn job_cancel(registry: tauri::State<'_, JobRegistry>, id: u64) -> bool {
+    cancel_of(&registry, id)
+}
+
+// The bodies take a plain `&JobRegistry` so they can be exercised without a
+// Tauri app; the commands above are thin adapters.
+
+fn status_of(registry: &JobRegistry, id: u64) -> Option<JobStatus> {
+    registry.status(id)
+}
+
+fn list_of(registry: &JobRegistry) -> Vec<JobStatus> {
+    registry.list()
+}
+
+fn cancel_of(registry: &JobRegistry, id: u64) -> bool {
     registry.cancel(id)
 }
 
@@ -523,6 +532,17 @@ pub fn job_kinds() -> Vec<&'static str> {
     .collect()
 }
 
+/// Images that have never been judged — the scoring job's progress denominator.
+fn count_unscored(db: &DbHandle) -> AppResult<u64> {
+    let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
+    let n: i64 = conn.query_row(
+        "SELECT COUNT(*) FROM images WHERE deleted = 0 AND score_label IS NULL",
+        [],
+        |r| r.get(0),
+    )?;
+    Ok(n as u64)
+}
+
 /// Images with no row in one of the embedding tables.
 ///
 /// `table` is a trusted literal chosen by the caller (never user input), which is
@@ -537,4 +557,284 @@ fn count_missing(db: &DbHandle, table: &str) -> AppResult<u64> {
         .query_row(&sql, [], |r| r.get(0))
         .map_err(AppError::from)?;
     Ok(n as u64)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::jobs::JobState;
+
+    /// Seed a library where `missing_embed` / `missing_clip` images have no row in
+    /// the respective embedding table.
+    fn seeded_db(missing_embed: usize, missing_clip: usize, total: usize) -> DbHandle {
+        let db = DbHandle::open_memory().unwrap();
+        {
+            let conn = db.conn().lock().unwrap();
+            for i in 0..total {
+                conn.execute(
+                    "INSERT INTO images (id,file_path,file_hash,file_size_kb,format,created_at)
+                     VALUES (?1,?2,?3,1,'png','2026-01-01')",
+                    rusqlite::params![format!("img-{i}"), format!("/p{i}.png"), format!("h{i}")],
+                )
+                .unwrap();
+                if i >= missing_embed {
+                    conn.execute(
+                        "INSERT INTO embeddings (image_id, embedding, dimensions)
+                         VALUES (?1, X'00', 512)",
+                        rusqlite::params![format!("img-{i}")],
+                    )
+                    .unwrap();
+                }
+                if i >= missing_clip {
+                    conn.execute(
+                        "INSERT INTO clip_embeddings (image_id, embedding, dimensions)
+                         VALUES (?1, X'00', 512)",
+                        rusqlite::params![format!("img-{i}")],
+                    )
+                    .unwrap();
+                }
+            }
+        }
+        db
+    }
+
+    /// Poll until the job leaves a non-terminal state: the sync bridge runs on its
+    /// own thread, so a test cannot assume it finished synchronously.
+    fn wait_for_terminal(registry: &JobRegistry, id: u64) {
+        for _ in 0..500 {
+            if registry
+                .status(id)
+                .map(|s| s.state.is_terminal())
+                .unwrap_or(true)
+            {
+                return;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        panic!("job {id} never reached a terminal state");
+    }
+
+    /// The progress denominator must count images with *no* embedding row, not the
+    /// library size — otherwise the bar promises work that does not exist.
+    #[test]
+    fn count_missing_counts_only_images_without_an_embedding_row() {
+        let db = seeded_db(3, 5, 10);
+        assert_eq!(count_missing(&db, "embeddings").unwrap(), 3);
+        assert_eq!(count_missing(&db, "clip_embeddings").unwrap(), 5);
+    }
+
+    /// Scoring counts images with no judgment, and must ignore the trash and any
+    /// image that already carries a label.
+    #[test]
+    fn count_unscored_counts_only_unjudged_images() {
+        let db = seeded_db(0, 0, 6);
+        assert_eq!(count_unscored(&db).unwrap(), 6, "none are judged yet");
+
+        {
+            let conn = db.conn().lock().unwrap();
+            conn.execute(
+                "UPDATE images SET score_label = '夯' WHERE id IN ('img-0','img-1')",
+                [],
+            )
+            .unwrap();
+            conn.execute("UPDATE images SET deleted = 1 WHERE id = 'img-2'", [])
+                .unwrap();
+        }
+
+        // Two judged + one trashed are excluded from the remaining work.
+        assert_eq!(count_unscored(&db).unwrap(), 3);
+    }
+
+    #[test]
+    fn count_missing_ignores_trashed_images() {
+        let db = seeded_db(2, 2, 4);
+        {
+            let conn = db.conn().lock().unwrap();
+            conn.execute("UPDATE images SET deleted = 1 WHERE id = 'img-0'", [])
+                .unwrap();
+        }
+        // Seeded with exactly two unscored images; trashing img-0 leaves one, so
+        // the counter must exclude deleted rows rather than count the library.
+        assert_eq!(count_missing(&db, "embeddings").unwrap(), 1);
+    }
+
+    /// Starting the same kind twice hands back the running job instead of making a
+    /// second one: this is what makes a double-click safe.
+    #[test]
+    fn start_with_total_joins_a_running_job_instead_of_duplicating_it() {
+        let registry = JobRegistry::new();
+        let (first, first_is_new) =
+            start_with_total(&registry, JobKind::Export, || Ok(4)).unwrap();
+        assert!(first_is_new);
+
+        let mut recounted = false;
+        let (second, second_is_new) = start_with_total(&registry, JobKind::Export, || {
+            recounted = true;
+            Ok(4)
+        })
+        .unwrap();
+
+        assert!(!second_is_new, "the second call must join, not start");
+        assert_eq!(second.id(), first.id());
+        assert!(
+            !recounted,
+            "a running job already knows its total; re-counting is wasted work"
+        );
+    }
+
+    /// Once a job ends its kind must be startable again — that is the retry path.
+    #[test]
+    fn start_with_total_starts_fresh_after_the_previous_job_ended() {
+        let registry = JobRegistry::new();
+        let (first, _) = start_with_total(&registry, JobKind::Convert, || Ok(2)).unwrap();
+        first.fail("转换失败");
+
+        let (second, is_new) = start_with_total(&registry, JobKind::Convert, || Ok(2)).unwrap();
+        assert!(is_new, "retry after failure must run a new worker");
+        assert_ne!(second.id(), first.id());
+    }
+
+    #[test]
+    fn start_with_total_still_registers_when_the_count_fails() {
+        let registry = JobRegistry::new();
+        // An unknown total is not a reason to refuse the work; the UI shows an
+        // indeterminate bar instead.
+        let (handle, is_new) = start_with_total(&registry, JobKind::Import, || {
+            Err(AppError::External("count failed".into()))
+        })
+        .unwrap();
+        assert!(is_new);
+        assert_eq!(registry.status(handle.id()).unwrap().total, 0);
+    }
+
+    #[test]
+    fn started_result_mirrors_the_handle() {
+        let registry = JobRegistry::new();
+        let (handle, _) = start_with_total(&registry, JobKind::ScoreMissing, || Ok(1)).unwrap();
+        let started = started_result(&handle, true);
+        assert_eq!(started.id, handle.id());
+        assert_eq!(started.kind, JobKind::ScoreMissing);
+        assert!(started.is_new);
+    }
+
+    /// The sync bridge is what makes export/convert/import observable: it must
+    /// settle the job from the worker's outcome, including the cancel case.
+    #[test]
+    fn spawn_sync_job_settles_success_failure_and_cancel() {
+        let registry = JobRegistry::new();
+
+        let (ok, _) = start_with_total(&registry, JobKind::Export, || Ok(2)).unwrap();
+        let ok_id = ok.id();
+        spawn_sync_job(&registry, JobKind::Export, ok, |h| {
+            h.set_progress(2, 0);
+            Ok(JobOutcome {
+                processed: 2,
+                failed: 0,
+                cancelled: false,
+            })
+        });
+        wait_for_terminal(&registry, ok_id);
+        let s = registry.status(ok_id).unwrap();
+        assert_eq!(s.state, JobState::Completed);
+        assert_eq!(s.processed, 2);
+
+        let (bad, _) = start_with_total(&registry, JobKind::Convert, || Ok(1)).unwrap();
+        let bad_id = bad.id();
+        spawn_sync_job(&registry, JobKind::Convert, bad, |_| {
+            Err(AppError::External("磁盘满了".into()))
+        });
+        wait_for_terminal(&registry, bad_id);
+        let s = registry.status(bad_id).unwrap();
+        assert_eq!(s.state, JobState::Failed);
+        assert!(s.message.unwrap().contains("磁盘满了"));
+
+        // A worker stopped by a cancel reports Cancelled even though it unwound
+        // through the error path.
+        let (stopped, _) = start_with_total(&registry, JobKind::Import, || Ok(1)).unwrap();
+        let stopped_id = stopped.id();
+        assert!(registry.cancel(stopped_id));
+        spawn_sync_job(&registry, JobKind::Import, stopped, |_| {
+            Err(AppError::External("aborted".into()))
+        });
+        wait_for_terminal(&registry, stopped_id);
+        assert_eq!(registry.status(stopped_id).unwrap().state, JobState::Cancelled);
+    }
+
+    #[test]
+    fn spawn_sync_job_honours_a_cancel_reported_by_the_worker_itself() {
+        let registry = JobRegistry::new();
+        let (handle, _) = start_with_total(&registry, JobKind::Export, || Ok(5)).unwrap();
+        let id = handle.id();
+        spawn_sync_job(&registry, JobKind::Export, handle, |_| {
+            // The worker stopped early and says so, without an error.
+            Ok(JobOutcome {
+                processed: 2,
+                failed: 0,
+                cancelled: true,
+            })
+        });
+        wait_for_terminal(&registry, id);
+        let s = registry.status(id).unwrap();
+        assert_eq!(s.state, JobState::Cancelled);
+        // Partial progress is the user's to keep.
+        assert_eq!(s.processed, 2);
+    }
+
+    /// A panicking worker must not leave the job Running forever.
+    #[test]
+    fn spawn_sync_job_turns_a_panic_into_a_failure() {
+        let registry = JobRegistry::new();
+        let (handle, _) = start_with_total(&registry, JobKind::Export, || Ok(1)).unwrap();
+        let id = handle.id();
+        let previous = std::panic::take_hook();
+        std::panic::set_hook(Box::new(|_| {}));
+        spawn_sync_job(&registry, JobKind::Export, handle, |_| panic!("worker exploded"));
+        wait_for_terminal(&registry, id);
+        std::panic::set_hook(previous);
+        assert_eq!(registry.status(id).unwrap().state, JobState::Failed);
+        assert_eq!(registry.active_count(), 0);
+    }
+
+    /// The lifecycle queries the frontend polls. `tauri::State` is a wrapper around
+    /// a borrowed value, so these can be driven with a plain registry — the same
+    /// path the commands take.
+    #[test]
+    fn status_list_and_cancel_delegate_to_the_registry() {
+        let registry = JobRegistry::new();
+        let (handle, _) = start_with_total(&registry, JobKind::EmbedMissing, || Ok(9)).unwrap();
+        let id = handle.id();
+
+        let status = status_of(&registry, id).expect("job must be visible");
+        assert_eq!(status.id, id);
+        assert_eq!(status.total, 9);
+
+        let listed = list_of(&registry);
+        assert_eq!(listed.len(), 1);
+        assert_eq!(listed[0].id, id);
+
+        assert!(cancel_of(&registry, id));
+        assert!(
+            status_of(&registry, id).unwrap().cancel_requested,
+            "the cancel must be visible to the next poll"
+        );
+
+        // Unknown ids are answered, not panicked on.
+        assert!(status_of(&registry, 404).is_none());
+        assert!(!cancel_of(&registry, 404));
+    }
+
+    #[test]
+    fn job_kinds_lists_every_supported_kind() {
+        assert_eq!(
+            job_kinds(),
+            vec![
+                "embed_missing",
+                "embed_clip_missing",
+                "score_missing",
+                "export",
+                "convert",
+                "import"
+            ]
+        );
+    }
 }
