@@ -128,6 +128,9 @@ export function JobBar() {
   return (
     <div
       role="status"
+      // Named so it can be told apart from the splash screen, which also uses
+      // role="status" during startup.
+      aria-label="后台任务"
       aria-live="polite"
       style={{
         position: 'fixed',

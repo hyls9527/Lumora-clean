@@ -124,6 +124,8 @@ function mockResponse(cmd: string, args?: Record<string, unknown>): unknown {
     return [];
   if (cmd === 'get_embedding_stats_cmd')
     return { embedded: 0, pending: 0, error: 0, total: 0, missing: 0 };
+  if (cmd === 'get_clip_embedding_stats_cmd')
+    return { embedded: 0, pending: 0, error: 0, total: 0, missing: 0 };
   if (cmd === 'embed_missing_cmd')
     return { processed: 0, remaining: 0 };
   if (cmd === 'score_missing_cmd')
@@ -141,6 +143,9 @@ function mockResponse(cmd: string, args?: Record<string, unknown>): unknown {
       newest: null,
     };
   if (cmd === 'create_backup_now') return 'mock-snapshot.db';
+  // Background jobs in browser/dev mode: a tiny in-memory registry so the job bar
+  // and its cancel button can be exercised without the Rust side. Progress is
+  // driven by wall-clock so a test sees a job advance and then finish.
   if (cmd === 'get_lan_info')
     return { ip: '127.0.0.1', port: 8079, token: 'mock-token' };
   if (cmd === 'get_app_version') return '0.8.0';
