@@ -278,9 +278,8 @@ pub async fn job_start_score_missing(
     app: tauri::AppHandle,
 ) -> AppResult<JobStarted> {
     let db = app.state::<DbHandle>().inner().clone();
-    let (handle, is_new) = start_with_total(&registry, JobKind::ScoreMissing, || {
-        count_unscored(&db)
-    })?;
+    let (handle, is_new) =
+        start_with_total(&registry, JobKind::ScoreMissing, || count_unscored(&db))?;
     if !is_new {
         return Ok(started_result(&handle, false));
     }
@@ -663,8 +662,7 @@ mod tests {
     #[test]
     fn start_with_total_joins_a_running_job_instead_of_duplicating_it() {
         let registry = JobRegistry::new();
-        let (first, first_is_new) =
-            start_with_total(&registry, JobKind::Export, || Ok(4)).unwrap();
+        let (first, first_is_new) = start_with_total(&registry, JobKind::Export, || Ok(4)).unwrap();
         assert!(first_is_new);
 
         let mut recounted = false;
@@ -757,7 +755,10 @@ mod tests {
             Err(AppError::External("aborted".into()))
         });
         wait_for_terminal(&registry, stopped_id);
-        assert_eq!(registry.status(stopped_id).unwrap().state, JobState::Cancelled);
+        assert_eq!(
+            registry.status(stopped_id).unwrap().state,
+            JobState::Cancelled
+        );
     }
 
     #[test]
@@ -788,7 +789,9 @@ mod tests {
         let id = handle.id();
         let previous = std::panic::take_hook();
         std::panic::set_hook(Box::new(|_| {}));
-        spawn_sync_job(&registry, JobKind::Export, handle, |_| panic!("worker exploded"));
+        spawn_sync_job(&registry, JobKind::Export, handle, |_| {
+            panic!("worker exploded")
+        });
         wait_for_terminal(&registry, id);
         std::panic::set_hook(previous);
         assert_eq!(registry.status(id).unwrap().state, JobState::Failed);
