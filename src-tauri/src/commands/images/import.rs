@@ -33,7 +33,23 @@ pub fn import_images(
     db: tauri::State<'_, DbHandle>,
     path: String,
 ) -> AppResult<ImportResult> {
-    let entries = scan_folder(&path)?;
+    import_images_at(&app, &db, &path)
+}
+
+/// Folder import, decoupled from Tauri state so the background job reuses this
+/// exact code path (transaction, grid gate, copy-mode cleanup) instead of growing
+/// a second, subtly different importer.
+///
+/// Cancellation note: callers may check a cancel flag *before* entering here, but
+/// nothing inside is interruptible on purpose. Import is one all-or-nothing
+/// transaction that may also copy files into the library; an interruption between
+/// the two would leave rows and files disagreeing.
+pub fn import_images_at(
+    app: &tauri::AppHandle,
+    db: &DbHandle,
+    path: &str,
+) -> AppResult<ImportResult> {
+    let entries = scan_folder(path)?;
     let copy_mode = app
         .store("settings.json")
         .ok()

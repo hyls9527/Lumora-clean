@@ -8,6 +8,7 @@ pub mod embeddings;
 pub mod export;
 pub mod fs;
 pub mod images;
+pub mod job_commands;
 pub mod rename;
 pub mod settings;
 pub mod smart_collections;

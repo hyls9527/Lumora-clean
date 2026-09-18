@@ -233,37 +233,41 @@ describe('bestScoredRecent capability', () => {
   });
 });
 
+// The backfill is a background job now, so this capability can only report what
+// was started. Whether the work succeeds, stalls, or is cancelled is visible in
+// the job bar instead of in a toast that used to fire minutes later.
 describe('scoreBackfill capability', () => {
-  it('answers immediately and toasts the processed count in the background', async () => {
-    m.scoreBackfill.mockResolvedValueOnce({ processed: 12, remaining: 0 });
+  it('starts the job and says so', async () => {
+    m.scoreBackfill.mockResolvedValueOnce({ jobId: 5, isNew: true });
 
     const reply = await capability('scoreBackfill').execute({}, deps());
 
     expect(reply).toBe('正在后台为全库补齐评分');
-    expect(m.scoreBackfill).toHaveBeenCalledWith(50);
-    await vi.waitFor(() =>
-      expect(m.addToast).toHaveBeenCalledWith('success', '已为 12 张图补齐评分'),
+    expect(m.scoreBackfill).toHaveBeenCalledTimes(1);
+    expect(m.addToast).toHaveBeenCalledWith(
+      'success',
+      '正在后台为全库补齐评分，可在底部任务条取消',
     );
   });
 
-  it('warns when the scoring engine is unavailable', async () => {
-    m.scoreBackfill.mockResolvedValueOnce({ processed: 0, remaining: 30 });
+  it('does not pretend a second run started when one is already going', async () => {
+    m.scoreBackfill.mockResolvedValueOnce({ jobId: 5, isNew: false });
 
-    await capability('scoreBackfill').execute({}, deps());
+    const reply = await capability('scoreBackfill').execute({}, deps());
 
-    await vi.waitFor(() =>
-      expect(m.addToast).toHaveBeenCalledWith('warning', '评分引擎不可用，保持未评分'),
+    expect(reply).toBe('已有一个评分补齐任务在进行中');
+    // Reusing the running job is correct; announcing a fresh start is not.
+    expect(m.addToast).not.toHaveBeenCalledWith(
+      'success',
+      '正在后台为全库补齐评分，可在底部任务条取消',
     );
   });
 
-  it('toasts an error when the backfill task rejects', async () => {
+  it('propagates a failure to start', async () => {
     m.scoreBackfill.mockRejectedValueOnce(new Error('db locked'));
 
-    await capability('scoreBackfill').execute({}, deps());
-
-    await vi.waitFor(() =>
-      expect(m.addToast).toHaveBeenCalledWith('error', '评分补齐失败'),
-    );
+    // Failing loudly beats replying "running" for a job that never started.
+    await expect(capability('scoreBackfill').execute({}, deps())).rejects.toThrow('db locked');
   });
 });
 

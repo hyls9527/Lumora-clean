@@ -15,7 +15,14 @@ vi.mock('../../tauri', () => ({
   isTauriAvailable: false,
 }));
 
+// scoreBackfill starts a backend job; the loop it used to run is covered by the
+// Rust tests in src-tauri/src/commands/job_commands.rs.
+vi.mock('../jobs', () => ({
+  startScoreMissingJob: vi.fn(),
+}));
+
 import { invoke } from '../../tauri';
+import { startScoreMissingJob } from '../jobs';
 
 describe('aesthetic API', () => {
   beforeEach(() => {
@@ -65,20 +72,29 @@ describe('aesthetic API', () => {
     expect(await getBestScoredRecent()).toBeNull();
   });
 
-  it('backfills until nothing is left', async () => {
-    vi.mocked(invoke)
-      .mockResolvedValueOnce({ processed: 50, remaining: 30 })
-      .mockResolvedValueOnce({ processed: 30, remaining: 0 });
-    const result = await scoreBackfill(50);
-    expect(result).toEqual({ processed: 80, remaining: 0 });
-    expect(invoke).toHaveBeenCalledTimes(2);
+  it('starts the backfill job and reports its id', async () => {
+    vi.mocked(startScoreMissingJob).mockResolvedValue({
+      id: 12,
+      kind: 'score_missing',
+      isNew: true,
+    });
+
+    const result = await scoreBackfill();
+
+    expect(startScoreMissingJob).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ jobId: 12, isNew: true });
   });
 
-  it('stops when the scoring engine is unavailable', async () => {
-    vi.mocked(invoke).mockResolvedValue({ processed: 0, remaining: 100 });
-    const result = await scoreBackfill(50);
-    expect(result).toEqual({ processed: 0, remaining: 100 });
-    expect(invoke).toHaveBeenCalledTimes(1);
+  it('reports when an identical backfill was already running', async () => {
+    vi.mocked(startScoreMissingJob).mockResolvedValue({
+      id: 3,
+      kind: 'score_missing',
+      isNew: false,
+    });
+
+    // Joining a running job is not an error, but the caller must be able to tell
+    // the user their click did not start a second run.
+    await expect(scoreBackfill()).resolves.toEqual({ jobId: 3, isNew: false });
   });
 
   it('fetches the curation summary', async () => {

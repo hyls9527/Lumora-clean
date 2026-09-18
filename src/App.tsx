@@ -22,6 +22,8 @@ import { useRouter, useRouteCommands, useGlobalShortcuts } from './hooks/useRout
 import { getRouteDef, preloadRoutes, type RoutePath } from './routes';
 import { SplashScreen } from './components/ui/SplashScreen';
 import { FirstRunModal } from './components/ui/FirstRunModal';
+import { JobBar } from './components/ui/JobBar';
+import { resumeJobTracking } from './stores/jobStore';
 import { getSetting, setSetting } from './lib/api/settings';
 import { t } from './lib/i18n';
 import { t as tok } from './lib/tokens';
@@ -81,6 +83,12 @@ function App() {
   useEffect(() => {
     startSession();
     return installGlobalCrashHandlers();
+  }, []);
+
+  // Re-attach to background jobs that outlived a reload; the backend keeps
+  // running them, so the UI must not silently forget they exist.
+  useEffect(() => {
+    void resumeJobTracking();
   }, []);
 
   // First launch: ask how imports should store images before any import.
@@ -178,6 +186,8 @@ function App() {
       </main>
       <CommandPalette navigate={navigate} />
       <DropOverlay isVisible={isDragging} />
+      {/* Above the mobile nav so a running job is never hidden behind it. */}
+      <JobBar />
       {isMobile && <MobileNav activeRoute={route} onNavigate={navigate} />}
       {!splashDone && <SplashScreen ready={appReady} onFinish={handleSplashFinish} />}
       <FirstRunModal

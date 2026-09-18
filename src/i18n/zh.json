@@ -280,6 +280,26 @@
     "crashNone": "本次运行无崩溃记录",
     "crashSome": "本次运行记录到 {count} 次异常"
   },
+  "jobs": {
+    "cancel": "取消",
+    "cancelling": "取消中…",
+    "progress": "{processed} / {total}",
+    "progressUnknown": "已处理 {processed}",
+    "state": {
+      "running": "进行中",
+      "completed": "已完成",
+      "cancelled": "已取消",
+      "failed": "失败"
+    },
+    "kind": {
+      "embed_missing": "补齐文本索引",
+      "embed_clip_missing": "补齐视觉索引",
+      "score_missing": "审美评审",
+      "export": "导出图片",
+      "convert": "格式转换",
+      "import": "导入图片"
+    }
+  },
   "dashboard": {
     "overview": "概览",
     "loadError": "加载失败",

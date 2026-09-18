@@ -6,20 +6,25 @@ vi.mock('../../lib/api/embeddings', () => ({
   getEmbeddingStats: vi.fn(),
   getClipEmbeddingStats: vi.fn(),
   generateEmbeddings: vi.fn(),
-  embedMissing: vi.fn(),
-  embedClipMissing: vi.fn(),
+}));
+
+// The backfill loop moved to Rust; the store now only asks for a job.
+vi.mock('../../lib/api/jobs', () => ({
+  startEmbedMissingJob: vi.fn(),
+  startEmbedClipMissingJob: vi.fn(),
 }));
 
 import { useEmbeddingStore } from '../embeddingStore';
 import * as api from '../../lib/api/embeddings';
+import * as jobsApi from '../../lib/api/jobs';
 import type { ImageRecord } from '../imageStore';
 
 const mockGetStatus = vi.mocked(api.getEmbeddingStatus);
 const mockGetStats = vi.mocked(api.getEmbeddingStats);
 const mockGetClipStats = vi.mocked(api.getClipEmbeddingStats);
 const mockGenerate = vi.mocked(api.generateEmbeddings);
-const mockEmbedMissing = vi.mocked(api.embedMissing);
-const mockEmbedClipMissing = vi.mocked(api.embedClipMissing);
+const mockStartEmbedMissingJob = vi.mocked(jobsApi.startEmbedMissingJob);
+const mockStartEmbedClipMissingJob = vi.mocked(jobsApi.startEmbedClipMissingJob);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -143,73 +148,58 @@ describe('fetchStats error handling', () => {
   });
 });
 
-describe('fillMissing', () => {
-  it('loops until all missing embeddings are generated', async () => {
-    mockEmbedMissing
-      .mockResolvedValueOnce({ processed: 5, remaining: 3 })
-      .mockResolvedValueOnce({ processed: 3, remaining: 0 });
+// The backfill is a backend job now. These tests cover what this store is still
+// responsible for: asking for the job, refreshing the cached stats, and never
+// leaving the fill indicator stuck. The loop itself — including the stalled-
+// backfill guard that used to live in the old `for(;;)` here — is covered by the
+// Rust tests in `src-tauri/src/commands/job_commands.rs`.
+describe('fillMissing (delegates to the backend job)', () => {
+  it('starts the job and refreshes the stats', async () => {
+    mockStartEmbedMissingJob.mockResolvedValue({ id: 7, kind: 'embed_missing', isNew: true });
     mockGetStats.mockResolvedValue({ embedded: 8, pending: 0, error: 0, total: 8, missing: 0 });
 
-    await useEmbeddingStore.getState().fillMissing(5);
+    await useEmbeddingStore.getState().fillMissing();
 
-    expect(mockEmbedMissing).toHaveBeenCalledTimes(2);
-    expect(mockEmbedMissing).toHaveBeenCalledWith(5);
+    expect(mockStartEmbedMissingJob).toHaveBeenCalledTimes(1);
+    expect(useEmbeddingStore.getState().stats?.embedded).toBe(8);
+    // The indicator must not stay on: the job reports its own progress.
     expect(useEmbeddingStore.getState().filling).toBe(false);
     expect(useEmbeddingStore.getState().fillProgress).toBeNull();
-    expect(useEmbeddingStore.getState().stats?.embedded).toBe(8);
   });
 
-  it('stops on error and reports it', async () => {
-    mockEmbedMissing.mockRejectedValue(new Error('ollama offline'));
+  it('surfaces a failure to start instead of pretending it ran', async () => {
+    mockStartEmbedMissingJob.mockRejectedValue(new Error('ollama offline'));
 
-    await useEmbeddingStore.getState().fillMissing(5);
+    await useEmbeddingStore.getState().fillMissing();
 
     expect(useEmbeddingStore.getState().error).toBe('ollama offline');
     expect(useEmbeddingStore.getState().filling).toBe(false);
   });
-
-  it('breaks out of the loop when processed === 0 (stalled backfill)', async () => {
-    // Regression (F-2): embed_missing returning {processed: 0, remaining: N}
-    // (all remaining images silently fail or are skipped) used to spin the
-    // `for(;;)` loop forever because only `remaining <= 0` terminated it.
-    mockEmbedMissing.mockResolvedValue({ processed: 0, remaining: 12 });
-    mockGetStats.mockResolvedValue({ embedded: 3, pending: 0, error: 9, total: 12, missing: 12 });
-
-    await useEmbeddingStore.getState().fillMissing(5);
-
-    expect(mockEmbedMissing).toHaveBeenCalledTimes(1);
-    expect(useEmbeddingStore.getState().filling).toBe(false);
-    expect(useEmbeddingStore.getState().fillProgress).toBeNull();
-    // A visible error must surface instead of silently stopping.
-    expect(useEmbeddingStore.getState().error).toContain('没有可嵌入的图片');
-    expect(useEmbeddingStore.getState().error).toContain('12');
-  });
 });
 
-describe('fillClipMissing', () => {
-  it('loops until the CLIP image index is complete', async () => {
-    mockEmbedClipMissing
-      .mockResolvedValueOnce({ processed: 4, remaining: 1 })
-      .mockResolvedValueOnce({ processed: 1, remaining: 0 });
+describe('fillClipMissing (delegates to the backend job)', () => {
+  it('starts the job and refreshes the CLIP stats', async () => {
+    mockStartEmbedClipMissingJob.mockResolvedValue({
+      id: 9,
+      kind: 'embed_clip_missing',
+      isNew: true,
+    });
     mockGetClipStats.mockResolvedValue({ embedded: 5, error: 0, total: 5, missing: 0 });
 
-    await useEmbeddingStore.getState().fillClipMissing(4);
+    await useEmbeddingStore.getState().fillClipMissing();
 
-    expect(mockEmbedClipMissing).toHaveBeenCalledTimes(2);
-    expect(mockEmbedClipMissing).toHaveBeenCalledWith(4);
+    expect(mockStartEmbedClipMissingJob).toHaveBeenCalledTimes(1);
+    expect(useEmbeddingStore.getState().clipStats?.embedded).toBe(5);
     expect(useEmbeddingStore.getState().clipFilling).toBe(false);
     expect(useEmbeddingStore.getState().clipFillProgress).toBeNull();
-    expect(useEmbeddingStore.getState().clipStats?.embedded).toBe(5);
   });
 
-  it('breaks out of the CLIP loop when processed === 0 and reports it', async () => {
-    mockEmbedClipMissing.mockResolvedValue({ processed: 0, remaining: 3 });
-    mockGetClipStats.mockResolvedValue({ embedded: 2, error: 1, total: 5, missing: 3 });
+  it('surfaces a failure to start', async () => {
+    mockStartEmbedClipMissingJob.mockRejectedValue(new Error('clip missing'));
 
-    await useEmbeddingStore.getState().fillClipMissing(4);
+    await useEmbeddingStore.getState().fillClipMissing();
 
-    expect(mockEmbedClipMissing).toHaveBeenCalledTimes(1);
+    expect(useEmbeddingStore.getState().error).toBe('clip missing');
     expect(useEmbeddingStore.getState().clipFilling).toBe(false);
-    expect(useEmbeddingStore.getState().error).toContain('没有可嵌入的图片');
   });
 });

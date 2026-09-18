@@ -6,6 +6,7 @@ use rusqlite::params;
 use crate::error::{AppError, AppResult};
 
 use crate::db::DbHandle;
+use crate::jobs::JobHandle;
 use crate::schema::types::{row_to_record, BatchConvertItem, BatchConvertResult, ExportResult};
 
 /// Options passed to `export_single` for format conversion.
@@ -25,15 +26,20 @@ pub fn export_images(
     format: String,
     rename_template: Option<String>,
 ) -> AppResult<ExportResult> {
-    export_images_inner(&db, ids, dest_dir, format, rename_template)
+    export_images_inner(&db, ids, dest_dir, format, rename_template, None)
 }
 
-fn export_images_inner(
+/// `handle` turns the export into a cancellable job: every item is gated on
+/// `is_cancelled` and reports its progress. Export only *reads* the source
+/// files and the DB, so stopping between items needs no rollback — the files
+/// already written to `dest_dir` are the user's partial result and stay.
+pub(crate) fn export_images_inner(
     db: &DbHandle,
     ids: Vec<String>,
     dest_dir: String,
     format: String,
     rename_template: Option<String>,
+    handle: Option<&JobHandle>,
 ) -> AppResult<ExportResult> {
     // Validate format early (fixes #10)
     let allowed = [
@@ -88,16 +94,28 @@ fn export_images_inner(
     let mut failed = 0u32;
 
     for task in &tasks {
+        // Checkpoint before each item (the "after" of the previous one is the
+        // same boundary): a cancel stops the remaining items without touching
+        // what was already exported.
+        if handle.is_some_and(|h| h.is_cancelled()) {
+            break;
+        }
         let task = match task {
             Ok(t) => t,
             Err(_) => {
                 failed += 1;
+                if let Some(h) = handle {
+                    h.set_progress((success + failed) as u64, failed as u64);
+                }
                 continue;
             }
         };
         match export_single(&task.file_path, &task.out_path, &opts) {
             Ok(_) => success += 1,
             Err(_) => failed += 1,
+        }
+        if let Some(h) = handle {
+            h.set_progress((success + failed) as u64, failed as u64);
         }
     }
 
@@ -124,12 +142,15 @@ pub fn batch_convert(
     dry_run: bool,
 ) -> AppResult<BatchConvertResult> {
     batch_convert_inner(
-        &db, ids, format, quality, max_width, max_height, dest_dir, dry_run,
+        &db, ids, format, quality, max_width, max_height, dest_dir, dry_run, None,
     )
 }
 
+/// `handle` makes the conversion cancellable between items — never *inside*
+/// phase 3, which is the indivisible "file written → DB updated → old file
+/// removed" critical section (see the comment there).
 #[allow(clippy::too_many_arguments)]
-fn batch_convert_inner(
+pub(crate) fn batch_convert_inner(
     db: &DbHandle,
     ids: Vec<String>,
     format: String,
@@ -138,6 +159,7 @@ fn batch_convert_inner(
     max_height: Option<u32>,
     dest_dir: Option<String>,
     dry_run: bool,
+    handle: Option<&JobHandle>,
 ) -> AppResult<BatchConvertResult> {
     // Validate format early
     if format != "original"
@@ -266,90 +288,113 @@ fn batch_convert_inner(
         old_path: std::path::PathBuf,
     }
 
-    let mut outcomes: Vec<ConvertOutcome> = tasks
-        .into_iter()
-        .map(|task| {
-            if let Some(err) = task.error {
+    // 单项转换（Phase 2 的循环体）。抽成闭包只是为了保留原来的早返回结构，
+    // 让外层循环能在每一项之间插入取消检查点。
+    let convert_one = |task: ConvertTask| -> ConvertOutcome {
+        if let Some(err) = task.error {
+            return ConvertOutcome {
+                id: task.id,
+                old_format: task.old_format,
+                new_format: task.new_ext,
+                status: "error".into(),
+                error: Some(err),
+                new_path_str: None,
+                new_path: std::path::PathBuf::new(),
+                old_path: std::path::PathBuf::new(),
+            };
+        }
+
+        if task.no_work {
+            return ConvertOutcome {
+                id: task.id,
+                old_format: task.old_format.clone(),
+                new_format: task.old_format,
+                status: "skipped".into(),
+                error: None,
+                new_path_str: None,
+                new_path: std::path::PathBuf::new(),
+                old_path: task.old_path,
+            };
+        }
+
+        if dry_run {
+            return ConvertOutcome {
+                id: task.id,
+                old_format: task.old_format,
+                new_format: task.new_ext,
+                status: "ok".into(),
+                error: None,
+                new_path_str: None,
+                new_path: task.new_path,
+                old_path: task.old_path,
+            };
+        }
+
+        // Ensure parent dir exists (for dest_dir mode)
+        if let Some(parent) = task.new_path.parent() {
+            if let Err(e) = fs::create_dir_all(parent) {
                 return ConvertOutcome {
                     id: task.id,
                     old_format: task.old_format,
                     new_format: task.new_ext,
                     status: "error".into(),
-                    error: Some(err),
-                    new_path_str: None,
-                    new_path: std::path::PathBuf::new(),
-                    old_path: std::path::PathBuf::new(),
-                };
-            }
-
-            if task.no_work {
-                return ConvertOutcome {
-                    id: task.id,
-                    old_format: task.old_format.clone(),
-                    new_format: task.old_format,
-                    status: "skipped".into(),
-                    error: None,
-                    new_path_str: None,
-                    new_path: std::path::PathBuf::new(),
-                    old_path: task.old_path,
-                };
-            }
-
-            if dry_run {
-                return ConvertOutcome {
-                    id: task.id,
-                    old_format: task.old_format,
-                    new_format: task.new_ext,
-                    status: "ok".into(),
-                    error: None,
+                    error: Some(format!("创建目录失败: {e}")),
                     new_path_str: None,
                     new_path: task.new_path,
                     old_path: task.old_path,
                 };
             }
+        }
 
-            // Ensure parent dir exists (for dest_dir mode)
-            if let Some(parent) = task.new_path.parent() {
-                if let Err(e) = fs::create_dir_all(parent) {
-                    return ConvertOutcome {
-                        id: task.id,
-                        old_format: task.old_format,
-                        new_format: task.new_ext,
-                        status: "error".into(),
-                        error: Some(format!("创建目录失败: {e}")),
-                        new_path_str: None,
-                        new_path: task.new_path,
-                        old_path: task.old_path,
-                    };
-                }
-            }
+        match export_single(&task.file_path, &task.new_path, &opts) {
+            Ok(_) => ConvertOutcome {
+                id: task.id,
+                old_format: task.old_format,
+                new_format: task.new_ext,
+                status: "ok".into(),
+                error: None,
+                new_path_str: Some(task.new_path.to_string_lossy().into_owned()),
+                new_path: task.new_path,
+                old_path: task.old_path,
+            },
+            Err(e) => ConvertOutcome {
+                id: task.id,
+                old_format: task.old_format,
+                new_format: task.new_ext,
+                status: "error".into(),
+                error: Some(format!("转换失败: {e}")),
+                new_path_str: None,
+                new_path: task.new_path,
+                old_path: task.old_path,
+            },
+        }
+    };
 
-            match export_single(&task.file_path, &task.new_path, &opts) {
-                Ok(_) => ConvertOutcome {
-                    id: task.id,
-                    old_format: task.old_format,
-                    new_format: task.new_ext,
-                    status: "ok".into(),
-                    error: None,
-                    new_path_str: Some(task.new_path.to_string_lossy().into_owned()),
-                    new_path: task.new_path,
-                    old_path: task.old_path,
-                },
-                Err(e) => ConvertOutcome {
-                    id: task.id,
-                    old_format: task.old_format,
-                    new_format: task.new_ext,
-                    status: "error".into(),
-                    error: Some(format!("转换失败: {e}")),
-                    new_path_str: None,
-                    new_path: task.new_path,
-                    old_path: task.old_path,
-                },
-            }
-        })
-        .collect();
+    let mut outcomes: Vec<ConvertOutcome> = Vec::with_capacity(tasks.len());
+    let mut attempted: u64 = 0;
+    let mut failed_items: u64 = 0;
+    for task in tasks {
+        // 检查点（逐项之间）：取消后不再开始新的转换项。没轮到的项既不写文件
+        // 也不进 Phase 3，DB 里保持原样，重跑即可。
+        if handle.is_some_and(|h| h.is_cancelled()) {
+            break;
+        }
+        let outcome = convert_one(task);
+        if outcome.status == "error" {
+            failed_items += 1;
+        }
+        attempted += 1;
+        outcomes.push(outcome);
+        if let Some(h) = handle {
+            h.set_progress(attempted, failed_items);
+        }
+    }
 
     // Phase 3: update DB for successfully converted images (lock → DB writes → unlock)
+    //
+    // 这里**刻意不设取消检查点**：Phase 3 是"新文件已写入 → DB 指向它 → 删掉旧
+    // 文件"的收尾，中途停下会留下 DB 与磁盘互不一致的状态。它是不可分割的临界
+    // 区，取消只在 Phase 2 的项与项之间生效。
     {
         let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
         for outcome in &mut outcomes {
@@ -1159,6 +1204,7 @@ mod tests {
             None,
             None,
             true,
+            None,
         )
         .unwrap();
 
@@ -1190,6 +1236,7 @@ mod tests {
             None,
             None,
             true,
+            None,
         )
         .unwrap();
 
@@ -1209,6 +1256,7 @@ mod tests {
             None,
             None,
             true,
+            None,
         );
         assert!(result.is_ok());
     }
@@ -1225,6 +1273,7 @@ mod tests {
             None,
             None,
             false,
+            None,
         );
         assert!(result.is_err());
         let err = result.unwrap_err().to_string();
@@ -1243,6 +1292,7 @@ mod tests {
             None,
             None,
             false,
+            None,
         )
         .unwrap();
 
@@ -1266,6 +1316,7 @@ mod tests {
             vec!["id1".into()],
             out_dir.path().to_string_lossy().into_owned(),
             "original".into(),
+            None,
             None,
         )
         .unwrap();
@@ -1291,6 +1342,7 @@ mod tests {
             out_dir.path().to_string_lossy().into_owned(),
             "jpg".into(),
             None,
+            None,
         )
         .unwrap();
 
@@ -1308,6 +1360,7 @@ mod tests {
             out_dir.path().to_string_lossy().into_owned(),
             "heic".into(),
             None,
+            None,
         )
         .unwrap_err();
         assert!(matches!(err, AppError::InvalidInput(_)));
@@ -1322,6 +1375,7 @@ mod tests {
             vec!["missing".into()],
             out_dir.path().to_string_lossy().into_owned(),
             "original".into(),
+            None,
             None,
         )
         .unwrap();
@@ -1348,6 +1402,7 @@ mod tests {
             vec!["a".into(), "b".into()],
             out_dir.path().to_string_lossy().into_owned(),
             "original".into(),
+            None,
             None,
         )
         .unwrap();
@@ -1382,6 +1437,7 @@ mod tests {
             None,
             Some(out_dir.path().to_string_lossy().into_owned()),
             false,
+            None,
         )
         .unwrap();
 
@@ -1425,6 +1481,7 @@ mod tests {
             None,
             None,
             false,
+            None, // no job handle: this test drives the loop directly
         )
         .unwrap();
 
@@ -1476,6 +1533,7 @@ mod tests {
             None,
             None,
             false,
+            None, // no job handle: this test drives the loop directly
         )
         .unwrap();
 

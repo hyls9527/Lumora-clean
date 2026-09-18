@@ -212,20 +212,15 @@ export const capabilities: Capability[] = [
       preview: () => '为全库补齐评分',
     },
     execute: async () => {
-      const task = scoreBackfill(50).then((result) => {
-        if (result.processed > 0) {
-          useToastStore
-            .getState()
-            .addToast('success', `已为 ${result.processed} 张图补齐评分`);
-        } else if (result.remaining > 0) {
-          useToastStore
-            .getState()
-            .addToast('warning', '评分引擎不可用，保持未评分');
-        }
-      });
-      task.catch(() => {
-        useToastStore.getState().addToast('error', '评分补齐失败');
-      });
+      // The work is a background job now: the reply can only say what was
+      // started, not what it produced. Completion shows up in the job bar.
+      const { isNew } = await scoreBackfill();
+      if (!isNew) {
+        return '已有一个评分补齐任务在进行中';
+      }
+      useToastStore
+        .getState()
+        .addToast('success', '正在后台为全库补齐评分，可在底部任务条取消');
       return '正在后台为全库补齐评分';
     },
   },

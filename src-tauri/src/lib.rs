@@ -5,6 +5,9 @@ mod commands;
 mod crash_log;
 mod db;
 mod error;
+mod jobs;
+
+use jobs::JobRegistry;
 mod lan_server;
 mod mcp;
 mod metadata;
@@ -153,6 +156,7 @@ pub fn run() {
             auto_backup::start(db.clone());
 
             app.manage(db);
+            app.manage(JobRegistry::new());
             app.manage(ollama::OllamaConfig::from_env());
             app.manage(lan_server::LanPort(port));
             app.manage(lan_server::LanToken(token));
@@ -237,6 +241,16 @@ pub fn run() {
             commands::smart_collections::get_smart_collection_images,
             commands::comfyui::detect_comfyui_path,
             lan_server::get_lan_info,
+            commands::job_commands::job_start_embed_missing,
+            commands::job_commands::job_start_embed_clip_missing,
+            commands::job_commands::job_start_score_missing,
+            commands::job_commands::job_start_export,
+            commands::job_commands::job_start_convert,
+            commands::job_commands::job_start_import,
+            commands::job_commands::job_status,
+            commands::job_commands::job_list,
+            commands::job_commands::job_cancel,
+            commands::job_commands::job_kinds,
             crash_log::get_crash_stats,
             auto_backup::get_backup_status,
             auto_backup::create_backup_now,

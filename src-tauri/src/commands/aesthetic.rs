@@ -177,7 +177,10 @@ pub fn save_score(
 }
 
 /// Images that have never been judged (score_label IS NULL), oldest first.
-fn list_missing_score_images_db(
+///
+/// `pub(crate)` so the backfill job can page through the same list the
+/// one-shot command uses.
+pub(crate) fn list_missing_score_images_db(
     conn: &Connection,
     limit: i64,
 ) -> Result<Vec<(String, String, Option<String>)>, rusqlite::Error> {

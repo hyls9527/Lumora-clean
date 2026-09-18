@@ -280,6 +280,26 @@
     "crashNone": "No crashes recorded in this run",
     "crashSome": "{count} exceptions recorded in this run"
   },
+  "jobs": {
+    "cancel": "Cancel",
+    "cancelling": "Cancelling…",
+    "progress": "{processed} / {total}",
+    "progressUnknown": "{processed} processed",
+    "state": {
+      "running": "Running",
+      "completed": "Done",
+      "cancelled": "Cancelled",
+      "failed": "Failed"
+    },
+    "kind": {
+      "embed_missing": "Text index",
+      "embed_clip_missing": "Visual index",
+      "score_missing": "Aesthetic review",
+      "export": "Export",
+      "convert": "Convert",
+      "import": "Import"
+    }
+  },
   "dashboard": {
     "overview": "Overview",
     "loadError": "Failed to load",

@@ -491,7 +491,10 @@ pub fn upsert_clip_embedding(
 
 /// Record a failed CLIP embedding so it is excluded from the missing list
 /// and shows up as `error` in the stats instead of being retried forever.
-fn mark_clip_error(conn: &Connection, image_id: &str) -> Result<(), rusqlite::Error> {
+///
+/// `pub(crate)` because the cancellation-aware backfill job drives the same
+/// bookkeeping as the one-shot command.
+pub(crate) fn mark_clip_error(conn: &Connection, image_id: &str) -> Result<(), rusqlite::Error> {
     conn.execute(
         "INSERT OR REPLACE INTO clip_embeddings (image_id, embedding, dimensions, status, generated_at)
          VALUES (?1, X'', 512, 'error', datetime('now'))",

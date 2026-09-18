@@ -4,6 +4,7 @@
  */
 
 import { invoke } from '../tauri';
+import { startScoreMissingJob } from './jobs';
 
 export interface ScoreMissingResult {
   processed: number;
@@ -64,27 +65,23 @@ export async function getBestScoredRecent(
 }
 
 export interface ScoreBackfillResult {
-  processed: number;
-  remaining: number;
+  /** Id of the job now doing the work. */
+  jobId: number;
+  /** False when an identical backfill was already running. */
+  isNew: boolean;
 }
 
 /**
- * Backfill judgments for every unscored image, in batches.
- * Stops when nothing is left or when the engine is unavailable (processed 0
- * while remaining > 0 would otherwise spin forever).
+ * Start the aesthetic-scoring backfill as a backend job.
+ *
+ * This used to loop here, which meant the user could not stop it and lost the
+ * rest of the work by navigating away. The loop — including the stalled-engine
+ * guard — now lives in `src-tauri/src/commands/job_commands.rs`, so progress is
+ * observable and Cancel works.
  */
-export async function scoreBackfill(
-  limit = 50,
-): Promise<ScoreBackfillResult> {
-  let processed = 0;
-  let remaining = 0;
-  for (;;) {
-    const result = await scoreMissing(limit);
-    processed += result.processed;
-    remaining = result.remaining;
-    if (remaining === 0 || result.processed === 0) break;
-  }
-  return { processed, remaining };
+export async function scoreBackfill(): Promise<ScoreBackfillResult> {
+  const started = await startScoreMissingJob();
+  return { jobId: started.id, isNew: started.isNew };
 }
 
 export interface ScoreCurationSummary {
