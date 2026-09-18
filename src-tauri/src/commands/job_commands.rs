@@ -251,54 +251,88 @@ pub async fn job_start_embed_clip_missing(
     let worker = handle.clone();
     tauri::async_runtime::spawn(async move {
         crate::jobs::run_job_async(&worker, |h| async move {
-            let mut done: u64 = 0;
-            let mut failed: u64 = 0;
-            loop {
-                if h.is_cancelled() {
-                    return Ok(());
-                }
-                let batch = {
+            backfill_clip_embeddings(
+                &h,
+                || {
                     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-                    crate::commands::embeddings::list_missing_clip_db(&conn, BACKFILL_BATCH)?
-                };
-                if batch.is_empty() {
-                    h.set_message(format!("视觉索引补齐完成，共处理 {done} 张"));
-                    return Ok(());
-                }
-                let paths: Vec<String> = batch.iter().map(|(_, p)| p.clone()).collect();
-                // CLIP inference is CPU-bound; keep it off the async executor.
-                let embeddings = match tauri::async_runtime::spawn_blocking(move || {
-                    crate::commands::clip::clip_embed_images(&paths)
-                })
-                .await
-                {
-                    Ok(Ok(v)) => v,
-                    Ok(Err(e)) => return Err(e),
-                    Err(e) => return Err(AppError::External(format!("CLIP 任务失败: {e}"))),
-                };
-                for ((image_id, _), embedding) in batch.iter().zip(embeddings) {
-                    if h.is_cancelled() {
-                        return Ok(());
+                    Ok(crate::commands::embeddings::list_missing_clip_db(
+                        &conn,
+                        BACKFILL_BATCH,
+                    )?)
+                },
+                |paths| async move {
+                    // CLIP inference is CPU-bound; keep it off the async executor.
+                    match tauri::async_runtime::spawn_blocking(move || {
+                        crate::commands::clip::clip_embed_images(&paths)
+                    })
+                    .await
+                    {
+                        Ok(inner) => inner,
+                        Err(e) => Err(AppError::External(format!("CLIP 任务失败: {e}"))),
                     }
+                },
+                |image_id, embedding| {
                     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
                     match embedding {
                         Some(vec) => crate::commands::embeddings::upsert_clip_embedding(
-                            &conn, image_id, &vec,
+                            &conn, image_id, vec,
                         )?,
-                        None => {
-                            crate::commands::embeddings::mark_clip_error(&conn, image_id)?;
-                            failed += 1;
-                        }
+                        None => crate::commands::embeddings::mark_clip_error(&conn, image_id)?,
                     }
-                    drop(conn);
-                    done += 1;
-                    h.set_progress(done, failed);
-                }
-            }
+                    Ok(())
+                },
+            )
+            .await
         })
         .await;
     });
     Ok(started_result(&handle, true))
+}
+
+/// The CLIP backfill loop, with its three I/O steps injected.
+///
+/// Split out for the same reason as the text backfill: the loop's checkpoints,
+/// per-item failure accounting (`None` means "could not embed this one") and final
+/// message are the behaviour worth testing, and none of it needs a live sidecar.
+async fn backfill_clip_embeddings<L, E, Ef, S>(
+    handle: &JobHandle,
+    mut list_batch: L,
+    embed_batch: E,
+    mut store: S,
+) -> AppResult<()>
+where
+    L: FnMut() -> AppResult<Vec<(String, String)>>,
+    E: Fn(Vec<String>) -> Ef,
+    Ef: std::future::Future<Output = AppResult<Vec<Option<Vec<f64>>>>>,
+    S: FnMut(&str, Option<&Vec<f64>>) -> AppResult<()>,
+{
+    let mut done: u64 = 0;
+    let mut failed: u64 = 0;
+    loop {
+        if handle.is_cancelled() {
+            return Ok(());
+        }
+        let batch = list_batch()?;
+        if batch.is_empty() {
+            handle.set_message(format!("视觉索引补齐完成，共处理 {done} 张"));
+            return Ok(());
+        }
+        let paths: Vec<String> = batch.iter().map(|(_, p)| p.clone()).collect();
+        let embeddings = embed_batch(paths).await?;
+        for ((image_id, _), embedding) in batch.iter().zip(embeddings) {
+            if handle.is_cancelled() {
+                return Ok(());
+            }
+            // A `None` entry is a real outcome (unreadable image), not an error:
+            // it is recorded as `error` so it is not retried forever.
+            if embedding.is_none() {
+                failed += 1;
+            }
+            store(image_id, embedding.as_ref())?;
+            done += 1;
+            handle.set_progress(done, failed);
+        }
+    }
 }
 
 /// Start (or join) the aesthetic-scoring backfill job.
@@ -324,52 +358,89 @@ pub async fn job_start_score_missing(
     let worker = handle.clone();
     tauri::async_runtime::spawn(async move {
         crate::jobs::run_job_async(&worker, |h| async move {
-            let mut done: u64 = 0;
-            let mut failed: u64 = 0;
-            loop {
-                if h.is_cancelled() {
-                    return Ok(());
-                }
-                let batch = {
+            backfill_scores(
+                &h,
+                || {
                     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-                    crate::commands::aesthetic::list_missing_score_images_db(&conn, SCORE_BATCH)?
-                };
-                if batch.is_empty() {
-                    h.set_message(format!("审美评审完成，共处理 {done} 张"));
-                    return Ok(());
-                }
-                let items: Vec<(String, String)> = batch
-                    .iter()
-                    .map(|(_, path, prompt)| (path.clone(), prompt.clone().unwrap_or_default()))
-                    .collect();
-                let scored = match tauri::async_runtime::spawn_blocking(move || {
-                    crate::commands::aesthetic::score_images(&items)
-                })
-                .await
-                {
-                    Ok(Ok(v)) => v,
-                    Ok(Err(e)) => return Err(e),
-                    Err(e) => return Err(AppError::External(format!("审美评审任务失败: {e}"))),
-                };
-                for ((image_id, _, _), response) in batch.iter().zip(scored) {
-                    if h.is_cancelled() {
-                        return Ok(());
+                    Ok(crate::commands::aesthetic::list_missing_score_images_db(
+                        &conn,
+                        SCORE_BATCH,
+                    )?)
+                },
+                |items| async move {
+                    // The sidecar blocks for tens of seconds; keep it off the executor.
+                    match tauri::async_runtime::spawn_blocking(move || {
+                        crate::commands::aesthetic::score_images(&items)
+                    })
+                    .await
+                    {
+                        Ok(inner) => inner,
+                        Err(e) => Err(AppError::External(format!("审美评审任务失败: {e}"))),
                     }
-                    let usable = response.aesthetic_score.is_some() || response.hps_score.is_some();
+                },
+                |image_id, response| {
                     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-                    crate::commands::aesthetic::save_score(&conn, image_id, &response)?;
-                    drop(conn);
-                    done += 1;
-                    if !usable {
-                        failed += 1;
-                    }
-                    h.set_progress(done, failed);
-                }
-            }
+                    crate::commands::aesthetic::save_score(&conn, image_id, response)?;
+                    Ok(())
+                },
+            )
+            .await
         })
         .await;
     });
     Ok(started_result(&handle, true))
+}
+
+/// The aesthetic-scoring backfill loop, with its three I/O steps injected.
+///
+/// The sidecar scores a whole batch per process (the model loads once), so a
+/// cancel lands at a batch boundary; what this function owns is the boundary
+/// check and the distinction between "scored" and "no usable score".
+async fn backfill_scores<L, S2, Sf, Store>(
+    handle: &JobHandle,
+    mut list_batch: L,
+    score_batch: S2,
+    mut store: Store,
+) -> AppResult<()>
+where
+    L: FnMut() -> AppResult<Vec<(String, String, Option<String>)>>,
+    S2: Fn(Vec<(String, String)>) -> Sf,
+    Sf: std::future::Future<
+        Output = AppResult<Vec<crate::commands::aesthetic::AestheticScoreResponse>>,
+    >,
+    Store: FnMut(&str, &crate::commands::aesthetic::AestheticScoreResponse) -> AppResult<()>,
+{
+    let mut done: u64 = 0;
+    let mut failed: u64 = 0;
+    loop {
+        if handle.is_cancelled() {
+            return Ok(());
+        }
+        let batch = list_batch()?;
+        if batch.is_empty() {
+            handle.set_message(format!("审美评审完成，共处理 {done} 张"));
+            return Ok(());
+        }
+        let items: Vec<(String, String)> = batch
+            .iter()
+            .map(|(_, path, prompt)| (path.clone(), prompt.clone().unwrap_or_default()))
+            .collect();
+        let scored = score_batch(items).await?;
+        for ((image_id, _, _), response) in batch.iter().zip(scored) {
+            if handle.is_cancelled() {
+                return Ok(());
+            }
+            // An engine that returns no score leaves the image unscored (it is
+            // retried next run); that is a failure to count, not a crash.
+            let usable = response.aesthetic_score.is_some() || response.hps_score.is_some();
+            store(image_id, &response)?;
+            done += 1;
+            if !usable {
+                failed += 1;
+            }
+            handle.set_progress(done, failed);
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -989,6 +1060,178 @@ mod tests {
         .unwrap();
 
         assert!(!listed, "a cancelled job must not even read a batch");
+    }
+
+    /// The CLIP backfill loop with faked I/O. `None` from the batch embedder means
+    /// "this image could not be embedded" and must be counted as a failure while the
+    /// rest of the batch still lands.
+    #[test]
+    fn backfill_clip_embeddings_counts_failures_and_keeps_going() {
+        let registry = JobRegistry::new();
+        let (handle, _) = start_with_total(&registry, JobKind::EmbedClipMissing, || Ok(3)).unwrap();
+        handle.mark_running();
+        let mut rounds: Vec<AppResult<Vec<(String, String)>>> = vec![
+            Ok(vec![
+                ("img-0".to_string(), "/a.png".to_string()),
+                ("img-1".to_string(), "/b.png".to_string()),
+                ("img-2".to_string(), "/c.png".to_string()),
+            ]),
+            Ok(vec![]),
+        ];
+        let stored = std::cell::RefCell::new(Vec::new());
+
+        block_on(backfill_clip_embeddings(
+            &handle,
+            || rounds.remove(0),
+            |paths| async move {
+                // Middle image is unreadable, like a corrupt file.
+                Ok(paths
+                    .iter()
+                    .map(|p| {
+                        if p.contains('b') {
+                            None
+                        } else {
+                            Some(vec![1.0, 2.0])
+                        }
+                    })
+                    .collect())
+            },
+            |image_id, embedding| {
+                stored
+                    .borrow_mut()
+                    .push((image_id.to_string(), embedding.is_some()));
+                Ok(())
+            },
+        ))
+        .unwrap();
+
+        let s = registry.status(handle.id()).unwrap();
+        assert_eq!(s.processed, 3, "all three were attempted");
+        assert_eq!(s.failed, 1, "only the unreadable one counts as failed");
+        assert!(s
+            .message
+            .as_deref()
+            .unwrap_or("")
+            .contains("视觉索引补齐完成"));
+        let stored = stored.into_inner();
+        assert_eq!(stored[1], ("img-1".to_string(), false));
+    }
+
+    #[test]
+    fn backfill_clip_embeddings_stops_when_cancelled() {
+        let registry = JobRegistry::new();
+        let (handle, _) = start_with_total(&registry, JobKind::EmbedClipMissing, || Ok(2)).unwrap();
+        handle.mark_running();
+        let canceller = handle.clone();
+        let seen = std::cell::Cell::new(0u32);
+
+        block_on(backfill_clip_embeddings(
+            &handle,
+            || {
+                Ok(vec![
+                    ("img-0".to_string(), "/a.png".to_string()),
+                    ("img-1".to_string(), "/b.png".to_string()),
+                ])
+            },
+            |_| async move { Ok(vec![Some(vec![0.0]), Some(vec![0.0])]) },
+            |_, _| {
+                seen.set(seen.get() + 1);
+                canceller.request_cancel_for_test();
+                Ok(())
+            },
+        ))
+        .unwrap();
+
+        assert_eq!(seen.get(), 1, "must stop before the second item");
+        assert_eq!(registry.status(handle.id()).unwrap().processed, 1);
+    }
+
+    /// Rows the scoring batch lister yields: (id, path, prompt).
+    type ScoreRow = (String, String, Option<String>);
+
+    /// The scoring loop: one sidecar call per batch, and a response with no usable
+    /// score counts as a failure while still being persisted.
+    #[test]
+    fn backfill_scores_persists_every_response_and_counts_unusable_ones() {
+        let registry = JobRegistry::new();
+        let (handle, _) = start_with_total(&registry, JobKind::ScoreMissing, || Ok(2)).unwrap();
+        handle.mark_running();
+        let mut rounds: Vec<AppResult<Vec<ScoreRow>>> = vec![
+            Ok(vec![
+                (
+                    "img-0".to_string(),
+                    "/a.png".to_string(),
+                    Some("a cat".to_string()),
+                ),
+                ("img-1".to_string(), "/b.png".to_string(), None),
+            ]),
+            Ok(vec![]),
+        ];
+        let saved = std::cell::RefCell::new(Vec::new());
+
+        block_on(backfill_scores(
+            &handle,
+            || rounds.remove(0),
+            |items| async move {
+                // First scores, second comes back empty (engine had nothing to say).
+                Ok(items
+                    .into_iter()
+                    .enumerate()
+                    .map(
+                        |(i, _)| crate::commands::aesthetic::AestheticScoreResponse {
+                            aesthetic_score: if i == 0 { Some(8.5) } else { None },
+                            ..Default::default()
+                        },
+                    )
+                    .collect())
+            },
+            |image_id, _| {
+                saved.borrow_mut().push(image_id.to_string());
+                Ok(())
+            },
+        ))
+        .unwrap();
+
+        let s = registry.status(handle.id()).unwrap();
+        assert_eq!(s.processed, 2);
+        assert_eq!(s.failed, 1, "the unusable score is counted, not dropped");
+        // Both were persisted: an unscored image must still be recorded so the
+        // next run does not re-ask the same question forever.
+        assert_eq!(saved.into_inner().len(), 2);
+        assert!(s.message.as_deref().unwrap_or("").contains("审美评审完成"));
+    }
+
+    #[test]
+    fn backfill_scores_stops_when_cancelled() {
+        let registry = JobRegistry::new();
+        let (handle, _) = start_with_total(&registry, JobKind::ScoreMissing, || Ok(2)).unwrap();
+        handle.mark_running();
+        let canceller = handle.clone();
+        let seen = std::cell::Cell::new(0u32);
+
+        block_on(backfill_scores(
+            &handle,
+            || {
+                Ok(vec![
+                    ("img-0".to_string(), "/a.png".to_string(), None),
+                    ("img-1".to_string(), "/b.png".to_string(), None),
+                ])
+            },
+            |items| async move {
+                Ok(items
+                    .into_iter()
+                    .map(|_| crate::commands::aesthetic::AestheticScoreResponse::default())
+                    .collect())
+            },
+            |_, _| {
+                seen.set(seen.get() + 1);
+                canceller.request_cancel_for_test();
+                Ok(())
+            },
+        ))
+        .unwrap();
+
+        assert_eq!(seen.get(), 1);
     }
 
     #[test]
