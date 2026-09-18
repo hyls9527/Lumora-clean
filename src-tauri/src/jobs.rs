@@ -248,6 +248,16 @@ impl JobHandle {
         }
     }
 
+    /// Set the cancel flag directly.
+    ///
+    /// The registry's `cancel` is the production path; this seam exists so tests
+    /// can model "the user cancelled while the worker held the handle" without
+    /// also holding the registry the worker needs.
+    #[cfg(test)]
+    pub fn request_cancel_for_test(&self) {
+        self.cancelled.store(true, Ordering::Relaxed);
+    }
+
     /// Borrow the registry-side status described by this handle.
     pub fn status(&self) -> JobStatus {
         let inner = self.slot.inner.lock().unwrap_or_else(|e| e.into_inner());

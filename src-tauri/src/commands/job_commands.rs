@@ -152,48 +152,82 @@ pub async fn job_start_embed_missing(
     let worker = handle.clone();
     tauri::async_runtime::spawn(async move {
         crate::jobs::run_job_async(&worker, |h| async move {
-            let mut done: u64 = 0;
-            loop {
-                if h.is_cancelled() {
-                    return Ok(());
-                }
-                let batch = {
+            backfill_embeddings(
+                &h,
+                || {
                     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-                    crate::commands::embeddings::list_missing_embedding_images_db(
-                        &conn,
-                        BACKFILL_BATCH,
-                    )?
-                };
-                if batch.is_empty() {
-                    h.set_message(format!("全部完成，共处理 {done} 张"));
-                    return Ok(());
-                }
-                let mut progressed = 0u64;
-                for (image_id, description) in batch {
-                    if h.is_cancelled() {
-                        return Ok(());
-                    }
-                    let embedding =
-                        crate::provider::embed_text(&app, &cfg, &description, None).await?;
+                    Ok(
+                        crate::commands::embeddings::list_missing_embedding_images_db(
+                            &conn,
+                            BACKFILL_BATCH,
+                        )?,
+                    )
+                },
+                |description| {
+                    let app = app.clone();
+                    let cfg = cfg.clone();
+                    async move { crate::provider::embed_text(&app, &cfg, &description, None).await }
+                },
+                |image_id, embedding| {
                     let conn = db.conn().lock().map_err(|_| AppError::Lock)?;
-                    crate::commands::embeddings::upsert_embedding(&conn, &image_id, &embedding)?;
-                    drop(conn);
-                    progressed += 1;
-                    done += 1;
-                    h.set_progress(done, 0);
-                }
-                // A round that advanced nothing would spin forever on the same
-                // batch; stop and say why instead of silently burning CPU.
-                if progressed == 0 {
-                    return Err(AppError::External(
-                        "没有可嵌入的图片（可能嵌入失败）".to_string(),
-                    ));
-                }
-            }
+                    crate::commands::embeddings::upsert_embedding(&conn, image_id, embedding)?;
+                    Ok(())
+                },
+            )
+            .await
         })
         .await;
     });
     Ok(started_result(&handle, true))
+}
+
+/// The text-embedding backfill loop, with its three I/O steps injected.
+///
+/// Split out from the command so the loop's real behaviour — checkpointing,
+/// progress reporting and the stalled-round guard — can be exercised without a
+/// Tauri app or a live Ollama (neither of which a unit test can construct).
+async fn backfill_embeddings<L, E, Ef, S>(
+    handle: &JobHandle,
+    mut list_batch: L,
+    embed: E,
+    mut store: S,
+) -> AppResult<()>
+where
+    L: FnMut() -> AppResult<Vec<(String, String)>>,
+    E: Fn(String) -> Ef,
+    Ef: std::future::Future<Output = AppResult<Vec<f64>>>,
+    S: FnMut(&str, &[f64]) -> AppResult<()>,
+{
+    let mut done: u64 = 0;
+    loop {
+        // Checkpoint before doing any work for this round.
+        if handle.is_cancelled() {
+            return Ok(());
+        }
+        let batch = list_batch()?;
+        if batch.is_empty() {
+            handle.set_message(format!("全部完成，共处理 {done} 张"));
+            return Ok(());
+        }
+        let mut progressed = 0u64;
+        for (image_id, description) in batch {
+            if handle.is_cancelled() {
+                return Ok(());
+            }
+            let embedding = embed(description).await?;
+            store(&image_id, &embedding)?;
+            progressed += 1;
+            done += 1;
+            handle.set_progress(done, 0);
+        }
+        // A round that advanced nothing would spin forever on the same batch;
+        // stop and say why instead of silently burning CPU.
+        if progressed == 0 {
+            return Err(AppError::External(
+                "没有可嵌入的图片（可能嵌入失败）".to_string(),
+            ));
+        }
+    }
 }
 
 /// Start (or join) the CLIP visual-index backfill job.
@@ -565,6 +599,11 @@ mod tests {
 
     /// Seed a library where `missing_embed` / `missing_clip` images have no row in
     /// the respective embedding table.
+    /// Drive an async worker body without pulling in tokio's `macros` feature.
+    fn block_on<F: std::future::Future>(f: F) -> F::Output {
+        tauri::async_runtime::block_on(f)
+    }
+
     fn seeded_db(missing_embed: usize, missing_clip: usize, total: usize) -> DbHandle {
         let db = DbHandle::open_memory().unwrap();
         {
@@ -824,6 +863,132 @@ mod tests {
         // Unknown ids are answered, not panicked on.
         assert!(status_of(&registry, 404).is_none());
         assert!(!cancel_of(&registry, 404));
+    }
+
+    /// The embed loop, with its I/O faked: this is where checkpointing, progress
+    /// and the stalled-round guard actually live.
+    #[test]
+    fn backfill_embeddings_processes_rounds_and_reports_progress() {
+        let registry = JobRegistry::new();
+        let (handle, _) = start_with_total(&registry, JobKind::EmbedMissing, || Ok(3)).unwrap();
+        let id = handle.id();
+        // Called directly rather than through run_job_async, so the test also owns
+        // the state transition the runner would normally make.
+        handle.mark_running();
+
+        // Two rounds: three items, then empty.
+        let mut rounds: Vec<AppResult<Vec<(String, String)>>> = vec![
+            Ok(vec![
+                ("img-0".to_string(), "a cat".to_string()),
+                ("img-1".to_string(), "a dog".to_string()),
+                ("img-2".to_string(), "a bird".to_string()),
+            ]),
+            Ok(vec![]),
+        ];
+        let stored = std::cell::RefCell::new(Vec::new());
+
+        block_on(backfill_embeddings(
+            &handle,
+            || rounds.remove(0),
+            |description| async move { Ok(vec![description.len() as f64]) },
+            |image_id, embedding| {
+                stored
+                    .borrow_mut()
+                    .push((image_id.to_string(), embedding[0]));
+                Ok(())
+            },
+        ))
+        .unwrap();
+
+        let s = registry.status(id).unwrap();
+        // The worker only reports; turning its return value into a terminal state is
+        // `run_job_async`'s job (covered in jobs.rs). What this test owns is the
+        // progress and the completion message.
+        assert_eq!(s.processed, 3);
+        assert!(
+            s.message.as_deref().unwrap_or("").contains("全部完成"),
+            "a finished backfill must say so: {:?}",
+            s.message
+        );
+        let stored = stored.into_inner();
+        assert_eq!(stored.len(), 3);
+        assert_eq!(stored[0].0, "img-0");
+        assert_eq!(stored[0].1, 5.0, "the stub embeds by description length");
+    }
+
+    /// A cancel must stop the loop at the next checkpoint and keep what is done.
+    #[test]
+    fn backfill_embeddings_stops_at_a_checkpoint_when_cancelled() {
+        let registry = JobRegistry::new();
+        let (handle, _) = start_with_total(&registry, JobKind::EmbedMissing, || Ok(2)).unwrap();
+        let id = handle.id();
+        handle.mark_running();
+        let cancel_on_second = handle.clone();
+        let seen = std::cell::Cell::new(0u32);
+
+        block_on(backfill_embeddings(
+            &handle,
+            || {
+                Ok(vec![
+                    ("img-0".to_string(), "one".to_string()),
+                    ("img-1".to_string(), "two".to_string()),
+                ])
+            },
+            |_| async move { Ok(vec![0.0]) },
+            |_, _| {
+                let n = seen.get() + 1;
+                seen.set(n);
+                if n == 1 {
+                    // The user presses Cancel while the first item is stored.
+                    cancel_on_second.request_cancel_for_test();
+                }
+                Ok(())
+            },
+        ))
+        .unwrap();
+
+        assert_eq!(seen.get(), 1, "the loop must stop before the second item");
+        let s = registry.status(id).unwrap();
+        assert_eq!(s.processed, 1, "the finished item is kept");
+    }
+
+    /// A round where every item failed would otherwise spin forever on the same
+    /// batch; it must surface an error instead.
+    #[test]
+    fn backfill_embeddings_gives_up_when_a_round_advances_nothing() {
+        let registry = JobRegistry::new();
+        let (handle, _) = start_with_total(&registry, JobKind::EmbedMissing, || Ok(1)).unwrap();
+
+        let err = block_on(backfill_embeddings(
+            &handle,
+            || Ok(vec![("img-0".to_string(), "x".to_string())]),
+            |_| async move { Err(AppError::External("ollama offline".into())) },
+            |_, _| Ok(()),
+        ));
+
+        // The error propagates; what matters is that it does NOT loop.
+        assert!(err.is_err());
+    }
+
+    #[test]
+    fn backfill_embeddings_stops_immediately_when_already_cancelled() {
+        let registry = JobRegistry::new();
+        let (handle, _) = start_with_total(&registry, JobKind::EmbedMissing, || Ok(1)).unwrap();
+        assert!(registry.cancel(handle.id()));
+        let mut listed = false;
+
+        block_on(backfill_embeddings(
+            &handle,
+            || {
+                listed = true;
+                Ok(vec![])
+            },
+            |_| async move { Ok(vec![]) },
+            |_, _| Ok(()),
+        ))
+        .unwrap();
+
+        assert!(!listed, "a cancelled job must not even read a batch");
     }
 
     #[test]
