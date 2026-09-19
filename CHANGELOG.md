@@ -2,6 +2,22 @@
 
 All notable changes to Lumora are documented here.
 
+## v0.13.2 (2026-09-19)
+
+这一版修一个让应用**完全不可用**的缺陷。
+
+### Fixed
+- **CSP 阻断了 Tauri IPC，导致整个前端与后端失联**：`connect-src` 里只写了 `ipc:`，但 Tauri v2 的 IPC 实际走 `http://ipc.localhost/<command>`（fetch），该 origin 不在白名单里 → 每一次 invoke 都被 CSP 拦下。表现为图库永远空、任务条不出现，窗口底部一行 `Tauri bridge unavailable: @tauri-apps/api/core failed to load (command: job_list)`（`job_list` 只是启动时第一个被调用的命令，并非它本身有问题）。
+  - **实机证据**（WebView 控制台）：`Connecting to 'http://ipc.localhost/refresh_update_proxy' violates the following Content Security Policy directive ... The action has been blocked`；Tauri 随后尝试回退到 `window.ipc.postMessage` 并抛出 `TypeError: Failed to fetch`，我们的 `invoke` 包装把这一次失败当成「桥接不可用」并缓存下来，于是**整个会话所有命令永久失败**。
+  - **修复后实测**：`ipc.localhost` 请求 16 次全部放行、网络失败 0 次；`get_app_version` 返回 `0.13.1`、`refresh_update_proxy`、`get_dashboard_stats` 均成功。
+- **内联样式被 CSP 全部拦掉**：Tauri 会自动为 `style-src` 注入 nonce，而 CSP 规范规定 nonce 一旦存在就**忽略** `'unsafe-inline'`，于是页面每处内联样式都产生一条违规。已移除 `'unsafe-inline'`（保留 nonce 机制），并为动效所需的 `WebAssembly` 显式加上 `'wasm-unsafe-eval'`。
+
+### Tests
+- Rust 330 / 前端 988 全部通过；`cargo fmt --check`、`cargo clippy -- -D warnings`、`tsc --noEmit` 均 exit 0。
+
+### Notes
+- **这类缺陷不会出现在测试里**：单元测试一律 mock 了 `@tauri-apps/api/core`，而 CSP 只写在 `tauri.conf.json`（不参与前端构建），所以测试、类型检查、CI 可以全绿而应用不可用。本次是靠**实际启动打包后的应用并读取 WebView 控制台**才发现的。
+- **未解决（如实记录）**：在本机「直连 github.com 被阻断、必须走本地代理」的网络下，应用内的更新检查仍会失败（`error sending request for url (https://github.com/.../latest.json)`）。已确认代理本身可用（经代理请求同一 URL 2.1s 返回 200）、系统代理已被读取并写入 `HTTPS_PROXY`，且**在应用进程内**用 native-tls 与 rustls 分别直连同一 URL 也都能返回 200 —— 唯独 `tauri-plugin-updater` 的请求发不出去，根因未定位。因此**请勿认为自动更新在代理网络下已可用**。
 ## v0.13.1 (2026-09-18)
 
 ### Fixed
