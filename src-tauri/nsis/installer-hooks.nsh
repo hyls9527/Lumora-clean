@@ -6,19 +6,35 @@
   nsExec::Exec 'taskkill /f /im "Lumora.exe"'
   Pop $0
 
+  ; WebView2Loader.dll 仍以已加载模块的形式留在内存里（taskkill 已结束宿主进程，
+  ; 但模块引用尚未释放），此时删除安装目录会失败并留下残缺目录。先注销它。
+  ; 走 32 位 SysWOW64 与 64 位 System32 两条路径，覆盖不同 WebView2 发行版；
+  ; pop 掉卸载失败的回显，避免用户看到无关报错。
+  UnRegDLL "$SYSDIR\WebView2Loader.dll"
+  Pop $0
+  ${If} ${RunningX64}
+    ${DisableX64FSRedirection}
+    UnRegDLL "$SYSDIR\WebView2Loader.dll"
+    Pop $0
+    ${EnableX64FSRedirection}
+  ${EndIf}
+
   ; 等待进程退出并释放 WebView2 数据目录句柄
   Sleep 3000
 !macroend
 
 !macro NSIS_HOOK_POSTUNINSTALL
-  ; 卸载完成后清理用户数据，保证零残留
-  ; 先尝试立即删除常见路径
-  RMDir /r "$APPDATA\lumora"
-  RMDir /r "$APPDATA\Lumora"
-  RMDir /r "$APPDATA\com.lumora.app"
+  ; 自愈：无论正常卸载还是被安装器调用做升版卸载，这里都清一次卸载注册项。
+  ; 正常路径下它指向的 uninstall.exe 即将被删、留着也是死链；异常路径下它本身
+  ; 就是让安装器卡在「无法卸载」的孤儿项。新版本的安装会重新写回该键，无副作用。
+  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Lumora"
+  ; 注意：应用数据（%APPDATA%\com.lumora.app）里放着图库数据库 lumora.db、
+  ; backups 与 settings.json。**这里一律不删**：Tauri 的 currentUser 安装模式下
+  ; 「升版」就是「先卸载旧版再装新版」，删数据等于用户每升一次版就被清空一次图库。
+  ; 只清可以重新生成的缓存与日志。
+  RMDir /r "$LOCALAPPDATA\com.lumora.app"
   RMDir /r "$LOCALAPPDATA\lumora"
   RMDir /r "$LOCALAPPDATA\Lumora"
-  RMDir /r "$LOCALAPPDATA\com.lumora.app"
 
   ; 安装目录本身：uninstall.exe 正在运行，启动独立清理脚本等待卸载进程结束后彻底清理。
   ; 不用 enabledelayedexpansion——延迟展开会吞掉路径中的 "!" 字符；
@@ -52,12 +68,11 @@
   FileWrite $0 'goto retry_instdir$\r$\n'
   FileWrite $0 ':done_instdir$\r$\n'
 
+  ; 同样只清缓存/日志，绝不触碰 %APPDATA% 下的图库数据
   FileWrite $0 'set "tries=0"$\r$\n'
   FileWrite $0 ':retry_appdata$\r$\n'
   FileWrite $0 'rmdir /s /q "$LOCALAPPDATA\com.lumora.app" 2>nul$\r$\n'
   FileWrite $0 'rmdir /s /q "$LOCALAPPDATA\Lumora" 2>nul$\r$\n'
-  FileWrite $0 'rmdir /s /q "$APPDATA\com.lumora.app" 2>nul$\r$\n'
-  FileWrite $0 'rmdir /s /q "$APPDATA\Lumora" 2>nul$\r$\n'
   FileWrite $0 'if not exist "$LOCALAPPDATA\com.lumora.app" if not exist "$LOCALAPPDATA\Lumora" goto done_appdata$\r$\n'
   FileWrite $0 'if %tries% geq 10 goto done_appdata$\r$\n'
   FileWrite $0 'ping -n 2 127.0.0.1 >nul$\r$\n'

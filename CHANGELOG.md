@@ -2,6 +2,24 @@
 
 All notable changes to Lumora are documented here.
 
+## v0.13.3 (2026-09-19)
+
+这一版修安装器：**卸载不再删除用户图库**。
+
+### Fixed
+- **卸载/升级会删掉整个图库（数据丢失）**：`installer-hooks.nsh` 的 `POSTUNINSTALL` 在清理用户数据时无条件执行 `RMDir /r "$APPDATA\com.lumora.app"`，而 `lumora.db`、`backups`、`settings.json` 全在这个目录里。Tauri 的 `installMode: currentUser` 下「升版」就是「先卸载旧版再装新版」，所以**用户每升一次版，图库就被清空一次**。现改为只清可重新生成的缓存与日志（`$LOCALAPPDATA\com.lumora.app`）。
+  - 澄清一点：Tauri 自己删应用数据是**有条件**的（内置的 `DeleteAppDataCheckboxState=1` 且 `UpdateMode<>1`，即用户在卸载界面主动勾选、且非升级场景），所以问题出在我们自己的 hook，不是上游行为。
+- **安装器会永久卡在「无法卸载」，且无法自愈**：安装器以注册表 `UninstallString` 判断「已安装」，随后调用它指向的 `uninstall.exe`。当该文件缺失而注册项仍在（安装被中断、目录被手工删除、或其它程序以同一 `identifier` 写过该键）时，调用必然失败，用户只能自己去改注册表。现于 `POSTUNINSTALL` 主动清除该注册项，并在 `PREUNINSTALL` 注销 `WebView2Loader.dll` 以释放安装目录的文件锁。
+
+### Tests
+- 本次是**安装/卸载往返实测**，不是单元测试：静默安装（全新 / 升版覆盖 / 孤儿状态自愈，三次 exit 0）→ 静默卸载，逐项核对状态。
+  - 卸载后：安装目录已删、注册项已删（不再留孤儿）、`%TEMP%` 无清理脚本残留。
+  - 卸载后**保留**：`lumora.db`、`backups/`、`settings.json`、以及测试写入的哨兵文件。
+  - 缓存目录 `$LOCALAPPDATA\com.lumora.app` 按预期清除。
+- 回归：Rust 330 / 前端 988 全部通过，`cargo fmt --check`、`clippy -D warnings`、`tsc --noEmit` 均 exit 0。
+
+### Notes
+- **升级前务必确认图库有备份**：本修复只保证「从此以后」不再删；如果你的图库在更早的版本里被卸载流程清过，当时的数据无法追回。
 ## v0.13.2 (2026-09-19)
 
 这一版修一个让应用**完全不可用**的缺陷。
